@@ -76,6 +76,10 @@ Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a
 
 `.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`. The site is served under `/tea-ecosystem/` (`.env.production`); the build copies `index.html` to `404.html` so a deep link opens the app.
 
+## Contributing
+
+Corrections and new entries are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md) for how to report one and how to pick up an issue.
+
 ## License
 
 MIT
