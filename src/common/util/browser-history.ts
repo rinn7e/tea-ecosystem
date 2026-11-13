@@ -39,9 +39,13 @@ const sameUrl = (path: string, href: string): boolean =>
 // when the traversal lands, before the screen of that entry is drawn, so a
 // long catalog came back clamped to the height of the short page it replaced.
 // Each entry keeps its own `scrollY` in its state, saved by `Link` at the
-// click (`saveScrollOfEntry`), and read after the next paint once the app
-// lands on it. Not in the URL commands: they run after the next screen is
-// drawn, when the scroll is already clamped to it.
+// click (`saveScrollOfEntry`) and read when the browser lands on it
+// (`savedScrollOfEntry`, in `UrlChanged`). The step decides where the screen
+// it shows is drawn (`Model.scroll`), and the app scrolls there after React
+// has drawn that screen and before the browser paints it (`useScrollOf`), so
+// the first frame of a list is already at its place. Not in the URL
+// commands: they run before the next screen is drawn, when the page still
+// has the height of the one it replaces.
 
 type ScrollState = { readonly scrollY: number }
 
@@ -58,34 +62,17 @@ export const saveScrollOfEntry = (): void => {
   window.history.replaceState(state, '')
 }
 
-// Runs `effect` once the browser has painted what the step drew: two
-// animation frames, or 100 ms where frames do not run (a hidden tab)
-const afterNextPaint = (effect: () => void): void => {
-  const run = { done: false }
-  const once = () => {
-    if (!run.done) {
-      run.done = true
-      effect()
-    }
-  }
-  requestAnimationFrame(() => requestAnimationFrame(once))
-  setTimeout(once, 100)
+// The scroll saved in the history entry shown, 0 when it has none (an entry
+// the app pushed and never left by a link)
+export const savedScrollOfEntry = (): number => {
+  const state: unknown = window.history.state
+  return isScrollState(state) ? state.scrollY : 0
 }
 
 // Once at boot: the app restores the scroll itself
 export const manualScrollRestorationCmd = (): Cmd<{ _tag: 'NoOp' }> =>
   cmdSucceed(() => {
     window.history.scrollRestoration = 'manual'
-  })
-
-// After landing on a history entry (the browser's back or forward, or the
-// app's own back): its saved scroll, once its screen is drawn
-export const restoreScrollCmd = (): Cmd<{ _tag: 'NoOp' }> =>
-  cmdSucceed(() => {
-    afterNextPaint(() => {
-      const state: unknown = window.history.state
-      window.scrollTo({ top: isScrollState(state) ? state.scrollY : 0 })
-    })
   })
 
 // URL writes
@@ -110,9 +97,10 @@ export const replaceUrlCmd = (url: string): Cmd<{ _tag: 'NoOp' }> =>
 // browser goes back to it, so the in-app back and the browser's back are
 // the same step and the page closed is not pushed over the one it covered.
 // Its landing comes back as `UrlChanged` to the destination already shown,
-// which restores the scroll of the catalog. Otherwise (the page was opened
-// from a shared link, or the browser has no Navigation API) it pushes, as
-// any move, at the top. Read when the write runs, not in the step.
+// which changes nothing: the step drew the list at its scroll already.
+// Otherwise (the page was opened from a shared link, or the browser has no
+// Navigation API) it pushes, as any move. Read when the write runs, not in
+// the step.
 export const backOrPushUrlCmd = (url: string): Cmd<{ _tag: 'NoOp' }> =>
   cmdSucceed(() => {
     const below = entryBelowUrl()
@@ -120,6 +108,5 @@ export const backOrPushUrlCmd = (url: string): Cmd<{ _tag: 'NoOp' }> =>
       window.history.back()
     } else {
       window.history.pushState(null, '', url)
-      window.scrollTo({ top: 0 })
     }
   })

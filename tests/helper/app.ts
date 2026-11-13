@@ -8,7 +8,10 @@ export const bootOn = (path: string): Model =>
 
 export const navigate = (model: Model, destination: Destination): Model =>
   update(
-    { _tag: 'NavigationMsg', subMsg: { _tag: 'Navigate', destination } },
+    {
+      _tag: 'NavigationMsg',
+      subMsg: { _tag: 'Navigate', destination, scrollY: 0 },
+    },
     model,
   )[0]
 

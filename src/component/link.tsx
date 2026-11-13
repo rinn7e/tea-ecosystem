@@ -39,7 +39,7 @@ export const Link = ({
       saveScrollOfEntry()
       setGlobalMsg({
         _tag: 'NavigationMsg',
-        subMsg: { _tag: 'Navigate', destination },
+        subMsg: { _tag: 'Navigate', destination, scrollY: window.scrollY },
       })
     }
   }

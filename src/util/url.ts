@@ -10,7 +10,12 @@ import {
   parseDestination,
   toUrlString,
 } from '@/common/type/destination'
-import { backOrPushUrlCmd, pushUrlCmd, replaceUrlCmd } from '@/common/util'
+import {
+  backOrPushUrlCmd,
+  pushUrlCmd,
+  replaceUrlCmd,
+  savedScrollOfEntry,
+} from '@/common/util'
 import { type Model, type Msg } from '@/type'
 
 import { destinationOf } from './destination'
@@ -101,12 +106,15 @@ export const bootDestinationOf = (
   location: Pick<Location, 'href'>,
 ): Destination => parseDestination(location.href)
 
-// The browser's back or forward landed on `location`: opened as a move
+// The browser's back or forward landed on `location`: opened as a move,
+// with the scroll saved in the entry it landed on (already the state of
+// the history when `popstate` fires)
 export const urlChangedMsg = (location: Pick<Location, 'href'>): Msg => ({
   _tag: 'NavigationMsg',
   subMsg: {
     _tag: 'UrlChanged',
     destination: parseDestination(location.href),
+    scrollY: savedScrollOfEntry(),
   },
 })
 

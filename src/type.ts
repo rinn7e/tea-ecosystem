@@ -1,3 +1,4 @@
+import { type ListKind } from '@/common/data/catalog'
 import { type Brand } from '@/common/type/brand-wrapper'
 import {
   type Destination,
@@ -70,6 +71,12 @@ export type Model = {
   tooltip: Tooltip.Model
   // The floating button back to the top, over every screen
   backToTop: BackToTop.Model
+  // The scroll each list was left at by a link, where the step back down
+  // onto it draws it
+  listScrollY: Record<ListKind, number>
+  // Where the screen shown is drawn: set by every move, and scrolled to
+  // once per `seq`, before the browser paints the screen (`useScrollOf`)
+  scroll: { seq: number; top: number }
 }
 
 export type Msg =

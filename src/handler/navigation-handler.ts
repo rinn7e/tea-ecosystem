@@ -3,13 +3,13 @@ import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { Cmd } from 'tea-cup-fp'
 
-import { frameworkById } from '@/common/data/catalog'
+import { type ListKind, frameworkById } from '@/common/data/catalog'
 import {
   type Destination,
   DestinationEq,
   type NavigationMsg,
+  type Screen,
 } from '@/common/type/destination'
-import { restoreScrollCmd, scrollToTopCmd } from '@/common/util'
 import * as Listing from '@/component/listing'
 import * as Tooltip from '@/component/tooltip'
 import * as BuildScreen from '@/screen/build-screen'
@@ -28,12 +28,13 @@ export type Lists = Pick<Model, 'catalog' | 'adjacent'>
 // The screen model of `destination`, the one place a move opens a screen.
 // A list is opened with the destination's filter when the destination is
 // that list, and kept as it is under any other screen. The overlays over
-// every screen (the tooltip, the button back to the top) stay as they are.
+// every screen (the tooltip, the button back to the top) stay as they are,
+// and so does the scroll, which the move sets.
 // Review: called only by `navigationMsgHandler` and the boot.
 export const openDestination = (
   destination: Destination,
   lists: Lists,
-): Omit<Model, 'tooltip' | 'backToTop'> => {
+): Omit<Model, 'tooltip' | 'backToTop' | 'listScrollY' | 'scroll'> => {
   const { screen } = destination
   const screenModel = ((): ScreenModel => {
     switch (screen._tag) {
@@ -105,42 +106,78 @@ export const setTitleCmd = (model: Model): Cmd<Msg> =>
     document.title = titleOf(model)
   })
 
+// The list a screen is, if it is one
+const listKindOf = (screen: Screen): O.Option<ListKind> => {
+  switch (screen._tag) {
+    case 'CatalogScreen':
+      return O.some('catalog')
+    case 'AdjacentScreen':
+      return O.some('adjacent')
+    case 'FrameworkScreen':
+    case 'RubricScreen':
+    case 'AboutScreen':
+    case 'BuildScreen':
+    case 'NotFoundScreen':
+      return O.none
+  }
+}
+
 // Every move of the app. The URL follows the destination after the step
-// (`withUrl`), so nothing here writes it. A landing on a history entry
-// (`UrlChanged`: the browser's back or forward, or the app's own back)
-// restores the scroll saved in that entry; to the destination already
-// shown it changes nothing else (the landing of `backOrPushUrlCmd`). A move
-// forward in the app starts at the top of the page; a step down the stack
-// waits for its landing, which restores the scroll.
+// (`withUrl`), so nothing here writes it. Each move also says where its
+// screen is drawn (`Model.scroll`): a landing on a history entry (the
+// browser's back or forward) at the scroll saved in that entry, a step down
+// the stack (an entry page closed onto its list) at the scroll the list was
+// left at, any other move at the top. A link that leaves a list keeps its
+// scroll for that step down. The landing of the app's own back
+// (`backOrPushUrlCmd`) comes to the destination already shown and changes
+// nothing: the step drew the list at its place already.
 export const navigationMsgHandler = (
   subMsg: NavigationMsg,
   model: Model,
 ): [Model, Cmd<Msg>] => {
   const prevDestination = destinationOf(model)
-  const isLanding = subMsg._tag === 'UrlChanged'
-  const restoreCmd = restoreScrollCmd().map((noOp): Msg => noOp)
-  if (isLanding && DestinationEq.equals(prevDestination, subMsg.destination)) {
-    return [model, restoreCmd]
+  if (
+    subMsg._tag === 'UrlChanged' &&
+    DestinationEq.equals(prevDestination, subMsg.destination)
+  ) {
+    return [model, Cmd.none()]
   } else {
+    const listScrollY: Model['listScrollY'] =
+      subMsg._tag === 'Navigate'
+        ? pipe(
+            listKindOf(prevDestination.screen),
+            O.fold(
+              () => model.listScrollY,
+              (kind) => ({ ...model.listScrollY, [kind]: subMsg.scrollY }),
+            ),
+          )
+        : model.listScrollY
     // A move closes any tooltip: its trigger goes away with the screen
-    const updatedModel: Model = {
+    const opened: Model = {
       ...openDestination(subMsg.destination, model),
       tooltip: Tooltip.update({ _tag: 'Dismiss' }, model.tooltip)[0],
       // The scroll the move makes shows or hides it
       backToTop: model.backToTop,
+      listScrollY,
+      scroll: model.scroll,
     }
-    const isForward =
-      !isLanding && !isScreenBelow(prevDestination, destinationOf(updatedModel))
-    return [
-      updatedModel,
-      Cmd.batch([
-        setTitleCmd(updatedModel),
-        isLanding
-          ? restoreCmd
-          : isForward
-            ? scrollToTopCmd().map((noOp): Msg => noOp)
-            : Cmd.none(),
-      ]),
-    ]
+    const nextDestination = destinationOf(opened)
+    const top =
+      subMsg._tag === 'UrlChanged'
+        ? subMsg.scrollY
+        : isScreenBelow(prevDestination, nextDestination)
+          ? pipe(
+              listKindOf(nextDestination.screen),
+              O.fold(
+                () => 0,
+                (kind) => listScrollY[kind],
+              ),
+            )
+          : 0
+    const updatedModel: Model = {
+      ...opened,
+      scroll: { seq: model.scroll.seq + 1, top },
+    }
+    return [updatedModel, setTitleCmd(updatedModel)]
   }
 }

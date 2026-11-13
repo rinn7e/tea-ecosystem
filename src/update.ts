@@ -26,6 +26,8 @@ export const init = (location: Pick<Location, 'href'>): [Model, Cmd<Msg>] => {
     }),
     tooltip: Tooltip.init(),
     backToTop: BackToTop.init(),
+    listScrollY: { catalog: 0, adjacent: 0 },
+    scroll: { seq: 0, top: 0 },
   }
   return [
     model,

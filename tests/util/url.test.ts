@@ -24,7 +24,7 @@ describe('urlWriteOf', () => {
     const next = navigate(prev, destination)
     const msg: Msg = {
       _tag: 'NavigationMsg',
-      subMsg: { _tag: 'Navigate', destination },
+      subMsg: { _tag: 'Navigate', destination, scrollY: 0 },
     }
     expect(urlWriteOf(msg, prev, next)).toEqual(
       O.some({ _tag: 'PushUrl', url: '/framework/miso' }),
@@ -37,7 +37,7 @@ describe('urlWriteOf', () => {
     const next = navigate(prev, destination)
     const msg: Msg = {
       _tag: 'NavigationMsg',
-      subMsg: { _tag: 'Navigate', destination },
+      subMsg: { _tag: 'Navigate', destination, scrollY: 0 },
     }
     expect(urlWriteOf(msg, prev, next)).toEqual(
       O.some({ _tag: 'BackOrPushUrl', url: '/' }),
@@ -50,7 +50,7 @@ describe('urlWriteOf', () => {
     const next = navigate(prev, destination)
     const msg: Msg = {
       _tag: 'NavigationMsg',
-      subMsg: { _tag: 'Navigate', destination },
+      subMsg: { _tag: 'Navigate', destination, scrollY: 0 },
     }
     expect(urlWriteOf(msg, prev, next)).toEqual(
       O.some({ _tag: 'PushUrl', url: '/adjacent' }),
@@ -83,7 +83,11 @@ describe('urlWriteOf', () => {
     const next = navigate(prev, destinationOfScreen(catalogScreen()))
     const landing: Msg = {
       _tag: 'NavigationMsg',
-      subMsg: { _tag: 'UrlChanged', destination: destinationOf(next) },
+      subMsg: {
+        _tag: 'UrlChanged',
+        destination: destinationOf(next),
+        scrollY: 0,
+      },
     }
     expect(urlWriteOf(landing, next, step(next, landing))).toEqual(O.none)
   })
@@ -94,7 +98,7 @@ describe('urlWriteOf', () => {
     const next = navigate(prev, destination)
     const msg: Msg = {
       _tag: 'NavigationMsg',
-      subMsg: { _tag: 'Navigate', destination },
+      subMsg: { _tag: 'Navigate', destination, scrollY: 0 },
     }
     expect(urlWriteOf(msg, prev, next)).toEqual(
       O.some({ _tag: 'BackOrPushUrl', url: '/adjacent' }),
