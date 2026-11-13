@@ -1,8 +1,28 @@
-# TEA Ecosystem
+<p align="center">
+  <img src="public/favicon.svg" alt="TEA Ecosystem logo" width="128" height="128">
+</p>
+
+<h1 align="center">TEA Ecosystem</h1>
+
+<p align="center">
+  Every language and framework that implements The Elm Architecture, graded against Elm.
+</p>
+
+<p align="center">
+  <a href="https://github.com/rinn7e/tea-ecosystem/actions/workflows/pages.yml"><img src="https://github.com/rinn7e/tea-ecosystem/actions/workflows/pages.yml/badge.svg" alt="Pages deploy"></a>
+  <a href="https://rinn7e.com/tea-ecosystem/"><img src="https://img.shields.io/badge/open%20the%20site-rinn7e.com-0b7bbe" alt="Open the site"></a>
+  <a href="https://github.com/vankeisb/react-tea-cup"><img src="https://img.shields.io/badge/built%20with-react--tea--cup-0b7bbe" alt="Built with react-tea-cup"></a>
+  <a href="https://github.com/sponsors/rinn7e"><img src="https://img.shields.io/github/sponsors/rinn7e?label=sponsors&logo=githubsponsors&color=db2777" alt="GitHub Sponsors"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/rinn7e/tea-ecosystem" alt="License: MIT"></a>
+</p>
 
 A catalog of The Elm Architecture across languages: every language and framework that implements Model, Msg, update, Cmd and Sub, graded against Elm, so you can compare what each ecosystem has and what could come back to Elm.
 
-![The catalog of TEA Ecosystem in a browser: the title, the language and framework boxes, the language logos, the search and the first row of framework cards](doc/screenshot.png)
+**Open the site: [rinn7e.com/tea-ecosystem](https://rinn7e.com/tea-ecosystem/)**
+
+<p align="center">
+  <img src="doc/screenshot.png" alt="The catalog of TEA Ecosystem in a browser: the title, the language and framework boxes, the language logos, the search and the first row of framework cards">
+</p>
 
 The site has:
 
