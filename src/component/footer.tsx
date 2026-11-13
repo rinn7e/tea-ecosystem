@@ -41,9 +41,10 @@ const statChipView = ({ label }: { label: string }) => (
   </span>
 )
 
-// The foot of every page: what the site is and how big, its pages, where
-// to learn TEA and what the site draws on, then the year, a note that it
-// is a community catalog, and who made it and with what
+// The foot of every page: what the site is and how big, its pages and its
+// source code, where to learn TEA and what the site draws on, then the
+// year, a note that it is a community catalog, and who made it and with
+// what
 export const footerView = ({
   catalogDestination,
   adjacentDestination,
@@ -117,6 +118,10 @@ export const footerView = ({
                   Build your own TEA
                 </Link>
               </li>
+              {externalLinkView({
+                href: 'https://github.com/rinn7e/tea-ecosystem',
+                label: 'Source code',
+              })}
             </ul>
           </nav>
 

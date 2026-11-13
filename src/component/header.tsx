@@ -1,5 +1,6 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
 import {
+  IconBrandGithub,
   IconCirclesRelation,
   IconHammer,
   IconInfoCircle,
@@ -76,7 +77,11 @@ const navLinkView = ({
 // on the catalog, dimmed elsewhere. From another page it opens the catalog
 // as it was left; on the catalog itself it starts it over (no filters,
 // cards, the top of the page); the about page and the guide
-// face it from the left, the adjacent page and the rubric from the right
+// face it from the left, the adjacent page and the rubric from the right.
+//
+// The source code of the site is linked at the end of the right column on
+// a desktop (the right edge of the frame), and pinned to the right edge of
+// the bar on a phone; neither moves the emblem off the axis
 export const headerView = ({
   catalogDestination,
   adjacentDestination,
@@ -86,7 +91,7 @@ export const headerView = ({
   adjacentDestination: Destination
   active: HeaderSection
 }) => (
-  <header className='bg-bar'>
+  <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex h-[64px] w-full max-w-[1080px] items-center justify-center gap-[4px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
         <nav className='hidden justify-end gap-[2px] lg:flex'>
@@ -121,18 +126,32 @@ export const headerView = ({
             TEA Ecosystem
           </span>
         </Link>
-        <nav className='hidden justify-start gap-[2px] lg:flex'>
-          {navLinkView({
-            label: 'TEA-adjacent',
-            destination: adjacentDestination,
-            isActive: active === 'adjacent',
-          })}
-          {navLinkView({
-            label: 'rubric',
-            destination: destinationOfScreen(rubricScreen()),
-            isActive: active === 'rubric',
-          })}
-        </nav>
+        {/* The right column: its links, then the source code at the end of
+            the frame. On a phone the wrapper adds no box (\`contents\`): the
+            links hide and the source code is pinned to the right edge */}
+        <div className='contents lg:flex lg:items-center lg:justify-between'>
+          <nav className='hidden justify-start gap-[2px] lg:flex'>
+            {navLinkView({
+              label: 'TEA-adjacent',
+              destination: adjacentDestination,
+              isActive: active === 'adjacent',
+            })}
+            {navLinkView({
+              label: 'rubric',
+              destination: destinationOfScreen(rubricScreen()),
+              isActive: active === 'rubric',
+            })}
+          </nav>
+          <a
+            href='https://github.com/rinn7e/tea-ecosystem'
+            target='_blank'
+            rel='noreferrer'
+            aria-label='The source code of TEA Ecosystem on GitHub'
+            className='text-bar-ink absolute top-1/2 right-[16px] flex -translate-y-1/2 cursor-pointer p-[6px] opacity-80 transition-opacity hover:opacity-100 lg:static lg:translate-y-0'
+          >
+            <IconBrandGithub size={24} stroke={1.75} aria-hidden />
+          </a>
+        </div>
       </div>
     </div>
   </header>
