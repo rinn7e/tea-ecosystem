@@ -2,9 +2,10 @@ import { IconExternalLink, IconHeartFilled } from '@tabler/icons-react'
 
 import { adjacentEntries, frameworks } from '@/common/data/catalog'
 import {
-  type Destination,
   aboutScreen,
+  adjacentScreen,
   buildScreen,
+  catalogScreen,
   destinationOfScreen,
   rubricScreen,
 } from '@/common/type/destination'
@@ -45,13 +46,7 @@ const statChipView = ({ label }: { label: string }) => (
 // source code, where to learn TEA and what the site draws on, then the
 // year, a note that it is a community catalog, and who made it and with
 // what
-export const footerView = ({
-  catalogDestination,
-  adjacentDestination,
-}: {
-  catalogDestination: Destination
-  adjacentDestination: Destination
-}) => (
+export const footerView = () => (
   <footer className='border-line bg-panel border-t'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex w-full max-w-[1080px] flex-col gap-[32px] py-[40px]'>
@@ -80,7 +75,7 @@ export const footerView = ({
             <ul className='flex flex-col gap-[8px]'>
               <li>
                 <Link
-                  destination={catalogDestination}
+                  destination={destinationOfScreen(catalogScreen())}
                   className={footerLinkClass}
                 >
                   Catalog
@@ -104,7 +99,7 @@ export const footerView = ({
               </li>
               <li>
                 <Link
-                  destination={adjacentDestination}
+                  destination={destinationOfScreen(adjacentScreen())}
                   className={footerLinkClass}
                 >
                   TEA-adjacent

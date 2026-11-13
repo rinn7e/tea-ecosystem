@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   aboutScreen,
   catalogScreen,
+  defaultListingFilter,
   destinationOfScreen,
   frameworkScreen,
 } from '@/common/type/destination'
@@ -11,15 +12,17 @@ import { catalogDestinationOf } from '@/util'
 
 import { bootOn, step } from './helper/app'
 
-// A link click at `scrollY` to the screen of `destination`
+// A link click at `scrollY` to the screen of `destination`; `back` for the
+// link back of an entry page
 const click = (
   model: Model,
   destination: ReturnType<typeof destinationOfScreen>,
   scrollY: number,
+  back = false,
 ): Model =>
   step(model, {
     _tag: 'NavigationMsg',
-    subMsg: { _tag: 'Navigate', destination, scrollY },
+    subMsg: { _tag: 'Navigate', destination, scrollY, back },
   })
 
 const landing = (
@@ -41,14 +44,14 @@ describe('where a move draws its screen', () => {
 
   it('draws the list a page closes onto at the scroll it was left at', () => {
     const onPage = click(bootOn('/'), miso, 1500)
-    const back = click(onPage, catalogDestinationOf(onPage), 300)
+    const back = click(onPage, catalogDestinationOf(onPage), 300, true)
     expect(back.screenModel._tag).toBe('CatalogScreenModel')
     expect(back.scroll).toEqual({ seq: 2, top: 1500 })
   })
 
   it('changes nothing when the app lands on its own back', () => {
     const onPage = click(bootOn('/'), miso, 1500)
-    const back = click(onPage, catalogDestinationOf(onPage), 300)
+    const back = click(onPage, catalogDestinationOf(onPage), 300, true)
     expect(step(back, landing(catalogDestinationOf(back), 1500))).toBe(back)
   })
 
@@ -68,5 +71,28 @@ describe('where a move draws its screen', () => {
     const filtered = bootOn('/?language=Rust')
     const reset = click(filtered, destinationOfScreen(catalogScreen()), 700)
     expect(reset.scroll.top).toBe(0)
+  })
+
+  it('opens the catalog fresh from the logo, after a filtered visit', () => {
+    const filtered = bootOn('/?language=Rust&target=tui')
+    const onPage = click(filtered, miso, 1500)
+    const logo = click(onPage, destinationOfScreen(catalogScreen()), 200)
+    expect(logo.screenModel._tag).toBe('CatalogScreenModel')
+    expect(logo.catalog.filter).toEqual(defaultListingFilter())
+    expect(logo.scroll.top).toBe(0)
+  })
+
+  it('opens it at the top from the logo, even when it was left unfiltered', () => {
+    const onPage = click(bootOn('/'), miso, 1500)
+    const logo = click(onPage, destinationOfScreen(catalogScreen()), 200)
+    expect(logo.scroll.top).toBe(0)
+  })
+
+  it('brings it back filtered from the link back', () => {
+    const filtered = bootOn('/?language=Rust&target=tui')
+    const onPage = click(filtered, miso, 1500)
+    const back = click(onPage, catalogDestinationOf(onPage), 200, true)
+    expect(back.catalog.filter).toEqual(filtered.catalog.filter)
+    expect(back.scroll.top).toBe(1500)
   })
 })

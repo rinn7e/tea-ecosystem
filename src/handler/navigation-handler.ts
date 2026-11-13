@@ -128,10 +128,10 @@ const listKindOf = (screen: Screen): O.Option<ListKind> => {
 // Every move of the app. The URL follows the destination after the step
 // (`withUrl`), so nothing here writes it. Each move also says where its
 // screen is drawn (`Model.scroll`): a landing on a history entry (the
-// browser's back or forward) at the scroll saved in that entry, a step down
-// the stack (an entry page closed onto its list) at the scroll the list was
-// left at, any other move at the top. A link that leaves a list keeps its
-// scroll for that step down. The landing of the app's own back
+// browser's back or forward) at the scroll saved in that entry, a link back
+// (`back`: an entry page closed onto its list) at the scroll the list was
+// left at, any other move at the top, so a list opened from the bars starts
+// fresh. A link that leaves a list keeps its scroll for that link back. The landing of the app's own back
 // (`backOrPushUrlCmd`) comes to the destination already shown and changes
 // nothing: the step drew the list at its place already.
 export const navigationMsgHandler = (
@@ -169,7 +169,7 @@ export const navigationMsgHandler = (
     const top =
       subMsg._tag === 'UrlChanged'
         ? subMsg.scrollY
-        : isScreenBelow(prevDestination, nextDestination)
+        : subMsg.back && isScreenBelow(prevDestination, nextDestination)
           ? pipe(
               listKindOf(nextDestination.screen),
               O.fold(

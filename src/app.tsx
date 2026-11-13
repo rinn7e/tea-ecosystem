@@ -21,11 +21,7 @@ import { FrameworkMemo } from '@/screen/framework-screen/component'
 import { NotFoundMemo } from '@/screen/not-found-screen/component'
 import { RubricMemo } from '@/screen/rubric-screen/component'
 import { type Model, type Msg, type ScreenModel } from '@/type'
-import {
-  adjacentDestinationOf,
-  catalogDestinationOf,
-  listDestinationOf,
-} from '@/util'
+import { listDestinationOf } from '@/util'
 
 const headerSectionOf = (screenModel: ScreenModel): HeaderSection => {
   switch (screenModel._tag) {
@@ -127,11 +123,7 @@ export const App = ({
       <TooltipDispatchContext value={dispatch}>
         {/* On a phone the page leaves room at the bottom for the tab bar */}
         <div className='bg-page text-ink flex min-h-dvh flex-col pb-[60px] lg:pb-0'>
-          {headerView({
-            catalogDestination: catalogDestinationOf(model),
-            adjacentDestination: adjacentDestinationOf(model),
-            active: headerSectionOf(model.screenModel),
-          })}
+          {headerView({ active: headerSectionOf(model.screenModel) })}
           <main className='flex flex-1 justify-center px-[16px] py-[32px] lg:py-[48px]'>
             <div
               className={cn(
@@ -144,15 +136,8 @@ export const App = ({
               {screenView({ model, dispatch })}
             </div>
           </main>
-          {footerView({
-            catalogDestination: catalogDestinationOf(model),
-            adjacentDestination: adjacentDestinationOf(model),
-          })}
-          {bottomNavView({
-            catalogDestination: catalogDestinationOf(model),
-            adjacentDestination: adjacentDestinationOf(model),
-            active: headerSectionOf(model.screenModel),
-          })}
+          {footerView()}
+          {bottomNavView({ active: headerSectionOf(model.screenModel) })}
           {backToTopView({
             model: model.backToTop,
             dispatch: (subMsg) => dispatch({ _tag: 'BackToTopMsg', subMsg }),

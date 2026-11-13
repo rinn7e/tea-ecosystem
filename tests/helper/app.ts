@@ -11,7 +11,7 @@ export const navigate = (model: Model, destination: Destination): Model =>
   update(
     {
       _tag: 'NavigationMsg',
-      subMsg: { _tag: 'Navigate', destination, scrollY: 0 },
+      subMsg: { _tag: 'Navigate', destination, scrollY: 0, back: false },
     },
     model,
   )[0]

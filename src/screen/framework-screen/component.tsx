@@ -136,6 +136,7 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
       <div className='flex items-center justify-between gap-[12px]'>
         <Link
           destination={listDestination}
+          back
           className='text-ink-muted hover:text-accent inline-flex items-center gap-[6px] text-sm'
         >
           <IconArrowLeft size={16} stroke={1.75} />

@@ -7,6 +7,8 @@ import { saveScrollOfEntry } from '@/common/util'
 // Not memoized: `children` is arbitrary JSX, which has no meaningful Eq
 export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   destination: Destination
+  // A link back to the list under the page, which comes back at its scroll
+  back?: boolean
   className?: string
   children: React.ReactNode
 }
@@ -18,6 +20,7 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
 // "Scroll" in `browser-history.ts`).
 export const Link = ({
   destination,
+  back = false,
   className,
   children,
   onClick,
@@ -39,7 +42,12 @@ export const Link = ({
       saveScrollOfEntry()
       setGlobalMsg({
         _tag: 'NavigationMsg',
-        subMsg: { _tag: 'Navigate', destination, scrollY: window.scrollY },
+        subMsg: {
+          _tag: 'Navigate',
+          destination,
+          scrollY: window.scrollY,
+          back,
+        },
       })
     }
   }

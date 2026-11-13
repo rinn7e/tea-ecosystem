@@ -11,6 +11,7 @@ import { LAST_UPDATED } from '@/common/env'
 import {
   type Destination,
   aboutScreen,
+  adjacentScreen,
   buildScreen,
   catalogScreen,
   destinationOfScreen,
@@ -80,23 +81,16 @@ const navLinkView = ({
 //
 // The emblem on the axis is the link to the catalog. The link of the page
 // shown is underlined, but the emblem shows it by its opacity instead: full
-// on the catalog, dimmed elsewhere. From another page it opens the catalog
-// as it was left; on the catalog itself it starts it over (no filters,
-// cards, the top of the page); the about page and the guide
+// on the catalog, dimmed elsewhere. Like every link of the bars and the
+// footer, it opens its list fresh (no filters, cards, the top of the
+// page); only going back (the link back of an entry page, or the back of
+// the browser) shows a list as it was left. The about page and the guide
 // face it from the left, the adjacent page and the rubric from the right.
 //
 // The source code of the site is linked at the end of the right column on
 // a desktop (the right edge of the frame), and pinned to the right edge of
 // the bar on a phone; neither moves the emblem off the axis
-export const headerView = ({
-  catalogDestination,
-  adjacentDestination,
-  active,
-}: {
-  catalogDestination: Destination
-  adjacentDestination: Destination
-  active: HeaderSection
-}) => (
+export const headerView = ({ active }: { active: HeaderSection }) => (
   <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex h-[64px] w-full max-w-[1080px] items-center justify-center gap-[4px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
@@ -113,11 +107,7 @@ export const headerView = ({
           })}
         </nav>
         <Link
-          destination={
-            active === 'catalog'
-              ? destinationOfScreen(catalogScreen())
-              : catalogDestination
-          }
+          destination={destinationOfScreen(catalogScreen())}
           aria-label='TEA Ecosystem, the catalog'
           aria-current={active === 'catalog' ? 'page' : undefined}
           className={cn(
@@ -139,7 +129,7 @@ export const headerView = ({
           <nav className='hidden justify-start gap-[2px] lg:flex'>
             {navLinkView({
               label: 'TEA-adjacent',
-              destination: adjacentDestination,
+              destination: destinationOfScreen(adjacentScreen()),
               isActive: active === 'adjacent',
             })}
             {navLinkView({
@@ -207,15 +197,7 @@ const bottomTabView = ({
 // the top bar in the same order, each an icon over its name, the emblem
 // (the catalog) on the axis. The tab of the page shown is blue with a blue
 // edge on top. Hidden from the `lg` width up, where the top bar has them.
-export const bottomNavView = ({
-  catalogDestination,
-  adjacentDestination,
-  active,
-}: {
-  catalogDestination: Destination
-  adjacentDestination: Destination
-  active: HeaderSection
-}) => (
+export const bottomNavView = ({ active }: { active: HeaderSection }) => (
   <nav
     aria-label='Pages'
     className='border-line bg-panel fixed inset-x-0 bottom-0 z-30 grid h-[60px] grid-cols-5 border-t pb-[env(safe-area-inset-bottom)] lg:hidden'
@@ -235,16 +217,13 @@ export const bottomNavView = ({
     {bottomTabView({
       label: 'catalog',
       icon: emblemView({ size: 22 }),
-      destination:
-        active === 'catalog'
-          ? destinationOfScreen(catalogScreen())
-          : catalogDestination,
+      destination: destinationOfScreen(catalogScreen()),
       isActive: active === 'catalog',
     })}
     {bottomTabView({
       label: 'adjacent',
       icon: <IconCirclesRelation size={22} stroke={1.75} aria-hidden />,
-      destination: adjacentDestination,
+      destination: destinationOfScreen(adjacentScreen()),
       isActive: active === 'adjacent',
     })}
     {bottomTabView({

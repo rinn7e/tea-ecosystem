@@ -244,6 +244,10 @@ export type NavigationMsg =
       readonly _tag: 'Navigate'
       readonly destination: Destination
       readonly scrollY: number
+      // A link back to the list under the page (`Link` with `back`): the
+      // list comes back as it was left, at its scroll. Any other link
+      // opens its screen at the top.
+      readonly back: boolean
     }
   | {
       readonly _tag: 'UrlChanged'
