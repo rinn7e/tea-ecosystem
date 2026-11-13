@@ -26,7 +26,7 @@ Full-page captures of elm-lang.org at 1440 px wide, taken on 2026-11-13. They ar
 
 1. Quiet and plain. White page, black text, one blue. Nothing decorates; space does the work.
 2. One weight. Every text is regular (400), headings too. Hierarchy comes from size and space, never bold. The one exception: the two letters of a monogram tile (an entry with no logo) are semibold (600) and black, so they read as a mark next to the logo tiles.
-3. Flat, with one flourish: a hard offset shadow (no blur) under the important box, like the buttons and code boxes of the home page. Square or nearly square corners.
+3. Flat, with one flourish: a hard offset shadow (no blur), like the buttons of the home page of Elm, used sparingly. A section of text has one box with one shadow (`sectionBoxClass`), its parts split by thin lines inside it (a list with a line under each row, or a grid on the line color, `sectionGridClass`), never a shadow under each part. A list of entries (the cards) and the kind boxes carry it as things to press; the other choices (language logos, filter boxes, layout buttons) show it on hover. Code is one flat grey block (`codeBlockView`). Square or nearly square corners.
 4. Narrow columns. Text never runs wider than about 600 px; a grid of items stays under about 1000 px.
 5. Links are blue text, without underline (the footer is the exception: grey and underlined).
 

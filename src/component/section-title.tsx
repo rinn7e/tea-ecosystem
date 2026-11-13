@@ -8,3 +8,12 @@ export const sectionTitleView = ({ title }: { title: string }) => (
     <span className='bg-line h-px' />
   </div>
 )
+
+// The box of a section: its one offset shadow, so a section reads as one
+// block. Its parts sit inside it, split by lines: a list with a line under
+// each row (`bg-panel`), or a grid whose 1px gaps show the line color of
+// the box under cells of the panel color (`sectionGridClass`).
+export const sectionBoxClass =
+  'border-line offset-shadow overflow-hidden rounded-[3px] border'
+
+export const sectionGridClass = 'bg-line grid gap-px'

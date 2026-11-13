@@ -10,10 +10,20 @@ import {
   shownGrades,
   tierMeaning,
 } from '@/component/framework-view'
-import { sectionTitleView } from '@/component/section-title'
+import {
+  sectionBoxClass,
+  sectionGridClass,
+  sectionTitleView,
+} from '@/component/section-title'
 
+// A row of the lists of grades and concepts: the name on the left, what it
+// means on the right; stacked on a phone
+const rowClass =
+  'border-line flex flex-col items-start gap-[6px] border-b px-[18px] py-[14px] last:border-b-0 lg:grid lg:grid-cols-[120px_1fr] lg:items-center lg:gap-[16px]'
+
+// A tier: one cell of the box of tiers
 const tierCardView = ({ title, rule }: { title: string; rule: string }) => (
-  <div className='border-line bg-panel offset-shadow flex flex-col items-center gap-[8px] rounded-[3px] border px-[18px] py-[18px] text-center'>
+  <div className='bg-panel flex flex-col items-center gap-[8px] px-[18px] py-[18px] text-center'>
     <span className='text-ink text-lg font-normal'>{title}</span>
     <span className='text-ink-muted text-sm text-balance'>{rule}</span>
   </div>
@@ -34,7 +44,7 @@ const RubricComponent = () => (
 
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: 'Tiers' })}
-      <div className='grid grid-cols-1 gap-[12px] lg:grid-cols-3'>
+      <div className={cn(sectionBoxClass, sectionGridClass, 'lg:grid-cols-3')}>
         {tierCardView({
           title: 'Originator',
           rule: tierMeaning('reference'),
@@ -56,19 +66,12 @@ const RubricComponent = () => (
 
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: 'Grades' })}
-      <div className='grid grid-cols-1 gap-[12px] lg:grid-cols-2'>
-        {shownGrades.map((grade, index) => (
-          <div
-            key={grade}
-            className={cn(
-              'border-line bg-panel offset-shadow flex flex-col items-center gap-[8px] rounded-[3px] border px-[16px] py-[16px] text-center',
-              // The odd last card sits on the axis, across both columns
-              index === shownGrades.length - 1 &&
-                shownGrades.length % 2 === 1 &&
-                'lg:col-span-2 lg:w-[calc(50%-6px)] lg:justify-self-center',
-            )}
-          >
-            {gradeBadgeView({ grade })}
+      {/* One list, in the rows of the concepts below: the badge, then what
+          it means */}
+      <div className={cn(sectionBoxClass, 'bg-panel')}>
+        {shownGrades.map((grade) => (
+          <div key={grade} className={rowClass}>
+            <span className='flex'>{gradeBadgeView({ grade })}</span>
             <span className='text-ink-muted text-sm'>
               {gradeMeaning(grade)}
             </span>
@@ -79,12 +82,9 @@ const RubricComponent = () => (
 
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: 'Concepts' })}
-      <div className='border-line bg-panel offset-shadow overflow-hidden rounded-[3px] border'>
+      <div className={cn(sectionBoxClass, 'bg-panel')}>
         {concepts.map((concept) => (
-          <div
-            key={concept}
-            className='border-line flex flex-col gap-[4px] border-b px-[18px] py-[14px] last:border-b-0 lg:grid lg:grid-cols-[120px_1fr] lg:items-baseline lg:gap-[16px]'
-          >
+          <div key={concept} className={rowClass}>
             <span className='text-ink text-sm font-normal'>
               {conceptLabel(concept)}
             </span>

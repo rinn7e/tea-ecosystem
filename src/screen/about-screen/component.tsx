@@ -1,3 +1,4 @@
+import { cn } from '@rinn7e/tea-cup-prelude'
 import { memo } from 'react'
 
 import {
@@ -9,17 +10,21 @@ import {
   rubricScreen,
 } from '@/common/type/destination'
 import { Link } from '@/component/link'
-import { sectionTitleView } from '@/component/section-title'
+import {
+  sectionBoxClass,
+  sectionGridClass,
+  sectionTitleView,
+} from '@/component/section-title'
 
-// What the site is for: three cards of one size, none featured
+// What the site is for: three cells of one size in one box, none featured
 const purposeCardView = ({ title, text }: { title: string; text: string }) => (
-  <div className='border-line bg-panel offset-shadow flex flex-col items-center gap-[8px] rounded-[3px] border px-[18px] py-[18px] text-center'>
+  <div className='bg-panel flex flex-col items-center gap-[8px] px-[18px] py-[18px] text-center'>
     <span className='text-ink text-lg font-normal'>{title}</span>
     <span className='text-ink-muted text-sm text-balance'>{text}</span>
   </div>
 )
 
-// A page of the site, as a card that opens it
+// A page of the site, as a cell of the box of pages that opens it
 const pageCardView = ({
   title,
   text,
@@ -31,7 +36,7 @@ const pageCardView = ({
 }) => (
   <Link
     destination={destination}
-    className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge flex flex-col gap-[6px] rounded-[3px] border px-[18px] py-[16px] transition-shadow'
+    className='bg-panel hover:bg-field flex flex-col gap-[6px] px-[18px] py-[16px] transition-colors'
   >
     <span className='text-accent text-lg font-normal'>{title}</span>
     <span className='text-ink-muted text-sm'>{text}</span>
@@ -60,7 +65,7 @@ const AboutComponent = () => (
 
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: 'What it is for' })}
-      <div className='grid grid-cols-1 gap-[12px] lg:grid-cols-3'>
+      <div className={cn(sectionBoxClass, sectionGridClass, 'lg:grid-cols-3')}>
         {purposeCardView({
           title: 'Find the real ones',
           text: 'Almost every state library says update and subscription. The catalog keeps only those that hand effects back as data.',
@@ -78,7 +83,7 @@ const AboutComponent = () => (
 
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: 'The pages' })}
-      <div className='grid grid-cols-1 gap-[12px] lg:grid-cols-2'>
+      <div className={cn(sectionBoxClass, sectionGridClass, 'lg:grid-cols-2')}>
         {pageCardView({
           title: 'catalog',
           text: 'Every language and framework that implements TEA, with its grades, stars and dates. The logo in the bar opens it.',
@@ -114,7 +119,7 @@ const AboutComponent = () => (
       {sectionTitleView({ title: 'Credits' })}
       {proseView({
         children:
-          'Language logos come from Simple Icons (CC0), and the Java cup from Devicon (MIT). Each framework logo belongs to its own project. The look follows the website of Elm. Corrections are welcome.',
+          'Language logos come from Simple Icons (CC0) and Devicon (MIT), or from the website of their language (Roc, Lean, Sky, Gren). Each framework logo belongs to its own project. The look follows the website of Elm. Corrections are welcome.',
       })}
     </section>
   </div>

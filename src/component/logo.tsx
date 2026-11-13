@@ -100,7 +100,7 @@ const tileClass = (size: TileSize): string => {
     case 'card':
       return 'size-[44px] text-[1.125rem]'
     case 'page':
-      return 'offset-shadow size-[72px] text-[1.875rem]'
+      return 'size-[72px] text-[1.875rem]'
   }
 }
 
