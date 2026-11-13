@@ -72,7 +72,7 @@ export type ListingFilter = {
   includeArchived: boolean
   layout: ListingLayout
   // A column chosen in the table header; none keeps the order of the list
-  // (the Originator first, then the most starred)
+  // (the Originator first, then react-tea-cup, then the most starred)
   sort: Option<ListingSort>
 }
 

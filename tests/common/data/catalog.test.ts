@@ -60,6 +60,13 @@ describe('data files', () => {
     ).toEqual(['elm'])
   })
 
+  it('keep react-tea-cup right after Elm, as the pick of the maintainer', () => {
+    expect(frameworks.slice(0, 2).map((f) => f.id)).toEqual([
+      'elm',
+      'react-tea-cup',
+    ])
+  })
+
   it('name a logo file that exists in public/logo', () => {
     const missing = [...frameworks, ...adjacentEntries].filter(
       (f) =>

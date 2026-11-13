@@ -33,12 +33,21 @@ export const decodeOrThrow =
       }),
     )
 
-// The Originator (Elm) first, then the most starred, then by name. An
-// entry with no GitHub repository has no stars and comes last.
+// The pick of the maintainer, right after the Originator: react-tea-cup,
+// the library this site is built with
+const MAINTAINER_PICK = 'react-tea-cup'
+
+// The Originator (Elm) first, then the pick of the maintainer, then the
+// most starred, then by name. An entry with no GitHub repository has no
+// stars and comes last.
 const frameworkOrd: Ord.Ord<Framework> = concatAll(Ord.getMonoid<Framework>())([
   pipe(
     Ord.reverse(B.Ord),
     Ord.contramap((f: Framework) => f.tier === 'reference'),
+  ),
+  pipe(
+    Ord.reverse(B.Ord),
+    Ord.contramap((f: Framework) => f.id === MAINTAINER_PICK),
   ),
   pipe(
     Ord.reverse(N.Ord),
