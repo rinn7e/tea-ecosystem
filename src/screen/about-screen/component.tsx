@@ -16,6 +16,8 @@ import {
   sectionTitleView,
 } from '@/component/section-title'
 
+import { type Props, PropsEq } from './type'
+
 // What the site is for: three cells of one size in one box, none featured
 const purposeCardView = ({ title, text }: { title: string; text: string }) => (
   <div className='bg-panel flex flex-col items-center gap-[8px] px-[18px] py-[18px] text-center'>
@@ -50,7 +52,8 @@ const proseView = ({ children }: { children: React.ReactNode }) => (
   </div>
 )
 
-const AboutComponent = () => (
+// Static for now: the model and the messages are empty
+const AboutComponent = (_props: Props) => (
   <div className='flex flex-col gap-[36px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>
       <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
@@ -125,4 +128,4 @@ const AboutComponent = () => (
   </div>
 )
 
-export const AboutMemo = memo(AboutComponent)
+export const AboutMemo = memo(AboutComponent, PropsEq.equals)

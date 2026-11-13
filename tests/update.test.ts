@@ -44,17 +44,55 @@ describe('the screen stack', () => {
         }),
       ),
     )
-    expect(model.catalog.filter.layout).toBe('table')
-    expect(model.catalog.filter.tiers).toEqual(['full'])
+    expect(model.catalog.listing.filter.layout).toBe('table')
+    expect(model.catalog.listing.filter.tiers).toEqual(['full'])
   })
 
   it('ignores catalog messages while another screen covers it', () => {
     const onPage = bootOn('/framework/miso')
     const next = step(onPage, {
       _tag: 'CatalogScreenMsg',
-      subMsg: { _tag: 'SetQuery', query: 'x' },
+      subMsg: { _tag: 'ListingMsg', subMsg: { _tag: 'SetQuery', query: 'x' } },
     })
     expect(next).toBe(onPage)
+  })
+
+  it('ignores adjacent messages while the catalog is shown', () => {
+    const catalog = bootOn('/')
+    const next = step(catalog, {
+      _tag: 'AdjacentScreenMsg',
+      subMsg: { _tag: 'ListingMsg', subMsg: { _tag: 'SetQuery', query: 'x' } },
+    })
+    expect(next).toBe(catalog)
+  })
+
+  it('hands a message of the adjacent list to its screen', () => {
+    const adjacent = bootOn('/adjacent')
+    const next = step(adjacent, {
+      _tag: 'AdjacentScreenMsg',
+      subMsg: { _tag: 'ListingMsg', subMsg: { _tag: 'SetQuery', query: 'x' } },
+    })
+    expect(next.adjacent.listing.filter.query).toBe('x')
+    expect(next.catalog).toBe(adjacent.catalog)
+  })
+
+  it('keeps the rubric and the about page on their `NoOp`, and ignores it on another screen', () => {
+    const rubric = bootOn('/rubric')
+    const about = bootOn('/about')
+    expect(
+      step(rubric, { _tag: 'RubricScreenMsg', subMsg: { _tag: 'NoOp' } })
+        .screenModel,
+    ).toEqual(rubric.screenModel)
+    expect(
+      step(about, { _tag: 'AboutScreenMsg', subMsg: { _tag: 'NoOp' } })
+        .screenModel,
+    ).toEqual(about.screenModel)
+    expect(
+      step(rubric, { _tag: 'AboutScreenMsg', subMsg: { _tag: 'NoOp' } }),
+    ).toBe(rubric)
+    expect(
+      step(about, { _tag: 'RubricScreenMsg', subMsg: { _tag: 'NoOp' } }),
+    ).toBe(about)
   })
 
   it('switches the language of the guide in place', () => {

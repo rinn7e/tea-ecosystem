@@ -10,10 +10,13 @@ import {
   type NavigationMsg,
   type Screen,
 } from '@/common/type/destination'
-import * as Listing from '@/component/listing'
 import * as Tooltip from '@/component/tooltip'
+import * as AboutScreen from '@/screen/about-screen'
+import * as AdjacentScreen from '@/screen/adjacent-screen'
 import * as BuildScreen from '@/screen/build-screen'
+import * as CatalogScreen from '@/screen/catalog-screen'
 import * as FrameworkScreen from '@/screen/framework-screen'
+import * as RubricScreen from '@/screen/rubric-screen'
 import {
   type Model,
   type Msg,
@@ -55,9 +58,9 @@ export const openDestination = (
           ),
         )
       case 'RubricScreen':
-        return { _tag: 'RubricScreenModel' }
+        return { _tag: 'RubricScreenModel', model: RubricScreen.init() }
       case 'AboutScreen':
-        return { _tag: 'AboutScreenModel' }
+        return { _tag: 'AboutScreenModel', model: AboutScreen.init() }
       case 'AdjacentScreen':
         return { _tag: 'AdjacentScreenModel' }
       case 'BuildScreen':
@@ -72,11 +75,11 @@ export const openDestination = (
   return {
     catalog:
       screen._tag === 'CatalogScreen'
-        ? Listing.init(screen.filter)
+        ? CatalogScreen.init(screen.filter)
         : lists.catalog,
     adjacent:
       screen._tag === 'AdjacentScreen'
-        ? Listing.init(screen.filter)
+        ? AdjacentScreen.init(screen.filter)
         : lists.adjacent,
     screenModel: currentScreenModelOfMove(destination)(screenModel),
   }

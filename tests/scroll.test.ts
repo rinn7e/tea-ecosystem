@@ -78,7 +78,7 @@ describe('where a move draws its screen', () => {
     const onPage = click(filtered, miso, 1500)
     const logo = click(onPage, destinationOfScreen(catalogScreen()), 200)
     expect(logo.screenModel._tag).toBe('CatalogScreenModel')
-    expect(logo.catalog.filter).toEqual(defaultListingFilter())
+    expect(logo.catalog.listing.filter).toEqual(defaultListingFilter())
     expect(logo.scroll.top).toBe(0)
   })
 
@@ -92,7 +92,7 @@ describe('where a move draws its screen', () => {
     const filtered = bootOn('/?language=Rust&target=tui')
     const onPage = click(filtered, miso, 1500)
     const back = click(onPage, catalogDestinationOf(onPage), 200, true)
-    expect(back.catalog.filter).toEqual(filtered.catalog.filter)
+    expect(back.catalog.listing.filter).toEqual(filtered.catalog.listing.filter)
     expect(back.scroll.top).toBe(1500)
   })
 })

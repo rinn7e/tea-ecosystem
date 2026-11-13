@@ -17,11 +17,11 @@ export const destinationOf = (model: Model): Destination => ({
 // The catalog as it was left under the screen shown: the target of every
 // link back to it, so going back keeps its filters
 export const catalogDestinationOf = (model: Model): Destination =>
-  destinationOfScreen(catalogScreen(model.catalog.filter))
+  destinationOfScreen(catalogScreen(model.catalog.listing.filter))
 
 // The adjacent list as it was left, the same way
 export const adjacentDestinationOf = (model: Model): Destination =>
-  destinationOfScreen(adjacentScreen(model.adjacent.filter))
+  destinationOfScreen(adjacentScreen(model.adjacent.listing.filter))
 
 // The list of `kind` as it was left: where an entry page goes back to
 export const listDestinationOf = (model: Model, kind: ListKind): Destination =>

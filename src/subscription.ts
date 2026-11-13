@@ -2,8 +2,9 @@ import { Sub, Time } from 'tea-cup-fp'
 
 import { windowWidthChanges } from '@/common/util/window-width'
 import * as BackToTop from '@/component/back-to-top'
-import * as Listing from '@/component/listing'
 import * as Tooltip from '@/component/tooltip'
+import * as AdjacentScreen from '@/screen/adjacent-screen'
+import * as CatalogScreen from '@/screen/catalog-screen'
 
 import { type Model, type Msg } from './type'
 
@@ -28,12 +29,12 @@ export const subscriptions = (model: Model): Sub<Msg> =>
       subMsg,
     })),
     model.screenModel._tag === 'CatalogScreenModel'
-      ? Listing.subscriptions(model.catalog).map((subMsg): Msg => ({
+      ? CatalogScreen.subscriptions(model.catalog).map((subMsg): Msg => ({
           _tag: 'CatalogScreenMsg',
           subMsg,
         }))
       : model.screenModel._tag === 'AdjacentScreenModel'
-        ? Listing.subscriptions(model.adjacent).map((subMsg): Msg => ({
+        ? AdjacentScreen.subscriptions(model.adjacent).map((subMsg): Msg => ({
             _tag: 'AdjacentScreenMsg',
             subMsg,
           }))

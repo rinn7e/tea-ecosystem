@@ -16,6 +16,8 @@ import {
   sectionTitleView,
 } from '@/component/section-title'
 
+import { type Props, PropsEq } from './type'
+
 // A row of the lists of grades and concepts: the name on the left, what it
 // means on the right; stacked on a phone
 const rowClass =
@@ -29,7 +31,8 @@ const tierCardView = ({ title, rule }: { title: string; rule: string }) => (
   </div>
 )
 
-const RubricComponent = () => (
+// Static for now: the model and the messages are empty
+const RubricComponent = (_props: Props) => (
   <div className='flex flex-col gap-[32px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>
       <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
@@ -102,4 +105,4 @@ const RubricComponent = () => (
   </div>
 )
 
-export const RubricMemo = memo(RubricComponent)
+export const RubricMemo = memo(RubricComponent, PropsEq.equals)
