@@ -1,6 +1,4 @@
-import * as O from 'fp-ts/Option'
-
-import { type ListKind, listOf } from '@/common/data/catalog'
+import { type ListKind } from '@/common/data/catalog'
 import {
   type Destination,
   adjacentScreen,
@@ -30,23 +28,3 @@ export const listDestinationOf = (model: Model, kind: ListKind): Destination =>
   kind === 'catalog'
     ? catalogDestinationOf(model)
     : adjacentDestinationOf(model)
-
-// Where the floating back button of the screen shown goes, with its label:
-// a screen with a parent in the stack (`screenStackOf`) goes back to it.
-// Only the page of an entry has one, its list as it was left; the other
-// screens stand alone.
-export const backOf = (
-  model: Model,
-): O.Option<{ destination: Destination; label: string }> =>
-  model.screenModel._tag === 'FrameworkScreenModel'
-    ? O.some({
-        destination: listDestinationOf(
-          model,
-          listOf(model.screenModel.model.framework),
-        ),
-        label:
-          listOf(model.screenModel.model.framework) === 'catalog'
-            ? 'Back to all frameworks'
-            : 'Back to all TEA-adjacent',
-      })
-    : O.none

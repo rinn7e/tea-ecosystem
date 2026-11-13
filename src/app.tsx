@@ -1,16 +1,10 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
-import * as O from 'fp-ts/Option'
-import { pipe } from 'fp-ts/function'
 import { useLayoutEffect } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
 import { listOf } from '@/common/data/catalog'
 import { SetGlobalMsgContext } from '@/common/global-context'
 import { backToTopView } from '@/component/back-to-top'
-import {
-  floatingBackView,
-  floatingFrameView,
-} from '@/component/floating-button'
 import { footerView } from '@/component/footer'
 import {
   type HeaderSection,
@@ -29,7 +23,6 @@ import { RubricMemo } from '@/screen/rubric-screen/component'
 import { type Model, type Msg, type ScreenModel } from '@/type'
 import {
   adjacentDestinationOf,
-  backOf,
   catalogDestinationOf,
   listDestinationOf,
 } from '@/util'
@@ -158,15 +151,9 @@ export const App = ({
             adjacentDestination: adjacentDestinationOf(model),
             active: headerSectionOf(model.screenModel),
           })}
-          {floatingFrameView({
-            start: pipe(
-              backOf(model),
-              O.fold(() => null, floatingBackView),
-            ),
-            end: backToTopView({
-              model: model.backToTop,
-              dispatch: (subMsg) => dispatch({ _tag: 'BackToTopMsg', subMsg }),
-            }),
+          {backToTopView({
+            model: model.backToTop,
+            dispatch: (subMsg) => dispatch({ _tag: 'BackToTopMsg', subMsg }),
           })}
           {/* The one tooltip of the app, fixed over the page */}
           {tooltipLayerView({ model: model.tooltip })}
