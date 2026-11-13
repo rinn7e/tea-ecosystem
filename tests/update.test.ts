@@ -57,6 +57,25 @@ describe('the screen stack', () => {
     expect(next).toBe(onPage)
   })
 
+  it('keeps the rubric and the about page on their `NoOp`, and ignores it on another screen', () => {
+    const rubric = bootOn('/rubric')
+    const about = bootOn('/about')
+    expect(
+      step(rubric, { _tag: 'RubricScreenMsg', subMsg: { _tag: 'NoOp' } })
+        .screenModel,
+    ).toEqual(rubric.screenModel)
+    expect(
+      step(about, { _tag: 'AboutScreenMsg', subMsg: { _tag: 'NoOp' } })
+        .screenModel,
+    ).toEqual(about.screenModel)
+    expect(
+      step(rubric, { _tag: 'AboutScreenMsg', subMsg: { _tag: 'NoOp' } }),
+    ).toBe(rubric)
+    expect(
+      step(about, { _tag: 'RubricScreenMsg', subMsg: { _tag: 'NoOp' } }),
+    ).toBe(about)
+  })
+
   it('switches the language of the guide in place', () => {
     const guide = bootOn('/build-your-own')
     const next = step(guide, {

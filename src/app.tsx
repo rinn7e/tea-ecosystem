@@ -75,9 +75,19 @@ const screenView = ({
         />
       )
     case 'RubricScreenModel':
-      return <RubricMemo />
+      return (
+        <RubricMemo
+          model={screenModel.model}
+          dispatch={(subMsg) => dispatch({ _tag: 'RubricScreenMsg', subMsg })}
+        />
+      )
     case 'AboutScreenModel':
-      return <AboutMemo />
+      return (
+        <AboutMemo
+          model={screenModel.model}
+          dispatch={(subMsg) => dispatch({ _tag: 'AboutScreenMsg', subMsg })}
+        />
+      )
     case 'AdjacentScreenModel':
       return (
         <AdjacentMemo

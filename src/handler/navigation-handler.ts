@@ -12,8 +12,10 @@ import {
 } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 import * as Tooltip from '@/component/tooltip'
+import * as AboutScreen from '@/screen/about-screen'
 import * as BuildScreen from '@/screen/build-screen'
 import * as FrameworkScreen from '@/screen/framework-screen'
+import * as RubricScreen from '@/screen/rubric-screen'
 import {
   type Model,
   type Msg,
@@ -55,9 +57,9 @@ export const openDestination = (
           ),
         )
       case 'RubricScreen':
-        return { _tag: 'RubricScreenModel' }
+        return { _tag: 'RubricScreenModel', model: RubricScreen.init() }
       case 'AboutScreen':
-        return { _tag: 'AboutScreenModel' }
+        return { _tag: 'AboutScreenModel', model: AboutScreen.init() }
       case 'AdjacentScreen':
         return { _tag: 'AdjacentScreenModel' }
       case 'BuildScreen':

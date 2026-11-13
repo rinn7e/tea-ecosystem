@@ -15,8 +15,10 @@ import {
 import type * as BackToTop from '@/component/back-to-top'
 import type * as Listing from '@/component/listing'
 import type * as Tooltip from '@/component/tooltip'
+import type * as AboutScreen from '@/screen/about-screen'
 import type * as BuildScreen from '@/screen/build-screen'
 import type * as FrameworkScreen from '@/screen/framework-screen'
+import type * as RubricScreen from '@/screen/rubric-screen'
 
 // The screen shown, as its model. Its tag and its own fields are the
 // destination's screen (`currentScreenOf`). The two lists have no model
@@ -25,8 +27,8 @@ import type * as FrameworkScreen from '@/screen/framework-screen'
 export type ScreenModel =
   | { _tag: 'CatalogScreenModel' }
   | { _tag: 'FrameworkScreenModel'; model: FrameworkScreen.Model }
-  | { _tag: 'RubricScreenModel' }
-  | { _tag: 'AboutScreenModel' }
+  | { _tag: 'RubricScreenModel'; model: RubricScreen.Model }
+  | { _tag: 'AboutScreenModel'; model: AboutScreen.Model }
   | { _tag: 'AdjacentScreenModel' }
   | { _tag: 'BuildScreenModel'; model: BuildScreen.Model }
   | { _tag: 'NotFoundScreenModel' }
@@ -89,6 +91,8 @@ export type Msg =
   | { _tag: 'NoOp' }
   | { _tag: 'NavigationMsg'; subMsg: NavigationMsg }
   | { _tag: 'CatalogScreenMsg'; subMsg: Listing.Msg }
+  | { _tag: 'RubricScreenMsg'; subMsg: RubricScreen.Msg }
+  | { _tag: 'AboutScreenMsg'; subMsg: AboutScreen.Msg }
   | { _tag: 'AdjacentScreenMsg'; subMsg: Listing.Msg }
   | { _tag: 'BuildScreenMsg'; subMsg: BuildScreen.Msg }
   | { _tag: 'TooltipMsg'; subMsg: Tooltip.Msg }

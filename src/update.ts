@@ -10,7 +10,9 @@ import {
   openDestination,
   setTitleCmd,
 } from '@/handler/navigation-handler'
+import * as AboutScreen from '@/screen/about-screen'
 import * as BuildScreen from '@/screen/build-screen'
+import * as RubricScreen from '@/screen/rubric-screen'
 import { type Model, type Msg, sameScreenWith } from '@/type'
 import { bootDestinationOf } from '@/util'
 
@@ -53,6 +55,10 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return navigationMsgHandler(msg.subMsg, model)
     case 'CatalogScreenMsg':
       return catalogScreenMsgHandler(msg.subMsg, model)
+    case 'RubricScreenMsg':
+      return rubricScreenMsgHandler(msg.subMsg, model)
+    case 'AboutScreenMsg':
+      return aboutScreenMsgHandler(msg.subMsg, model)
     case 'AdjacentScreenMsg':
       return adjacentScreenMsgHandler(msg.subMsg, model)
     case 'BuildScreenMsg':
@@ -89,6 +95,53 @@ const catalogScreenMsgHandler = (
     return [
       { ...model, catalog },
       catalogCmd.map((m): Msg => ({ _tag: 'CatalogScreenMsg', subMsg: m })),
+    ]
+  } else {
+    return [model, Cmd.none()]
+  }
+}
+
+const rubricScreenMsgHandler = (
+  subMsg: RubricScreen.Msg,
+  model: Model,
+): [Model, Cmd<Msg>] => {
+  const { screenModel } = model
+  if (screenModel._tag === 'RubricScreenModel') {
+    const [rubricModel, rubricCmd] = RubricScreen.update(
+      subMsg,
+      screenModel.model,
+    )
+    return [
+      {
+        ...model,
+        screenModel: sameScreenWith(screenModel)({
+          _tag: 'RubricScreenModel',
+          model: rubricModel,
+        }),
+      },
+      rubricCmd.map((m): Msg => ({ _tag: 'RubricScreenMsg', subMsg: m })),
+    ]
+  } else {
+    return [model, Cmd.none()]
+  }
+}
+
+const aboutScreenMsgHandler = (
+  subMsg: AboutScreen.Msg,
+  model: Model,
+): [Model, Cmd<Msg>] => {
+  const { screenModel } = model
+  if (screenModel._tag === 'AboutScreenModel') {
+    const [aboutModel, aboutCmd] = AboutScreen.update(subMsg, screenModel.model)
+    return [
+      {
+        ...model,
+        screenModel: sameScreenWith(screenModel)({
+          _tag: 'AboutScreenModel',
+          model: aboutModel,
+        }),
+      },
+      aboutCmd.map((m): Msg => ({ _tag: 'AboutScreenMsg', subMsg: m })),
     ]
   } else {
     return [model, Cmd.none()]
