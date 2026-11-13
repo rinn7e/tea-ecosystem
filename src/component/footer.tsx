@@ -43,7 +43,7 @@ const statChipView = ({ label }: { label: string }) => (
 
 // The foot of every page: what the site is and how big, its pages, where
 // to learn TEA and what the site draws on, then the year, a note that it
-// is a community catalog, and who made it
+// is a community catalog, and who made it and with what
 export const footerView = ({
   catalogDestination,
   adjacentDestination,
@@ -162,10 +162,19 @@ export const footerView = ({
             a light web check; each framework page says which. Corrections are
             welcome.
           </p>
-          <p className='inline-flex items-center gap-[4px]'>
+          <p className='inline-flex flex-wrap items-center justify-center gap-[4px]'>
             Crafted with
             <IconHeartFilled size={12} className='text-missing' aria-hidden />
-            by rinn7e
+            by rinn7e, built with
+            <a
+              href='https://github.com/vankeisb/react-tea-cup'
+              target='_blank'
+              rel='noreferrer'
+              className='hover:text-accent inline-flex items-center gap-[2px] underline underline-offset-2 transition-colors'
+            >
+              react-tea-cup
+              <IconExternalLink size={12} stroke={1.75} aria-hidden />
+            </a>
           </p>
         </div>
       </div>
