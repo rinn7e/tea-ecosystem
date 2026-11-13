@@ -703,8 +703,10 @@ const cardView = ({ framework }: { framework: Framework }) => (
   </div>
 )
 
+// One column on a phone, two on a tablet (`tablet:`, the exception to
+// `lg:` only), three on a desktop
 const cardsView = ({ shown }: { shown: Framework[] }) => (
-  <div className='grid grid-cols-1 gap-[22px] lg:grid-cols-3'>
+  <div className='tablet:grid-cols-2 grid grid-cols-1 gap-[22px] lg:grid-cols-3'>
     {shown.map((framework) => cardView({ framework }))}
   </div>
 )

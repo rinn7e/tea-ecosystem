@@ -146,7 +146,7 @@ A fact with an owner gets a type only its owner makes, so a write that skips the
 - The look follows the website of Elm: read [doc/design/style-guide.md](design/style-guide.md) (tokens, type, shapes, what not to do) and the pages of elm-lang.org it lists (section 1) before changing the UI.
 - Tailwind v4 with the tokens of `src/asset/index.css` (`bg-panel`, `text-ink-muted`, `text-accent` for blue that meets text, `border-edge` for the brighter blue of borders, `bg-bar` for the top bar, one color per grade). The tokens switch for dark mode, so classes need no `dark:` variants.
 - Every text is regular weight (`font-normal`); hierarchy comes from size and space. Boxes take the hard offset shadow (`offset-shadow`, or `offset-shadow-edge` for the main one) and square corners (3 px at most).
-- Mobile first: unprefixed classes for phones and portrait tablets, `lg:` for desktop. No `sm:`, `md:` or `max-*` breakpoints.
+- Mobile first: unprefixed classes for phones and portrait tablets, `lg:` for desktop. No `sm:`, `md:` or `max-*` breakpoints. Exception: an element that needs its own layout between a phone and a desktop uses `tablet:` (640 px, defined in `src/asset/index.css`), and says so in a comment. Today only the cards use it (two columns); everything else stays on the phone layout up to `lg:`.
 - No margin utilities: space with the padding or `gap` of the parent.
 - Spacing and sizes in explicit pixels in brackets (`px-[16px]`); font sizes in `rem` (`text-sm`, `text-[0.8125rem]`).
 - Mirror-symmetric frames: the header is a `grid-cols-[1fr_auto_1fr]` with the emblem on the axis, cards in a row are all the same size (no featured middle card, see the style guide), and headings are centred while long text stays left-aligned in a centred column.
