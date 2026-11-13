@@ -29,7 +29,10 @@ const moveMakerUses = (makers) =>
   }))
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  // The examples of `data/snippet/` are copied from the docs of each project
+  // and shown as text, not built; local tools may keep extra worktrees under
+  // `.claude/` (as in `vite.config.ts`)
+  globalIgnores(['dist', 'data/snippet', '.claude']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

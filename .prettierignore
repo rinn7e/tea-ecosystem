@@ -1,2 +1,4 @@
 pnpm-lock.yaml
 src/screen/build-screen/snippet/
+# The examples keep the formatting of their own projects
+data/snippet/
