@@ -44,7 +44,15 @@ export const languageLogoView = ({
           )}
         >
           {logo.paths.map((path) => (
-            <path key={path.d} d={path.d} fill={path.fill} />
+            <path
+              key={path.d}
+              d={path.d}
+              fill={path.fill}
+              stroke={path.stroke}
+              strokeWidth={path.strokeWidth}
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            />
           ))}
         </svg>
       ),
@@ -134,7 +142,15 @@ export const frameworkTileView = ({
               className={tileLanguageLogoClass(size)}
             >
               {logo.paths.map((path) => (
-                <path key={path.d} d={path.d} fill={path.fill} />
+                <path
+                  key={path.d}
+                  d={path.d}
+                  fill={path.fill}
+                  stroke={path.stroke}
+                  strokeWidth={path.strokeWidth}
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
               ))}
             </svg>
           </span>

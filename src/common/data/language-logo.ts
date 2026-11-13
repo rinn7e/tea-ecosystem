@@ -14,23 +14,32 @@ import {
   siJavascript,
   siKotlin,
   siOcaml,
+  siOdin,
   siPurescript,
   siPython,
+  siRuby,
   siRust,
   siScala,
   siSwift,
   siTypescript,
+  siZig,
 } from 'simple-icons'
 
 import { javaLogoPaths } from './java-logo'
+import { type LogoPath } from './language-logo-path'
+import { leanLogoPaths } from './lean-logo'
+import { powershellLogoPaths } from './powershell-logo'
+import { rocLogoPaths } from './roc-logo'
+import { skyLogoPaths } from './sky-logo'
 
 // The logo of a language: its name, the box its shapes are drawn in, and
 // each shape with its color. A logo of Simple Icons (CC0) is one shape in a
-// 24 x 24 box; the Java cup has its own (`java-logo.ts`).
+// 24 x 24 box; the languages it does not carry have their own files (Java,
+// PowerShell, Roc, Lean, Sky: `<language>-logo.ts`).
 export type LanguageLogo = {
   title: string
   viewBox: string
-  paths: { d: string; fill: string }[]
+  paths: LogoPath[]
 }
 
 type Rgb = [number, number, number]
@@ -100,6 +109,12 @@ const logoOf = (icon: {
   paths: [{ d: icon.path, fill: readableColorOf(icon.hex) }],
 })
 
+const ownLogo = (
+  title: string,
+  viewBox: string,
+  paths: LogoPath[],
+): LanguageLogo => ({ title, viewBox, paths })
+
 const javaLogo: LanguageLogo = {
   title: 'Java',
   viewBox: '0 0 128 128',
@@ -129,6 +144,14 @@ const logos: Record<string, LanguageLogo> = {
   Python: logoOf(siPython),
   ClojureScript: logoOf(siClojure),
   'C#': logoOf(siDotnet),
+  'F# and C#': logoOf(siFsharp),
+  Ruby: logoOf(siRuby),
+  Zig: logoOf(siZig),
+  Odin: logoOf(siOdin),
+  PowerShell: ownLogo('PowerShell', '0 0 128 128', powershellLogoPaths),
+  Roc: ownLogo('Roc', '0 0 52 53', rocLogoPaths),
+  Lean: ownLogo('Lean', '0 0 240 114', leanLogoPaths),
+  Sky: ownLogo('Sky', '0 0 64 64', skyLogoPaths),
 }
 
 export const languageLogoOf = (language: string): O.Option<LanguageLogo> =>
