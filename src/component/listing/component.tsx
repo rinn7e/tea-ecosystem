@@ -196,7 +196,7 @@ const languageChoiceView = ({
         text: `${count} ${count === 1 ? 'entry' : 'entries'} written in ${language}.`,
       }}
       touch={false}
-      className='inline-flex'
+      className='tablet:w-auto inline-flex w-[calc((100%-36px)/7)]'
     >
       <button
         type='button'
@@ -204,7 +204,7 @@ const languageChoiceView = ({
         aria-label={`${language}, ${count}`}
         onClick={() => dispatch({ _tag: 'ToggleLanguage', language })}
         className={cn(
-          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge tablet:size-[40px] flex size-[36px] items-center justify-center border-2 transition-shadow lg:size-[44px]',
+          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge tablet:size-[40px] flex aspect-square w-full items-center justify-center border-2 transition-shadow lg:size-[44px]',
           isChosen ? 'border-edge' : 'border-line',
         )}
       >
@@ -216,8 +216,9 @@ const languageChoiceView = ({
 
 // The rows of language logos, the most popular first, in rows as even as
 // they can be (`balancedRows`), so the block is centred and never ends on
-// a short row: at most 7 a row on a phone, and 13 from a tablet up
-// (`tablet:`, the exception to `lg:` only), where 13 fit
+// a short row: 7 a row on a phone, each a seventh of the width so a full
+// row spans the screen like the search, and 13 from a tablet up
+// (`tablet:`, the exception to `lg:` only), where 13 fit at a fixed size
 const languageRowsView = ({
   rows,
   className,
@@ -1048,10 +1049,10 @@ const ListingComponent = ({ kind, model, dispatch }: Props) => {
         </p>
       </section>
       <div className='flex flex-col gap-[20px]'>
-        {/* One centred column as wide as the widest row of logos: the kind
-            boxes stretch to it */}
+        {/* One centred column as wide as the widest row of logos, the kind
+            boxes stretched to it; on a phone the full width */}
         <div className='flex justify-center'>
-          <div className='flex flex-col gap-[24px]'>
+          <div className='tablet:w-auto flex w-full flex-col gap-[24px]'>
             {kind === 'catalog' &&
               kindChoicesView({ entries, filter: model.filter, dispatch })}
             {languageChoicesView({ entries, filter: model.filter, dispatch })}
