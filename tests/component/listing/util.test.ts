@@ -13,6 +13,7 @@ import {
   init,
   isFiltered,
   languageCountsOf,
+  logosPerRowOf,
   sortFrameworks,
   update,
 } from '@/component/listing'
@@ -274,5 +275,17 @@ describe('balancedRows', () => {
 
   it('makes no row for no items', () => {
     expect(balancedRows([], 7)).toEqual([])
+  })
+})
+
+describe('logosPerRowOf', () => {
+  it('fits as many fixed boxes as the width holds, at most 13', () => {
+    expect(logosPerRowOf(320)).toBe(6)
+    expect(logosPerRowOf(375)).toBe(7)
+    expect(logosPerRowOf(430)).toBe(8)
+    expect(logosPerRowOf(540)).toBe(11)
+    expect(logosPerRowOf(768)).toBe(13)
+    expect(logosPerRowOf(1280)).toBe(13)
+    expect(logosPerRowOf(0)).toBe(1)
   })
 })

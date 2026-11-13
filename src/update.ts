@@ -17,8 +17,12 @@ import { bootDestinationOf } from '@/util'
 // Init, Update
 // ---------------------------------------------
 
-// The data is bundled, so the app opens its first screen at once
-export const init = (location: Pick<Location, 'href'>): [Model, Cmd<Msg>] => {
+// The data is bundled, so the app opens its first screen at once, at the
+// width of the window (read in `program.tsx`)
+export const init = (
+  location: Pick<Location, 'href'>,
+  windowWidth: number,
+): [Model, Cmd<Msg>] => {
   const model: Model = {
     ...openDestination(bootDestinationOf(location), {
       catalog: Listing.init(defaultListingFilter()),
@@ -28,6 +32,7 @@ export const init = (location: Pick<Location, 'href'>): [Model, Cmd<Msg>] => {
     backToTop: BackToTop.init(),
     listScrollY: { catalog: 0, adjacent: 0 },
     scroll: { seq: 0, top: 0 },
+    windowWidth,
   }
   return [
     model,
@@ -54,6 +59,15 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return tooltipMsgHandler(msg.subMsg, model)
     case 'BackToTopMsg':
       return backToTopMsgHandler(msg.subMsg, model)
+    // The same model while the width is the same, so a resize that changes
+    // nothing draws nothing new
+    case 'SetWindowWidth':
+      return [
+        msg.value === model.windowWidth
+          ? model
+          : { ...model, windowWidth: msg.value },
+        Cmd.none(),
+      ]
   }
 }
 

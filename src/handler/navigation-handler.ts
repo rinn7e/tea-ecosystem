@@ -34,7 +34,10 @@ export type Lists = Pick<Model, 'catalog' | 'adjacent'>
 export const openDestination = (
   destination: Destination,
   lists: Lists,
-): Omit<Model, 'tooltip' | 'backToTop' | 'listScrollY' | 'scroll'> => {
+): Omit<
+  Model,
+  'tooltip' | 'backToTop' | 'listScrollY' | 'scroll' | 'windowWidth'
+> => {
   const { screen } = destination
   const screenModel = ((): ScreenModel => {
     switch (screen._tag) {
@@ -160,6 +163,7 @@ export const navigationMsgHandler = (
       backToTop: model.backToTop,
       listScrollY,
       scroll: model.scroll,
+      windowWidth: model.windowWidth,
     }
     const nextDestination = destinationOf(opened)
     const top =

@@ -66,6 +66,7 @@ const screenView = ({
       return (
         <CatalogMemo
           model={model.catalog}
+          windowWidth={model.windowWidth}
           dispatch={(subMsg) => dispatch({ _tag: 'CatalogScreenMsg', subMsg })}
         />
       )
@@ -87,6 +88,7 @@ const screenView = ({
       return (
         <AdjacentMemo
           model={model.adjacent}
+          windowWidth={model.windowWidth}
           dispatch={(subMsg) => dispatch({ _tag: 'AdjacentScreenMsg', subMsg })}
         />
       )

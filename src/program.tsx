@@ -2,6 +2,8 @@ import { devTools } from '@rinn7e/tea-cup-prelude'
 import { ProgramWithNav } from 'react-tea-cup'
 import { type Cmd, type Dispatcher } from 'tea-cup-fp'
 
+import { windowWidthOf } from '@/common/util/window-width'
+
 import { App } from './app'
 import { subscriptions } from './subscription'
 import { type Model, type Msg } from './type'
@@ -22,7 +24,7 @@ export const AppProgram = () => (
     // The browser's back and forward (the app's own URL writes fire no
     // `popstate`)
     onUrlChange={urlChangedMsg}
-    init={init}
+    init={(location) => init(location, windowWidthOf())}
     update={appUpdate}
     view={appView}
     subscriptions={subscriptions}

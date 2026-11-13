@@ -63,11 +63,14 @@ export type Props = {
   // Which list it shows: its entries, words and the select on its left
   kind: ListKind
   model: Model
+  // The width of the window: how many language logos fit in a row
+  windowWidth: number
   dispatch: Dispatcher<Msg>
 }
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   kind: S.Eq,
   model: ModelEq,
+  windowWidth: N.Eq,
   dispatch: EqAlways,
 })

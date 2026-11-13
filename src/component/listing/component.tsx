@@ -67,6 +67,7 @@ import {
   filterFrameworks,
   isFiltered,
   languageCountsOf,
+  logosPerRowOf,
   sortFrameworks,
 } from './util'
 
@@ -196,7 +197,7 @@ const languageChoiceView = ({
         text: `${count} ${count === 1 ? 'entry' : 'entries'} written in ${language}.`,
       }}
       touch={false}
-      className='tablet:w-auto inline-flex w-[calc((100%-36px)/7)]'
+      className='inline-flex'
     >
       <button
         type='button'
@@ -204,7 +205,7 @@ const languageChoiceView = ({
         aria-label={`${language}, ${count}`}
         onClick={() => dispatch({ _tag: 'ToggleLanguage', language })}
         className={cn(
-          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge tablet:size-[40px] flex aspect-square w-full items-center justify-center border-2 transition-shadow lg:size-[44px]',
+          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge flex size-[40px] items-center justify-center border-2 transition-shadow lg:size-[44px]',
           isChosen ? 'border-edge' : 'border-line',
         )}
       >
@@ -216,9 +217,9 @@ const languageChoiceView = ({
 
 // The rows of language logos, the most popular first, in rows as even as
 // they can be (`balancedRows`), so the block is centred and never ends on
-// a short row: 7 a row on a phone, each a seventh of the width so a full
-// row spans the screen like the search, and 13 from a tablet up
-// (`tablet:`, the exception to `lg:` only), where 13 fit at a fixed size
+// a short row. The boxes have one size (40px, 44px on a desktop), and a row
+// holds as many as fit the width of the window (`logosPerRowOf`): 7, 7, 6
+// and 6 on a phone, 13 and 13 from a tablet up
 const languageRowsView = ({
   rows,
   className,
@@ -247,30 +248,20 @@ const languageRowsView = ({
 const languageChoicesView = ({
   entries,
   filter,
+  windowWidth,
   dispatch,
 }: {
   entries: Framework[]
   filter: ListingFilter
+  windowWidth: number
   dispatch: Dispatcher<Msg>
-}) => {
-  const counts = languageCountsOf(entries)
-  return (
-    <div>
-      {languageRowsView({
-        rows: balancedRows(counts, 7),
-        className: 'tablet:hidden flex flex-col gap-[6px]',
-        filter,
-        dispatch,
-      })}
-      {languageRowsView({
-        rows: balancedRows(counts, 13),
-        className: 'tablet:flex hidden flex-col gap-[6px] lg:gap-[8px]',
-        filter,
-        dispatch,
-      })}
-    </div>
-  )
-}
+}) =>
+  languageRowsView({
+    rows: balancedRows(languageCountsOf(entries), logosPerRowOf(windowWidth)),
+    className: 'flex flex-col gap-[6px] lg:gap-[8px]',
+    filter,
+    dispatch,
+  })
 
 // Rows of choice boxes: tiers or what an entry lacks, then targets
 // ---------------------------------------------
@@ -1028,7 +1019,7 @@ const headingOf = (kind: ListKind) => {
   }
 }
 
-const ListingComponent = ({ kind, model, dispatch }: Props) => {
+const ListingComponent = ({ kind, model, windowWidth, dispatch }: Props) => {
   const entries = entriesOf(kind)
   const shown = pipe(
     entries,
@@ -1049,13 +1040,18 @@ const ListingComponent = ({ kind, model, dispatch }: Props) => {
         </p>
       </section>
       <div className='flex flex-col gap-[20px]'>
-        {/* One centred column as wide as the widest row of logos, the kind
-            boxes stretched to it; on a phone the full width */}
+        {/* One centred column as wide as the widest row of logos: the kind
+            boxes stretch to it */}
         <div className='flex justify-center'>
-          <div className='tablet:w-auto flex w-full flex-col gap-[24px]'>
+          <div className='flex flex-col gap-[24px]'>
             {kind === 'catalog' &&
               kindChoicesView({ entries, filter: model.filter, dispatch })}
-            {languageChoicesView({ entries, filter: model.filter, dispatch })}
+            {languageChoicesView({
+              entries,
+              filter: model.filter,
+              windowWidth,
+              dispatch,
+            })}
           </div>
         </div>
         {searchRowView({ kind, entries, model, dispatch })}

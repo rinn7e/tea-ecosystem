@@ -77,6 +77,9 @@ export type Model = {
   // Where the screen shown is drawn: set by every move, and scrolled to
   // once per `seq`, before the browser paints the screen (`useScrollOf`)
   scroll: { seq: number; top: number }
+  // The width of the window (`windowWidthChanges`): how many language
+  // logos fit in a row
+  windowWidth: number
 }
 
 export type Msg =
@@ -87,6 +90,7 @@ export type Msg =
   | { _tag: 'BuildScreenMsg'; subMsg: BuildScreen.Msg }
   | { _tag: 'TooltipMsg'; subMsg: Tooltip.Msg }
   | { _tag: 'BackToTopMsg'; subMsg: BackToTop.Msg }
+  | { _tag: 'SetWindowWidth'; value: number }
 
 // The screen shown (the destination's `screen`, `destinationOf`), read from
 // the fields of the models that hold its params

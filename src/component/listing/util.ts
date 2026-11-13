@@ -26,6 +26,7 @@ import {
   isLanguageEntry,
   languagesOf,
 } from '@/common/type/framework'
+import { breakpoints } from '@/common/util/window-width'
 import {
   kindLineOf,
   statusLabel,
@@ -196,6 +197,19 @@ export const balancedRows = <A>(items: A[], maxPerRow: number): A[][] => {
     const start = row * base + Math.min(row, longer)
     return items.slice(start, start + base + (row < longer ? 1 : 0))
   })
+}
+
+// How many language logos fit in a row in a window `windowWidth` wide: as
+// many fixed boxes as the content holds (40px with 6px gaps below `lg`,
+// 44px with 8px from it, as the view draws them), at most 13. Where the
+// CSS and `windowWidth` disagree on `lg` (`breakpoints`), 13 fit either way.
+export const logosPerRowOf = (windowWidth: number): number => {
+  const isDesktop = windowWidth >= breakpoints.lg
+  const box = isDesktop ? 44 : 40
+  const gap = isDesktop ? 8 : 6
+  // The content column: at most 1080px, inside 16px gutters
+  const content = Math.min(windowWidth, 1080 + 32) - 32
+  return Math.min(13, Math.max(1, Math.floor((content + gap) / (box + gap))))
 }
 
 const tierRank = (tier: Tier): number =>
