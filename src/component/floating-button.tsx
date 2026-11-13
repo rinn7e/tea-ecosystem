@@ -26,8 +26,8 @@ const floatingOutlineClass = cn(
 
 // The floating buttons, fixed near the bottom of the window on the edges of
 // the 1080px frame of the bar, the lists and the footer: back on the left,
-// back to the top on the right, mirrored on the axis. On a phone they sit
-// above the tab bar. The frame lets presses through; only the buttons take
+// back to the top on the right, mirrored on the axis (back only below
+// `lg:`). On a phone they sit above the tab bar. The frame lets presses through; only the buttons take
 // them, so each one sets `pointer-events-auto` while it is shown.
 export const floatingFrameView = ({
   start,
@@ -47,7 +47,8 @@ export const floatingFrameView = ({
 
 // Back to the screen under the one shown (`backOf`): a link, like the one
 // at the top of the page, so the list comes back with its filters and its
-// scroll
+// scroll. On phones and tablets only, where that link is far up a long
+// page; a desktop keeps the link at the top and the browser's back.
 export const floatingBackView = ({
   destination,
   label,
@@ -58,7 +59,7 @@ export const floatingBackView = ({
   <Link
     destination={destination}
     aria-label={label}
-    className={cn(floatingOutlineClass, 'pointer-events-auto')}
+    className={cn(floatingOutlineClass, 'pointer-events-auto lg:hidden')}
   >
     <IconChevronLeft size={24} stroke={2} aria-hidden />
   </Link>
