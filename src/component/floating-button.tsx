@@ -1,15 +1,28 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
-import { IconArrowLeft } from '@tabler/icons-react'
+import { IconChevronLeft } from '@tabler/icons-react'
 import type React from 'react'
 
 import { type Destination } from '@/common/type/destination'
 
 import { Link } from './link'
 
-// The look of every floating button: a blue circle with a brighter border
-// under the pointer
-export const floatingButtonClass =
-  'bg-bar text-bar-ink border-bar-ink/40 hover:border-bar-ink flex size-[44px] cursor-pointer items-center justify-center rounded-full border-2 transition-[opacity,transform,border-color] duration-150 motion-reduce:transition-none lg:size-[48px]'
+// The shape of every floating button: a circle with a 2px border
+const floatingShapeClass =
+  'flex size-[44px] cursor-pointer items-center justify-center rounded-full border-2 transition-[opacity,transform,border-color,background-color] duration-150 motion-reduce:transition-none lg:size-[48px]'
+
+// Solid, for back to the top: a blue circle with a brighter border under
+// the pointer
+export const floatingButtonClass = cn(
+  floatingShapeClass,
+  'bg-bar text-bar-ink border-bar-ink/40 hover:border-bar-ink',
+)
+
+// Outline, for back: the panel inside a blue border, like the outline
+// buttons of the lists (the layout not chosen)
+const floatingOutlineClass = cn(
+  floatingShapeClass,
+  'border-edge bg-panel text-accent hover:bg-field',
+)
 
 // The floating buttons, fixed near the bottom of the window on the edges of
 // the 1080px frame of the bar, the lists and the footer: back on the left,
@@ -45,8 +58,8 @@ export const floatingBackView = ({
   <Link
     destination={destination}
     aria-label={label}
-    className={cn(floatingButtonClass, 'pointer-events-auto')}
+    className={cn(floatingOutlineClass, 'pointer-events-auto')}
   >
-    <IconArrowLeft size={22} stroke={2} aria-hidden />
+    <IconChevronLeft size={24} stroke={2} aria-hidden />
   </Link>
 )
