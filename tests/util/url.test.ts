@@ -14,7 +14,7 @@ import { bootOn, navigate, step } from '../helper/app'
 
 const query = (q: string): Msg => ({
   _tag: 'CatalogScreenMsg',
-  subMsg: { _tag: 'SetQuery', query: q },
+  subMsg: { _tag: 'ListingMsg', subMsg: { _tag: 'SetQuery', query: q } },
 })
 
 describe('urlWriteOf', () => {
@@ -71,9 +71,12 @@ describe('urlWriteOf', () => {
     const msg: Msg = {
       _tag: 'CatalogScreenMsg',
       subMsg: {
-        _tag: 'ToggleTier',
-        tier: 'superset',
-        options: ['reference', 'full', 'superset'],
+        _tag: 'ListingMsg',
+        subMsg: {
+          _tag: 'ToggleTier',
+          tier: 'superset',
+          options: ['reference', 'full', 'superset'],
+        },
       },
     }
     const next = step(prev, msg)

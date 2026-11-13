@@ -3,7 +3,6 @@ import { Cmd } from 'tea-cup-fp'
 import { defaultListingFilter } from '@/common/type/destination'
 import { manualScrollRestorationCmd } from '@/common/util'
 import * as BackToTop from '@/component/back-to-top'
-import * as Listing from '@/component/listing'
 import * as Tooltip from '@/component/tooltip'
 import {
   navigationMsgHandler,
@@ -11,7 +10,9 @@ import {
   setTitleCmd,
 } from '@/handler/navigation-handler'
 import * as AboutScreen from '@/screen/about-screen'
+import * as AdjacentScreen from '@/screen/adjacent-screen'
 import * as BuildScreen from '@/screen/build-screen'
+import * as CatalogScreen from '@/screen/catalog-screen'
 import * as RubricScreen from '@/screen/rubric-screen'
 import { type Model, type Msg, sameScreenWith } from '@/type'
 import { bootDestinationOf } from '@/util'
@@ -28,8 +29,8 @@ export const init = (
 ): [Model, Cmd<Msg>] => {
   const model: Model = {
     ...openDestination(bootDestinationOf(location), {
-      catalog: Listing.init(defaultListingFilter()),
-      adjacent: Listing.init(defaultListingFilter()),
+      catalog: CatalogScreen.init(defaultListingFilter()),
+      adjacent: AdjacentScreen.init(defaultListingFilter()),
     }),
     tooltip: Tooltip.init(),
     backToTop: BackToTop.init(),
@@ -87,11 +88,11 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
 // The catalog changes only while it is shown; its filter is the
 // destination's, so the URL follows after the step
 const catalogScreenMsgHandler = (
-  subMsg: Listing.Msg,
+  subMsg: CatalogScreen.Msg,
   model: Model,
 ): [Model, Cmd<Msg>] => {
   if (model.screenModel._tag === 'CatalogScreenModel') {
-    const [catalog, catalogCmd] = Listing.update(subMsg, model.catalog)
+    const [catalog, catalogCmd] = CatalogScreen.update(subMsg, model.catalog)
     return [
       { ...model, catalog },
       catalogCmd.map((m): Msg => ({ _tag: 'CatalogScreenMsg', subMsg: m })),
@@ -148,13 +149,16 @@ const aboutScreenMsgHandler = (
   }
 }
 
-// The adjacent list, the same way
+// The adjacent list, the same way as the catalog
 const adjacentScreenMsgHandler = (
-  subMsg: Listing.Msg,
+  subMsg: AdjacentScreen.Msg,
   model: Model,
 ): [Model, Cmd<Msg>] => {
   if (model.screenModel._tag === 'AdjacentScreenModel') {
-    const [adjacent, adjacentCmd] = Listing.update(subMsg, model.adjacent)
+    const [adjacent, adjacentCmd] = AdjacentScreen.update(
+      subMsg,
+      model.adjacent,
+    )
     return [
       { ...model, adjacent },
       adjacentCmd.map((m): Msg => ({ _tag: 'AdjacentScreenMsg', subMsg: m })),

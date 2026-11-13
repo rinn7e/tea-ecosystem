@@ -13,17 +13,18 @@ import {
   rubricScreen,
 } from '@/common/type/destination'
 import type * as BackToTop from '@/component/back-to-top'
-import type * as Listing from '@/component/listing'
 import type * as Tooltip from '@/component/tooltip'
 import type * as AboutScreen from '@/screen/about-screen'
+import type * as AdjacentScreen from '@/screen/adjacent-screen'
 import type * as BuildScreen from '@/screen/build-screen'
+import type * as CatalogScreen from '@/screen/catalog-screen'
 import type * as FrameworkScreen from '@/screen/framework-screen'
 import type * as RubricScreen from '@/screen/rubric-screen'
 
 // The screen shown, as its model. Its tag and its own fields are the
-// destination's screen (`currentScreenOf`). The two lists have no model
-// here: each is a base layer of the stack, kept in `Model.catalog` and
-// `Model.adjacent` while an entry page covers it.
+// destination's screen (`currentScreenOf`). The two list screens keep
+// their model elsewhere: each is a base layer of the stack, kept in
+// `Model.catalog` and `Model.adjacent` while an entry page covers it.
 export type ScreenModel =
   | { _tag: 'CatalogScreenModel' }
   | { _tag: 'FrameworkScreenModel'; model: FrameworkScreen.Model }
@@ -64,10 +65,10 @@ export const sameScreenWith =
       : current
 
 export type Model = {
-  // The base layers of the screen stack, one per list: alive under every
-  // screen
-  catalog: Listing.Model
-  adjacent: Listing.Model
+  // The base layers of the screen stack, the model of each list screen:
+  // alive under every screen
+  catalog: CatalogScreen.Model
+  adjacent: AdjacentScreen.Model
   screenModel: CurrentScreenModel
   // The one tooltip of the app, over every screen
   tooltip: Tooltip.Model
@@ -90,10 +91,10 @@ export type Model = {
 export type Msg =
   | { _tag: 'NoOp' }
   | { _tag: 'NavigationMsg'; subMsg: NavigationMsg }
-  | { _tag: 'CatalogScreenMsg'; subMsg: Listing.Msg }
+  | { _tag: 'CatalogScreenMsg'; subMsg: CatalogScreen.Msg }
   | { _tag: 'RubricScreenMsg'; subMsg: RubricScreen.Msg }
   | { _tag: 'AboutScreenMsg'; subMsg: AboutScreen.Msg }
-  | { _tag: 'AdjacentScreenMsg'; subMsg: Listing.Msg }
+  | { _tag: 'AdjacentScreenMsg'; subMsg: AdjacentScreen.Msg }
   | { _tag: 'BuildScreenMsg'; subMsg: BuildScreen.Msg }
   | { _tag: 'TooltipMsg'; subMsg: Tooltip.Msg }
   | { _tag: 'BackToTopMsg'; subMsg: BackToTop.Msg }
@@ -106,7 +107,7 @@ export const currentScreenOf = (model: Model): Screen => {
   const { screenModel } = model
   switch (screenModel._tag) {
     case 'CatalogScreenModel':
-      return catalogScreen(model.catalog.filter)
+      return catalogScreen(model.catalog.listing.filter)
     case 'FrameworkScreenModel':
       return frameworkScreen(screenModel.model.framework.id)
     case 'RubricScreenModel':
@@ -114,7 +115,7 @@ export const currentScreenOf = (model: Model): Screen => {
     case 'AboutScreenModel':
       return aboutScreen()
     case 'AdjacentScreenModel':
-      return adjacentScreen(model.adjacent.filter)
+      return adjacentScreen(model.adjacent.listing.filter)
     case 'BuildScreenModel':
       return buildScreen(screenModel.model.language)
     case 'NotFoundScreenModel':

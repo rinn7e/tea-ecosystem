@@ -1,17 +1,18 @@
 import { memo } from 'react'
 
-import { type ScreenProps, ScreenPropsEq } from '@/component/listing'
 import { ListingMemo } from '@/component/listing/component'
+
+import { type Props, PropsEq } from './type'
 
 // The catalog of TEA frameworks: the shared listing over
 // `data/frameworks.json`
-const CatalogComponent = ({ model, logosPerRow, dispatch }: ScreenProps) => (
+const CatalogComponent = ({ model, logosPerRow, dispatch }: Props) => (
   <ListingMemo
     kind='catalog'
-    model={model}
+    model={model.listing}
     logosPerRow={logosPerRow}
-    dispatch={dispatch}
+    dispatch={(subMsg) => dispatch({ _tag: 'ListingMsg', subMsg })}
   />
 )
 
-export const CatalogMemo = memo(CatalogComponent, ScreenPropsEq.equals)
+export const CatalogMemo = memo(CatalogComponent, PropsEq.equals)

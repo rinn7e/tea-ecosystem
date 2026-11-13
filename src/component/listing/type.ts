@@ -81,13 +81,3 @@ export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   logosPerRow: N.Eq,
   dispatch: EqAlways,
 })
-
-// The props of a screen over a list (the catalog, TEA-adjacent): the
-// screen sets the kind
-export type ScreenProps = Omit<Props, 'kind'>
-
-export const ScreenPropsEq: EqClass.Eq<ScreenProps> = EqClass.struct({
-  model: ModelEq,
-  logosPerRow: N.Eq,
-  dispatch: EqAlways,
-})
