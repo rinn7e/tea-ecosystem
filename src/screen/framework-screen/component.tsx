@@ -8,6 +8,7 @@ import { entriesOf, listOf } from '@/common/data/catalog'
 import { snippetOf } from '@/common/data/snippet'
 import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
 import { type Framework, concepts } from '@/common/type/framework'
+import { codeBlockView } from '@/component/code-block'
 import {
   conceptLabel,
   conceptMeaning,
@@ -69,14 +70,7 @@ const exampleView = ({ framework }: { framework: Framework }) =>
                 </a>
               )}
             </div>
-            {/* Compact, like code on GitHub: a grey box, no border. Long
-                lines wrap, so it never scrolls sideways. */}
-            <pre className='bg-code rounded-[3px] p-[16px] font-mono text-[14px] leading-[1.35] break-words whitespace-pre-wrap'>
-              <code
-                className='hljs'
-                dangerouslySetInnerHTML={{ __html: snippet.html }}
-              />
-            </pre>
+            {codeBlockView({ html: snippet.html })}
           </div>
         </section>
       ),

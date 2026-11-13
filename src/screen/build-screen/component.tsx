@@ -6,6 +6,7 @@ import { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
 import { type BuildLanguage, buildLanguages } from '@/common/type/destination'
+import { codeBlockView } from '@/component/code-block'
 import { sectionTitleView } from '@/component/section-title'
 
 import { type Step, highlightedSnippetOf, languageLabel, steps } from './step'
@@ -118,11 +119,7 @@ const stepView = ({
       highlightedSnippetOf(step, language),
       O.fold(
         () => null,
-        (html) => (
-          <pre className='border-line bg-code offset-shadow overflow-x-auto rounded-[3px] border px-[16px] py-[14px] text-[0.8125rem] leading-relaxed'>
-            <code className='hljs' dangerouslySetInnerHTML={{ __html: html }} />
-          </pre>
-        ),
+        (html) => codeBlockView({ html }),
       ),
     )}
   </section>
