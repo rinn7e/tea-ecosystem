@@ -1,0 +1,14 @@
+<!-- A symmetric tangram: a big triangle (the cup) over a diamond (its foot), triangles around (white on the bar blue, the key pieces full and the rest at half) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" fill="#0b7bbe"/>
+  <g transform="scale(4)">
+    <path d="M1.45 0.60L30.55 0.60L16.00 15.15Z" fill="#ffffff"/>
+    <path d="M16.00 16.85L23.15 24.00L16.00 31.15L8.85 24.00Z" fill="#ffffff"/>
+    <path d="M0.60 1.45L14.55 15.40L0.60 15.40Z" fill="#ffffff" fill-opacity="0.5"/>
+    <path d="M31.40 15.40L17.45 15.40L31.40 1.45Z" fill="#ffffff" fill-opacity="0.5"/>
+    <path d="M0.60 16.60L14.55 16.60L0.60 30.55Z" fill="#ffffff" fill-opacity="0.5"/>
+    <path d="M31.40 30.55L17.45 16.60L31.40 16.60Z" fill="#ffffff" fill-opacity="0.5"/>
+    <path d="M1.45 31.40L8.00 24.85L14.55 31.40Z" fill="#ffffff" fill-opacity="0.5"/>
+    <path d="M17.45 31.40L24.00 24.85L30.55 31.40Z" fill="#ffffff" fill-opacity="0.5"/>
+  </g>
+</svg>

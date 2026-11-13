@@ -1,0 +1,61 @@
+type SubEntry<Msg> = {
+  key: string
+  start: (dispatch: Dispatcher<Msg>, signal: AbortSignal) => void
+}
+
+// A subscription: long-running work, keyed so the runtime can tell a new one
+// from one already running
+class Sub<Msg> {
+  constructor(readonly entries: SubEntry<Msg>[]) {}
+
+  static none<Msg>(): Sub<Msg> {
+    return new Sub<Msg>([])
+  }
+
+  static batch<Msg>(subs: Sub<Msg>[]): Sub<Msg> {
+    return new Sub(subs.flatMap((sub) => sub.entries))
+  }
+
+  // Sends `toMsg(now)` every `ms`, until the runtime aborts it
+  static every<Msg>(ms: number, key: string, toMsg: (now: number) => Msg): Sub<Msg> {
+    return new Sub([
+      {
+        key,
+        start: (dispatch, signal) => {
+          const id = setInterval(() => dispatch(toMsg(Date.now())), ms)
+          signal.addEventListener('abort', () => clearInterval(id))
+        },
+      },
+    ])
+  }
+}
+
+// In the runtime: the program gets `subscriptions: (model) => Sub<Msg>`, and
+// after `init` and after every step the runtime starts what is new and
+// aborts what is gone
+private readonly running = new Map<string, AbortController>()
+
+private syncSubs(): void {
+  const wanted = new Map(
+    this.program.subscriptions(this.model).entries.map((entry) => [entry.key, entry]),
+  )
+  this.running.forEach((controller, key) => {
+    if (!wanted.has(key)) {
+      controller.abort()
+      this.running.delete(key)
+    }
+  })
+  wanted.forEach((entry, key) => {
+    if (!this.running.has(key)) {
+      const controller = new AbortController()
+      this.running.set(key, controller)
+      entry.start(this.dispatch, controller.signal)
+    }
+  })
+}
+
+// The counter ticks only while it is below 10
+const subscriptions = (model: Model): Sub<Msg> =>
+  model.count < 10
+    ? Sub.every(1000, 'tick', (at): Msg => ({ _tag: 'Tick', at }))
+    : Sub.none()

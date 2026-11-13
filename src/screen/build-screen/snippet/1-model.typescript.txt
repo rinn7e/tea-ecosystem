@@ -1,0 +1,7 @@
+type Model = { count: number; quote: string | null }
+
+type Msg =
+  | { _tag: 'Increment' }
+  | { _tag: 'FetchQuote' }
+  | { _tag: 'QuoteFetched'; result: Result<string, Error> }
+  | { _tag: 'Tick'; at: number }

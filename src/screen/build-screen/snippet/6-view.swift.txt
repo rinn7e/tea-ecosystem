@@ -1,0 +1,23 @@
+/// Shows a runtime. The body reads the model, so SwiftUI runs it again after
+/// every step; the views below are `Equatable` and skip their body when their
+/// input did not change.
+public struct ProgramView<Model, Msg, Content: View>: View {
+  @State var runtime: Runtime<Model, Msg, Content>
+
+  public init(runtime: Runtime<Model, Msg, Content>) {
+    _runtime = State(initialValue: runtime)
+  }
+
+  public var body: some View {
+    runtime.content
+  }
+}
+
+@main
+struct CounterApp: App {
+  var body: some Scene {
+    WindowGroup {
+      ProgramView(runtime: Runtime(TeaCupProgram(init: initial, update: update, view: CounterView.init)))
+    }
+  }
+}

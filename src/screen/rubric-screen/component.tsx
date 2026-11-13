@@ -1,0 +1,105 @@
+import { cn } from '@rinn7e/tea-cup-prelude'
+import { memo } from 'react'
+
+import { concepts } from '@/common/type/framework'
+import {
+  conceptLabel,
+  conceptMeaning,
+  gradeBadgeView,
+  gradeMeaning,
+  shownGrades,
+  tierMeaning,
+} from '@/component/framework-view'
+import { sectionTitleView } from '@/component/section-title'
+
+const tierCardView = ({ title, rule }: { title: string; rule: string }) => (
+  <div className='border-line bg-panel offset-shadow flex flex-col items-center gap-[8px] rounded-[3px] border px-[18px] py-[18px] text-center'>
+    <span className='text-ink text-lg font-normal'>{title}</span>
+    <span className='text-ink-muted text-sm text-balance'>{rule}</span>
+  </div>
+)
+
+const RubricComponent = () => (
+  <div className='flex flex-col gap-[32px]'>
+    <section className='flex flex-col items-center gap-[12px] text-center'>
+      <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
+        What counts as TEA
+      </h1>
+      <p className='text-ink-muted max-w-[640px] text-base text-balance'>
+        Almost every state library uses the words update and subscription. The
+        rubric grades the parts that make The Elm Architecture what it is, and
+        every grade needs evidence.
+      </p>
+    </section>
+
+    <section className='flex flex-col gap-[14px]'>
+      {sectionTitleView({ title: 'Tiers' })}
+      <div className='grid grid-cols-1 gap-[12px] lg:grid-cols-3'>
+        {tierCardView({
+          title: 'Originator',
+          rule: tierMeaning('reference'),
+        })}
+        {tierCardView({
+          title: 'Full TEA',
+          rule: tierMeaning('full'),
+        })}
+        {tierCardView({
+          title: 'Superset',
+          rule: tierMeaning('superset'),
+        })}
+      </div>
+      <p className='text-ink-muted text-center text-sm'>
+        A library that fails a hard requirement goes to the TEA-adjacent page,
+        with the reason.
+      </p>
+    </section>
+
+    <section className='flex flex-col gap-[14px]'>
+      {sectionTitleView({ title: 'Grades' })}
+      <div className='grid grid-cols-1 gap-[12px] lg:grid-cols-2'>
+        {shownGrades.map((grade, index) => (
+          <div
+            key={grade}
+            className={cn(
+              'border-line bg-panel offset-shadow flex flex-col items-center gap-[8px] rounded-[3px] border px-[16px] py-[16px] text-center',
+              // The odd last card sits on the axis, across both columns
+              index === shownGrades.length - 1 &&
+                shownGrades.length % 2 === 1 &&
+                'lg:col-span-2 lg:w-[calc(50%-6px)] lg:justify-self-center',
+            )}
+          >
+            {gradeBadgeView({ grade })}
+            <span className='text-ink-muted text-sm'>
+              {gradeMeaning(grade)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section className='flex flex-col gap-[14px]'>
+      {sectionTitleView({ title: 'Concepts' })}
+      <div className='border-line bg-panel offset-shadow overflow-hidden rounded-[3px] border'>
+        {concepts.map((concept) => (
+          <div
+            key={concept}
+            className='border-line flex flex-col gap-[4px] border-b px-[18px] py-[14px] last:border-b-0 lg:grid lg:grid-cols-[120px_1fr] lg:items-baseline lg:gap-[16px]'
+          >
+            <span className='text-ink text-sm font-normal'>
+              {conceptLabel(concept)}
+            </span>
+            <span className='text-ink-muted text-sm'>
+              {conceptMeaning(concept)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className='text-ink-muted text-center text-sm'>
+        The line that matters most is Cmd: update returns effects as values and
+        never runs them. That is what keeps Redux out.
+      </p>
+    </section>
+  </div>
+)
+
+export const RubricMemo = memo(RubricComponent)

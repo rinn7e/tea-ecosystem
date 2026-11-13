@@ -1,0 +1,44 @@
+type Result<A, E> = { ok: true; value: A } | { ok: false; error: E }
+
+type Effect<Msg> = (dispatch: Dispatcher<Msg>) => void | Promise<void>
+
+// A command: a description of work the runtime does after `update`.
+// `update` stays pure: it only returns commands, and the runtime runs them.
+class Cmd<Msg> {
+  private constructor(readonly effects: Effect<Msg>[]) {}
+
+  // One piece of IO: the only way to run a side effect
+  static of<Msg>(effect: Effect<Msg>): Cmd<Msg> {
+    return new Cmd([effect])
+  }
+
+  static none<Msg>(): Cmd<Msg> {
+    return new Cmd<Msg>([])
+  }
+
+  static batch<Msg>(cmds: Cmd<Msg>[]): Cmd<Msg> {
+    return new Cmd(cmds.flatMap((cmd) => cmd.effects))
+  }
+
+  // Runs `task` and sends its result as a message
+  static attempt<A, Msg>(
+    task: () => Promise<A>,
+    toMsg: (result: Result<A, Error>) => Msg,
+  ): Cmd<Msg> {
+    return Cmd.of(async (dispatch) => {
+      try {
+        dispatch(toMsg({ ok: true, value: await task() }))
+      } catch (error) {
+        dispatch(toMsg({ ok: false, error: error instanceof Error ? error : new Error(String(error)) }))
+      }
+    })
+  }
+
+  map<B>(toMsg: (msg: Msg) => B): Cmd<B> {
+    return new Cmd(
+      this.effects.map((effect) => (dispatch: Dispatcher<B>) =>
+        effect(mapDispatcher(dispatch, toMsg)),
+      ),
+    )
+  }
+}

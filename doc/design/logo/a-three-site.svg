@@ -1,0 +1,8 @@
+<!-- Three pieces split like a Y: a V-shaped cup on top, two sides holding it (Model, view, update) (the blues of the site) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <g transform="scale(4)">
+    <path d="M1.34 0.60L30.66 0.60L16.00 17.10Z" fill="#1293d8"/>
+    <path d="M0.60 1.58L15.40 18.23L15.40 31.40L0.60 31.40Z" fill="#0b5f8f"/>
+    <path d="M31.40 31.40L16.60 31.40L16.60 18.23L31.40 1.58Z" fill="#0b5f8f"/>
+  </g>
+</svg>

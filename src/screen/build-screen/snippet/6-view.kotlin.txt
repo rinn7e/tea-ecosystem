@@ -1,0 +1,23 @@
+/**
+ * Holds a runtime for Compose: the model is Compose state, set in the same call
+ * as the `dispatch` that made it. Commands run on the main thread.
+ */
+class ProgramHost<Model, Msg>(program: Program<Model, Msg>) {
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+  private val runtime: Runtime<Model, Msg> = Runtime(program, scope, onModel = { model = it })
+
+  var model: Model by mutableStateOf(runtime.model)
+    private set
+
+  val dispatcher: Dispatcher<Msg> get() = runtime.dispatcher
+
+  fun start() = runtime.start()
+
+  fun stop() = scope.cancel()
+}
+
+/** Shows a program: the view of the model, drawn again after every step. */
+@Composable
+fun <Model, Msg> ProgramView(host: ProgramHost<Model, Msg>, view: @Composable (Model, Dispatcher<Msg>) -> Unit) {
+  view(host.model, host.dispatcher)
+}

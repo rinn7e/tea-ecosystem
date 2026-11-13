@@ -1,0 +1,22 @@
+/**
+ * A command: a description of work the runtime does after `update`. `update`
+ * stays pure: it only returns commands, and the runtime runs them. Covariant:
+ * `Cmd.none` fits any command type.
+ */
+class Cmd<out Msg> internal constructor(internal val effects: List<suspend (Dispatcher<Msg>) -> Unit>) {
+  fun <B> map(toMsg: (Msg) -> B): Cmd<B> =
+    Cmd(effects.map { effect -> { dispatch: Dispatcher<B> -> effect(dispatch.map(toMsg)) } })
+
+  companion object {
+    val none: Cmd<Nothing> = Cmd(emptyList())
+
+    fun <Msg> batch(vararg cmds: Cmd<Msg>): Cmd<Msg> = Cmd(cmds.flatMap { it.effects })
+
+    /** Runs `task` and sends its result as a message. */
+    fun <E, A, Msg> attempt(task: suspend () -> Either<E, A>, toMsg: (Either<E, A>) -> Msg): Cmd<Msg> =
+      Cmd { dispatch -> dispatch(toMsg(task())) }
+  }
+}
+
+/** One piece of IO: the only way to run a side effect, so `update` never runs one itself. */
+fun <Msg> Cmd(effect: suspend (dispatch: Dispatcher<Msg>) -> Unit): Cmd<Msg> = Cmd(listOf(effect))

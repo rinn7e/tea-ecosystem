@@ -1,0 +1,129 @@
+import gleam from '@gleam-lang/highlight.js-gleam'
+import * as O from 'fp-ts/Option'
+import * as R from 'fp-ts/Record'
+import { pipe } from 'fp-ts/function'
+import hljs from 'highlight.js/lib/core'
+import clojure from 'highlight.js/lib/languages/clojure'
+import csharp from 'highlight.js/lib/languages/csharp'
+import dart from 'highlight.js/lib/languages/dart'
+import elixir from 'highlight.js/lib/languages/elixir'
+import elm from 'highlight.js/lib/languages/elm'
+import fsharp from 'highlight.js/lib/languages/fsharp'
+import go from 'highlight.js/lib/languages/go'
+import haskell from 'highlight.js/lib/languages/haskell'
+import java from 'highlight.js/lib/languages/java'
+import javascript from 'highlight.js/lib/languages/javascript'
+import kotlin from 'highlight.js/lib/languages/kotlin'
+import ocaml from 'highlight.js/lib/languages/ocaml'
+import python from 'highlight.js/lib/languages/python'
+import reasonml from 'highlight.js/lib/languages/reasonml'
+import rust from 'highlight.js/lib/languages/rust'
+import scala from 'highlight.js/lib/languages/scala'
+import swift from 'highlight.js/lib/languages/swift'
+import typescript from 'highlight.js/lib/languages/typescript'
+
+// The grammars the examples need. PureScript has none in highlight.js and
+// reads well as Haskell, its parent.
+const grammars = {
+  clojure,
+  csharp,
+  dart,
+  elixir,
+  elm,
+  fsharp,
+  gleam,
+  go,
+  haskell,
+  java,
+  javascript,
+  kotlin,
+  ocaml,
+  python,
+  reasonml,
+  rust,
+  scala,
+  swift,
+  typescript,
+}
+
+Object.entries(grammars).forEach(([name, grammar]) => {
+  hljs.registerLanguage(name, grammar)
+})
+
+// The grammar of each file extension of `data/snippet/`
+const grammarOfExtension: Record<string, keyof typeof grammars> = {
+  cljs: 'clojure',
+  cs: 'csharp',
+  dart: 'dart',
+  elm: 'elm',
+  ex: 'elixir',
+  fs: 'fsharp',
+  gleam: 'gleam',
+  go: 'go',
+  hs: 'haskell',
+  java: 'java',
+  js: 'javascript',
+  jsx: 'javascript',
+  kt: 'kotlin',
+  ml: 'ocaml',
+  purs: 'haskell',
+  py: 'python',
+  re: 'reasonml',
+  rs: 'rust',
+  scala: 'scala',
+  swift: 'swift',
+  ts: 'typescript',
+  tsx: 'typescript',
+}
+
+// An example of an entry, copied from its own docs (`snippetSource` of the
+// data files says where): its code, highlighted
+export type Snippet = {
+  code: string
+  html: string
+}
+
+// One file per entry: `data/snippet/<id>.<extension>`. Plain text, so the
+// examples keep their own formatting and are not compiled with this app.
+const snippetFiles: Record<string, string> = import.meta.glob<string>(
+  '../../../data/snippet/*',
+  { query: '?raw', import: 'default', eager: true },
+)
+
+const fileNameOf = (path: string): string => path.split('/').pop() ?? path
+
+// `elm.elm` -> the id `elm` and the extension `elm`
+const splitFileName = (fileName: string): { id: string; extension: string } => {
+  const dot = fileName.lastIndexOf('.')
+  return { id: fileName.slice(0, dot), extension: fileName.slice(dot + 1) }
+}
+
+export const snippetFileNames: string[] =
+  Object.keys(snippetFiles).map(fileNameOf)
+
+export const isKnownSnippetExtension = (fileName: string): boolean =>
+  splitFileName(fileName).extension in grammarOfExtension
+
+const snippets: Record<string, Snippet> = Object.fromEntries(
+  Object.entries(snippetFiles).map(([path, code]) => {
+    const { id, extension } = splitFileName(fileNameOf(path))
+    const trimmed = code.trimEnd()
+    return [
+      id,
+      {
+        code: trimmed,
+        html: pipe(
+          grammarOfExtension,
+          R.lookup(extension),
+          O.fold(
+            () => hljs.highlightAuto(trimmed).value,
+            (language) => hljs.highlight(trimmed, { language }).value,
+          ),
+        ),
+      },
+    ]
+  }),
+)
+
+export const snippetOf = (id: string): O.Option<Snippet> =>
+  pipe(snippets, R.lookup(id))

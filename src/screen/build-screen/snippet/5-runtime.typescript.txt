@@ -1,0 +1,35 @@
+type Program<Model, Msg> = {
+  init: () => [Model, Cmd<Msg>]
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>]
+}
+
+// Holds the model of a program and runs its commands
+class Runtime<Model, Msg> {
+  model: Model
+  private readonly listeners = new Set<() => void>()
+
+  constructor(private readonly program: Program<Model, Msg>) {
+    const [model, cmd] = program.init()
+    this.model = model
+    this.run(cmd)
+  }
+
+  // The whole loop: update, keep the model, tell the view, run the commands
+  dispatch = (msg: Msg): void => {
+    const [model, cmd] = this.program.update(msg, this.model)
+    this.model = model
+    this.listeners.forEach((listener) => listener())
+    this.run(cmd)
+  }
+
+  listen = (listener: () => void): (() => void) => {
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
+  }
+
+  // After the step, never inside it: an effect that answers at once still
+  // comes back as a new message
+  private run(cmd: Cmd<Msg>): void {
+    cmd.effects.forEach((effect) => queueMicrotask(() => void effect(this.dispatch)))
+  }
+}

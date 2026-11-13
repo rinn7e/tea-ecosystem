@@ -1,0 +1,11 @@
+fun update(msg: Msg, model: Model): Pair<Model, Cmd<Msg>> =
+  when (msg) {
+    Msg.Increment, is Msg.Tick -> model.copy(count = model.count + 1) to Cmd.none
+    // A description of the request: the runtime runs it, not update
+    Msg.FetchQuote -> model to Cmd.attempt(::fetchQuote, Msg::QuoteFetched)
+    is Msg.QuoteFetched ->
+      when (val result = msg.result) {
+        is Either.Right -> model.copy(quote = result.value) to Cmd.none
+        is Either.Left -> model to Cmd.none
+      }
+  }

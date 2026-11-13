@@ -1,0 +1,11 @@
+struct Model: Equatable {
+  var count: Int
+  var quote: String?
+}
+
+enum Msg {
+  case increment
+  case fetchQuote
+  case quoteFetched(Result<String, Error>)
+  case tick(Date)
+}

@@ -1,0 +1,36 @@
+/// A TEA program: `init` and `update` return the next model with commands,
+/// `view` draws the model.
+public struct TeaCupProgram<Model, Msg, Content: View> {
+  let `init`: () -> (Model, Cmd<Msg>)
+  let update: (Msg, Model) -> (Model, Cmd<Msg>)
+  let view: (Model, Dispatcher<Msg>) -> Content
+}
+
+/// Holds the model of a program and runs its commands.
+@MainActor
+@Observable
+public final class Runtime<Model, Msg, Content: View> {
+  public private(set) var model: Model
+  @ObservationIgnored private let program: TeaCupProgram<Model, Msg, Content>
+  @ObservationIgnored private(set) var dispatcher: Dispatcher<Msg> = Dispatcher { _ in }
+
+  public init(_ program: TeaCupProgram<Model, Msg, Content>) {
+    let (model, cmd) = program.`init`()
+    self.program = program
+    self.model = model
+    dispatcher = Dispatcher { [unowned self] msg in dispatch(msg) }
+    cmd.run(dispatcher)
+  }
+
+  // The whole loop: update, keep the model, run the commands
+  public func dispatch(_ msg: Msg) {
+    let (newModel, cmd) = program.update(msg, model)
+    model = newModel
+    cmd.run(dispatcher)
+  }
+
+  // For `ProgramView`, in the same file
+  fileprivate var content: Content {
+    program.view(model, dispatcher)
+  }
+}

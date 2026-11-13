@@ -1,0 +1,14 @@
+import { type ReactNode, useState, useSyncExternalStore } from 'react'
+
+// Shows a program: React draws the view again after every step
+const ProgramView = <Model, Msg>({
+  program,
+  view,
+}: {
+  program: Program<Model, Msg>
+  view: (model: Model, dispatch: Dispatcher<Msg>) => ReactNode
+}) => {
+  const [runtime] = useState(() => new Runtime(program))
+  const model = useSyncExternalStore(runtime.listen, () => runtime.model)
+  return view(model, runtime.dispatch)
+}

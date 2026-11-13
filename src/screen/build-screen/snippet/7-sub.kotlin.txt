@@ -1,0 +1,37 @@
+/**
+ * A subscription: long-running work, keyed so the runtime can tell a new one
+ * from one already running.
+ */
+class Sub<out Msg> internal constructor(internal val entries: List<Pair<String, suspend (Dispatcher<Msg>) -> Unit>>) {
+  companion object {
+    val none: Sub<Nothing> = Sub(emptyList())
+
+    fun <Msg> batch(vararg subs: Sub<Msg>): Sub<Msg> = Sub(subs.flatMap { it.entries })
+
+    /** Sends `toMsg(now)` every `interval`, until the runtime cancels it. */
+    fun <Msg> every(interval: Duration, key: String, toMsg: (Long) -> Msg): Sub<Msg> {
+      val run: suspend (Dispatcher<Msg>) -> Unit = { dispatch ->
+        while (true) {
+          delay(interval)
+          dispatch(toMsg(System.currentTimeMillis()))
+        }
+      }
+      return Sub(listOf(key to run))
+    }
+  }
+}
+
+// In the runtime: the program gets `subscriptions: (Model) -> Sub<Msg>`, and
+// after `start` and after every step the runtime starts what is new and
+// cancels what is gone
+private val running = mutableMapOf<String, Job>()
+
+private fun syncSubs() {
+  val wanted = program.subscriptions(model).entries.toMap()
+  (running.keys - wanted.keys).forEach { key -> running.remove(key)?.cancel() }
+  (wanted - running.keys).forEach { (key, run) -> running[key] = scope.launch { run(dispatcher) } }
+}
+
+// The counter ticks only while it is below 10
+fun subscriptions(model: Model): Sub<Msg> =
+  if (model.count < 10) Sub.every(1.seconds, "tick", Msg::Tick) else Sub.none

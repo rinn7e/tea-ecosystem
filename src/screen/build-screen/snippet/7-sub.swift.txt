@@ -1,0 +1,47 @@
+/// A subscription: long-running work, keyed so the runtime can tell a new one
+/// from one already running.
+public struct Sub<Msg> {
+  public typealias Run = @MainActor (_ dispatch: Dispatcher<Msg>) async -> Void
+
+  let entries: [(key: String, run: Run)]
+
+  public static var none: Sub { Sub(entries: []) }
+
+  public static func batch(_ subs: [Sub]) -> Sub {
+    Sub(entries: subs.flatMap(\.entries))
+  }
+
+  /// Sends `toMsg(now)` every `interval`, until the runtime cancels it.
+  public static func every(_ interval: Duration, key: String, _ toMsg: @escaping (Date) -> Msg) -> Sub {
+    Sub(entries: [(key, { dispatch in
+      while !Task.isCancelled {
+        try? await Task.sleep(for: interval)
+        if !Task.isCancelled { dispatch(toMsg(Date())) }
+      }
+    })])
+  }
+}
+
+// In the runtime: the program gets `subscriptions: (Model) -> Sub<Msg>`, and
+// after `init` and after every step the runtime starts what is new and
+// cancels what is gone
+@ObservationIgnored private var running: [String: Task<Void, Never>] = [:]
+
+private func syncSubs() {
+  let wanted = Dictionary(
+    program.subscriptions(model).entries.map { ($0.key, $0.run) },
+    uniquingKeysWith: { first, _ in first }
+  )
+  for (key, task) in running where wanted[key] == nil {
+    task.cancel()
+    running[key] = nil
+  }
+  for (key, run) in wanted where running[key] == nil {
+    running[key] = Task { await run(dispatcher) }
+  }
+}
+
+// The counter ticks only while it is below 10
+func subscriptions(_ model: Model) -> Sub<Msg> {
+  model.count < 10 ? .every(.seconds(1), key: "tick", Msg.tick) : .none
+}

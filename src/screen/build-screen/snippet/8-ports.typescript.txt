@@ -1,0 +1,30 @@
+// A port into the program: plain code outside it sends values, and the
+// program reads them as a subscription
+class Port<A> {
+  private readonly receivers = new Set<(value: A) => void>()
+
+  send(value: A): void {
+    this.receivers.forEach((receive) => receive(value))
+  }
+
+  subscribe<Msg>(key: string, toMsg: (value: A) => Msg): Sub<Msg> {
+    return new Sub([
+      {
+        key,
+        start: (dispatch, signal) => {
+          const receive = (value: A) => dispatch(toMsg(value))
+          this.receivers.add(receive)
+          signal.addEventListener('abort', () => this.receivers.delete(receive))
+        },
+      },
+    ])
+  }
+}
+
+// Outside the program
+const hashChanges = new Port<string>()
+window.addEventListener('hashchange', () => hashChanges.send(window.location.hash))
+
+// A port out of the program is just a command: work the runtime runs
+const copyCmd = (text: string): Cmd<never> =>
+  Cmd.of(() => navigator.clipboard.writeText(text))

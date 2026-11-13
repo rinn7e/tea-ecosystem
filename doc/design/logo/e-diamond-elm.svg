@@ -1,0 +1,11 @@
+<!-- A diamond in the square, cut in half on the axis, with the four corners around it (the Elm colors) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <g transform="scale(4)">
+    <path d="M15.40 1.45L15.40 30.55L0.85 16.00Z" fill="#60b5cc"/>
+    <path d="M31.15 16.00L16.60 30.55L16.60 1.45Z" fill="#60b5cc"/>
+    <path d="M0.60 0.60L14.55 0.60L0.60 14.55Z" fill="#5a6378"/>
+    <path d="M31.40 14.55L17.45 0.60L31.40 0.60Z" fill="#5a6378"/>
+    <path d="M0.60 17.45L14.55 31.40L0.60 31.40Z" fill="#7fd13b"/>
+    <path d="M31.40 31.40L17.45 31.40L31.40 17.45Z" fill="#7fd13b"/>
+  </g>
+</svg>

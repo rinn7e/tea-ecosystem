@@ -1,0 +1,8 @@
+// Sends a message to the runtime
+type Dispatcher<Msg> = (msg: Msg) => void
+
+// A dispatcher for a child component, which wraps its messages
+const mapDispatcher =
+  <Child, Msg>(dispatch: Dispatcher<Msg>, toMsg: (child: Child) => Msg): Dispatcher<Child> =>
+  (child) =>
+    dispatch(toMsg(child))

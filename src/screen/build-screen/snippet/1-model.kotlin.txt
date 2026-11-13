@@ -1,0 +1,8 @@
+data class Model(val count: Int, val quote: String?)
+
+sealed interface Msg {
+  data object Increment : Msg
+  data object FetchQuote : Msg
+  data class QuoteFetched(val result: Either<Throwable, String>) : Msg
+  data class Tick(val at: Long) : Msg
+}

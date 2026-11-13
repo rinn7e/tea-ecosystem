@@ -1,0 +1,28 @@
+// A port into the program: Android hands the activity a deep link, the
+// program gets a message
+class Program<Model, Msg>(
+  // ... init and update as before
+  val onOpenUrl: (String) -> Msg,
+)
+
+// In the runtime
+fun openUrl(url: String) = dispatch(program.onOpenUrl(url))
+
+// In the activity: the link that opened the app, and the ones that come
+// while it runs
+override fun onCreate(savedInstanceState: Bundle?) {
+  super.onCreate(savedInstanceState)
+  host = ProgramHost(appProgram)
+  host.start()
+  intent?.data?.let { host.openUrl(it.toString()) }
+  setContent { ProgramView(host) { model, dispatch -> AppView(model, dispatch) } }
+}
+
+override fun onNewIntent(intent: Intent) {
+  super.onNewIntent(intent)
+  intent.data?.let { host.openUrl(it.toString()) }
+}
+
+// A port out of the program is just a command: work the runtime runs
+fun copyCmd(context: Context, text: String): Cmd<Nothing> =
+  Cmd { _ -> context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("text", text)) }

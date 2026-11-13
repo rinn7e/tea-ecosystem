@@ -1,0 +1,11 @@
+<!-- A T for TEA: the bar and the stem, each side below cut on its diagonal (the blues of the site) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <g transform="scale(4)">
+    <path d="M0.60 0.60L31.40 0.60L31.40 9.40L0.60 9.40Z" fill="#1293d8"/>
+    <path d="M11.60 10.60L20.40 10.60L20.40 31.40L11.60 31.40Z" fill="#1293d8"/>
+    <path d="M0.97 10.60L10.40 10.60L10.40 29.46Z" fill="#0b5f8f"/>
+    <path d="M21.60 29.46L21.60 10.60L31.03 10.60Z" fill="#0b5f8f"/>
+    <path d="M0.60 12.54L10.03 31.40L0.60 31.40Z" fill="#94c9ec"/>
+    <path d="M31.40 31.40L21.97 31.40L31.40 12.54Z" fill="#94c9ec"/>
+  </g>
+</svg>

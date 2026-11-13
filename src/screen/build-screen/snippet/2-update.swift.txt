@@ -1,0 +1,13 @@
+func update(_ msg: Msg, _ model: Model) -> (Model, Cmd<Msg>) {
+  switch msg {
+  case .increment, .tick:
+    return (Model(count: model.count + 1, quote: model.quote), .none)
+  case .fetchQuote:
+    // A description of the request: the runtime runs it, not update
+    return (model, .attempt(fetchQuote, Msg.quoteFetched))
+  case .quoteFetched(.success(let quote)):
+    return (Model(count: model.count, quote: quote), .none)
+  case .quoteFetched(.failure):
+    return (model, .none)
+  }
+}

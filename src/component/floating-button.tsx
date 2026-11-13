@@ -1,0 +1,52 @@
+import { cn } from '@rinn7e/tea-cup-prelude'
+import { IconArrowLeft } from '@tabler/icons-react'
+import type React from 'react'
+
+import { type Destination } from '@/common/type/destination'
+
+import { Link } from './link'
+
+// The look of every floating button: a blue circle with a brighter border
+// under the pointer
+export const floatingButtonClass =
+  'bg-bar text-bar-ink border-bar-ink/40 hover:border-bar-ink flex size-[44px] cursor-pointer items-center justify-center rounded-full border-2 transition-[opacity,transform,border-color] duration-150 motion-reduce:transition-none lg:size-[48px]'
+
+// The floating buttons, fixed near the bottom of the window on the edges of
+// the 1080px frame of the bar, the lists and the footer: back on the left,
+// back to the top on the right, mirrored on the axis. On a phone they sit
+// above the tab bar. The frame lets presses through; only the buttons take
+// them, so each one sets `pointer-events-auto` while it is shown.
+export const floatingFrameView = ({
+  start,
+  end,
+}: {
+  start: React.ReactNode
+  end: React.ReactNode
+}) => (
+  <div className='pointer-events-none fixed inset-x-0 bottom-[76px] z-30 flex justify-center px-[16px] lg:bottom-[32px]'>
+    <div className='flex w-full max-w-[1080px] items-end justify-between'>
+      {/* An empty start keeps the end on the right */}
+      <div>{start}</div>
+      <div>{end}</div>
+    </div>
+  </div>
+)
+
+// Back to the screen under the one shown (`backOf`): a link, like the one
+// at the top of the page, so the list comes back with its filters and its
+// scroll
+export const floatingBackView = ({
+  destination,
+  label,
+}: {
+  destination: Destination
+  label: string
+}) => (
+  <Link
+    destination={destination}
+    aria-label={label}
+    className={cn(floatingButtonClass, 'pointer-events-auto')}
+  >
+    <IconArrowLeft size={22} stroke={2} aria-hidden />
+  </Link>
+)

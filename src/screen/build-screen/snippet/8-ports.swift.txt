@@ -1,0 +1,22 @@
+// A port into the program: the OS hands the app a URL, the program gets a
+// message. iOS has no address bar, so a URL reaches the app only as a deep link.
+public struct TeaCupProgram<Model, Msg, Content: View> {
+  // ... init, update and view as before
+  let onOpenUrl: (URL) -> Msg
+}
+
+// In the runtime
+fileprivate func openUrl(_ url: URL) {
+  dispatch(program.onOpenUrl(url))
+}
+
+// In ProgramView: SwiftUI hands over every URL the app is opened with
+public var body: some View {
+  runtime.content
+    .onOpenURL(perform: runtime.openUrl)
+}
+
+// A port out of the program is just a command: work the runtime runs
+func copyCmd(_ text: String) -> Cmd<Msg> {
+  Cmd { _ in UIPasteboard.general.string = text }
+}
