@@ -107,13 +107,19 @@ describe('language', () => {
     expect(shownIn('Rust').every((language) => language === 'Rust')).toBe(true)
   })
 
-  it('counts the languages of a list, TEA languages first, then the most used', () => {
+  it('counts the languages of a list, Elm and TypeScript first, then the most popular', () => {
     const counts = languageCountsOf(frameworks)
-    expect(counts.slice(0, 3)).toEqual([
-      { language: 'Elm', count: 2 },
-      { language: 'Gren', count: 1 },
-      { language: 'Rust', count: 10 },
+    expect(counts.slice(0, 4).map((c) => c.language)).toEqual([
+      'Elm',
+      'TypeScript',
+      'JavaScript',
+      'Python',
     ])
+    expect(counts[0]).toEqual({ language: 'Elm', count: 2 })
+    expect(
+      counts.findIndex((c) => c.language === 'Rust') <
+        counts.findIndex((c) => c.language === 'Haskell'),
+    ).toBe(true)
     expect(counts.map((c) => c.language)).not.toContain('Kotlin and Swift')
     expect(
       languageCountsOf(adjacentEntries).map((c) => c.language),

@@ -7,6 +7,10 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 
 import {
+  languagePopularity,
+  pinnedLanguages,
+} from '@/common/data/language-popularity'
+import {
   type ListingFilter,
   type ListingSort,
   type SortColumn,
@@ -80,14 +84,27 @@ const matchesEntryKind =
       ),
     )
 
-type LanguageCount = { language: string; count: number; lead: number }
+type LanguageCount = { language: string; count: number }
+
+// Where a pinned language stands (`pinnedLanguages`: Elm, then TypeScript),
+// after them every other language
+const pinRankOf = (language: string): number => {
+  const index = pinnedLanguages.indexOf(language)
+  return index === -1 ? pinnedLanguages.length : index
+}
 
 const languageCountOrd: Ord.Ord<LanguageCount> = concatAll(
   Ord.getMonoid<LanguageCount>(),
 )([
   pipe(
     N.Ord,
-    Ord.contramap((entry: LanguageCount) => entry.lead),
+    Ord.contramap((entry: LanguageCount) => pinRankOf(entry.language)),
+  ),
+  pipe(
+    Ord.reverse(N.Ord),
+    Ord.contramap(
+      (entry: LanguageCount) => languagePopularity[entry.language] ?? 0,
+    ),
   ),
   pipe(
     Ord.reverse(N.Ord),
@@ -150,19 +167,9 @@ export const isFiltered = (filter: ListingFilter): boolean =>
   O.isSome(filter.language) ||
   filter.includeArchived
 
-// Where a language stands in the row: the languages of TEA itself lead,
-// Elm (the Originator) first, then the languages forked from it (Gren)
-const leadOf =
-  (entries: Framework[]) =>
-  (language: string): number =>
-    entries.some((f) => f.tier === 'reference' && f.language === language)
-      ? 0
-      : entries.some((f) => isLanguageEntry(f) && f.language === language)
-        ? 1
-        : 2
-
-// Every language of a list with its number of entries: the languages of
-// TEA itself first, then the most used, then by name. The row of language
+// Every language of a list with its number of entries: Elm and TypeScript
+// first (`pinnedLanguages`), then the most popular (`languagePopularity`),
+// then the one with the most entries, then by name. The row of language
 // logos.
 export const languageCountsOf = (
   entries: Framework[],
@@ -173,14 +180,8 @@ export const languageCountsOf = (
     A.reduce(new Map<string, number>(), (counts, language) =>
       new Map(counts).set(language, (counts.get(language) ?? 0) + 1),
     ),
-    (counts) =>
-      [...counts].map(([language, count]) => ({
-        language,
-        count,
-        lead: leadOf(entries)(language),
-      })),
+    (counts) => [...counts].map(([language, count]) => ({ language, count })),
     A.sort(languageCountOrd),
-    A.map(({ language, count }) => ({ language, count })),
   )
 
 const tierRank = (tier: Tier): number =>
