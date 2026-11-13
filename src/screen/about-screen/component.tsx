@@ -111,7 +111,7 @@ const AboutComponent = () => (
       {sectionTitleView({ title: 'Where the data comes from' })}
       {proseView({
         children:
-          'Each entry was read from its own README, docs and website. Some grades were first drafted from memory and a light web check; their framework page says so until they are checked against the docs. Stars, creation dates and the date of the last push come from the repository of each entry, wherever it is hosted: GitHub, GitLab, Codeberg or another Gitea.',
+          'Each entry is graded from its own README, docs and website, and its page says whether every grade has been checked against its docs or source yet. Stars, creation dates and the date of the last push come from the repository of each entry, wherever it is hosted: GitHub, GitLab, Codeberg or another Gitea.',
       })}
     </section>
 

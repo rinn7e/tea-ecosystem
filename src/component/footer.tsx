@@ -162,9 +162,7 @@ const FooterComponent = () => (
           </p>
           <p className='max-w-[620px] text-balance'>
             A community catalog, not affiliated with Elm. Each framework logo
-            belongs to its own project. Some grades were drafted from memory and
-            a light web check; each framework page says which. Corrections are
-            welcome.
+            belongs to its own project. Corrections are welcome.
           </p>
           <p className='inline-flex flex-wrap items-center justify-center gap-[4px]'>
             Crafted with

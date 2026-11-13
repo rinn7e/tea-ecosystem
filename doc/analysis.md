@@ -51,7 +51,7 @@ The list lives in the data files of the site, not in this document:
 
 The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every framework holds the rules of its tier (`rubricProblemsOf`).
 
-Grades come from memory plus a light web check on 2026-11-13. An entry is `verified: true` only where its docs were read for this list (Elm, Miso, Lustre, react-tea-cup, Bubble Tea, Mobius); the site marks the others "Unverified". Checking every entry against its docs, with an evidence link per grade, is the next data task.
+Grades come from memory plus a light web check on 2026-11-13. An entry is `verified: true` only once every grade was checked against its docs or source (39 frameworks and 4 TEA-adjacent libraries by 2026-11-13, starting with Elm, Miso, Lustre, react-tea-cup, Bubble Tea and Mobius); the page of every other entry says it is not yet checked. Checking every entry against its docs, with an evidence link per grade, is the next data task.
 
 Added after the first draft, on review: Foldkit and tea-effect (TypeScript, on Effect), react-elmish, `@typescript-tea/core`, Ferp, Indigo, Scalm, Avalonia.FuncUI, Terminal.Gui.Elmish, gi-gtk-declarative, Pux, Spork, libcosmic, Draco, and the terminal frameworks: tears, hojicha, osteak and teatui (Rust on ratatui), Mint Tea (OCaml), Shore, Teashop and gleamtea (Gleam), Milo (Python). fastTEA, ts-elmish and Raj went to the adjacent page for lack of subscriptions.
 

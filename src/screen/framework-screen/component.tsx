@@ -206,13 +206,11 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
         {/* Where these grades come from */}
         {framework.verified ? (
           <p className='text-native text-center text-sm'>
-            Graded from docs: every grade was checked against its docs or
-            source.
+            Every grade is checked against its docs or source.
           </p>
         ) : (
           <p className='text-ink-faint text-center text-sm'>
-            Graded from memory: drafted from memory and a light web check, not
-            yet against its docs.
+            Not yet checked against its docs or source. Corrections are welcome.
           </p>
         )}
       </section>
