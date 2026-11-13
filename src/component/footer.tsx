@@ -10,7 +10,7 @@ import {
 } from '@/common/type/destination'
 import { languagesOf } from '@/common/type/framework'
 
-import { emblemView } from './header'
+import { emblemView, lastUpdated } from './header'
 import { Link } from './link'
 
 // The year of the build, for the copyright line
@@ -160,7 +160,9 @@ export const footerView = ({
 
         {/* The bottom bar on the axis: the year, the note, the credit */}
         <div className='border-line text-ink-faint flex flex-col items-center gap-[8px] border-t pt-[24px] text-center text-xs'>
-          <p>© {YEAR} TEA Ecosystem</p>
+          <p>
+            © {YEAR} TEA Ecosystem, updated {lastUpdated}
+          </p>
           <p className='max-w-[620px] text-balance'>
             A community catalog, not affiliated with Elm. Each framework logo
             belongs to its own project. Some grades were drafted from memory and

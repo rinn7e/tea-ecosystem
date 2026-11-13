@@ -7,6 +7,7 @@ import {
   IconListCheck,
 } from '@tabler/icons-react'
 
+import { LAST_UPDATED } from '@/common/env'
 import {
   type Destination,
   aboutScreen,
@@ -15,8 +16,13 @@ import {
   destinationOfScreen,
   rubricScreen,
 } from '@/common/type/destination'
+import { dayMonthYearOf } from '@/common/util'
 
 import { Link } from './link'
+import { TooltipTrigger } from './tooltip/trigger'
+
+// The day the repository last changed, as the bar and the footer show it
+export const lastUpdated = dayMonthYearOf(LAST_UPDATED)
 
 export type HeaderSection =
   'catalog' | 'about' | 'rubric' | 'adjacent' | 'build' | 'none'
@@ -142,15 +148,29 @@ export const headerView = ({
               isActive: active === 'rubric',
             })}
           </nav>
-          <a
-            href='https://github.com/rinn7e/tea-ecosystem'
-            target='_blank'
-            rel='noreferrer'
-            aria-label='The source code of TEA Ecosystem on GitHub'
-            className='text-bar-ink absolute top-1/2 right-[16px] flex -translate-y-1/2 cursor-pointer p-[6px] opacity-80 transition-opacity hover:opacity-100 lg:static lg:translate-y-0'
+          {/* The source code, with the day it last changed under the icon */}
+          <TooltipTrigger
+            id='bar-last-updated'
+            content={{
+              title: `Updated ${lastUpdated}`,
+              text: 'The day the catalog or the site last changed, in its repository on GitHub. The site is rebuilt on every change.',
+            }}
+            touch={false}
+            className='absolute top-1/2 right-[16px] flex -translate-y-1/2 lg:static lg:translate-y-0'
           >
-            <IconBrandGithub size={24} stroke={1.75} aria-hidden />
-          </a>
+            <a
+              href='https://github.com/rinn7e/tea-ecosystem'
+              target='_blank'
+              rel='noreferrer'
+              aria-label={`The source code of TEA Ecosystem on GitHub, updated ${lastUpdated}`}
+              className='text-bar-ink flex cursor-pointer flex-col items-center gap-[3px] px-[4px] py-[2px] opacity-80 transition-opacity hover:opacity-100'
+            >
+              <IconBrandGithub size={22} stroke={1.75} aria-hidden />
+              <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
+                {lastUpdated}
+              </span>
+            </a>
+          </TooltipTrigger>
         </div>
       </div>
     </div>
