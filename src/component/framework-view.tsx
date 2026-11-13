@@ -277,17 +277,31 @@ export const tierBadgeView = ({ tier }: { tier: Tier }) => (
   </span>
 )
 
-// The dot of a status, in its color
-export const statusDotView = ({ status }: { status: Status }) => (
+// The dot of a status, in its color. On the accent fill of a chosen
+// option (`isOnAccent`) the same dot takes the colors made for it, so it
+// stands out from the blue
+export const statusDotView = ({
+  status,
+  isOnAccent = false,
+}: {
+  status: Status
+  isOnAccent?: boolean
+}) => (
   <span
     aria-hidden='true'
     className={cn(
       'size-[8px] shrink-0 rounded-full',
-      status === 'active'
-        ? 'bg-native'
-        : status === 'quiet'
-          ? 'bg-equivalent'
-          : 'bg-missing',
+      isOnAccent
+        ? status === 'active'
+          ? 'bg-native-on-accent'
+          : status === 'quiet'
+            ? 'bg-equivalent-on-accent'
+            : 'bg-missing-on-accent'
+        : status === 'active'
+          ? 'bg-native'
+          : status === 'quiet'
+            ? 'bg-equivalent'
+            : 'bg-missing',
     )}
   />
 )

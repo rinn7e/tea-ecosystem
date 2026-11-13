@@ -32,6 +32,12 @@
   --color-managed: var(--managed);
   --color-equivalent: var(--equivalent);
   --color-missing: var(--missing);
+  /* The status dots on a chosen option, which is filled with the accent:
+   * bright on the dark blue of the light mode, deep on the light blue of
+   * the dark mode */
+  --color-native-on-accent: var(--native-on-accent);
+  --color-equivalent-on-accent: var(--equivalent-on-accent);
+  --color-missing-on-accent: var(--missing-on-accent);
   /* Orange of the button that clears the filters */
   --color-reset: var(--reset);
   /* A logo tile: white with dark ink in both modes, as the logo files are
@@ -67,6 +73,9 @@
   --managed: #167a84;
   --equivalent: #8f6b00;
   --missing: #c23621;
+  --native-on-accent: #7ee36f;
+  --equivalent-on-accent: #ffd54a;
+  --missing-on-accent: #ff8f7a;
   --reset: #b54d00;
   color-scheme: light;
 }
@@ -93,6 +102,9 @@
     --managed: #4fc6d1;
     --equivalent: #e2b93b;
     --missing: #f2806c;
+    --native-on-accent: #0f5c09;
+    --equivalent-on-accent: #6b4f00;
+    --missing-on-accent: #9e2412;
     --reset: #f2994a;
     color-scheme: dark;
   }

@@ -434,7 +434,10 @@ const statusChoicesView = ({
         id: status,
         tooltip: { title: statusLabel(status), text: statusMeaning(status) },
         label: statusLabel(status),
-        icon: statusDotView({ status }),
+        icon: statusDotView({
+          status,
+          isOnAccent: filter.statuses.includes(status),
+        }),
         tone: tierTone,
         count: filterFrameworks({ ...filter, statuses: [status] })(entries)
           .length,
