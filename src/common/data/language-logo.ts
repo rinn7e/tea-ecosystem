@@ -32,15 +32,15 @@ import { powershellLogoPaths } from './powershell-logo'
 import { rocLogoPaths } from './roc-logo'
 import { skyLogoPaths } from './sky-logo'
 
-// The logo of a language: its name, the box its shapes are drawn in, and
-// each shape with its color. A logo of Simple Icons (CC0) is one shape in a
-// 24 x 24 box; the languages it does not carry have their own files (Java,
-// PowerShell, Roc, Lean, Sky: `<language>-logo.ts`).
-export type LanguageLogo = {
-  title: string
-  viewBox: string
-  paths: LogoPath[]
-}
+// The logo of a language: its name, and either its shapes (`Shapes`: the
+// box they are drawn in, each shape with its color) or a picture in
+// `public/logo/` (`Image`), for a language whose logo exists only as a
+// picture (Gren: the bird of gren-lang.org). A logo of Simple Icons (CC0)
+// is one shape in a 24 x 24 box; the languages it does not carry have
+// their own files (Java, PowerShell, Roc, Lean, Sky: `<language>-logo.ts`).
+export type LanguageLogo =
+  | { _tag: 'Shapes'; title: string; viewBox: string; paths: LogoPath[] }
+  | { _tag: 'Image'; title: string; file: string }
 
 type Rgb = [number, number, number]
 
@@ -104,6 +104,7 @@ const logoOf = (icon: {
   path: string
   hex: string
 }): LanguageLogo => ({
+  _tag: 'Shapes',
   title: icon.title,
   viewBox: '0 0 24 24',
   paths: [{ d: icon.path, fill: readableColorOf(icon.hex) }],
@@ -113,18 +114,20 @@ const ownLogo = (
   title: string,
   viewBox: string,
   paths: LogoPath[],
-): LanguageLogo => ({ title, viewBox, paths })
+): LanguageLogo => ({ _tag: 'Shapes', title, viewBox, paths })
 
 const javaLogo: LanguageLogo = {
+  _tag: 'Shapes',
   title: 'Java',
   viewBox: '0 0 128 128',
   paths: javaLogoPaths,
 }
 
-// By the `language` of the data files. A language with none here (Gren)
-// is drawn as a monogram instead.
+// By the `language` of the data files. A language with none here is drawn
+// as a monogram instead.
 const logos: Record<string, LanguageLogo> = {
   Elm: logoOf(siElm),
+  Gren: { _tag: 'Image', title: 'Gren', file: 'gren.png' },
   Haskell: logoOf(siHaskell),
   PureScript: logoOf(siPurescript),
   'F#': logoOf(siFsharp),

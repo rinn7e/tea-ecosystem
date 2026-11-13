@@ -8,20 +8,24 @@ import {
   readableColorOf,
 } from '@/common/data/language-logo'
 
-// Languages Simple Icons has no logo for: drawn as a monogram
-const withoutLogo = ['Gren']
-
 describe('languageLogoOf', () => {
-  it('has a logo for every language of the data but the known ones', () => {
+  it('has a logo for every language of the data', () => {
     const languages = new Set([
       ...frameworks.map((f) => f.language),
       ...adjacentEntries.map((e) => e.language),
     ])
-    const missing = [...languages].filter(
-      (language) =>
-        O.isNone(languageLogoOf(language)) && !withoutLogo.includes(language),
+    const missing = [...languages].filter((language) =>
+      O.isNone(languageLogoOf(language)),
     )
     expect(missing).toEqual([])
+  })
+
+  it('draws Gren from its picture, which has no shapes to draw', () => {
+    expect(
+      O.exists((logo: { _tag: string }) => logo._tag === 'Image')(
+        languageLogoOf('Gren'),
+      ),
+    ).toBe(true)
   })
 })
 

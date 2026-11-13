@@ -2,11 +2,56 @@ import { cn } from '@rinn7e/tea-cup-prelude'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 
-import { languageLogoOf, monogramOf } from '@/common/data/language-logo'
+import {
+  type LanguageLogo,
+  languageLogoOf,
+  monogramOf,
+} from '@/common/data/language-logo'
 import { BASE_URL } from '@/common/env'
 import { type Framework, isLanguageEntry } from '@/common/type/framework'
 
 export type LogoSize = 'small' | 'large'
+
+// The mark of a language logo: its shapes, or its picture (`LanguageLogo`)
+const languageMarkView = ({
+  logo,
+  className,
+}: {
+  logo: LanguageLogo
+  className: string
+}) => {
+  switch (logo._tag) {
+    case 'Shapes':
+      return (
+        <svg
+          role='img'
+          aria-label={logo.title}
+          viewBox={logo.viewBox}
+          className={className}
+        >
+          {logo.paths.map((path) => (
+            <path
+              key={path.d}
+              d={path.d}
+              fill={path.fill}
+              stroke={path.stroke}
+              strokeWidth={path.strokeWidth}
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            />
+          ))}
+        </svg>
+      )
+    case 'Image':
+      return (
+        <img
+          src={logoUrl(logo.file)}
+          alt={logo.title}
+          className={cn(className, 'object-contain')}
+        />
+      )
+  }
+}
 
 // The logo of a language, in its brand color made readable on both themes
 // (`readableColorOf`), or its monogram, in ink, when it has none
@@ -33,29 +78,14 @@ export const languageLogoView = ({
           {monogramOf(language)}
         </span>
       ),
-      (logo) => (
-        <svg
-          role='img'
-          aria-label={logo.title}
-          viewBox={logo.viewBox}
-          className={cn(
+      (logo) =>
+        languageMarkView({
+          logo,
+          className: cn(
             'shrink-0',
             size === 'small' ? 'size-[16px]' : 'size-[22px]',
-          )}
-        >
-          {logo.paths.map((path) => (
-            <path
-              key={path.d}
-              d={path.d}
-              fill={path.fill}
-              stroke={path.stroke}
-              strokeWidth={path.strokeWidth}
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-          ))}
-        </svg>
-      ),
+          ),
+        }),
     ),
   )
 
@@ -135,24 +165,10 @@ export const frameworkTileView = ({
         ),
         (logo) => (
           <span className={cn(frame, 'bg-tile text-tile-ink')}>
-            <svg
-              role='img'
-              aria-label={logo.title}
-              viewBox={logo.viewBox}
-              className={tileLanguageLogoClass(size)}
-            >
-              {logo.paths.map((path) => (
-                <path
-                  key={path.d}
-                  d={path.d}
-                  fill={path.fill}
-                  stroke={path.stroke}
-                  strokeWidth={path.strokeWidth}
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              ))}
-            </svg>
+            {languageMarkView({
+              logo,
+              className: tileLanguageLogoClass(size),
+            })}
           </span>
         ),
       ),
