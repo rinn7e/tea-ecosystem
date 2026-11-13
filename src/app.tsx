@@ -135,9 +135,9 @@ export const App = ({
             active={headerSectionOf(model.screenModel)}
             now={model.now}
           />
-          {/* On a phone the page ends with more room than it starts with, so
-              the shadow of the last card stays clear of the footer */}
-          <main className='flex flex-1 justify-center px-[16px] pt-[32px] pb-[56px] lg:py-[48px]'>
+          {/* The page ends with more room than it starts with, so the
+              shadow of the last card stays clear of the footer */}
+          <main className='flex flex-1 justify-center px-[16px] pt-[32px] pb-[56px] lg:pt-[48px] lg:pb-[80px]'>
             <div
               className={cn(
                 'w-full',
