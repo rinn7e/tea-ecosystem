@@ -672,9 +672,21 @@ const cardView = ({ framework }: { framework: Framework }) => (
       </div>
       {tierBadgeView({ tier: framework.tier })}
     </div>
-    <div className='relative z-10'>
-      {rubricStripView({ id: framework.id, rubric: framework.rubric })}
-    </div>
+    {/* Above the link that covers the card, so a part shows its tooltip
+        under the mouse; a link to the same page itself, so a click on a
+        part still opens the entry. Out of the tab order: the name is the
+        one link of the card for the keyboard. */}
+    <Link
+      destination={destinationOfScreen(frameworkScreen(framework.id))}
+      tabIndex={-1}
+      className='relative z-10 block'
+    >
+      {rubricStripView({
+        id: framework.id,
+        rubric: framework.rubric,
+        isInLink: true,
+      })}
+    </Link>
     <p className='text-ink-muted line-clamp-3 flex-1 text-sm'>
       {framework.summary}
     </p>

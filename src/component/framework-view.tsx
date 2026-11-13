@@ -292,12 +292,17 @@ export const statusView = ({ status }: { status: Status }) => (
 // The rubric of an entry as a strip of its parts, each in the color of its
 // grade. Resting on a part shows its grade and what the grade means, in
 // the tooltip of the app (`id` is the entry, so each part has its own).
+// Inside a link (`isInLink`, the strip of a card), a part shows the pointer
+// and a tap on a touch screen follows the link instead of opening the
+// tooltip.
 export const rubricStripView = ({
   id,
   rubric,
+  isInLink = false,
 }: {
   id: string
   rubric: Record<Concept, Grade>
+  isInLink?: boolean
 }) => (
   <div className='flex gap-[3px]'>
     {concepts.map((concept) => (
@@ -306,8 +311,10 @@ export const rubricStripView = ({
         id={`${id}-${concept}`}
         content={gradeTooltipOf(concept, rubric[concept])}
         label={`${conceptLabel(concept)}: ${gradeLabel(shownGradeOf(concept, rubric[concept]))}`}
+        touch={!isInLink}
         className={cn(
-          'flex h-[26px] flex-auto cursor-default items-center justify-center rounded-[2px] border px-[4px] text-[0.6875rem] font-normal',
+          'flex h-[26px] flex-auto items-center justify-center rounded-[2px] border px-[4px] text-[0.6875rem] font-normal',
+          isInLink ? 'cursor-pointer' : 'cursor-default',
           gradeClass(shownGradeOf(concept, rubric[concept])),
         )}
       >
