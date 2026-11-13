@@ -5,14 +5,14 @@ import path from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
 import { configDefaults } from 'vitest/config'
 
-// The day of the last commit of the repository (`YYYY-MM-DD`): the site is
-// built on every push to `master`, so it is the day the site and its data
-// last changed. Today when git cannot tell (no repository around).
-const lastUpdatedDay = (): string => {
+// The time of the last commit of the repository (ISO 8601): the site is
+// built on every push to `master`, so it is when the site and its data
+// last changed. Now when git cannot tell (no repository around).
+const lastUpdatedTime = (): string => {
   try {
-    return execSync('git log -1 --format=%cs', { encoding: 'utf8' }).trim()
+    return execSync('git log -1 --format=%cI', { encoding: 'utf8' }).trim()
   } catch {
-    return new Date().toISOString().slice(0, 10)
+    return new Date().toISOString()
   }
 }
 
@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
     base: env.VITE_BASE_URL ?? '/',
     plugins: [react(), tailwindcss()],
     define: {
-      'import.meta.env.VITE_LAST_UPDATED': JSON.stringify(lastUpdatedDay()),
+      'import.meta.env.VITE_LAST_UPDATED': JSON.stringify(lastUpdatedTime()),
     },
     resolve: {
       alias: { '@': path.resolve(import.meta.dirname, 'src') },

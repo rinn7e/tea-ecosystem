@@ -17,12 +17,13 @@ import {
   destinationOfScreen,
   rubricScreen,
 } from '@/common/type/destination'
-import { dayMonthYearOf } from '@/common/util'
+import { dayMonthYearOf, relativeTimeOf } from '@/common/util'
 
 import { Link } from './link'
 import { TooltipTrigger } from './tooltip/trigger'
 
-// The day the repository last changed, as the bar and the footer show it
+// The day the repository last changed, as the footer and the tooltip of
+// the bar show it
 export const lastUpdated = dayMonthYearOf(LAST_UPDATED)
 
 export type HeaderSection =
@@ -89,8 +90,15 @@ const navLinkView = ({
 //
 // The source code of the site is linked at the end of the right column on
 // a desktop (the right edge of the frame), and pinned to the right edge of
-// the bar on a phone; neither moves the emblem off the axis
-export const headerView = ({ active }: { active: HeaderSection }) => (
+// the bar on a phone; neither moves the emblem off the axis. Under it, how
+// long ago the repository last changed at `now` (ms since 1970).
+export const headerView = ({
+  active,
+  now,
+}: {
+  active: HeaderSection
+  now: number
+}) => (
   <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex h-[64px] w-full max-w-[1080px] items-center justify-center gap-[4px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
@@ -138,12 +146,13 @@ export const headerView = ({ active }: { active: HeaderSection }) => (
               isActive: active === 'rubric',
             })}
           </nav>
-          {/* The source code, with the day it last changed under the icon */}
+          {/* The source code, with how long ago it last changed under the
+              icon, and the day in the tooltip */}
           <TooltipTrigger
             id='bar-last-updated'
             content={{
-              title: `Updated ${lastUpdated}`,
-              text: 'The day the catalog or the site last changed, in its repository on GitHub. The site is rebuilt on every change.',
+              title: `Updated ${relativeTimeOf(LAST_UPDATED, now)}`,
+              text: `The catalog or the site last changed on ${lastUpdated}, in its repository on GitHub. The site is rebuilt on every change.`,
             }}
             touch={false}
             className='absolute top-1/2 right-[16px] flex -translate-y-1/2 lg:static lg:translate-y-0'
@@ -152,12 +161,19 @@ export const headerView = ({ active }: { active: HeaderSection }) => (
               href='https://github.com/rinn7e/tea-ecosystem'
               target='_blank'
               rel='noreferrer'
-              aria-label={`The source code of TEA Ecosystem on GitHub, updated ${lastUpdated}`}
+              aria-label={`The source code of TEA Ecosystem on GitHub, updated ${relativeTimeOf(LAST_UPDATED, now)}`}
               className='text-bar-ink flex cursor-pointer flex-col items-center gap-[3px] px-[4px] py-[2px] opacity-80 transition-opacity hover:opacity-100'
             >
               <IconBrandGithub size={22} stroke={1.75} aria-hidden />
+              {/* The compact form on a phone, where the emblem leaves
+                  little room on its right; the words from a tablet up */}
               <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
-                {lastUpdated}
+                <span className='tablet:hidden'>
+                  {relativeTimeOf(LAST_UPDATED, now, true)}
+                </span>
+                <span className='tablet:inline hidden'>
+                  {relativeTimeOf(LAST_UPDATED, now)}
+                </span>
               </span>
             </a>
           </TooltipTrigger>

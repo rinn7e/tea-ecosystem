@@ -80,6 +80,9 @@ export type Model = {
   // The width of the window (`windowWidthChanges`): how many language
   // logos fit in a row
   windowWidth: number
+  // The time (ms since 1970), kept to the minute: how long ago the site
+  // last changed, in the bar
+  now: number
 }
 
 export type Msg =
@@ -91,6 +94,7 @@ export type Msg =
   | { _tag: 'TooltipMsg'; subMsg: Tooltip.Msg }
   | { _tag: 'BackToTopMsg'; subMsg: BackToTop.Msg }
   | { _tag: 'SetWindowWidth'; value: number }
+  | { _tag: 'SetNow'; value: number }
 
 // The screen shown (the destination's `screen`, `destinationOf`), read from
 // the fields of the models that hold its params

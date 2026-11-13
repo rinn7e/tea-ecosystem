@@ -5,7 +5,7 @@ import { init, update } from '@/update'
 // A model booted on `path`, the way the app boots on a page URL, in a
 // desktop window
 export const bootOn = (path: string): Model =>
-  init({ href: `http://localhost${path}` }, 1280)[0]
+  init({ href: `http://localhost${path}` }, 1280, 0)[0]
 
 export const navigate = (model: Model, destination: Destination): Model =>
   update(

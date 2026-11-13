@@ -18,10 +18,11 @@ import { bootDestinationOf } from '@/util'
 // ---------------------------------------------
 
 // The data is bundled, so the app opens its first screen at once, at the
-// width of the window (read in `program.tsx`)
+// width of the window and the time (read in `program.tsx`)
 export const init = (
   location: Pick<Location, 'href'>,
   windowWidth: number,
+  now: number,
 ): [Model, Cmd<Msg>] => {
   const model: Model = {
     ...openDestination(bootDestinationOf(location), {
@@ -33,6 +34,7 @@ export const init = (
     listScrollY: { catalog: 0, adjacent: 0 },
     scroll: { seq: 0, top: 0 },
     windowWidth,
+    now,
   }
   return [
     model,
@@ -61,6 +63,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return backToTopMsgHandler(msg.subMsg, model)
     // The same model while the width is the same, so a resize that changes
     // nothing draws nothing new
+    case 'SetNow':
+      return [{ ...model, now: msg.value }, Cmd.none()]
     case 'SetWindowWidth':
       return [
         msg.value === model.windowWidth

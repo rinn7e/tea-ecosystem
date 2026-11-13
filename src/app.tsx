@@ -123,7 +123,10 @@ export const App = ({
       <TooltipDispatchContext value={dispatch}>
         {/* On a phone the page leaves room at the bottom for the tab bar */}
         <div className='bg-page text-ink flex min-h-dvh flex-col pb-[60px] lg:pb-0'>
-          {headerView({ active: headerSectionOf(model.screenModel) })}
+          {headerView({
+            active: headerSectionOf(model.screenModel),
+            now: model.now,
+          })}
           <main className='flex flex-1 justify-center px-[16px] py-[32px] lg:py-[48px]'>
             <div
               className={cn(
