@@ -1,0 +1,49 @@
+type alias Model =
+    { page : Page
+    , count : Int
+    }
+
+type Page
+    = CounterPage
+    | AboutPage
+
+type Msg
+    = Navigate Page
+    | Increment
+    | Decrement
+    | Reset
+    | Tick
+
+
+init : a -> ( Model, Cmd Msg )
+init _req =
+    ( { page = CounterPage, count = 0 }, Cmd.none )
+
+
+update msg model =
+    case msg of
+
+        Navigate page ->
+            ( { model | page = page }, Cmd.none )
+
+        Increment ->
+            ( { model | count = model.count + 1 }, Cmd.none )
+
+        Decrement ->
+            ( { model | count = model.count - 1 }, Cmd.none )
+
+        Reset ->
+            ( { model | count = 0 }, Cmd.none )
+
+        Tick ->
+            ( { model | count = model.count + 1 }, Cmd.none )
+
+
+subscriptions model =
+    case model.page of
+
+        CounterPage ->
+            Time.every 1000 Tick
+
+        _ ->
+            Sub.none

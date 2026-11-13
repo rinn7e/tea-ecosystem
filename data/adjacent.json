@@ -52,8 +52,8 @@
     "notes": [],
     "verified": false,
     "createdAt": "2013-05-24",
-    "updatedAt": "2026-11-12",
-    "stars": 252563
+    "updatedAt": "2026-11-13",
+    "stars": 252565
   },
   {
     "id": "redux-loop",
@@ -220,7 +220,7 @@
     "verified": false,
     "createdAt": "2019-11-18",
     "updatedAt": "2026-11-10",
-    "stars": 14765
+    "stars": 14764
   },
   {
     "id": "zustand",
@@ -248,7 +248,7 @@
     "verified": false,
     "createdAt": "2019-04-09",
     "updatedAt": "2026-11-06",
-    "stars": 58933
+    "stars": 58930
   },
   {
     "id": "mobx",
@@ -287,7 +287,7 @@
     "tier": "adjacent",
     "status": "active",
     "url": "https://github.com/choojs/choo",
-    "logoText": "🚂",
+    "logoText": "\ud83d\ude82",
     "repo": "https://github.com/choojs/choo",
     "summary": "Elm-inspired in spirit, but stores mutate state on emitted events.",
     "snippetSource": "https://github.com/choojs/choo/blob/master/README.md",
@@ -387,7 +387,7 @@
     "verified": false,
     "createdAt": "2015-09-14",
     "updatedAt": "2026-11-13",
-    "stars": 30457
+    "stars": 30456
   },
   {
     "id": "re-frame",
@@ -470,7 +470,7 @@
     "verified": false,
     "createdAt": "2017-12-16",
     "updatedAt": "2026-10-30",
-    "stars": 32853
+    "stars": 32852
   },
   {
     "id": "tui-realm",
@@ -803,5 +803,125 @@
     "createdAt": "2019-06-15",
     "updatedAt": "2024-12-07",
     "stars": 1666
+  },
+  {
+    "id": "pstea",
+    "name": "PSTea",
+    "language": "PowerShell",
+    "elmFamily": false,
+    "targets": ["tui", "web"],
+    "tier": "adjacent",
+    "status": "active",
+    "url": "https://github.com/jakehildreth/PSTea",
+    "repo": "https://github.com/jakehildreth/PSTea",
+    "summary": "The Elm Architecture for PowerShell: terminal apps, served to a browser over a WebSocket with xterm.js.",
+    "snippetSource": "https://github.com/jakehildreth/PSTea/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "missing",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Misses Cmd: update returns { Model; Cmd }, but the only command the runtime reads is Quit, so effects run directly inside update (the system monitor demo calls Get-Process there).",
+      "SubscriptionFn is a function of the model that returns Sub objects (TeaKeySub, TeaCharSub, TeaTimerSub) which the runtime polls.",
+      "Messages are plain strings or PSCustomObject values with a Type field, not a closed type."
+    ],
+    "verified": true,
+    "stars": 7,
+    "createdAt": "2026-04-23",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "cauldron",
+    "name": "Cauldron",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "adjacent",
+    "status": "active",
+    "url": "https://docs.rs/crate/molten_cauldron/latest",
+    "summary": "A Bubble Tea style TUI framework with Model, update and view, published as the molten_cauldron crate, whose async commands do not run yet.",
+    "snippetSource": "https://docs.rs/crate/molten_cauldron/latest/source/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "missing",
+      "sub": "missing",
+      "ports": "missing"
+    },
+    "notes": [
+      "Misses Cmd and Sub: in version 0.1.0 a Command can only be none, quit, a message or a batch; Command::perform builds an async task variant that the runtime drops (a TODO in program.rs, and the README says coming soon).",
+      "update takes &mut self and returns a Command<Msg>; handle_event maps terminal events to messages; the view returns a String.",
+      "The repository named by the crate (github.com/moltenlabs/cauldron) returned 404, so the entry has no repo link; the source was read from the published crate."
+    ],
+    "verified": true
+  },
+  {
+    "id": "douglas",
+    "name": "Douglas",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "adjacent",
+    "status": "quiet",
+    "url": "https://github.com/superhawk610/douglas",
+    "repo": "https://github.com/superhawk610/douglas",
+    "summary": "A tiny Bubble Tea and iced inspired terminal UI framework whose view returns a string.",
+    "snippetSource": "https://github.com/superhawk610/douglas/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "missing",
+      "ports": "managed"
+    },
+    "notes": [
+      "Misses Sub: its Timer is started and stopped by the app, not by the runtime, and outside events come in through a Mailbox (dispatch from outside).",
+      "update takes &mut self and returns a Command<Msg> (none, exit, send, sync closure, batch); async commands are a TODO.",
+      "Last commit in May 2022."
+    ],
+    "verified": true,
+    "stars": 6,
+    "createdAt": "2022-05-11",
+    "updatedAt": "2022-05-13"
+  },
+  {
+    "id": "oxide-mvu",
+    "name": "oxide-mvu",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "adjacent",
+    "status": "active",
+    "url": "https://docs.rs/oxide-mvu",
+    "repo": "https://github.com/noheltcj/oxide-mvu",
+    "summary": "A no_std Model-View-Update runtime where update is a pure function returning a new model and an effect.",
+    "snippetSource": "https://github.com/noheltcj/oxide-mvu/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "missing",
+      "ports": "managed"
+    },
+    "notes": [
+      "Misses Sub: there is no subscription mechanism; events from outside enter through a cloneable Emitter that the view receives, which is dispatch from outside the loop.",
+      "update(&self, event, &Model) -> (Model, Effect<Event>) is pure; Effect has just, none, batch and from_async; view returns a Props value for a Renderer that you write.",
+      "Runs on any executor through a Spawner and supports no_std with alloc; the README says the APIs are not stable."
+    ],
+    "verified": true,
+    "stars": 2,
+    "createdAt": "2025-11-26",
+    "updatedAt": "2026-04-25"
   }
 ]

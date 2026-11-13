@@ -15,15 +15,18 @@ import java from 'highlight.js/lib/languages/java'
 import javascript from 'highlight.js/lib/languages/javascript'
 import kotlin from 'highlight.js/lib/languages/kotlin'
 import ocaml from 'highlight.js/lib/languages/ocaml'
+import powershell from 'highlight.js/lib/languages/powershell'
 import python from 'highlight.js/lib/languages/python'
 import reasonml from 'highlight.js/lib/languages/reasonml'
+import ruby from 'highlight.js/lib/languages/ruby'
 import rust from 'highlight.js/lib/languages/rust'
 import scala from 'highlight.js/lib/languages/scala'
 import swift from 'highlight.js/lib/languages/swift'
 import typescript from 'highlight.js/lib/languages/typescript'
 
-// The grammars the examples need. PureScript has none in highlight.js and
-// reads well as Haskell, its parent.
+// The grammars the examples need. Some languages have none in highlight.js
+// and read well in the grammar of a close relative: PureScript and Lean as
+// Haskell, Roc and Sky as Elm, Odin as Go, Zig as Rust.
 const grammars = {
   clojure,
   csharp,
@@ -38,8 +41,10 @@ const grammars = {
   javascript,
   kotlin,
   ocaml,
+  powershell,
   python,
   reasonml,
+  ruby,
   rust,
   scala,
   swift,
@@ -65,15 +70,22 @@ const grammarOfExtension: Record<string, keyof typeof grammars> = {
   js: 'javascript',
   jsx: 'javascript',
   kt: 'kotlin',
+  lean: 'haskell',
   ml: 'ocaml',
+  odin: 'go',
+  ps1: 'powershell',
   purs: 'haskell',
   py: 'python',
+  rb: 'ruby',
   re: 'reasonml',
+  roc: 'elm',
   rs: 'rust',
   scala: 'scala',
+  sky: 'elm',
   swift: 'swift',
   ts: 'typescript',
   tsx: 'typescript',
+  zig: 'rust',
 }
 
 // An example of an entry, copied from its own docs (`snippetSource` of the

@@ -830,7 +830,7 @@
     "status": "active",
     "url": "https://github.com/vankeisb/react-tea-cup",
     "repo": "https://github.com/vankeisb/react-tea-cup",
-    "logoText": "🍵",
+    "logoText": "\ud83c\udf75",
     "summary": "The Elm Architecture for React and TypeScript, with tea-cup-fp for Cmd, Sub, Task and Port.",
     "snippetSource": "https://github.com/vankeisb/react-tea-cup/blob/develop/doc/quickstart.md",
     "rubric": {
@@ -881,7 +881,7 @@
     "verified": false,
     "createdAt": "2025-06-21",
     "updatedAt": "2026-11-08",
-    "stars": 1230
+    "stars": 1231
   },
   {
     "id": "elm-ts",
@@ -1078,7 +1078,7 @@
     "verified": false,
     "createdAt": "2019-07-15",
     "updatedAt": "2026-11-12",
-    "stars": 32020
+    "stars": 32022
   },
   {
     "id": "libcosmic",
@@ -1362,7 +1362,7 @@
     "verified": true,
     "createdAt": "2020-01-10",
     "updatedAt": "2026-11-12",
-    "stars": 45731
+    "stars": 45732
   },
   {
     "id": "composable-architecture",
@@ -1625,7 +1625,7 @@
     "status": "active",
     "url": "https://lbliii.github.io/milo-cli/",
     "repo": "https://github.com/lbliii/milo-cli",
-    "logoText": "ᗣᗣ",
+    "logoText": "\u15e3\u15e3",
     "summary": "The Elm Architecture for terminal apps in Python, with commands, sagas and subscriptions (ticks, terminal resize).",
     "snippetSource": "https://github.com/lbliii/milo-cli/blob/main/examples/counter/app.py",
     "rubric": {
@@ -1644,5 +1644,1036 @@
     "createdAt": "2026-03-26",
     "updatedAt": "2026-08-05",
     "stars": 2
+  },
+  {
+    "id": "joy",
+    "name": "Joy",
+    "language": "Roc",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://niclas-ahden.github.io/joy/",
+    "repo": "https://github.com/niclas-ahden/joy",
+    "summary": "A framework for building web apps in Roc with the Elm shape, compiled to WebAssembly.",
+    "snippetSource": "https://github.com/niclas-ahden/joy/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "native"
+    },
+    "notes": [
+      "update returns (Model, List(Effect(Msg))): effects are data that the host runs.",
+      "subscriptions is a function of the model (Model -> List(Sub(Msg))): a source stops when it leaves the list.",
+      "Only the browser side exists so far; the full-stack part (server functions) is a stated goal, not shipped."
+    ],
+    "verified": true,
+    "stars": 60,
+    "createdAt": "2024-12-10",
+    "updatedAt": "2026-10-07"
+  },
+  {
+    "id": "lean-tea",
+    "name": "LeanTEA",
+    "language": "Lean",
+    "elmFamily": false,
+    "targets": ["tui", "web", "server"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/Verilean/lean-tea",
+    "repo": "https://github.com/Verilean/lean-tea",
+    "summary": "A small full-stack framework in Lean 4 whose terminal runtime is a Model, Msg, update, Cmd and Sub loop.",
+    "snippetSource": "https://github.com/Verilean/lean-tea/blob/main/examples/Counter/Main.lean",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "The terminal runtime has update : Msg -> Model -> Model x Cmd Msg, where a Cmd is a list of IO actions that yield messages.",
+      "subs is a function of the model (Model -> Sub Msg), but the terminal runtime only polls stdin; tick sources are declared and not run there.",
+      "The web side (WebApp) is a stateless server step, Msg -> Model -> Model, with the model carried in a request header and no Cmd."
+    ],
+    "verified": true,
+    "stars": 15,
+    "createdAt": "2026-06-21",
+    "updatedAt": "2026-10-29"
+  },
+  {
+    "id": "skald",
+    "name": "Skald",
+    "language": "Odin",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/BuLEEto/Skald",
+    "repo": "https://github.com/BuLEEto/Skald",
+    "summary": "An Elm-architecture GUI framework for Odin that rebuilds the view every frame on a Vulkan renderer.",
+    "snippetSource": "https://github.com/BuLEEto/Skald/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "update :: proc(s: State, m: Msg) -> (State, skald.Command(Msg)); a Command covers delays, file IO, dialogs, windows and worker threads.",
+      "No subscriptions function: a recurring timer is a cmd_delay that update reschedules on every Tick, and the App has hooks such as on_key and on_system_theme_change."
+    ],
+    "verified": true,
+    "stars": 198,
+    "createdAt": "2026-04-23",
+    "updatedAt": "2026-10-30"
+  },
+  {
+    "id": "zigzag",
+    "name": "ZigZag",
+    "language": "Zig",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/meszmate/zigzag",
+    "repo": "https://github.com/meszmate/zigzag",
+    "summary": "A Bubble Tea style TUI framework for Zig with typed Model, update and view and over 40 components.",
+    "snippetSource": "https://github.com/meszmate/zigzag/blob/main/examples/counter.zig",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "update(self: *Model, msg, ctx) returns a Cmd(Msg) union; the model is changed in place.",
+      "No subscriptions function: Cmd.every and Cmd.tick ask the runtime for repeating or one-shot Tick messages, and AsyncRunner delivers the results of background tasks."
+    ],
+    "verified": true,
+    "stars": 588,
+    "createdAt": "2026-01-31",
+    "updatedAt": "2026-10-13"
+  },
+  {
+    "id": "fern",
+    "name": "Fern",
+    "language": "Zig",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/fern-tui/fern-core",
+    "logo": "fern.png",
+    "repo": "https://github.com/fern-tui/fern-core",
+    "summary": "A TUI framework for Zig with an init, update, view loop, spring animation and a mouse zone manager.",
+    "snippetSource": "https://github.com/fern-tui/fern-core/blob/main/examples/00_minimal/main.zig",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "update(state, msg, alloc) returns ?Cmd(Msg); a Cmd is none, quit, batch, sequence, task (worker thread), after or every.",
+      "No subscriptions function: an every Cmd fires once and update returns another one to keep ticking.",
+      "Beta, and Zig 0.16 only."
+    ],
+    "verified": true,
+    "stars": 32,
+    "createdAt": "2026-06-07",
+    "updatedAt": "2026-09-29"
+  },
+  {
+    "id": "sky",
+    "name": "Sky",
+    "language": "Sky",
+    "elmFamily": false,
+    "targets": ["web", "ssr", "server", "desktop", "mobile", "tui"],
+    "tier": "superset",
+    "status": "active",
+    "url": "https://sky-lang.org",
+    "logo": "sky.png",
+    "repo": "https://github.com/anzellai/sky",
+    "summary": "An Elm-syntax language that compiles to Go, where init, update, view and subscriptions run as a server-driven web app, a wasm client, a terminal UI or a native app.",
+    "snippetSource": "https://github.com/anzellai/sky/blob/main/examples/09-live-counter/src/Main.sky",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "update : Msg -> Model -> ( Model, Cmd Msg ), with an extra Db argument first in the server-driven Sky.Live shape; effects are typed Tasks run through Cmd.perform.",
+      "subscriptions : Model -> Sub Msg, for example Time.every; on Sky.Live a subscription is pushed to the page over SSE.",
+      "Not Elm and not built on its runtime: the compiler is a Rust binary that emits Go. Any Go package is reachable through typed bindings (sky add), in place of ports."
+    ],
+    "verified": true,
+    "stars": 441,
+    "createdAt": "2026-03-10",
+    "updatedAt": "2026-11-12"
+  },
+  {
+    "id": "abies",
+    "name": "Abies",
+    "language": "C#",
+    "elmFamily": false,
+    "targets": ["web", "ssr", "server", "desktop"],
+    "tier": "superset",
+    "status": "active",
+    "url": "https://github.com/Picea/Abies",
+    "logo": "abies.png",
+    "repo": "https://github.com/Picea/Abies",
+    "summary": "Model-View-Update for .NET that renders the same program as static HTML, over a server WebSocket, in WebAssembly or on WinUI 3 controls.",
+    "snippetSource": "https://github.com/Picea/Abies/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Transition(model, message) returns a (Model, Command) tuple; Command is an open interface of records that an interpreter runs, and results come back as messages.",
+      "Subscriptions(model) returns a Subscription value (Every, Batch, or a keyed Create source); the runtime starts and stops sources as the value changes.",
+      "Superset: four render modes (static, server, WASM, auto) and a native WinUI 3 renderer share one core, and only View differs."
+    ],
+    "verified": true,
+    "stars": 2,
+    "createdAt": "2024-11-14",
+    "updatedAt": "2026-09-08"
+  },
+  {
+    "id": "rooibos",
+    "name": "Rooibos",
+    "language": "Ruby",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://www.rooibos.run/",
+    "logo": "rooibos.png",
+    "repo": "https://github.com/setdef/Rooibos",
+    "summary": "The Elm Architecture for terminal apps in Ruby, built on RatatuiRuby.",
+    "snippetSource": "https://github.com/setdef/Rooibos/blob/stable/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update is a lambda (message, model) that returns the new model, or [model, command]; commands such as Command.wait, Command.http and Command.batch are values the runtime runs in the background.",
+      "No subscriptions function: a timer is a Command.tick that Update re-issues, and Command::Custom is a long-running command with a cancellation token that sends messages with out.put.",
+      "In beta: the docs of the guides are partly stubs, so the grades come from the source and the command docs."
+    ],
+    "verified": true,
+    "stars": 13,
+    "createdAt": "2026-01-08",
+    "updatedAt": "2026-10-12"
+  },
+  {
+    "id": "re-alm",
+    "name": "re-alm",
+    "language": "ClojureScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "quiet",
+    "url": "https://cljdoc.org/d/re-alm/re-alm/0.3.7",
+    "repo": "https://github.com/vbedegi/re-alm",
+    "summary": "An Elm Architecture experiment in ClojureScript, rendered with Reagent.",
+    "snippetSource": "https://github.com/vbedegi/re-alm/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update takes (model, msg) and returns the new model, or a model with effects attached by with-fx; effects are records that the runtime executes.",
+      "The optional subscriptions function takes the model and returns topics such as time/every and websocket; the runtime diffs them after every update.",
+      "Messages are keywords or tagged vectors, matched with core.match by convention. The last push was in January 2018."
+    ],
+    "verified": true,
+    "stars": 23,
+    "createdAt": "2016-12-03",
+    "updatedAt": "2018-01-04"
+  },
+  {
+    "id": "mosaic",
+    "name": "Mosaic",
+    "language": "OCaml",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/invariant-hq/mosaic",
+    "repo": "https://github.com/invariant-hq/mosaic",
+    "summary": "A terminal UI framework for OCaml that implements the Elm Architecture, with CSS Flexbox and Grid layout.",
+    "snippetSource": "https://github.com/invariant-hq/mosaic/blob/main/packages/mosaic/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "update : msg -> model -> model * msg Cmd.t, with Cmd.perform, Cmd.exec and Cmd.batch as values.",
+      "subscriptions : model -> msg Sub.t declares keys, mouse, timers (Sub.every, Sub.after) and workers; a timer or worker lives as long as its id stays declared."
+    ],
+    "verified": true,
+    "stars": 91,
+    "createdAt": "2025-06-29",
+    "updatedAt": "2026-11-11"
+  },
+  {
+    "id": "meltea",
+    "name": "Meltea",
+    "language": "OCaml",
+    "elmFamily": false,
+    "targets": ["web", "ssr"],
+    "tier": "superset",
+    "status": "active",
+    "url": "https://jongleb.github.io/melact-meltea-sites/meltea/",
+    "logo": "meltea.svg",
+    "repo": "https://github.com/jongleb/meltea",
+    "summary": "The Elm Architecture for OCaml and Melange, with views written in mlx and compiled to DOM templates like Svelte, no virtual DOM.",
+    "snippetSource": "https://github.com/jongleb/meltea/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "Program.element takes update : msg -> model -> model * msg Cmd.t and subscriptions : model -> msg Sub.t; Program.sandbox is the form with a plain update and no Cmd or Sub (the README example uses it).",
+      "Cmd (none, batch, perform, focus, port) and Sub (every, hash) are values that Program runs; Cmd.port only sends a value out to JavaScript.",
+      "Superset: server rendering and hydration build the same module for the browser and for a native or Node server.",
+      "Runs on native OCaml and compiles to JavaScript with Melange."
+    ],
+    "verified": true,
+    "stars": 5,
+    "createdAt": "2026-11-04",
+    "updatedAt": "2026-11-08"
+  },
+  {
+    "id": "purescript-oak",
+    "name": "Oak",
+    "language": "PureScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://pursuit.purescript.org/packages/purescript-oak/",
+    "repo": "https://github.com/ehrenmurdick/purescript-oak",
+    "summary": "An Elm-style frontend framework for PureScript, with routing, storage and navigation commands built in.",
+    "snippetSource": "https://github.com/ehrenmurdick/purescript-oak/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update is split in two pure functions: update :: Msg -> Model -> Model, then next :: Msg -> Model -> Cmd Msg, which receives the new model and returns the command; both are pure.",
+      "subscriptions :: Model -> Array (Subscription Msg) is re-run after every update and reconciled (onInterval, onTimeout, onOnline, window events); the message type needs an Eq instance for that."
+    ],
+    "verified": true,
+    "stars": 29,
+    "createdAt": "2017-12-11",
+    "updatedAt": "2026-09-08"
+  },
+  {
+    "id": "scalafui",
+    "name": "Scalafui",
+    "language": "Scala",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "superset",
+    "status": "active",
+    "url": "https://github.com/marubinotto/scalafui",
+    "repo": "https://github.com/marubinotto/scalafui",
+    "summary": "An experimental Elm Architecture for Scala.js, with Cats Effect commands and React rendering.",
+    "snippetSource": "https://github.com/marubinotto/scalafui/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "managed"
+    },
+    "notes": [
+      "update(msg, model): (Model, Cmd[Msg]); a Cmd is a lazy Cats Effect IO that the runtime runs and turns into a message.",
+      "subscriptions: Model => Sub[Msg] (Sub.every, Sub.timeout, Sub.fromEvent, fs2 streams); the runtime compares ids after each update to start and stop streams, and Sub.fromResource adapts callback APIs.",
+      "Superset: Feature, slots and bindings compose stateful parts with outputs, on top of the plain Program."
+    ],
+    "verified": true,
+    "stars": 3,
+    "createdAt": "2023-04-22",
+    "updatedAt": "2026-11-08"
+  },
+  {
+    "id": "sagetui",
+    "name": "SageTUI",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/WillEhrendreich/SageTUI",
+    "repo": "https://github.com/WillEhrendreich/SageTUI",
+    "summary": "The Elm Architecture for terminal apps in F#, run with App.run and a flexbox layout.",
+    "snippetSource": "https://github.com/WillEhrendreich/SageTUI/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "A program is a record of Init, Update, View and Subscribe: update is msg -> model -> model * Cmd, and Subscribe is model -> Sub list (keys, timers, mouse, resize, custom sources).",
+      "The runtime starts and stops timer and custom subscriptions by id after each update.",
+      "Cmd covers async tasks, delays and quit; a test harness can advance time for delayed Cmd chains."
+    ],
+    "verified": true,
+    "stars": 11,
+    "createdAt": "2026-03-07",
+    "updatedAt": "2026-08-05"
+  },
+  {
+    "id": "reactiveelmish-avalonia",
+    "name": "ReactiveElmish.Avalonia",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["desktop", "mobile", "web"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/JordanMarr/ReactiveElmish.Avalonia",
+    "repo": "https://github.com/JordanMarr/ReactiveElmish.Avalonia",
+    "summary": "Elmish stores for Avalonia: an Elmish loop per view model, with the view in static Avalonia XAML.",
+    "snippetSource": "https://github.com/JordanMarr/ReactiveElmish.Avalonia/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Built on the Elmish library (v4): mkAvaloniaProgram takes init and update returning Model * Cmd, and Program.withSubscription takes a keyed function of the model.",
+      "The view is static XAML bound to view model properties (Bind projects the model), not a function that returns a view tree; graded like Elmish.WPF.",
+      "A store can be local to a view model or shared as a global app store; subscriptions of a view model end with mkStoreWithTerminate."
+    ],
+    "verified": true,
+    "stars": 118,
+    "createdAt": "2023-02-15",
+    "updatedAt": "2026-08-23"
+  },
+  {
+    "id": "mvuish-avalonia",
+    "name": "MVUish.Avalonia",
+    "language": "F# and C#",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://angelmunoz.github.io/MVUish.Avalonia/",
+    "repo": "https://github.com/AngelMunoz/MVUish.Avalonia",
+    "summary": "MVU for Avalonia in F# and C#, where the view builds real controls once and binds them to a stream of models.",
+    "snippetSource": "https://github.com/AngelMunoz/MVUish.Avalonia/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "equivalent",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "The view runs once with an IObservable of the model and binds properties directly, with no view tree and no diffing; the README itself says it is not strict Elm, where the view is a pure function of the model.",
+      "Update returns the new model and a command (a function that receives dispatch); subscriptions follow Elmish v4: a keyed list that is a function of the model, started and stopped by the runtime.",
+      "The F# API and a C# module (Command, Subscription) share one runtime."
+    ],
+    "verified": true,
+    "stars": 30,
+    "createdAt": "2023-06-04",
+    "updatedAt": "2026-11-04"
+  },
+  {
+    "id": "oolong",
+    "name": "Oolong",
+    "language": "Kotlin",
+    "elmFamily": false,
+    "targets": ["mobile", "desktop"],
+    "tier": "full",
+    "status": "quiet",
+    "url": "https://oolong-kt.org",
+    "logo": "oolong.svg",
+    "repo": "https://github.com/oolong-kt/oolong",
+    "summary": "MVU for Kotlin Multiplatform: update returns the new model and an effect, and each platform supplies a render function.",
+    "snippetSource": "https://github.com/oolong-kt/oolong/blob/main/docs/guide/core-concepts.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update is (Msg, Model) -> Pair of Model and Effect; an Effect is a suspend function that receives dispatch, launched in a new coroutine by the runtime (none and batch combine them).",
+      "No subscription function and the docs do not mention one: a long-running source is an Effect that loops or collects a flow, and the runtime job cancels it on dispose (graded from runtime.kt).",
+      "The view returns Props that a platform render function draws; the last release is from 2022."
+    ],
+    "verified": true,
+    "stars": 299,
+    "createdAt": "2018-07-31",
+    "updatedAt": "2022-09-21"
+  },
+  {
+    "id": "keemun",
+    "name": "Keemun",
+    "language": "Kotlin and Swift",
+    "elmFamily": false,
+    "targets": ["mobile"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/pavelannin/Keemun-Kotlin",
+    "repo": "https://github.com/pavelannin/Keemun-Kotlin",
+    "summary": "The Elm Architecture for shared Kotlin and SwiftUI code, with effects as plain values run by an EffectHandler.",
+    "snippetSource": "https://github.com/pavelannin/Keemun-Kotlin/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update takes a message and the state and returns the new state with a set of Effect values; an EffectHandler runs each effect in its own coroutine (Swift: a Combine publisher or an async task) and dispatches messages back.",
+      "No subscription function: a long-running source is an effect that keeps dispatching, or a publisher in Swift, cancelled when the store goes away (graded from the source).",
+      "The Swift version lives in pavelannin/Keemun-Swift; a StateTransform maps the state to a ViewState that Compose or SwiftUI draws."
+    ],
+    "verified": true,
+    "stars": 4,
+    "createdAt": "2023-11-11",
+    "updatedAt": "2026-10-26"
+  },
+  {
+    "id": "puer",
+    "name": "Puer",
+    "language": "Dart",
+    "elmFamily": false,
+    "targets": ["mobile"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://pub.dev/packages/puer",
+    "logo": "puer.png",
+    "repo": "https://github.com/Vorkytaka/puer",
+    "summary": "TEA for Dart and Flutter: a pure update returns the new state and a list of effect values for handlers to run.",
+    "snippetSource": "https://github.com/Vorkytaka/puer/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update is (State, Message) -> Next of an optional new state and a list of Effect values; an EffectHandler performs them and calls emit to send messages back.",
+      "No subscription function: a handler keeps emit and sends later, and StreamEffectHandler in puer_effect_handlers starts and stops a stream on start and end effects (that package is in the repository, not yet on pub.dev).",
+      "The core is pure Dart and puer_flutter adds the FeatureBuilder widgets; time-travel debugging is included."
+    ],
+    "verified": true,
+    "stars": 12,
+    "createdAt": "2026-02-23",
+    "updatedAt": "2026-03-27"
+  },
+  {
+    "id": "term-ui",
+    "name": "TermUI",
+    "language": "Elixir",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://term-ui.hexdocs.pm",
+    "repo": "https://github.com/agentjido/term_ui",
+    "summary": "A terminal runtime for Elixir on the Elm architecture, where view returns one Frame.",
+    "snippetSource": "https://github.com/agentjido/term_ui/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Update returns the new state or a tuple of state and a list of command values (message, send, timer, async, clipboard, shutdown).",
+      "No subscription function: a Command.timer fires once, so a repeating source reschedules it from update, and an optional handle_info callback turns BEAM process messages into state and commands.",
+      "The release is 2.0.0-rc.1; the repository moved from pcharbon70 to agentjido."
+    ],
+    "verified": true,
+    "stars": 213,
+    "createdAt": "2025-11-20",
+    "updatedAt": "2026-11-02"
+  },
+  {
+    "id": "effect-tea",
+    "name": "effect-tea",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["web", "mobile"],
+    "tier": "superset",
+    "status": "active",
+    "url": "https://fgaudo.github.io/effect-tea/",
+    "repo": "https://github.com/fgaudo/effect-tea",
+    "summary": "The Elm Architecture on Effect v4 for any renderer, with commands and subscriptions as data and parent and child composition declared in the program.",
+    "snippetSource": "https://github.com/fgaudo/effect-tea/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "managed"
+    },
+    "notes": [
+      "update is curried, (message) => (state) => { state, commands?, events? }, and may return reject to ignore a message; commands are plain data that runCommand turns into an Effect, and subscriptions(state) returns a HashMap of keyed Effect Channels that the runtime starts and stops.",
+      "The library ships no renderer: run hands a stream of frames ({ model, dispatch }) to a bridge, with small snabbdom and React bridges in the examples; the model is made from the state by makeModel.",
+      "Superset for the parent and child composition (children, events, external messages) and the testing tools (rehearse, simulate, dispatchViolations)."
+    ],
+    "verified": true,
+    "stars": 0,
+    "createdAt": "2026-10-16",
+    "updatedAt": "2026-11-13"
+  },
+  {
+    "id": "hypertea",
+    "name": "Hypertea",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/pairshaped/hypertea",
+    "repo": "https://github.com/pairshaped/hypertea",
+    "summary": "A tiny TypeScript TEA runtime for the client side of server-rendered apps, from one island to a single-page application.",
+    "snippetSource": "https://github.com/pairshaped/hypertea/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "managed"
+    },
+    "notes": [
+      "update is (model, message) => [model, effects], with effects as data run by a runEffect adapter that gets an abort signal; an effectless program omits it.",
+      "subscriptions(model) returns an array of keyed subscriptions (every, keyPressed, windowResized, and a live SSE one), matched by slot and key after each update.",
+      "mountProgram and start return a handle with dispatch() and call() for messages from outside; an ESLint purity config bans unmanaged effects in update."
+    ],
+    "verified": true,
+    "stars": 4,
+    "createdAt": "2026-06-10",
+    "updatedAt": "2026-11-07"
+  },
+  {
+    "id": "tea-set",
+    "name": "tea-set",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://www.npmjs.com/package/@b-jones-rfd/tea-set",
+    "repo": "https://github.com/B-Jones-RFD/tea-set",
+    "summary": "Elm-style Cmd, Sub, Task, Result and RemoteData for TypeScript, with a small runtime that drives the init, update, subscriptions and view loop.",
+    "snippetSource": "https://github.com/B-Jones-RFD/tea-set/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "managed"
+    },
+    "notes": [
+      "update(msg, model) returns [Model, Cmd<Msg>]; a Cmd is data (none, batch, map, effect) and nothing runs until the runtime performs it, with Task for promise work that is aborted on stop().",
+      "subscriptions(model) returns a Sub, and the runtime starts, restarts and stops its sources by key and params after each update.",
+      "view is a callback you supply, so any renderer works; element() returns { dispatch, stop }, an incoming port for outside code."
+    ],
+    "verified": true,
+    "stars": 0,
+    "createdAt": "2026-08-17",
+    "updatedAt": "2026-09-18"
+  },
+  {
+    "id": "oakoliver-bubbletea",
+    "name": "@oakoliver/bubbletea",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/oakoliver/bubbletea",
+    "repo": "https://github.com/oakoliver/bubbletea",
+    "summary": "An unaffiliated TypeScript port of Bubble Tea for Node.js and Bun, at parity with Bubble Tea v2.1.1.",
+    "snippetSource": "https://github.com/oakoliver/bubbletea/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "A Model class has init(): Cmd, update(msg): [Model, Cmd] and view(); a Cmd is a function, as in Bubble Tea.",
+      "No subscriptions function, graded like Bubble Tea: a subscription is a Cmd that reschedules itself (Tick, Every).",
+      "Program.send feeds messages from outside; the port has its own sibling ports of Bubbles, Lip Gloss and others."
+    ],
+    "verified": true,
+    "stars": 9,
+    "createdAt": "2026-03-16",
+    "updatedAt": "2026-11-11"
+  },
+  {
+    "id": "bare-tui",
+    "name": "bare-tui",
+    "language": "JavaScript",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/holepunchto/bare-tui",
+    "logo": "bare-tui.png",
+    "repo": "https://github.com/holepunchto/bare-tui",
+    "summary": "A small TUI framework for the Bare runtime, shaped after Bubble Tea, with its own components and styling helper.",
+    "snippetSource": "https://github.com/holepunchto/bare-tui/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "update(msg) returns [model, command] (a bare model means no command); messages are plain objects tagged by type, and mutating this is the idiomatic style.",
+      "A Cmd is a function returning a Msg or a Promise of one; there is no subscriptions function, so a subscription is a Cmd that reschedules itself (tick, every). Graded like Bubble Tea.",
+      "Program.send feeds messages from outside the loop; experimental, before version 1.0."
+    ],
+    "verified": true,
+    "stars": 13,
+    "createdAt": "2026-06-04",
+    "updatedAt": "2026-10-26"
+  },
+  {
+    "id": "cinnamon-bun",
+    "name": "Cinnamon Bun",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/yum-tty/cinnamon-bun",
+    "logo": "cinnamon-bun.png",
+    "repo": "https://github.com/yum-tty/cinnamon-bun",
+    "summary": "A TypeScript port of Bubble Tea for Bun, with the model as plain functions init, update and view.",
+    "snippetSource": "https://github.com/yum-tty/cinnamon-bun/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "update(model, msg) returns [Model, Cmd]; a Cmd is a function, and messages are objects tagged by type.",
+      "No subscriptions function, graded like Bubble Tea: a subscription is a Cmd that reschedules itself (Tick, Every).",
+      "Program.Send feeds messages from outside; components come from the separate Cinnamon library."
+    ],
+    "verified": true,
+    "stars": 1,
+    "createdAt": "2026-06-24",
+    "updatedAt": "2026-08-20"
+  },
+  {
+    "id": "caibao",
+    "name": "Caibao",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/jjabez/caibao",
+    "logo": "caibao.png",
+    "repo": "https://github.com/jjabez/caibao",
+    "summary": "A Bubble Tea inspired TUI framework for Bun, with components and a Lip Gloss style styling system.",
+    "snippetSource": "https://github.com/jjabez/caibao/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "A Model class has init(): Cmd, update(msg): [Model, Cmd] and view(); a Cmd is a function returning a Msg or a Promise of one.",
+      "No subscriptions function, graded like Bubble Tea: a subscription is a Cmd that reschedules itself (Tick, Every).",
+      "The runtime handle has send(msg) for messages from outside; an independent implementation, not a port of the Go code."
+    ],
+    "verified": true,
+    "stars": 1,
+    "createdAt": "2026-01-31",
+    "updatedAt": "2026-01-31"
+  },
+  {
+    "id": "masc",
+    "name": "masc",
+    "language": "Go",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/octoberswimmer/masc",
+    "repo": "https://github.com/octoberswimmer/masc",
+    "summary": "Bubble Tea models with Vecty views: The Elm Architecture for browser apps in Go, compiled to WebAssembly.",
+    "snippetSource": "https://github.com/octoberswimmer/masc/blob/main/example/hellomasc/hellomasc.go",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "Init() Cmd and Update(Msg) (Model, Cmd) as in Bubble Tea; Render(send) returns HTML components and sends messages with the send function it is given. A model is a stateful pointer that mutates itself.",
+      "No subscriptions function: Every and Tick are Cmds that reschedule, graded like Bubble Tea.",
+      "Program.Send feeds messages from outside; renders are scheduled on animation frames."
+    ],
+    "verified": true,
+    "stars": 5,
+    "createdAt": "2024-03-08",
+    "updatedAt": "2026-10-15"
+  },
+  {
+    "id": "phoenix-tui",
+    "name": "Phoenix",
+    "language": "Go",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/phoenix-tui/phoenix",
+    "logo": "phoenix-tui.png",
+    "repo": "https://github.com/phoenix-tui/phoenix",
+    "summary": "A modular TUI framework for Go with a Bubble Tea style Elm Architecture package, its own components, styling and layout.",
+    "snippetSource": "https://github.com/phoenix-tui/phoenix/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "Init() Cmd, Update(Msg) (Model, Cmd) and View() string with a generic Program; a Cmd is func() Msg, as in Bubble Tea.",
+      "No subscriptions function: Tick sleeps then returns a message, so a subscription is a Cmd that reschedules itself. Graded like Bubble Tea.",
+      "Program.Send feeds messages from other goroutines; the repo is a monorepo of ten libraries."
+    ],
+    "verified": true,
+    "stars": 48,
+    "createdAt": "2025-10-14",
+    "updatedAt": "2026-08-25"
+  },
+  {
+    "id": "boba",
+    "name": "Boba",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/2389-research/boba",
+    "repo": "https://github.com/2389-research/boba",
+    "summary": "A Bubble Tea inspired TUI framework on ratatui, with declarative subscriptions the runtime diffs on every cycle.",
+    "snippetSource": "https://github.com/2389-research/boba/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "update takes &mut self and returns a Command<Msg> (none, message, perform for futures, batch, sequence, quit); the view draws into a ratatui Frame.",
+      "subscriptions() returns a Vec<Subscription<Msg>> from the model; the runtime diffs them by id on every cycle, starting new ones and aborting removed ones.",
+      "A Component trait nests sub-models with their own message type, mapped with Command::map; 18 ready-made widgets."
+    ],
+    "verified": true,
+    "stars": 5,
+    "createdAt": "2026-02-13",
+    "updatedAt": "2026-04-09"
+  },
+  {
+    "id": "teapot",
+    "name": "teapot",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://github.com/inferadb/teapot",
+    "repo": "https://github.com/inferadb/teapot",
+    "summary": "A Bubble Tea inspired TUI framework with forms, components and styling, where the view returns a string.",
+    "snippetSource": "https://github.com/inferadb/teapot/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "update takes &mut self and returns an Option<Cmd<Msg>> (quit, perform, perform_async, tick, run_process, batch, sequence).",
+      "No subscription function: Cmd::tick is a one-shot timer that update re-issues, and terminal events reach the model through handle_event, which maps an Event to a message.",
+      "The README says it is under active development and not production-ready."
+    ],
+    "verified": true,
+    "stars": 5,
+    "createdAt": "2025-12-26",
+    "updatedAt": "2026-04-13"
+  },
+  {
+    "id": "a3s-tui",
+    "name": "A3S TUI",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://docs.rs/crate/a3s-tui/latest",
+    "repo": "https://github.com/A3S-Lab/TUI",
+    "summary": "A TUI framework with an Elm style update loop, a virtual DOM like Element tree and flexbox layout, aimed at AI agent interfaces.",
+    "snippetSource": "https://github.com/A3S-Lab/TUI/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "ElementModel has fn update(&mut self, msg) -> Option<Cmd<Msg>> and fn view(&self) -> Element<Msg>; an older string view model exists beside it.",
+      "No subscription function: cmd::tick is a one-shot delay that update re-issues (the chat example reschedules its stream and spinner ticks this way).",
+      "Cmd is an async future (msg, batch, sequence, tick, perform, quit)."
+    ],
+    "verified": true,
+    "stars": 5,
+    "createdAt": "2026-05-12",
+    "updatedAt": "2026-09-21"
+  },
+  {
+    "id": "rustea",
+    "name": "Rustea",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "quiet",
+    "url": "https://docs.rs/rustea",
+    "repo": "https://github.com/frayer/rustea",
+    "summary": "A small Rust port of the go-tea library: update returns an optional boxed command and messages are downcast from Any.",
+    "snippetSource": "https://github.com/frayer/rustea/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "update takes &mut self and a Box<dyn Any> message and returns an Option<Command>; a Command is a boxed closure returning an Option<Message>, run on its own thread, so it may block.",
+      "No subscription function: key, mouse and resize events arrive as messages, and a long-running source is a command that blocks or that update re-issues.",
+      "The repository is a restored copy of the lazops/rustea crate code; last commit in April 2025."
+    ],
+    "verified": true,
+    "stars": 1,
+    "createdAt": "2024-08-24",
+    "updatedAt": "2025-04-13"
   }
 ]

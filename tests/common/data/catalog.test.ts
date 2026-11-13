@@ -96,10 +96,11 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
-  it('treat only Elm and Gren as language entries', () => {
+  it('treat only the languages built for TEA as language entries', () => {
     expect(frameworks.filter(isLanguageEntry).map((f) => f.id)).toEqual([
       'elm',
       'gren',
+      'sky',
     ])
   })
 })

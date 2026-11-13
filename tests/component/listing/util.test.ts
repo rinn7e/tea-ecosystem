@@ -49,9 +49,11 @@ describe('filterFrameworks', () => {
         show,
         includeArchived: true,
       })(frameworks).map((f) => f.id)
-    expect(shownWith(O.some('languages'))).toEqual(['elm', 'gren'])
+    expect(shownWith(O.some('languages'))).toEqual(['elm', 'gren', 'sky'])
     expect(shownWith(O.some('frameworks'))).not.toContain('elm')
-    expect(shownWith(O.some('frameworks'))).toHaveLength(frameworks.length - 2)
+    expect(shownWith(O.some('frameworks'))).toHaveLength(
+      frameworks.length - shownWith(O.some('languages')).length,
+    )
     expect(shownWith(O.none)).toHaveLength(frameworks.length)
   })
 
