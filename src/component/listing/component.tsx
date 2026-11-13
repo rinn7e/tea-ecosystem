@@ -10,8 +10,10 @@ import {
   IconSearch,
   IconTable,
 } from '@tabler/icons-react'
+import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
+import * as S from 'fp-ts/string'
 import React, { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
@@ -22,15 +24,13 @@ import {
   type ListingLayout,
   type ListingSort,
   type SortColumn,
+  catalogTiers,
+  defaultStatuses,
   destinationOfScreen,
   frameworkScreen,
+  lackables,
 } from '@/common/type/destination'
-import {
-  type Concept,
-  type Framework,
-  type Tier,
-  targets,
-} from '@/common/type/framework'
+import { type Framework, statuses, targets } from '@/common/type/framework'
 import {
   type Tone,
   conceptLabel,
@@ -40,6 +40,9 @@ import {
   kindLineOf,
   rubricStripView,
   sourceLinkView,
+  statusDotView,
+  statusLabel,
+  statusMeaning,
   statusView,
   targetChipsView,
   targetIconView,
@@ -71,12 +74,7 @@ import {
   sortFrameworks,
 } from './util'
 
-const tiers: readonly Tier[] = ['reference', 'full', 'superset']
-
 const entryKinds: readonly EntryKind[] = ['languages', 'frameworks']
-
-// The parts an adjacent library can lack (Model is never among them)
-const lackables: readonly Concept[] = ['msg', 'update', 'view', 'cmd', 'sub']
 
 // Stats
 // ---------------------------------------------
@@ -337,27 +335,19 @@ const tierChoicesView = ({
   dispatch: Dispatcher<Msg>
 }) =>
   choiceRowView({
-    children: tiers.map((tier) => {
-      const isChosen = pipe(
-        filter.tier,
-        O.exists((t) => t === tier),
-      )
-      return choiceBoxView({
+    children: catalogTiers.map((tier) =>
+      choiceBoxView({
         id: tier,
         tooltip: { title: tierLabel(tier), text: tierMeaning(tier) },
         label: tierLabel(tier),
         icon: null,
         tone: tierTone,
-        count: filterFrameworks({ ...filter, tier: O.some(tier) })(entries)
-          .length,
-        isChosen,
+        count: filterFrameworks({ ...filter, tiers: [tier] })(entries).length,
+        isChosen: filter.tiers.includes(tier),
         onClick: () =>
-          dispatch({
-            _tag: 'SetTier',
-            tier: isChosen ? O.none : O.some(tier),
-          }),
-      })
-    }),
+          dispatch({ _tag: 'ToggleTier', tier, options: [...catalogTiers] }),
+      }),
+    ),
   })
 
 // What an entry of the adjacent list lacks
@@ -371,12 +361,8 @@ const lacksChoicesView = ({
   dispatch: Dispatcher<Msg>
 }) =>
   choiceRowView({
-    children: lackables.map((concept) => {
-      const isChosen = pipe(
-        filter.lacks,
-        O.exists((c) => c === concept),
-      )
-      return choiceBoxView({
+    children: lackables.map((concept) =>
+      choiceBoxView({
         id: concept,
         tooltip: {
           title: `Lacks ${conceptLabel(concept)}`,
@@ -385,16 +371,17 @@ const lacksChoicesView = ({
         label: `Lacks ${conceptLabel(concept)}`,
         icon: null,
         tone: gradeTone('missing'),
-        count: filterFrameworks({ ...filter, lacks: O.some(concept) })(entries)
+        count: filterFrameworks({ ...filter, lacks: [concept] })(entries)
           .length,
-        isChosen,
+        isChosen: filter.lacks.includes(concept),
         onClick: () =>
           dispatch({
-            _tag: 'SetLacks',
-            lacks: isChosen ? O.none : O.some(concept),
+            _tag: 'ToggleLacks',
+            concept,
+            options: [...lackables],
           }),
-      })
-    }),
+      }),
+    ),
   })
 
 // The targets the entries of the list run on, in the order of `targets`
@@ -406,35 +393,55 @@ const targetChoicesView = ({
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
+}) => {
+  const options = targets.filter((target) =>
+    entries.some((f) => f.targets.includes(target)),
+  )
+  return choiceRowView({
+    children: options.map((target) =>
+      choiceBoxView({
+        id: target,
+        tooltip: {
+          title: targetLabel(target),
+          text: targetMeaning(target),
+        },
+        label: targetLabel(target),
+        icon: targetIconView({ target }),
+        tone: targetTone,
+        count: filterFrameworks({ ...filter, targets: [target] })(entries)
+          .length,
+        isChosen: filter.targets.includes(target),
+        onClick: () => dispatch({ _tag: 'ToggleTarget', target, options }),
+      }),
+    ),
+  })
+}
+
+// Active, quiet and archived, each with the dot a card shows: the first
+// two are chosen until others are
+const statusChoicesView = ({
+  entries,
+  filter,
+  dispatch,
+}: {
+  entries: Framework[]
+  filter: ListingFilter
+  dispatch: Dispatcher<Msg>
 }) =>
   choiceRowView({
-    children: targets
-      .filter((target) => entries.some((f) => f.targets.includes(target)))
-      .map((target) => {
-        const isChosen = pipe(
-          filter.target,
-          O.exists((t) => t === target),
-        )
-        return choiceBoxView({
-          id: target,
-          tooltip: {
-            title: targetLabel(target),
-            text: targetMeaning(target),
-          },
-          label: targetLabel(target),
-          icon: targetIconView({ target }),
-          tone: targetTone,
-          count: filterFrameworks({ ...filter, target: O.some(target) })(
-            entries,
-          ).length,
-          isChosen,
-          onClick: () =>
-            dispatch({
-              _tag: 'SetTarget',
-              target: isChosen ? O.none : O.some(target),
-            }),
-        })
+    children: statuses.map((status) =>
+      choiceBoxView({
+        id: status,
+        tooltip: { title: statusLabel(status), text: statusMeaning(status) },
+        label: statusLabel(status),
+        icon: statusDotView({ status }),
+        tone: tierTone,
+        count: filterFrameworks({ ...filter, statuses: [status] })(entries)
+          .length,
+        isChosen: filter.statuses.includes(status),
+        onClick: () => dispatch({ _tag: 'ToggleStatus', status }),
       }),
+    ),
   })
 
 // Search, and the toolbar of the results: layout, archive and count
@@ -494,13 +501,14 @@ const searchView = ({
   </label>
 )
 
-// How many of the filters in the popover are on: the tier (or what an
-// entry lacks) and the target
+// How many of the filters in the popover differ from their default: the
+// tier (or what an entry lacks), the target and the status
 const panelFilterCountOf = (filter: ListingFilter): number =>
   [
-    O.isSome(filter.tier),
-    O.isSome(filter.lacks),
-    O.isSome(filter.target),
+    filter.tiers.length > 0,
+    filter.lacks.length > 0,
+    filter.targets.length > 0,
+    !A.getEq(S.Eq).equals(filter.statuses, defaultStatuses()),
   ].filter((isOn) => isOn).length
 
 // A row of the popover: its name, then its boxes
@@ -520,7 +528,8 @@ const panelSectionView = ({
 )
 
 // The search, and on its right the Filters button with its popover: the
-// tiers (or, on the adjacent list, what an entry lacks) and the targets,
+// tiers (or, on the adjacent list, what an entry lacks), the targets and
+// the statuses, each a choice of several (`toggleChoice`),
 // in a box with a sharp blue edge, like the button, and no shadow.
 // The popover fades in rising 4px (`starting:`) and out the same way while
 // the model keeps it `closing`; a press outside it or Escape closes it.
@@ -593,6 +602,14 @@ const searchRowView = ({
                 dispatch,
               }),
             })}
+            {panelSectionView({
+              title: 'Status',
+              children: statusChoicesView({
+                entries,
+                filter: model.filter,
+                dispatch,
+              }),
+            })}
           </div>
         )}
       </div>
@@ -600,8 +617,8 @@ const searchRowView = ({
   )
 }
 
-// The toolbar right above the results: the layout and the archive on the
-// left, the count and (while a filter is on) Clear filters on the right
+// The toolbar right above the results: the layout on the left, the count
+// and (while a filter is on) Clear filters on the right
 const filterBarView = ({
   filter,
   shown,
@@ -627,30 +644,6 @@ const filterBarView = ({
           dispatch,
         })}
       </div>
-      <TooltipTrigger
-        id='filter-archived'
-        content={{
-          title: 'Include archived',
-          text: 'Also show the projects whose repository is archived, or whose author has moved on.',
-        }}
-        touch={false}
-        className='inline-flex'
-      >
-        <label className='text-ink-muted flex cursor-pointer items-center gap-[6px] text-sm whitespace-nowrap'>
-          <input
-            type='checkbox'
-            checked={filter.includeArchived}
-            onChange={(e) =>
-              dispatch({
-                _tag: 'SetIncludeArchived',
-                includeArchived: e.target.checked,
-              })
-            }
-            className='accent-accent size-[15px] cursor-pointer'
-          />
-          Include archived
-        </label>
-      </TooltipTrigger>
     </div>
     <div className='flex items-center gap-[12px]'>
       <span className='text-ink-muted text-sm whitespace-nowrap tabular-nums'>
@@ -967,9 +960,10 @@ const emptyView = ({
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const archivedCount = filter.includeArchived
-    ? 0
-    : filterFrameworks({ ...filter, includeArchived: true })(entries).length
+  const archivedCount =
+    filter.statuses.length === 0 || filter.statuses.includes('archived')
+      ? 0
+      : filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
   const noun =
     kind === 'catalog'
       ? archivedCount === 1
@@ -988,9 +982,7 @@ const emptyView = ({
       {archivedCount > 0 && (
         <button
           type='button'
-          onClick={() =>
-            dispatch({ _tag: 'SetIncludeArchived', includeArchived: true })
-          }
+          onClick={() => dispatch({ _tag: 'ToggleStatus', status: 'archived' })}
           className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
         >
           <IconArchive size={16} stroke={1.75} aria-hidden />

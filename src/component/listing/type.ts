@@ -1,6 +1,5 @@
 import { EqAlways } from '@rinn7e/tea-cup-prelude'
 import * as EqClass from 'fp-ts/Eq'
-import { type Option } from 'fp-ts/Option'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
@@ -13,7 +12,12 @@ import {
   type ListingLayout,
   type SortColumn,
 } from '@/common/type/destination'
-import { type Concept, type Target, type Tier } from '@/common/type/framework'
+import {
+  type Concept,
+  type Status,
+  type Target,
+  type Tier,
+} from '@/common/type/framework'
 
 // A list of entries (the catalog, or the TEA-adjacent libraries) with its
 // stats, search, filters and cards or table. Each list is a base layer of
@@ -38,16 +42,18 @@ export const ModelEq: EqClass.Eq<Model> = EqClass.struct({
 })
 
 export type Msg =
-  | { _tag: 'SetTier'; tier: Option<Tier> }
-  | { _tag: 'SetLacks'; lacks: Option<Concept> }
-  | { _tag: 'SetTarget'; target: Option<Target> }
+  // Chooses an option of a filter of the popover, or unchooses it when
+  // chosen (`toggleChoice`); `options` are the ones the popover shows
+  | { _tag: 'ToggleTier'; tier: Tier; options: Tier[] }
+  | { _tag: 'ToggleLacks'; concept: Concept; options: Concept[] }
+  | { _tag: 'ToggleTarget'; target: Target; options: Target[] }
+  | { _tag: 'ToggleStatus'; status: Status }
   | { _tag: 'SetQuery'; query: string }
   // Narrows to a kind, or back to every entry when it is the one shown
   | { _tag: 'ToggleShow'; entryKind: EntryKind }
   // Narrows to a language, or back to every language when it is the one
   // shown
   | { _tag: 'ToggleLanguage'; language: string }
-  | { _tag: 'SetIncludeArchived'; includeArchived: boolean }
   | { _tag: 'SetLayout'; layout: ListingLayout }
   // Sorts by a column of the table, or turns its direction around when it
   // is the column sorted by already

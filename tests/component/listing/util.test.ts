@@ -6,6 +6,7 @@ import {
   type EntryKind,
   type ListingSort,
   defaultListingFilter,
+  toggleChoice,
 } from '@/common/type/destination'
 import {
   balancedRows,
@@ -26,16 +27,39 @@ describe('filterFrameworks', () => {
     expect(isFiltered(defaultListingFilter())).toBe(false)
   })
 
-  it('shows the archived entries when they are included', () => {
-    const filter = { ...defaultListingFilter(), includeArchived: true }
+  it('shows every status when no status is chosen', () => {
+    const filter = { ...defaultListingFilter(), statuses: [] }
     expect(filterFrameworks(filter)(frameworks)).toEqual(frameworks)
     expect(isFiltered(filter)).toBe(true)
+  })
+
+  it('hides the archived entries by default', () => {
+    expect(
+      filterFrameworks(defaultListingFilter())(frameworks).every(
+        (f) => f.status !== 'archived',
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps the entries that match any choice of a filter', () => {
+    const shown = filterFrameworks({
+      ...defaultListingFilter(),
+      targets: ['mobile', 'tui'],
+      statuses: [],
+    })(frameworks)
+    expect(shown.some((f) => f.targets.includes('mobile'))).toBe(true)
+    expect(shown.some((f) => f.targets.includes('tui'))).toBe(true)
+    expect(
+      shown.every(
+        (f) => f.targets.includes('mobile') || f.targets.includes('tui'),
+      ),
+    ).toBe(true)
   })
 
   it('filters by target and query together', () => {
     const shown = filterFrameworks({
       ...defaultListingFilter(),
-      target: O.some('tui'),
+      targets: ['tui'],
       query: 'RUST',
     })(frameworks)
     expect(shown.length).toBeGreaterThan(0)
@@ -49,7 +73,7 @@ describe('filterFrameworks', () => {
       filterFrameworks({
         ...defaultListingFilter(),
         show,
-        includeArchived: true,
+        statuses: [],
       })(frameworks).map((f) => f.id)
     expect(shownWith(O.some('languages'))).toEqual(['elm', 'gren', 'sky'])
     expect(shownWith(O.some('frameworks'))).not.toContain('elm')
@@ -62,7 +86,7 @@ describe('filterFrameworks', () => {
   it('filters by tier', () => {
     const shown = filterFrameworks({
       ...defaultListingFilter(),
-      tier: O.some('superset'),
+      tiers: ['superset'],
     })(frameworks)
     expect(shown.map((f) => f.id)).toContain('miso')
     expect(shown.every((f) => f.tier === 'superset')).toBe(true)
@@ -73,7 +97,8 @@ describe('lacks', () => {
   it('keeps only the adjacent entries that miss a part', () => {
     const shown = filterFrameworks({
       ...defaultListingFilter(),
-      lacks: O.some('sub'),
+      lacks: ['sub'],
+      statuses: [],
     })(adjacentEntries)
     // Missing (redux-loop) and another shape (yew) both lack it; a
     // managed Sub (workflow) does not
@@ -104,7 +129,7 @@ describe('language', () => {
       filterFrameworks({
         ...defaultListingFilter(),
         language: O.some(language),
-        includeArchived: true,
+        statuses: [],
       })(adjacentEntries).map((e) => e.language)
     expect(shownIn('Swift')).toContain('Kotlin and Swift')
     expect(shownIn('Kotlin')).toContain('Kotlin and Swift')
@@ -148,7 +173,7 @@ describe('search', () => {
     filterFrameworks({
       ...defaultListingFilter(),
       query,
-      includeArchived: true,
+      statuses: [],
     })(frameworks).map((f) => f.id)
 
   it('finds entries by the labels they show: status, tier, target, kind', () => {
@@ -158,7 +183,7 @@ describe('search', () => {
     expect(searched('rust framework')).toContain('iced')
   })
 
-  it('still needs Include archived for an archived entry', () => {
+  it('still needs the Archived status for an archived entry', () => {
     const shown = filterFrameworks({
       ...defaultListingFilter(),
       query: 'archived',
@@ -170,7 +195,7 @@ describe('search', () => {
 describe('sort', () => {
   const all = filterFrameworks({
     ...defaultListingFilter(),
-    includeArchived: true,
+    statuses: [],
   })(frameworks)
 
   it('keeps the order of the list with no column', () => {
@@ -247,7 +272,14 @@ describe('filter popover', () => {
   })
 
   it('stays open while choosing, and a stale fade does not close it', () => {
-    const chosen = update({ _tag: 'SetTier', tier: O.some('full') }, open)[0]
+    const chosen = update(
+      {
+        _tag: 'ToggleTier',
+        tier: 'full',
+        options: ['reference', 'full', 'superset'],
+      },
+      open,
+    )[0]
     expect(chosen.panel).toBe('open')
     const closing = update({ _tag: 'TogglePanel' }, chosen)[0]
     const reopened = update({ _tag: 'TogglePanel' }, closing)[0]
@@ -287,5 +319,38 @@ describe('logosPerRowOf', () => {
     expect(logosPerRowOf(768)).toBe(13)
     expect(logosPerRowOf(1280)).toBe(13)
     expect(logosPerRowOf(0)).toBe(1)
+  })
+})
+
+describe('toggleChoice', () => {
+  const options = ['active', 'quiet', 'archived'] as const
+
+  it('adds a choice and removes it again, in the order of the options', () => {
+    expect(toggleChoice(options, [], 'quiet')).toEqual(['quiet'])
+    expect(toggleChoice(options, ['quiet'], 'active')).toEqual([
+      'active',
+      'quiet',
+    ])
+    expect(toggleChoice(options, ['active', 'quiet'], 'quiet')).toEqual([
+      'active',
+    ])
+  })
+
+  it('keeps every option chosen, which shows every entry as no choice does', () => {
+    const every = toggleChoice(options, ['active', 'quiet'], 'archived')
+    expect(every).toEqual(['active', 'quiet', 'archived'])
+    expect(
+      filterFrameworks({ ...defaultListingFilter(), statuses: every })(
+        frameworks,
+      ),
+    ).toEqual(frameworks)
+  })
+
+  it('shows the archive from the default statuses with one press', () => {
+    const shown = update(
+      { _tag: 'ToggleStatus', status: 'archived' },
+      init(defaultListingFilter()),
+    )[0].filter.statuses
+    expect(shown).toEqual(['active', 'quiet', 'archived'])
   })
 })

@@ -1,10 +1,15 @@
+import * as A from 'fp-ts/Array'
 import * as EqClass from 'fp-ts/Eq'
 import * as O from 'fp-ts/Option'
 import { type Option } from 'fp-ts/Option'
-import * as B from 'fp-ts/boolean'
 import * as S from 'fp-ts/string'
 
-import { type Concept, type Target, type Tier } from '@/common/type/framework'
+import {
+  type Concept,
+  type Status,
+  type Target,
+  type Tier,
+} from '@/common/type/framework'
 
 // How a list (the catalog, TEA-adjacent) shows its entries
 export type ListingLayout = 'cards' | 'table'
@@ -58,18 +63,22 @@ export const buildLanguages: readonly BuildLanguage[] = [
 // The filters of a list, which a link can share. The catalog filters by
 // `tier`, the adjacent list by the part an entry `lacks`; each leaves the
 // other one empty.
+// Each filter of the popover is a set of choices: an entry passes when it
+// matches any of them, and no choice (like every one) passes every entry
+// (`toggleChoice`)
 export type ListingFilter = {
-  tier: Option<Tier>
-  lacks: Option<Concept>
-  target: Option<Target>
+  tiers: Tier[]
+  // What an entry of the adjacent list lacks
+  lacks: Concept[]
+  targets: Target[]
+  // Active and quiet by default: archived entries are hidden until chosen
+  statuses: Status[]
   query: string
   // Only the language entries (Elm, Gren), or only the frameworks; none
   // shows every entry
   show: Option<EntryKind>
   // Only the entries written in this language (`languagesOf`)
   language: Option<string>
-  // Archived entries are hidden until this is ticked
-  includeArchived: boolean
   layout: ListingLayout
   // A column chosen in the table header; none keeps the order of the list
   // (the Originator first, then react-tea-cup, then the most starred)
@@ -118,13 +127,13 @@ export type Screen =
   | NotFoundScreen
 
 export const ListingFilterEq: EqClass.Eq<ListingFilter> = EqClass.struct({
-  tier: O.getEq(S.Eq),
-  lacks: O.getEq(S.Eq),
-  target: O.getEq(S.Eq),
+  tiers: A.getEq(S.Eq),
+  lacks: A.getEq(S.Eq),
+  targets: A.getEq(S.Eq),
+  statuses: A.getEq(S.Eq),
   query: S.Eq,
   show: O.getEq(S.Eq),
   language: O.getEq(S.Eq),
-  includeArchived: B.Eq,
   layout: S.Eq,
   sort: O.getEq(ListingSortEq),
 })
@@ -165,14 +174,39 @@ export const destinationOfScreen = (screen: Screen): Destination => ({
   screen,
 })
 
+// The options of the filters of the popover: the tiers of the catalog, and
+// the parts an adjacent library can lack (Model is never among them)
+export const catalogTiers: readonly Tier[] = ['reference', 'full', 'superset']
+
+export const lackables: readonly Concept[] = [
+  'msg',
+  'update',
+  'view',
+  'cmd',
+  'sub',
+]
+
+// The statuses a list shows until others are chosen
+export const defaultStatuses = (): Status[] => ['active', 'quiet']
+
+// Chooses `value` among `options`, or unchooses it when chosen; the
+// choices stay in the order of `options`. Every option chosen shows every
+// entry, as no choice does, but stays chosen on screen.
+export const toggleChoice = <A extends string>(
+  options: readonly A[],
+  chosen: readonly A[],
+  value: A,
+): A[] =>
+  options.filter((option) => (option === value) !== chosen.includes(option))
+
 export const defaultListingFilter = (): ListingFilter => ({
-  tier: O.none,
-  lacks: O.none,
-  target: O.none,
+  tiers: [],
+  lacks: [],
+  targets: [],
+  statuses: defaultStatuses(),
   query: '',
   show: O.none,
   language: O.none,
-  includeArchived: false,
   layout: 'cards',
   sort: O.none,
 })

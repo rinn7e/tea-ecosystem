@@ -95,6 +95,8 @@ export const TargetJson: t.Type<Target> = t.keyof({
 
 export type Status = 'active' | 'quiet' | 'archived'
 
+export const statuses: readonly Status[] = ['active', 'quiet', 'archived']
+
 export const StatusJson: t.Type<Status> = t.keyof({
   active: null,
   quiet: null,

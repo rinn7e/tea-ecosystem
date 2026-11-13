@@ -204,6 +204,18 @@ export const statusLabel = (status: Status): string => {
   }
 }
 
+// What a status means, for the tooltip of its filter
+export const statusMeaning = (status: Status): string => {
+  switch (status) {
+    case 'active':
+      return 'Still worked on: recent pushes or releases.'
+    case 'quiet':
+      return 'Little or no recent activity, but not archived: often finished rather than dead.'
+    case 'archived':
+      return 'Its repository is archived, or its author has moved on.'
+  }
+}
+
 export const targetLabel = (target: Target): string => {
   switch (target) {
     case 'web':
@@ -265,6 +277,21 @@ export const tierBadgeView = ({ tier }: { tier: Tier }) => (
   </span>
 )
 
+// The dot of a status, in its color
+export const statusDotView = ({ status }: { status: Status }) => (
+  <span
+    aria-hidden='true'
+    className={cn(
+      'size-[8px] shrink-0 rounded-full',
+      status === 'active'
+        ? 'bg-native'
+        : status === 'quiet'
+          ? 'bg-equivalent'
+          : 'bg-missing',
+    )}
+  />
+)
+
 export const statusView = ({ status }: { status: Status }) => (
   <span
     className={cn(
@@ -272,16 +299,7 @@ export const statusView = ({ status }: { status: Status }) => (
       status === 'archived' ? 'text-missing' : 'text-ink-muted',
     )}
   >
-    <span
-      className={cn(
-        'size-[8px] rounded-full',
-        status === 'active'
-          ? 'bg-native'
-          : status === 'quiet'
-            ? 'bg-equivalent'
-            : 'bg-missing',
-      )}
-    />
+    {statusDotView({ status })}
     {statusLabel(status)}
   </span>
 )

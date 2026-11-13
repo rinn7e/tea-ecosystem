@@ -15,6 +15,7 @@ import {
   type ListingSort,
   type SortColumn,
   type SortDirection,
+  defaultStatuses,
 } from '@/common/type/destination'
 import {
   type Concept,
@@ -125,27 +126,16 @@ export const filterFrameworks =
       frameworks,
       A.filter(
         (framework) =>
-          pipe(
-            filter.tier,
-            O.fold(
-              () => true,
-              (tier) => framework.tier === tier,
-            ),
-          ) &&
-          pipe(
-            filter.lacks,
-            O.fold(
-              () => true,
-              (concept) => lacks(concept)(framework),
-            ),
-          ) &&
-          pipe(
-            filter.target,
-            O.fold(
-              () => true,
-              (target) => framework.targets.includes(target),
-            ),
-          ) &&
+          (filter.tiers.length === 0 ||
+            filter.tiers.includes(framework.tier)) &&
+          (filter.lacks.length === 0 ||
+            filter.lacks.some((concept) => lacks(concept)(framework))) &&
+          (filter.targets.length === 0 ||
+            filter.targets.some((target) =>
+              framework.targets.includes(target),
+            )) &&
+          (filter.statuses.length === 0 ||
+            filter.statuses.includes(framework.status)) &&
           matchesEntryKind(filter)(framework) &&
           pipe(
             filter.language,
@@ -154,19 +144,18 @@ export const filterFrameworks =
               (language) => languagesOf(framework).includes(language),
             ),
           ) &&
-          (filter.includeArchived || framework.status !== 'archived') &&
           matchesQuery(filter.query)(framework),
       ),
     )
 
 export const isFiltered = (filter: ListingFilter): boolean =>
-  O.isSome(filter.tier) ||
-  O.isSome(filter.lacks) ||
-  O.isSome(filter.target) ||
+  filter.tiers.length > 0 ||
+  filter.lacks.length > 0 ||
+  filter.targets.length > 0 ||
+  !A.getEq(S.Eq).equals(filter.statuses, defaultStatuses()) ||
   filter.query !== '' ||
   O.isSome(filter.show) ||
-  O.isSome(filter.language) ||
-  filter.includeArchived
+  O.isSome(filter.language)
 
 // Every language of a list with its number of entries: Elm and TypeScript
 // first (`pinnedLanguages`), then the most popular (`languagePopularity`),

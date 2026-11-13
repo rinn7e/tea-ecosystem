@@ -70,7 +70,11 @@ describe('urlWriteOf', () => {
     const prev = bootOn('/')
     const msg: Msg = {
       _tag: 'CatalogScreenMsg',
-      subMsg: { _tag: 'SetTier', tier: O.some('superset') },
+      subMsg: {
+        _tag: 'ToggleTier',
+        tier: 'superset',
+        options: ['reference', 'full', 'superset'],
+      },
     }
     const next = step(prev, msg)
     expect(urlWriteOf(msg, prev, next)).toEqual(

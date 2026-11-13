@@ -7,7 +7,9 @@ import {
   type ListingSort,
   defaultListingFilter,
   firstDirectionOf,
+  toggleChoice,
 } from '@/common/type/destination'
+import { statuses } from '@/common/type/framework'
 
 import { type Model, type Msg } from './type'
 
@@ -44,12 +46,26 @@ const closePanel = (model: Model): [Model, Cmd<Msg>] => {
 // (`withUrl`), as a replace while typing a query
 export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg._tag) {
-    case 'SetTier':
-      return withFilter(model, { ...model.filter, tier: msg.tier })
-    case 'SetLacks':
-      return withFilter(model, { ...model.filter, lacks: msg.lacks })
-    case 'SetTarget':
-      return withFilter(model, { ...model.filter, target: msg.target })
+    case 'ToggleTier':
+      return withFilter(model, {
+        ...model.filter,
+        tiers: toggleChoice(msg.options, model.filter.tiers, msg.tier),
+      })
+    case 'ToggleLacks':
+      return withFilter(model, {
+        ...model.filter,
+        lacks: toggleChoice(msg.options, model.filter.lacks, msg.concept),
+      })
+    case 'ToggleTarget':
+      return withFilter(model, {
+        ...model.filter,
+        targets: toggleChoice(msg.options, model.filter.targets, msg.target),
+      })
+    case 'ToggleStatus':
+      return withFilter(model, {
+        ...model.filter,
+        statuses: toggleChoice(statuses, model.filter.statuses, msg.status),
+      })
     case 'SetQuery':
       return withFilter(model, { ...model.filter, query: msg.query })
     case 'ToggleShow':
@@ -71,11 +87,6 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
         )
           ? O.none
           : O.some(msg.language),
-      })
-    case 'SetIncludeArchived':
-      return withFilter(model, {
-        ...model.filter,
-        includeArchived: msg.includeArchived,
       })
     case 'SetLayout':
       return withFilter(model, { ...model.filter, layout: msg.layout })

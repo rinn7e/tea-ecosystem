@@ -11,13 +11,15 @@ import {
   str,
   zero,
 } from '@rinn7e/fp-ts-routing'
+import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import * as RA from 'fp-ts/ReadonlyArray'
 import { pipe } from 'fp-ts/function'
+import * as S from 'fp-ts/string'
 import * as t from 'io-ts'
 
 import { BASE_URL } from '@/common/env'
-import { type Concept, type Target, type Tier } from '@/common/type/framework'
+import { type Status, statuses, targets } from '@/common/type/framework'
 
 import {
   type BuildLanguage,
@@ -31,8 +33,11 @@ import {
   adjacentScreen,
   buildScreen,
   catalogScreen,
+  catalogTiers,
+  defaultStatuses,
   firstDirectionOf,
   frameworkScreen,
+  lackables,
   notFoundScreen,
   rubricScreen,
   sortColumns,
@@ -60,11 +65,14 @@ export const addBaseUrl = (path: string): string => {
 // Parser
 // ------------------------------------------------------------------
 
-// The query of a list: the catalog reads `tier`, the adjacent list `lacks`
+// The query of a list: the catalog reads `tier`, the adjacent list `lacks`.
+// A choice of several is a list: `?tier=full,superset`. `includeArchived`
+// is read only, from links made before `status`.
 type ListingParams = {
   tier?: string
   lacks?: string
   target?: string
+  status?: string
   query?: string
   show?: string
   language?: string
@@ -79,6 +87,7 @@ const listingParams: t.Type<ListingParams> = t.exact(
     tier: t.string,
     lacks: t.string,
     target: t.string,
+    status: t.string,
     query: t.string,
     show: t.string,
     language: t.string,
@@ -113,33 +122,28 @@ const anyStrings = new Match<object>(
   new Formatter((r) => r),
 )
 
-// An unknown value reads as no filter, so an old or mistyped link still opens
-const tierOf = (value: string | undefined): O.Option<Tier> =>
-  value === 'reference' || value === 'full' || value === 'superset'
-    ? O.some(value)
-    : O.none
+// The known values of `options` a list names, in their order, so an old
+// or mistyped link still opens
+const choicesOf =
+  <A extends string>(options: readonly A[]) =>
+  (value: string | undefined): A[] => {
+    const named = (value ?? '').split(',')
+    return options.filter((option) => named.includes(option))
+  }
 
-const lacksOf = (value: string | undefined): O.Option<Concept> =>
-  value === 'model' ||
-  value === 'msg' ||
-  value === 'update' ||
-  value === 'view' ||
-  value === 'cmd' ||
-  value === 'sub' ||
-  value === 'ports'
-    ? O.some(value)
-    : O.none
-
-const targetOf = (value: string | undefined): O.Option<Target> =>
-  value === 'web' ||
-  value === 'ssr' ||
-  value === 'server' ||
-  value === 'desktop' ||
-  value === 'mobile' ||
-  value === 'tui' ||
-  value === 'game'
-    ? O.some(value)
-    : O.none
+// `status` names the statuses shown, `all` for no choice (every one);
+// none known, or no `status`, is the default, unless an old link asks for
+// the archive (`includeArchived`)
+const statusesOf = (params: ListingParams): Status[] => {
+  const named = choicesOf(statuses)(params.status)
+  return params.status === 'all'
+    ? []
+    : named.length > 0
+      ? named
+      : params.status === undefined && params.includeArchived === 'true'
+        ? []
+        : defaultStatuses()
+}
 
 const listLanguageOf = (value: string | undefined): O.Option<string> =>
   value === undefined || value === '' ? O.none : O.some(value)
@@ -174,25 +178,25 @@ const languageOf = (value: string | undefined): BuildLanguage =>
   value === 'swift' || value === 'kotlin' ? value : 'typescript'
 
 const catalogFilterOf = (params: ListingParams): ListingFilter => ({
-  tier: tierOf(params.tier),
-  lacks: O.none,
-  target: targetOf(params.target),
+  tiers: choicesOf(catalogTiers)(params.tier),
+  lacks: [],
+  targets: choicesOf(targets)(params.target),
+  statuses: statusesOf(params),
   query: params.query ?? '',
   show: showOf(params.show),
   language: listLanguageOf(params.language),
-  includeArchived: params.includeArchived === 'true',
   layout: layoutOf(params.layout),
   sort: sortOf(params),
 })
 
 const adjacentFilterOf = (params: ListingParams): ListingFilter => ({
-  tier: O.none,
-  lacks: lacksOf(params.lacks),
-  target: targetOf(params.target),
+  tiers: [],
+  lacks: choicesOf(lackables)(params.lacks),
+  targets: choicesOf(targets)(params.target),
+  statuses: statusesOf(params),
   query: params.query ?? '',
   show: showOf(params.show),
   language: listLanguageOf(params.language),
-  includeArchived: params.includeArchived === 'true',
   layout: layoutOf(params.layout),
   sort: sortOf(params),
 })
@@ -230,15 +234,22 @@ export const parseDestination = (href: string): Destination => ({
 // Formatter
 // ------------------------------------------------------------------
 
+const listParamOf = (chosen: readonly string[]): string | undefined =>
+  chosen.length === 0 ? undefined : chosen.join(',')
+
 // Defaults are left out of the URL, so the plain catalog is just `/`
 const listingParamsOf = (filter: ListingFilter): ListingParams => ({
-  tier: pipe(filter.tier, O.toUndefined),
-  lacks: pipe(filter.lacks, O.toUndefined),
-  target: pipe(filter.target, O.toUndefined),
+  tier: listParamOf(filter.tiers),
+  lacks: listParamOf(filter.lacks),
+  target: listParamOf(filter.targets),
+  status: A.getEq(S.Eq).equals(filter.statuses, defaultStatuses())
+    ? undefined
+    : filter.statuses.length === 0
+      ? 'all'
+      : filter.statuses.join(','),
   query: filter.query === '' ? undefined : filter.query,
   show: pipe(filter.show, O.toUndefined),
   language: pipe(filter.language, O.toUndefined),
-  includeArchived: filter.includeArchived ? 'true' : undefined,
   layout: filter.layout === 'cards' ? undefined : filter.layout,
   sort: pipe(
     filter.sort,
@@ -278,5 +289,7 @@ export const toUrlString = (destination: Destination): string => {
     }
   }
 
-  return addBaseUrl(getPath())
+  // The commas of a list of choices stay readable (`?tier=full,superset`):
+  // a comma needs no escape in a query
+  return addBaseUrl(getPath().replace(/%2C/gi, ','))
 }

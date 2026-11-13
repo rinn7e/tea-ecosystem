@@ -32,20 +32,20 @@ describe('the screen stack', () => {
       bootOn('/rubric'),
       destinationOfScreen(
         catalogScreen({
-          tier: O.some('full'),
-          lacks: O.none,
-          target: O.none,
+          tiers: ['full'],
+          lacks: [],
+          targets: [],
+          statuses: ['active', 'quiet'],
           query: '',
           show: O.none,
           language: O.none,
-          includeArchived: false,
           layout: 'table',
           sort: O.none,
         }),
       ),
     )
     expect(model.catalog.filter.layout).toBe('table')
-    expect(model.catalog.filter.tier).toEqual(O.some('full'))
+    expect(model.catalog.filter.tiers).toEqual(['full'])
   })
 
   it('ignores catalog messages while another screen covers it', () => {

@@ -40,13 +40,13 @@ describe('destination URL', () => {
 
   it('keeps the catalog filter in the query', () => {
     const screen = catalogScreen({
-      tier: O.some('superset'),
-      lacks: O.none,
-      target: O.some('tui'),
+      tiers: ['full', 'superset'],
+      lacks: [],
+      targets: ['desktop', 'tui'],
+      statuses: [],
       query: 'rust tea',
       show: O.some('frameworks'),
       language: O.some('F#'),
-      includeArchived: true,
       layout: 'table',
       sort: O.some({ column: 'stars', direction: 'ascending' }),
     })
@@ -55,20 +55,53 @@ describe('destination URL', () => {
 
   it('keeps the adjacent filter in the query, with lacks for tier', () => {
     const screen = adjacentScreen({
-      tier: O.none,
-      lacks: O.some('cmd'),
-      target: O.some('web'),
+      tiers: [],
+      lacks: ['cmd', 'sub'],
+      targets: ['web'],
+      statuses: ['archived'],
       query: '',
       show: O.none,
       language: O.none,
-      includeArchived: true,
       layout: 'table',
       sort: O.none,
     })
     expect(toUrlString(destinationOfScreen(screen))).toBe(
-      '/adjacent?lacks=cmd&target=web&includeArchived=true&layout=table',
+      '/adjacent?lacks=cmd,sub&target=web&status=archived&layout=table',
     )
     expect(roundTrip(screen)).toEqual(screen)
+  })
+
+  it('leaves the default statuses out, and writes no choice as all', () => {
+    const filterOf = (path: string) => {
+      const { screen } = parseDestination(`http://localhost${path}`)
+      return screen._tag === 'CatalogScreen' ? screen.filter : undefined
+    }
+    expect(filterOf('/')?.statuses).toEqual(['active', 'quiet'])
+    expect(filterOf('/?status=all')?.statuses).toEqual([])
+    expect(filterOf('/?status=quiet,active,archived')?.statuses).toEqual([
+      'active',
+      'quiet',
+      'archived',
+    ])
+    expect(filterOf('/?status=nonsense')?.statuses).toEqual(['active', 'quiet'])
+    // A link made before the status filter
+    expect(filterOf('/?includeArchived=true')?.statuses).toEqual([])
+    // Every tier chosen stays chosen
+    expect(filterOf('/?tier=superset,full,reference')?.tiers).toEqual([
+      'reference',
+      'full',
+      'superset',
+    ])
+    expect(
+      toUrlString(
+        destinationOfScreen(
+          catalogScreen({ ...defaultListingFilter(), statuses: [] }),
+        ),
+      ),
+    ).toBe('/?status=all')
+    expect(
+      toUrlString(destinationOfScreen(catalogScreen(defaultListingFilter()))),
+    ).toBe('/')
   })
 
   it('reads every screen back', () => {
