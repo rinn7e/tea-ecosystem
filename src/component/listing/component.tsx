@@ -63,6 +63,7 @@ import { TooltipTrigger } from '@/component/tooltip/trigger'
 import { PANEL_ATTRIBUTE } from './subscription'
 import { type Model, type Msg, type Props, PropsEq } from './type'
 import {
+  balancedRows,
   filterFrameworks,
   isFiltered,
   languageCountsOf,
@@ -119,7 +120,7 @@ const kindChoiceView = ({
         aria-pressed={isChosen}
         onClick={() => dispatch({ _tag: 'ToggleShow', entryKind })}
         className={cn(
-          'bg-panel flex w-full flex-col items-center justify-center gap-[2px] border-2 px-[12px] py-[16px] text-center transition-shadow',
+          'bg-panel flex w-full flex-col items-center justify-center gap-[2px] border-2 px-[12px] py-[10px] text-center transition-shadow',
           isChosen
             ? 'border-edge offset-shadow-edge'
             : 'border-line offset-shadow hover:border-edge',
@@ -127,7 +128,7 @@ const kindChoiceView = ({
       >
         <span
           className={cn(
-            'text-[2.25rem] leading-none font-normal tabular-nums',
+            'text-[2rem] leading-none font-normal tabular-nums',
             isChosen ? 'text-accent' : 'text-ink',
           )}
         >
@@ -141,9 +142,10 @@ const kindChoiceView = ({
   )
 }
 
-// Languages and frameworks, one on each side of the axis. Each count is
-// what the list shows with that kind chosen, under the other filters. The
-// catalog only: the adjacent list has no language entries.
+// Languages and frameworks, one on each side of the axis, together as wide
+// as the rows of language logos under them. Each count is what the list
+// shows with that kind chosen, under the other filters. The catalog only:
+// the adjacent list has no language entries.
 const kindChoicesView = ({
   entries,
   filter,
@@ -153,26 +155,94 @@ const kindChoicesView = ({
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => (
-  <div className='flex justify-center'>
-    <div className='grid w-full max-w-[520px] grid-cols-2 gap-[16px] lg:gap-[22px]'>
-      {entryKinds.map((entryKind) =>
-        kindChoiceView({
-          entryKind,
-          count: filterFrameworks({ ...filter, show: O.some(entryKind) })(
-            entries,
-          ).length,
-          filter,
-          dispatch,
-        }),
-      )}
-    </div>
+  <div className='grid grid-cols-2 gap-[16px] lg:gap-[22px]'>
+    {entryKinds.map((entryKind) =>
+      kindChoiceView({
+        entryKind,
+        count: filterFrameworks({ ...filter, show: O.some(entryKind) })(entries)
+          .length,
+        filter,
+        dispatch,
+      }),
+    )}
   </div>
 )
 
-// One logo per language of the list, the most used first: choosing one
-// narrows the list to it, like a radio button, and choosing it again shows
-// every language. The chosen one has the blue edge; hovering one draws
-// the blue shadow of the layout buttons
+// One language of the row: its logo, a choice like a radio button.
+// Choosing it narrows the list to it, and choosing it again shows every
+// language. The chosen one has the blue edge; hovering one draws the blue
+// shadow of the layout buttons
+const languageChoiceView = ({
+  language,
+  count,
+  filter,
+  dispatch,
+}: {
+  language: string
+  count: number
+  filter: ListingFilter
+  dispatch: Dispatcher<Msg>
+}) => {
+  const isChosen = pipe(
+    filter.language,
+    O.exists((shown) => shown === language),
+  )
+  return (
+    <TooltipTrigger
+      key={language}
+      id={`filter-language-${language}`}
+      content={{
+        title: language,
+        text: `${count} ${count === 1 ? 'entry' : 'entries'} written in ${language}.`,
+      }}
+      touch={false}
+      className='inline-flex'
+    >
+      <button
+        type='button'
+        aria-pressed={isChosen}
+        aria-label={`${language}, ${count}`}
+        onClick={() => dispatch({ _tag: 'ToggleLanguage', language })}
+        className={cn(
+          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge tablet:size-[40px] flex size-[36px] items-center justify-center border-2 transition-shadow lg:size-[44px]',
+          isChosen ? 'border-edge' : 'border-line',
+        )}
+      >
+        {languageLogoView({ language, size: 'large' })}
+      </button>
+    </TooltipTrigger>
+  )
+}
+
+// The rows of language logos, the most popular first, in rows as even as
+// they can be (`balancedRows`), so the block is centred and never ends on
+// a short row: at most 7 a row on a phone, and 13 from a tablet up
+// (`tablet:`, the exception to `lg:` only), where 13 fit
+const languageRowsView = ({
+  rows,
+  className,
+  filter,
+  dispatch,
+}: {
+  rows: { language: string; count: number }[][]
+  className: string
+  filter: ListingFilter
+  dispatch: Dispatcher<Msg>
+}) => (
+  <div className={className}>
+    {rows.map((row) => (
+      <div
+        key={row.map((c) => c.language).join()}
+        className='flex justify-center gap-[6px] lg:gap-[8px]'
+      >
+        {row.map(({ language, count }) =>
+          languageChoiceView({ language, count, filter, dispatch }),
+        )}
+      </div>
+    ))}
+  </div>
+)
+
 const languageChoicesView = ({
   entries,
   filter,
@@ -181,41 +251,25 @@ const languageChoicesView = ({
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
-}) => (
-  <div className='flex flex-wrap justify-center gap-[8px]'>
-    {languageCountsOf(entries).map(({ language, count }) => {
-      const isChosen = pipe(
-        filter.language,
-        O.exists((shown) => shown === language),
-      )
-      return (
-        <TooltipTrigger
-          key={language}
-          id={`filter-language-${language}`}
-          content={{
-            title: language,
-            text: `${count} ${count === 1 ? 'entry' : 'entries'} written in ${language}.`,
-          }}
-          touch={false}
-          className='inline-flex'
-        >
-          <button
-            type='button'
-            aria-pressed={isChosen}
-            aria-label={`${language}, ${count}`}
-            onClick={() => dispatch({ _tag: 'ToggleLanguage', language })}
-            className={cn(
-              'bg-panel text-ink hover:border-edge hover:offset-shadow-edge flex size-[40px] items-center justify-center border-2 transition-shadow',
-              isChosen ? 'border-edge' : 'border-line',
-            )}
-          >
-            {languageLogoView({ language, size: 'large' })}
-          </button>
-        </TooltipTrigger>
-      )
-    })}
-  </div>
-)
+}) => {
+  const counts = languageCountsOf(entries)
+  return (
+    <div>
+      {languageRowsView({
+        rows: balancedRows(counts, 7),
+        className: 'tablet:hidden flex flex-col gap-[6px]',
+        filter,
+        dispatch,
+      })}
+      {languageRowsView({
+        rows: balancedRows(counts, 13),
+        className: 'tablet:flex hidden flex-col gap-[6px] lg:gap-[8px]',
+        filter,
+        dispatch,
+      })}
+    </div>
+  )
+}
 
 // Rows of choice boxes: tiers or what an entry lacks, then targets
 // ---------------------------------------------
@@ -994,10 +1048,14 @@ const ListingComponent = ({ kind, model, dispatch }: Props) => {
         </p>
       </section>
       <div className='flex flex-col gap-[20px]'>
-        <div className='flex flex-col gap-[24px]'>
-          {kind === 'catalog' &&
-            kindChoicesView({ entries, filter: model.filter, dispatch })}
-          {languageChoicesView({ entries, filter: model.filter, dispatch })}
+        {/* One centred column as wide as the widest row of logos: the kind
+            boxes stretch to it */}
+        <div className='flex justify-center'>
+          <div className='flex flex-col gap-[24px]'>
+            {kind === 'catalog' &&
+              kindChoicesView({ entries, filter: model.filter, dispatch })}
+            {languageChoicesView({ entries, filter: model.filter, dispatch })}
+          </div>
         </div>
         {searchRowView({ kind, entries, model, dispatch })}
       </div>

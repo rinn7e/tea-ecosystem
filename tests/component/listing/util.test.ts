@@ -8,6 +8,7 @@ import {
   defaultListingFilter,
 } from '@/common/type/destination'
 import {
+  balancedRows,
   filterFrameworks,
   init,
   isFiltered,
@@ -252,5 +253,26 @@ describe('filter popover', () => {
     expect(
       update({ _tag: 'PanelClosed', seq: closing.panelSeq }, reopened)[0].panel,
     ).toBe('open')
+  })
+})
+
+describe('balancedRows', () => {
+  const items = (n: number) => Array.from({ length: n }, (_, i) => i)
+  const lengths = (n: number, max: number) =>
+    balancedRows(items(n), max).map((row) => row.length)
+
+  it('splits into even rows, the longer first', () => {
+    expect(lengths(26, 13)).toEqual([13, 13])
+    expect(lengths(27, 13)).toEqual([9, 9, 9])
+    expect(lengths(26, 7)).toEqual([7, 7, 6, 6])
+    expect(lengths(5, 13)).toEqual([5])
+  })
+
+  it('keeps every item once, in order', () => {
+    expect(balancedRows(items(26), 7).flat()).toEqual(items(26))
+  })
+
+  it('makes no row for no items', () => {
+    expect(balancedRows([], 7)).toEqual([])
   })
 })

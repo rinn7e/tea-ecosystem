@@ -184,6 +184,20 @@ export const languageCountsOf = (
     A.sort(languageCountOrd),
   )
 
+// `items` in rows of at most `maxPerRow`, as even as they can be: the rows
+// differ by one at most, the longer ones first (26 in rows of 13: 13 and
+// 13; in rows of 7: 7, 7, 6 and 6), so a centred block never ends on a
+// short last row
+export const balancedRows = <A>(items: A[], maxPerRow: number): A[][] => {
+  const rowCount = Math.ceil(items.length / Math.max(1, maxPerRow))
+  const base = Math.floor(items.length / Math.max(1, rowCount))
+  const longer = items.length - base * rowCount
+  return A.makeBy(rowCount, (row) => {
+    const start = row * base + Math.min(row, longer)
+    return items.slice(start, start + base + (row < longer ? 1 : 0))
+  })
+}
+
 const tierRank = (tier: Tier): number =>
   tier === 'reference' ? 0 : tier === 'full' ? 1 : tier === 'superset' ? 2 : 3
 
