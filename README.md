@@ -2,6 +2,8 @@
 
 A catalog of The Elm Architecture across languages: every language and framework that implements Model, Msg, update, Cmd and Sub, graded against Elm, so you can compare what each ecosystem has and what could come back to Elm.
 
+![The catalog of TEA Ecosystem in a browser: the title, the language and framework boxes, the language logos, the search and the first row of framework cards](doc/screenshot.png)
+
 The site has:
 
 - **Catalog**: 57 frameworks in 18 languages, as cards or as a table of grades, filtered by tier, target and search.
