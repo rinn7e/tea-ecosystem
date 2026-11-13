@@ -7,6 +7,21 @@
   --breakpoint-tablet: 40rem;
 }
 
+/* `hover:` also holds while a thing is pressed, so a tap on a touch screen,
+ * where hover never shows, answers at once with the same look as a mouse
+ * over it. `:active` also matches the parents of what is pressed, so a card
+ * takes its hover look when its stretched title link is pressed. */
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+  &:active {
+    @slot;
+  }
+}
+
 /* The colors and fonts of the site, as tokens (`bg-panel`, `text-ink-muted`,
  * ...), after the website of Elm (`doc/design/style-guide.md`), following
  * the OS light or dark mode. Grades have one color each. */
@@ -180,6 +195,31 @@ body {
   label:has(input:not(:disabled)),
   summary {
     cursor: pointer;
+  }
+}
+
+/* On touch the browser drops its grey tap flash, as a press shows the
+ * hover look instead (the `hover` variant above), and its wait for a
+ * double tap (`touch-action: manipulation`), so a tap answers at once */
+@layer base {
+  a,
+  button,
+  summary,
+  label,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* A link stretched over its box (the title of a card), so the whole box
+ * opens it; the box is `relative`, and anything clickable inside it is
+ * raised above with `relative z-10` */
+@utility stretched-link {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
 }
 

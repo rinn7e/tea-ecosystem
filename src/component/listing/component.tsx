@@ -689,9 +689,10 @@ const datesView = ({ framework }: { framework: Framework }) =>
   )
 
 // The whole card opens the entry: its name is the link, stretched over the
-// card by `after:inset-0`, so the code button (a link of its own, which
+// card (`stretched-link`), so the code button (a link of its own, which
 // cannot sit inside another) and the rubric strip (for its tooltips) are
-// raised above it with `relative z-10`
+// raised above it with `relative z-10`. Pressing the card shows its hover
+// look, like any other link while pressed
 const cardView = ({ framework }: { framework: Framework }) => (
   <div
     key={framework.id}
@@ -702,7 +703,7 @@ const cardView = ({ framework }: { framework: Framework }) => (
       <div className='flex min-w-0 flex-1 flex-col'>
         <Link
           destination={destinationOfScreen(frameworkScreen(framework.id))}
-          className='text-ink truncate text-[1.1875rem] leading-snug font-normal after:absolute after:inset-0'
+          className='text-ink stretched-link truncate text-[1.1875rem] leading-snug font-normal'
         >
           {framework.name}
         </Link>
