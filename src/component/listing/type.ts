@@ -69,14 +69,25 @@ export type Props = {
   // Which list it shows: its entries, words and the select on its left
   kind: ListKind
   model: Model
-  // The width of the window: how many language logos fit in a row
-  windowWidth: number
+  // How many language logos fit in a row (`logosPerRowOf` the width of the
+  // window): a resize draws the list again only when this number changes
+  logosPerRow: number
   dispatch: Dispatcher<Msg>
 }
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   kind: S.Eq,
   model: ModelEq,
-  windowWidth: N.Eq,
+  logosPerRow: N.Eq,
+  dispatch: EqAlways,
+})
+
+// The props of a screen over a list (the catalog, TEA-adjacent): the
+// screen sets the kind
+export type ScreenProps = Omit<Props, 'kind'>
+
+export const ScreenPropsEq: EqClass.Eq<ScreenProps> = EqClass.struct({
+  model: ModelEq,
+  logosPerRow: N.Eq,
   dispatch: EqAlways,
 })

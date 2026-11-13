@@ -1,4 +1,5 @@
 import { IconExternalLink, IconHeartFilled } from '@tabler/icons-react'
+import { memo } from 'react'
 
 import { adjacentEntries, frameworks } from '@/common/data/catalog'
 import {
@@ -11,7 +12,8 @@ import {
 } from '@/common/type/destination'
 import { languagesOf } from '@/common/type/framework'
 
-import { emblemView, lastUpdated } from './header'
+import { emblemView } from './emblem'
+import { lastUpdated } from './header'
 import { Link } from './link'
 
 // The year of the build, for the copyright line
@@ -45,8 +47,8 @@ const statChipView = ({ label }: { label: string }) => (
 // The foot of every page: what the site is and how big, its pages and its
 // source code, where to learn TEA and what the site draws on, then the
 // year, a note that it is a community catalog, and who made it and with
-// what
-export const footerView = () => (
+// what. It takes no props, so it is drawn once.
+const FooterComponent = () => (
   <footer className='border-line bg-panel border-t'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex w-full max-w-[1080px] flex-col gap-[32px] py-[40px]'>
@@ -183,3 +185,5 @@ export const footerView = () => (
     </div>
   </footer>
 )
+
+export const FooterMemo = memo(FooterComponent)

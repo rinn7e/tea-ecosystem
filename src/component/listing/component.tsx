@@ -70,7 +70,6 @@ import {
   filterFrameworks,
   isFiltered,
   languageCountsOf,
-  logosPerRowOf,
   sortFrameworks,
 } from './util'
 
@@ -246,16 +245,16 @@ const languageRowsView = ({
 const languageChoicesView = ({
   entries,
   filter,
-  windowWidth,
+  logosPerRow,
   dispatch,
 }: {
   entries: Framework[]
   filter: ListingFilter
-  windowWidth: number
+  logosPerRow: number
   dispatch: Dispatcher<Msg>
 }) =>
   languageRowsView({
-    rows: balancedRows(languageCountsOf(entries), logosPerRowOf(windowWidth)),
+    rows: balancedRows(languageCountsOf(entries), logosPerRow),
     className: 'flex flex-col gap-[6px] lg:gap-[8px]',
     filter,
     dispatch,
@@ -1014,7 +1013,7 @@ const headingOf = (kind: ListKind) => {
   }
 }
 
-const ListingComponent = ({ kind, model, windowWidth, dispatch }: Props) => {
+const ListingComponent = ({ kind, model, logosPerRow, dispatch }: Props) => {
   const entries = entriesOf(kind)
   const shown = pipe(
     entries,
@@ -1044,7 +1043,7 @@ const ListingComponent = ({ kind, model, windowWidth, dispatch }: Props) => {
             {languageChoicesView({
               entries,
               filter: model.filter,
-              windowWidth,
+              logosPerRow,
               dispatch,
             })}
           </div>

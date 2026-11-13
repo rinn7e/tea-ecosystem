@@ -1,21 +1,17 @@
 import { memo } from 'react'
 
-import type * as Listing from '@/component/listing'
+import { type ScreenProps, ScreenPropsEq } from '@/component/listing'
 import { ListingMemo } from '@/component/listing/component'
 
 // The TEA-adjacent libraries: the same listing as the catalog, over
 // `data/adjacent.json`
-const AdjacentComponent = ({
-  model,
-  windowWidth,
-  dispatch,
-}: Omit<Listing.Props, 'kind'>) => (
+const AdjacentComponent = ({ model, logosPerRow, dispatch }: ScreenProps) => (
   <ListingMemo
     kind='adjacent'
     model={model}
-    windowWidth={windowWidth}
+    logosPerRow={logosPerRow}
     dispatch={dispatch}
   />
 )
 
-export const AdjacentMemo = memo(AdjacentComponent)
+export const AdjacentMemo = memo(AdjacentComponent, ScreenPropsEq.equals)

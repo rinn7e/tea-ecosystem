@@ -6,6 +6,7 @@ import {
   IconInfoCircle,
   IconListCheck,
 } from '@tabler/icons-react'
+import { memo } from 'react'
 
 import { LAST_UPDATED } from '@/common/env'
 import {
@@ -17,40 +18,18 @@ import {
   destinationOfScreen,
   rubricScreen,
 } from '@/common/type/destination'
-import { dayMonthYearOf, relativeTimeOf } from '@/common/util'
+import { relativeTimeOf } from '@/common/util'
+import { emblemView } from '@/component/emblem'
+import { Link } from '@/component/link'
+import { TooltipTrigger } from '@/component/tooltip/trigger'
 
-import { Link } from './link'
-import { TooltipTrigger } from './tooltip/trigger'
-
-// The day the repository last changed, as the footer and the tooltip of
-// the bar show it
-export const lastUpdated = dayMonthYearOf(LAST_UPDATED)
-
-export type HeaderSection =
-  'catalog' | 'about' | 'rubric' | 'adjacent' | 'build' | 'none'
-
-// A square cut into pieces, mirrored on the axis x = 16: a big triangle (a
-// cup) over a diamond (its foot), with triangles around them. The pieces
-// sit 2 units apart, so the bar shows through the cuts. They are drawn in
-// `currentColor`, the white of the bar text, in both modes
-export const emblemView = ({ size }: { size: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox='0 0 32 32'
-    fill='currentColor'
-    aria-hidden='true'
-  >
-    <path d='M2.41 1L29.59 1L16 14.59Z' />
-    <path d='M16 17.41L22.59 24L16 30.59L9.41 24Z' />
-    <path d='M1 2.41L13.59 15L1 15Z' />
-    <path d='M31 15L18.41 15L31 2.41Z' />
-    <path d='M1 17L13.59 17L1 29.59Z' />
-    <path d='M31 29.59L18.41 17L31 17Z' />
-    <path d='M2.41 31L8 25.41L13.59 31Z' />
-    <path d='M18.41 31L24 25.41L29.59 31Z' />
-  </svg>
-)
+import {
+  type BottomNavProps,
+  BottomNavPropsEq,
+  type HeaderProps,
+  HeaderPropsEq,
+} from './type'
+import { lastUpdated } from './util'
 
 // Every link has one width (the longest label, build your own, sets it),
 // so the two sides of the emblem balance
@@ -78,7 +57,7 @@ const navLinkView = ({
 )
 
 // On a phone the bar shows only the emblem and the name, centred, and the
-// links move to the tab bar at the bottom (`bottomNavView`).
+// links move to the tab bar at the bottom (`BottomNavMemo`).
 //
 // The emblem on the axis is the link to the catalog. The link of the page
 // shown is underlined, but the emblem shows it by its opacity instead: full
@@ -92,13 +71,7 @@ const navLinkView = ({
 // a desktop (the right edge of the frame), and pinned to the right edge of
 // the bar on a phone; neither moves the emblem off the axis. Under it, how
 // long ago the repository last changed at `now` (ms since 1970).
-export const headerView = ({
-  active,
-  now,
-}: {
-  active: HeaderSection
-  now: number
-}) => (
+const HeaderComponent = ({ active, now }: HeaderProps) => (
   <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex h-[64px] w-full max-w-[1080px] items-center justify-center gap-[4px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
@@ -183,6 +156,8 @@ export const headerView = ({
   </header>
 )
 
+export const HeaderMemo = memo(HeaderComponent, HeaderPropsEq.equals)
+
 const bottomTabView = ({
   label,
   icon,
@@ -213,7 +188,7 @@ const bottomTabView = ({
 // the top bar in the same order, each an icon over its name, the emblem
 // (the catalog) on the axis. The tab of the page shown is blue with a blue
 // edge on top. Hidden from the `lg` width up, where the top bar has them.
-export const bottomNavView = ({ active }: { active: HeaderSection }) => (
+const BottomNavComponent = ({ active }: BottomNavProps) => (
   <nav
     aria-label='Pages'
     className='border-line bg-panel fixed inset-x-0 bottom-0 z-30 grid h-[60px] grid-cols-5 border-t pb-[env(safe-area-inset-bottom)] lg:hidden'
@@ -250,3 +225,5 @@ export const bottomNavView = ({ active }: { active: HeaderSection }) => (
     })}
   </nav>
 )
+
+export const BottomNavMemo = memo(BottomNavComponent, BottomNavPropsEq.equals)

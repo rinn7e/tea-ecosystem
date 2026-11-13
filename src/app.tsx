@@ -5,12 +5,10 @@ import { type Dispatcher } from 'tea-cup-fp'
 import { listOf } from '@/common/data/catalog'
 import { SetGlobalMsgContext } from '@/common/global-context'
 import { backToTopView } from '@/component/back-to-top'
-import { footerView } from '@/component/footer'
-import {
-  type HeaderSection,
-  bottomNavView,
-  headerView,
-} from '@/component/header'
+import { FooterMemo } from '@/component/footer'
+import { type HeaderSection } from '@/component/header'
+import { BottomNavMemo, HeaderMemo } from '@/component/header/component'
+import { logosPerRowOf } from '@/component/listing'
 import { tooltipLayerView } from '@/component/tooltip'
 import { TooltipDispatchContext } from '@/component/tooltip/context'
 import { AboutMemo } from '@/screen/about-screen/component'
@@ -62,7 +60,7 @@ const screenView = ({
       return (
         <CatalogMemo
           model={model.catalog}
-          windowWidth={model.windowWidth}
+          logosPerRow={logosPerRowOf(model.windowWidth)}
           dispatch={(subMsg) => dispatch({ _tag: 'CatalogScreenMsg', subMsg })}
         />
       )
@@ -84,7 +82,7 @@ const screenView = ({
       return (
         <AdjacentMemo
           model={model.adjacent}
-          windowWidth={model.windowWidth}
+          logosPerRow={logosPerRowOf(model.windowWidth)}
           dispatch={(subMsg) => dispatch({ _tag: 'AdjacentScreenMsg', subMsg })}
         />
       )
@@ -123,10 +121,10 @@ export const App = ({
       <TooltipDispatchContext value={dispatch}>
         {/* On a phone the page leaves room at the bottom for the tab bar */}
         <div className='bg-page text-ink flex min-h-dvh flex-col pb-[60px] lg:pb-0'>
-          {headerView({
-            active: headerSectionOf(model.screenModel),
-            now: model.now,
-          })}
+          <HeaderMemo
+            active={headerSectionOf(model.screenModel)}
+            now={model.now}
+          />
           <main className='flex flex-1 justify-center px-[16px] py-[32px] lg:py-[48px]'>
             <div
               className={cn(
@@ -139,8 +137,8 @@ export const App = ({
               {screenView({ model, dispatch })}
             </div>
           </main>
-          {footerView()}
-          {bottomNavView({ active: headerSectionOf(model.screenModel) })}
+          <FooterMemo />
+          <BottomNavMemo active={headerSectionOf(model.screenModel)} />
           {backToTopView({
             model: model.backToTop,
             dispatch: (subMsg) => dispatch({ _tag: 'BackToTopMsg', subMsg }),
