@@ -8,9 +8,6 @@ inductive Msg where
   | quit
   | noop
 
-def view (m : Model) : String :=
-  s!"┌─ LeanTea Counter ────────────┐\n│  count = {m.count}\n│\n│  [+] inc   [-] dec   [q] quit\n└──────────────────────────────┘"
-
 def parse (line : String) : Msg :=
   match line with
   | "+" => Msg.inc
