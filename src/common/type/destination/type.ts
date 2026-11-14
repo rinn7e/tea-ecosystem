@@ -162,18 +162,20 @@ const sharedFilterEqs: {
   sort: O.getEq(ListingSortEq),
 }
 
-export const CatalogFilterEq: EqClass.Eq<CatalogFilter> = EqClass.struct({
-  ...sharedFilterEqs,
-  list: S.Eq,
-  tiers: getChoiceEq(S.Eq),
-  show: O.getEq(S.Eq),
-})
+export const CatalogFilterEq: EqClass.Eq<CatalogFilter> =
+  EqClass.struct<CatalogFilter>({
+    ...sharedFilterEqs,
+    list: S.Eq,
+    tiers: getChoiceEq(S.Eq),
+    show: O.getEq(S.Eq),
+  })
 
-export const AdjacentFilterEq: EqClass.Eq<AdjacentFilter> = EqClass.struct({
-  ...sharedFilterEqs,
-  list: S.Eq,
-  lacks: getChoiceEq(S.Eq),
-})
+export const AdjacentFilterEq: EqClass.Eq<AdjacentFilter> =
+  EqClass.struct<AdjacentFilter>({
+    ...sharedFilterEqs,
+    list: S.Eq,
+    lacks: getChoiceEq(S.Eq),
+  })
 
 // Two filters of different lists are never equal
 export const ListingFilterEq: EqClass.Eq<ListingFilter> = {
