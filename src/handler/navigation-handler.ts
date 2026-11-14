@@ -90,8 +90,10 @@ const SITE_NAME = 'TEA Ecosystem'
 const titleOf = (model: Model): string => {
   const { screenModel } = model
   switch (screenModel._tag) {
+    // The page search engines index: it says what the site is, in the
+    // words people search for
     case 'CatalogScreenModel':
-      return SITE_NAME
+      return `${SITE_NAME}: The Elm Architecture in every language`
     case 'FrameworkScreenModel':
       return `${screenModel.model.framework.name} | ${SITE_NAME}`
     case 'RubricScreenModel':
