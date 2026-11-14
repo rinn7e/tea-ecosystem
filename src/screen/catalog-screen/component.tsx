@@ -6,11 +6,17 @@ import { type Props, PropsEq } from './type'
 
 // The catalog of TEA frameworks: the shared listing over
 // `data/frameworks.json`
-const CatalogComponent = ({ model, logosPerRow, dispatch }: Props) => (
+const CatalogComponent = ({
+  model,
+  logosPerRow,
+  recentSince,
+  dispatch,
+}: Props) => (
   <ListingMemo
     kind='catalog'
     model={model.listing}
     logosPerRow={logosPerRow}
+    recentSince={recentSince}
     dispatch={(subMsg) => dispatch({ _tag: 'ListingMsg', subMsg })}
   />
 )

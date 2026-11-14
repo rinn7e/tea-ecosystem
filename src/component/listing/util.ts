@@ -265,6 +265,8 @@ const sortKeyOf =
         return O.fromNullable(framework.createdAt)
       case 'updated':
         return O.fromNullable(framework.updatedAt)
+      case 'added':
+        return O.some(framework.discoveredAt)
     }
   }
 

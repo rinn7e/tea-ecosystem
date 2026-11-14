@@ -10,6 +10,7 @@ import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
 import {
   type Framework,
   concepts,
+  isRecentlyAdded,
   sourceLabelOf,
   sourceUrlOf,
   websiteLabelOf,
@@ -23,6 +24,7 @@ import {
   gradeBadgeView,
   gradeMeaning,
   kindLineOf,
+  recentRibbonView,
   shownGradeOf,
   sourceLinkView,
   statusView,
@@ -135,7 +137,7 @@ const relatedView = ({ framework }: { framework: Framework }) => {
   )
 }
 
-const FrameworkComponent = ({ model, listDestination }: Props) => {
+const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
   const { framework } = model
   return (
     <article className='flex flex-col gap-[28px]'>
@@ -197,6 +199,7 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
           {tierBadgeView({ tier: framework.tier })}
           {statusView({ status: framework.status })}
         </div>
+        {isRecentlyAdded(framework, recentSince) && recentRibbonView()}
         {targetChipsView({ targets: framework.targets, align: 'center' })}
         {/* Created on one side of the axis, updated on the other, and on
             it the stars and the code button, one link to the source */}
@@ -222,6 +225,14 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
               </span>
             </div>
           )}
+        {/* The day it joined this catalog, on the axis under its dates */}
+        <span className='text-ink-faint text-sm'>
+          {dateView({
+            id: framework.id,
+            which: 'added',
+            day: framework.discoveredAt,
+          })}
+        </span>
       </header>
 
       {exampleView({ framework })}

@@ -72,6 +72,9 @@ export type Props = {
   // How many language logos fit in a row (`logosPerRowOf` the width of the
   // window): a resize draws the list again only when this number changes
   logosPerRow: number
+  // The first day that counts as recent (`recentSinceOf`): which entries
+  // show the ribbon "Recently added"
+  recentSince: string
   dispatch: Dispatcher<Msg>
 }
 
@@ -79,5 +82,6 @@ export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   kind: S.Eq,
   model: ModelEq,
   logosPerRow: N.Eq,
+  recentSince: S.Eq,
   dispatch: EqAlways,
 })

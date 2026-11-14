@@ -95,6 +95,14 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
+  it('give every entry the day it was added, not before the first list', () => {
+    const day = /^\d{4}-\d{2}-\d{2}$/
+    const wrong = [...frameworks, ...adjacentEntries].filter(
+      (f) => !day.test(f.discoveredAt) || f.discoveredAt < '2026-11-13',
+    )
+    expect(wrong.map((f) => f.id)).toEqual([])
+  })
+
   it('give every repository both dates, as days', () => {
     const day = /^\d{4}-\d{2}-\d{2}$/
     const wrong = frameworks.filter(

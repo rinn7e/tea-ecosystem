@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest'
 
 import { frameworkById } from '@/common/data/catalog'
 import {
+  FIRST_LIST_DAY,
   type Framework,
+  isRecentlyAdded,
+  recentSinceOf,
   sourceLabelOf,
   sourceUrlOf,
   websiteOf,
@@ -60,5 +63,26 @@ describe('websiteOf', () => {
 
   it('gives nothing when its page is its repository', () => {
     expect(websiteOf(entry('lustre'))).toBeUndefined()
+  })
+})
+
+describe('isRecentlyAdded', () => {
+  const day = Date.parse('2026-11-20T12:00:00Z')
+
+  it('counts back 30 days from now', () => {
+    expect(recentSinceOf(day)).toBe('2026-10-21')
+  })
+
+  it('marks an entry found after the first list, for 30 days', () => {
+    expect(isRecentlyAdded(entry('monad-oak'), recentSinceOf(day))).toBe(true)
+    const later = Date.parse('2026-12-15T12:00:00Z')
+    expect(isRecentlyAdded(entry('monad-oak'), recentSinceOf(later))).toBe(
+      false,
+    )
+  })
+
+  it('never marks the first list', () => {
+    expect(entry('lustre').discoveredAt).toBe(FIRST_LIST_DAY)
+    expect(isRecentlyAdded(entry('lustre'), recentSinceOf(day))).toBe(false)
   })
 })

@@ -147,6 +147,9 @@ export type Framework = {
   // Whether every grade was checked against its docs or source. The first
   // list was graded from memory and a light web check.
   verified: boolean
+  // The day it was added to this catalog (`YYYY-MM-DD`): the first list
+  // (`FIRST_LIST_DAY`), or the day a later search found it
+  discoveredAt: string
 }
 
 export const FrameworkJson: t.Type<Framework> = t.intersection([
@@ -163,6 +166,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     rubric: RubricJson,
     notes: t.array(t.string),
     verified: t.boolean,
+    discoveredAt: t.string,
   }),
   t.partial({
     repo: t.string,
@@ -228,3 +232,25 @@ export const websiteOf = (framework: Framework): string | undefined => {
 }
 
 export const websiteLabelOf = (url: string): string => hostOf(url)
+
+// The day of the first list of the catalog, the one of its launch: an
+// entry found after it is new
+export const FIRST_LIST_DAY = '2026-11-13'
+
+// How long an entry found after the first list shows as recently added
+export const RECENT_DAYS = 30
+
+// The first day that still counts as recent at `now` (ms since 1970). A
+// day, not a time, so a view that takes it is drawn again once a day, not
+// every minute.
+export const recentSinceOf = (now: number): string =>
+  new Date(now - RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+// Found after the first list, and not longer ago than `RECENT_DAYS`: its
+// card, its row and its page show the ribbon "Recently added"
+export const isRecentlyAdded = (
+  framework: Framework,
+  recentSince: string,
+): boolean =>
+  framework.discoveredAt > FIRST_LIST_DAY &&
+  framework.discoveredAt >= recentSince

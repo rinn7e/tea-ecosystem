@@ -6,11 +6,17 @@ import { type Props, PropsEq } from './type'
 
 // The TEA-adjacent libraries: the same listing as the catalog, over
 // `data/adjacent.json`
-const AdjacentComponent = ({ model, logosPerRow, dispatch }: Props) => (
+const AdjacentComponent = ({
+  model,
+  logosPerRow,
+  recentSince,
+  dispatch,
+}: Props) => (
   <ListingMemo
     kind='adjacent'
     model={model.listing}
     logosPerRow={logosPerRow}
+    recentSince={recentSince}
     dispatch={(subMsg) => dispatch({ _tag: 'ListingMsg', subMsg })}
   />
 )

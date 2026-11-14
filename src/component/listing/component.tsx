@@ -32,7 +32,12 @@ import {
   frameworkScreen,
   lackables,
 } from '@/common/type/destination'
-import { type Framework, statuses, targets } from '@/common/type/framework'
+import {
+  type Framework,
+  isRecentlyAdded,
+  statuses,
+  targets,
+} from '@/common/type/framework'
 import {
   type Tone,
   conceptLabel,
@@ -40,6 +45,7 @@ import {
   dateView,
   gradeTone,
   kindLineOf,
+  recentEdgeRibbonView,
   rubricStripView,
   sourceLinkView,
   statusDotView,
@@ -696,15 +702,30 @@ const datesView = ({ framework }: { framework: Framework }) =>
 // card (`stretched-link`), so the code button (a link of its own, which
 // cannot sit inside another) and the rubric strip (for its tooltips) are
 // raised above it with `relative z-10`. Pressing the card shows its hover
-// look, like any other link while pressed
-const cardView = ({ framework }: { framework: Framework }) => (
+// look, like any other link while pressed. An entry found after the first
+// list wears the ribbon "Recently added" on its right edge.
+const cardView = ({
+  framework,
+  recentSince,
+}: {
+  framework: Framework
+  recentSince: string
+}) => (
   <div
     key={framework.id}
     className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge relative flex flex-col gap-[12px] rounded-[3px] border p-[18px] transition-shadow'
   >
+    {isRecentlyAdded(framework, recentSince) && recentEdgeRibbonView()}
     <div className='flex items-start gap-[12px]'>
       {frameworkTileView({ framework, size: 'card' })}
-      <div className='flex min-w-0 flex-1 flex-col'>
+      {/* Room on the right for the ribbon of a recent entry, which reaches
+          in from the edge of the card under the tier badge */}
+      <div
+        className={cn(
+          'flex min-w-0 flex-1 flex-col',
+          isRecentlyAdded(framework, recentSince) && 'pr-[12px]',
+        )}
+      >
         <Link
           destination={destinationOfScreen(frameworkScreen(framework.id))}
           className='text-ink stretched-link truncate text-[1.1875rem] leading-snug font-normal'
@@ -751,9 +772,15 @@ const cardView = ({ framework }: { framework: Framework }) => (
 
 // One column on a phone, two on a tablet (`tablet:`, the exception to
 // `lg:` only), three on a desktop
-const cardsView = ({ shown }: { shown: Framework[] }) => (
+const cardsView = ({
+  shown,
+  recentSince,
+}: {
+  shown: Framework[]
+  recentSince: string
+}) => (
   <div className='tablet:grid-cols-2 grid grid-cols-1 gap-[22px] lg:grid-cols-3'>
-    {shown.map((framework) => cardView({ framework }))}
+    {shown.map((framework) => cardView({ framework, recentSince }))}
   </div>
 )
 
@@ -834,7 +861,7 @@ const tableView = ({
   dispatch: Dispatcher<Msg>
 }) => (
   <div className='border-line bg-panel offset-shadow overflow-x-auto rounded-[3px] border'>
-    <table className='w-full min-w-[900px] border-collapse text-sm'>
+    <table className='w-full min-w-[1000px] border-collapse text-sm'>
       <thead>
         <tr className='border-line text-ink-muted border-b text-left text-xs'>
           {sortHeaderView({
@@ -882,6 +909,13 @@ const tableView = ({
           {sortHeaderView({
             column: 'updated',
             label: 'Updated',
+            align: 'left',
+            sort,
+            dispatch,
+          })}
+          {sortHeaderView({
+            column: 'added',
+            label: 'Added',
             align: 'left',
             sort,
             dispatch,
@@ -937,7 +971,7 @@ const tableView = ({
                     day: framework.createdAt,
                   })}
             </td>
-            <td className='text-ink-muted py-[10px] pr-[14px] pl-[10px] text-xs whitespace-nowrap tabular-nums'>
+            <td className='text-ink-muted px-[10px] py-[10px] text-xs whitespace-nowrap tabular-nums'>
               {framework.updatedAt === undefined
                 ? ''
                 : dateView({
@@ -945,6 +979,13 @@ const tableView = ({
                     which: 'updated',
                     day: framework.updatedAt,
                   })}
+            </td>
+            <td className='text-ink-muted py-[10px] pr-[14px] pl-[10px] text-xs whitespace-nowrap tabular-nums'>
+              {dateView({
+                id: `${framework.id}-row`,
+                which: 'added',
+                day: framework.discoveredAt,
+              })}
             </td>
           </tr>
         ))}
@@ -1045,7 +1086,13 @@ const headingOf = (kind: ListKind) => {
   }
 }
 
-const ListingComponent = ({ kind, model, logosPerRow, dispatch }: Props) => {
+const ListingComponent = ({
+  kind,
+  model,
+  logosPerRow,
+  recentSince,
+  dispatch,
+}: Props) => {
   const entries = entriesOf(kind)
   const shown = pipe(
     entries,
@@ -1093,7 +1140,7 @@ const ListingComponent = ({ kind, model, logosPerRow, dispatch }: Props) => {
         {shown.length === 0
           ? emptyView({ kind, entries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'
-            ? cardsView({ shown })
+            ? cardsView({ shown, recentSince })
             : tableView({ shown, sort: model.filter.sort, dispatch })}
       </div>
     </div>

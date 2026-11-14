@@ -19,9 +19,13 @@ export type Props = {
   // The list under this page (the catalog or the adjacent list), as it was
   // left: the target of its back link
   listDestination: Destination
+  // The first day that counts as recent (`recentSinceOf`): whether the
+  // page shows the ribbon "Recently added"
+  recentSince: string
 }
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   model: ModelEq,
   listDestination: DestinationEq,
+  recentSince: S.Eq,
 })

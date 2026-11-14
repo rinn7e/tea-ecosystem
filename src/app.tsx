@@ -4,6 +4,7 @@ import { type Dispatcher } from 'tea-cup-fp'
 
 import { listOf } from '@/common/data/catalog'
 import { SetGlobalMsgContext } from '@/common/global-context'
+import { recentSinceOf } from '@/common/type/framework'
 import { backToTopView } from '@/component/back-to-top'
 import { FooterMemo } from '@/component/footer'
 import { type HeaderSection } from '@/component/header'
@@ -61,6 +62,7 @@ const screenView = ({
         <CatalogMemo
           model={model.catalog}
           logosPerRow={logosPerRowOf(model.windowWidth)}
+          recentSince={recentSinceOf(model.now)}
           dispatch={(subMsg) => dispatch({ _tag: 'CatalogScreenMsg', subMsg })}
         />
       )
@@ -72,6 +74,7 @@ const screenView = ({
             model,
             listOf(screenModel.model.framework),
           )}
+          recentSince={recentSinceOf(model.now)}
         />
       )
     case 'RubricScreenModel':
@@ -93,6 +96,7 @@ const screenView = ({
         <AdjacentMemo
           model={model.adjacent}
           logosPerRow={logosPerRowOf(model.windowWidth)}
+          recentSince={recentSinceOf(model.now)}
           dispatch={(subMsg) => dispatch({ _tag: 'AdjacentScreenMsg', subMsg })}
         />
       )

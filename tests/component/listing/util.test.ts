@@ -218,6 +218,13 @@ describe('sort', () => {
     expect(least.at(-1)?.stars).toBeUndefined()
   })
 
+  it('sorts by the day an entry was added, the newest first', () => {
+    const newest = sortFrameworks(
+      O.some({ column: 'added', direction: 'descending' }),
+    )(all)
+    expect(newest[0]?.id).toBe('monad-oak')
+  })
+
   it('sorts names from A, and turns around on the same column', () => {
     const byName = update(
       { _tag: 'SortBy', column: 'name' },

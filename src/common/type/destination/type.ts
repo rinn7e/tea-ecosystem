@@ -19,7 +19,14 @@ export type EntryKind = 'languages' | 'frameworks'
 
 // A column a list can be sorted by, from the headers of its table
 export type SortColumn =
-  'name' | 'tier' | 'rubric' | 'status' | 'stars' | 'created' | 'updated'
+  | 'name'
+  | 'tier'
+  | 'rubric'
+  | 'status'
+  | 'stars'
+  | 'created'
+  | 'updated'
+  | 'added'
 
 export const sortColumns: readonly SortColumn[] = [
   'name',
@@ -29,6 +36,7 @@ export const sortColumns: readonly SortColumn[] = [
   'stars',
   'created',
   'updated',
+  'added',
 ]
 
 export type SortDirection = 'ascending' | 'descending'

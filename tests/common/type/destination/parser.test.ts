@@ -128,6 +128,12 @@ describe('destination URL', () => {
         ),
       ),
     ).toBe('/?sort=updated&order=descending')
+    expect(parse('/?sort=added').screen).toEqual(
+      catalogScreen({
+        ...defaultListingFilter(),
+        sort: O.some({ column: 'added', direction: 'descending' }),
+      }),
+    )
     expect(parse('/?sort=nope').screen).toEqual(catalogScreen())
     expect(parse('/?sort=name').screen).toEqual(
       catalogScreen({

@@ -9,6 +9,7 @@ import {
   IconGitCommit,
   IconServer,
   IconServerBolt,
+  IconSparkles,
   IconStarFilled,
   IconTerminal2,
 } from '@tabler/icons-react'
@@ -24,7 +25,7 @@ import {
   isLanguageEntry,
   sourceUrlOf,
 } from '@/common/type/framework'
-import { monthYearOf } from '@/common/util/date'
+import { dayMonthYearOf, monthYearOf } from '@/common/util/date'
 import { starCountOf } from '@/common/util/number'
 
 import { type Content } from './tooltip'
@@ -437,6 +438,27 @@ export const starsView = ({ stars }: { stars: number | undefined }) =>
     </span>
   )
 
+// The ribbon of an entry found after the first list (`isRecentlyAdded`),
+// under the title of its page: a short band in the accent with both ends
+// notched, on the axis
+export const recentRibbonView = () => (
+  <span className='bg-accent text-accent-ink inline-flex px-[12px] py-[1px] text-[0.6875rem] leading-[1.45] whitespace-nowrap [clip-path:polygon(0_0,100%_0,calc(100%-5px)_50%,100%_100%,0_100%,5px_50%)]'>
+    Recently added
+  </span>
+)
+
+// The same ribbon on the right edge of a card, under its tier badge: the
+// left end notched, the right end past the edge of the card and folded
+// behind it (a small darker triangle under it). It takes no presses, so a
+// press on it reaches the card under it.
+export const recentEdgeRibbonView = () => (
+  <span className='pointer-events-none absolute top-[52px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-t-[color-mix(in_srgb,var(--accent)_55%,black)] after:border-r-transparent'>
+    <span className='bg-accent text-accent-ink py-[2px] pr-[12px] pl-[16px] text-[0.6875rem] leading-[1.45] whitespace-nowrap [clip-path:polygon(0_0,100%_0,100%_100%,0_100%,8px_50%)]'>
+      Recently added
+    </span>
+  </span>
+)
+
 // One button that opens the source of an entry in a new tab, like the
 // star button of GitHub: its stars, a divider, then the code icon (the code
 // icon alone for an entry with no public repository). On a card it sits
@@ -461,39 +483,68 @@ export const sourceLinkView = ({ framework }: { framework: Framework }) => (
   </a>
 )
 
+type DateKind = 'created' | 'updated' | 'added'
+
+// What a date of an entry says: its words, in its tooltip and for screen
+// readers, and how it reads on screen (the month of its repository dates,
+// the day it was added to the catalog, which is recent)
+const dateTextOf = (which: DateKind, day: string) => {
+  switch (which) {
+    case 'created':
+      return {
+        shown: monthYearOf(day),
+        title: `Created ${monthYearOf(day)}`,
+        text: 'The month its repository was created.',
+      }
+    case 'updated':
+      return {
+        shown: monthYearOf(day),
+        title: `Updated ${monthYearOf(day)}`,
+        text: 'The month of the last push to its repository.',
+      }
+    case 'added':
+      return {
+        shown: dayMonthYearOf(day),
+        title: `Added ${dayMonthYearOf(day)}`,
+        text: 'The day it was added to this catalog.',
+      }
+  }
+}
+
+const dateIconView = ({ which }: { which: DateKind }) => {
+  switch (which) {
+    case 'created':
+      return <IconCalendarPlus size={14} stroke={1.75} aria-hidden />
+    case 'updated':
+      return <IconGitCommit size={14} stroke={1.75} aria-hidden />
+    case 'added':
+      return <IconSparkles size={14} stroke={1.75} aria-hidden />
+  }
+}
+
 // A date of an entry: an icon for which one (a calendar with a plus for
-// the day its repository was created, a commit for its last push) and the
-// month, the full name in its tooltip
+// the day its repository was created, a commit for its last push, sparks
+// for the day it was added to the catalog) and the date, its meaning in
+// its tooltip
 export const dateView = ({
   id,
   which,
   day,
 }: {
   id: string
-  which: 'created' | 'updated'
+  which: DateKind
   day: string
-}) => (
-  <TooltipTrigger
-    id={`${id}-${which}`}
-    content={
-      which === 'created'
-        ? {
-            title: `Created ${monthYearOf(day)}`,
-            text: 'The month its repository was created.',
-          }
-        : {
-            title: `Updated ${monthYearOf(day)}`,
-            text: 'The month of the last push to its repository.',
-          }
-    }
-    label={`${which === 'created' ? 'Created' : 'Updated'} ${monthYearOf(day)}`}
-    className='inline-flex cursor-default items-center gap-[4px] whitespace-nowrap tabular-nums'
-  >
-    {which === 'created' ? (
-      <IconCalendarPlus size={14} stroke={1.75} aria-hidden />
-    ) : (
-      <IconGitCommit size={14} stroke={1.75} aria-hidden />
-    )}
-    {monthYearOf(day)}
-  </TooltipTrigger>
-)
+}) => {
+  const words = dateTextOf(which, day)
+  return (
+    <TooltipTrigger
+      id={`${id}-${which}`}
+      content={{ title: words.title, text: words.text }}
+      label={words.title}
+      className='inline-flex cursor-default items-center gap-[4px] whitespace-nowrap tabular-nums'
+    >
+      {dateIconView({ which })}
+      {words.shown}
+    </TooltipTrigger>
+  )
+}
