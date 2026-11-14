@@ -87,6 +87,7 @@ import {
   otherListLinkOf,
   otherListMatchTextOf,
   otherListMatchesOf,
+  shownArchivedCountOf,
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
@@ -1139,7 +1140,8 @@ const emptyView = ({
 // while the archive is hidden: one quiet line above the results, with the
 // same button as the empty view, so a filter does not hide that the
 // archive holds more. Only under the default statuses and a filter that
-// narrows the list (`archivedHintCountOf`).
+// narrows the list (`archivedHintCountOf`). Once the button shows them,
+// the line stays and offers to hide them again (`shownArchivedCountOf`).
 const archivedHintView = ({
   kind,
   entries,
@@ -1151,12 +1153,16 @@ const archivedHintView = ({
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const count = archivedHintCountOf(entries, filter)
+  const hidden = archivedHintCountOf(entries, filter)
+  const shown = shownArchivedCountOf(entries, filter)
+  const count = hidden + shown
   const noun = entryNounOf(kind, count)
   return count === 0 ? null : (
     <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
       <span>
-        {count} archived {noun} also {count === 1 ? 'matches' : 'match'}.
+        {hidden > 0
+          ? `${count} archived ${noun} also ${count === 1 ? 'matches' : 'match'}.`
+          : `${count} archived ${noun} ${count === 1 ? 'is' : 'are'} shown.`}
       </span>
       <button
         type='button'
@@ -1164,7 +1170,7 @@ const archivedHintView = ({
         className='text-accent inline-flex items-center gap-[4px] hover:underline'
       >
         <IconArchive size={14} stroke={1.75} aria-hidden />
-        Show the archived {noun}
+        {hidden > 0 ? 'Show' : 'Hide'} the archived {noun}
       </button>
     </p>
   )

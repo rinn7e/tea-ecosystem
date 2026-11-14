@@ -32,6 +32,7 @@ import {
   otherListMatchTextOf,
   otherListMatchesOf,
   otherListOf,
+  shownArchivedCountOf,
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
@@ -803,6 +804,27 @@ describe('hiddenArchivedCountOf', () => {
       archivedHintCountOf(adjacentEntries, {
         ...defaultListingFilter(),
         lacks: [...lackables],
+      }),
+    ).toBe(0)
+  })
+
+  it('keeps naming the archived ones once they are shown', () => {
+    // "Show the archived" leads from the default statuses to these
+    const shownOf = (filter: Partial<ListingFilter>) =>
+      shownArchivedCountOf(frameworks, {
+        ...defaultListingFilter(),
+        statuses: ['active', 'quiet', 'archived'],
+        ...filter,
+      })
+    expect(shownOf({ query: 'spo' })).toBe(1)
+    expect(shownOf({ language: O.some('PureScript') })).toBe(2)
+    // No filter that narrows the list, or statuses chosen in the popover
+    expect(shownOf({})).toBe(0)
+    expect(shownOf({ query: 'spo', statuses: ['archived'] })).toBe(0)
+    expect(
+      shownArchivedCountOf(frameworks, {
+        ...defaultListingFilter(),
+        query: 'spo',
       }),
     ).toBe(0)
   })

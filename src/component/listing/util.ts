@@ -209,25 +209,43 @@ const narrowsChoice = <A>(
   options: readonly A[],
 ): boolean => chosen.length > 0 && chosen.length < options.length
 
+// Whether a filter narrows the list enough that its archived entries are
+// news: a search with more than spaces, a language, some targets, tiers or
+// concepts an adjacent library lacks, or the kind of entry (choosing every
+// option of one narrows nothing)
+const narrowsForArchive = (filter: ListingFilter): boolean =>
+  filter.query.trim() !== '' ||
+  O.isSome(filter.language) ||
+  narrowsChoice(filter.targets, targets) ||
+  narrowsChoice(filter.tiers, catalogTiers) ||
+  narrowsChoice(filter.lacks, lackables) ||
+  O.isSome(filter.show)
+
 // How many archived entries the line above the results of a list names:
 // the hidden archived ones (`hiddenArchivedCountOf`), only under the
 // default statuses (the reader did not choose which to show) and a filter
-// that narrows the list (a search with more than spaces, a language, some
-// targets, tiers or concepts an adjacent library lacks, or the kind of
-// entry; choosing every option of one narrows nothing). None with no such
-// filter: the archive is not news then.
+// that narrows the list (`narrowsForArchive`). None with no such filter:
+// the archive is not news then.
 export const archivedHintCountOf = (
   entries: Framework[],
   filter: ListingFilter,
 ): number =>
-  isDefaultStatuses(filter.statuses) &&
-  (filter.query.trim() !== '' ||
-    O.isSome(filter.language) ||
-    narrowsChoice(filter.targets, targets) ||
-    narrowsChoice(filter.tiers, catalogTiers) ||
-    narrowsChoice(filter.lacks, lackables) ||
-    O.isSome(filter.show))
+  isDefaultStatuses(filter.statuses) && narrowsForArchive(filter)
     ? hiddenArchivedCountOf(entries, filter)
+    : 0
+
+// How many archived entries the same line names once "Show the archived"
+// added them: under the statuses that button leads to (the default ones
+// and archived) and a filter that narrows the list, the archived entries
+// that match it, so the line stays and offers to hide them again. None
+// under any other statuses, which the reader chose in the popover.
+export const shownArchivedCountOf = (
+  entries: Framework[],
+  filter: ListingFilter,
+): number =>
+  A.getEq(S.Eq).equals(filter.statuses, [...defaultStatuses(), 'archived']) &&
+  narrowsForArchive(filter)
+    ? filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
     : 0
 
 // Whether statuses leave out some of what a list shows by default: not
