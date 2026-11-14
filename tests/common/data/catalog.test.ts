@@ -44,6 +44,10 @@ describe('data files', () => {
         : { _tag: 'Some' as const, value: `${f.id}: ${problems.join(', ')}` }
     })(frameworks)
     expect(failing).toEqual([])
+    // A library that is not TEA belongs in `data/adjacent.json`
+    expect(
+      frameworks.filter((f) => f.tier === 'adjacent').map((f) => f.id),
+    ).toEqual([])
   })
 
   it('keep every adjacent entry failing the rubric, so it is not TEA', () => {

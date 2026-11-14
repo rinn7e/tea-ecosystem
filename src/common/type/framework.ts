@@ -111,13 +111,17 @@ export type Framework = {
   // Elm itself and the languages forked from it or built on its runtime
   elmFamily: boolean
   targets: Target[]
+  // Held to the rules of the rubric, `adjacent` only in `data/adjacent.json`
+  // (tests "keep every framework within the rules of its tier" and "keep
+  // every adjacent entry failing the rubric, so it is not TEA")
   tier: Tier
   status: Status
   // Its repository, as a full URL of owner and name on any host (GitHub,
   // GitLab, Codeberg or another Gitea): where its source links go, and
   // where its stars and dates come from. When its source is not public,
   // it falls back to its website, and `website` holds the same URL, which
-  // is how `hasPublicRepo` tells the two apart.
+  // is how `hasPublicRepo` tells the two apart (test "fall back to the
+  // website as repo only for the entries with no public source").
   repo: string
   // Its own website or docs, apart from its repository (sky-lang.org for
   // Sky), shown under the summary of its page when it is not its source.
@@ -140,7 +144,9 @@ export type Framework = {
   // in its title (react-tea-cup: a cup of tea), used when it has no `logo`
   logoText?: string
   // The star count of `repo`, and the day its repository was created and
-  // last pushed to (`YYYY-MM-DD`), filled by `scripts/fetch-repo-stats.mjs`
+  // last pushed to (`YYYY-MM-DD`), filled by `scripts/fetch-repo-stats.mjs`;
+  // present for every public repository (test "give every repository both
+  // dates, as days")
   stars?: number
   createdAt?: string
   updatedAt?: string
@@ -154,7 +160,8 @@ export type Framework = {
   // list was graded from memory and a light web check.
   verified: boolean
   // The day it was added to this catalog (`YYYY-MM-DD`): the first list
-  // (`FIRST_LIST_DAY`), or the day a later search found it
+  // (`FIRST_LIST_DAY`), or the day a later search found it (test "give
+  // every entry the day it was added, not before the first list")
   discoveredAt: string
 }
 

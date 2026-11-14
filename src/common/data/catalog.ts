@@ -93,8 +93,14 @@ export const entriesOf = (list: ListId): Framework[] =>
 // The targets the entries of a list run on, in the order of `targets`: the
 // options of its target filter (TEA-adjacent has no game library)
 export const targetOptionsOf = (list: ListId): Target[] =>
-  targets.filter((target) =>
-    entriesOf(list).some((f) => f.targets.includes(target)),
+  pipe(
+    [...targets],
+    A.filter((target) =>
+      pipe(
+        entriesOf(list),
+        A.some((f) => A.elem(S.Eq)(target)(f.targets)),
+      ),
+    ),
   )
 
 // The list an entry belongs to: where its page goes back to
@@ -119,8 +125,11 @@ export const sameLanguageEntriesOf = (
         A.filter(
           (f) =>
             f.id !== framework.id &&
-            languagesOf(f).some((language) =>
-              languagesOf(framework).includes(language),
+            pipe(
+              languagesOf(f),
+              A.some((language) =>
+                A.elem(S.Eq)(language)(languagesOf(framework)),
+              ),
             ),
         ),
       ),
