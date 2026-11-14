@@ -2681,6 +2681,105 @@
     "updatedAt": "2025-04-13"
   },
   {
+    "id": "limoni",
+    "name": "Limoni",
+    "language": "Go",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/thebanri/limoni",
+    "website": "https://pkg.go.dev/github.com/thebanri/limoni",
+    "summary": "A Go terminal UI engine with an allocation-free renderer, an immediate mode beside an Elm architecture program, and a semantic tree that tests and AI agents drive.",
+    "snippetSource": "https://github.com/thebanri/limoni/blob/main/examples/counter/main.go",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "The Model interface of core/engine is Init() []Cmd, Update(Msg) UpdateResult and View(*terminal.Frame); update changes the model through a pointer receiver and returns an UpdateResult of Commands, Redraw and Quit.",
+      "Cmd is func(context.Context) Msg, a cancellable command the runtime runs on a worker goroutine, its result sent back to Update (NowCmd, ExecCmd, NotifyCmd, SuspendCmd).",
+      "No subscription function: key, mouse and resize events arrive as messages (KeyPressMsg), and a timer or stream is a command that update re-issues; pending results are dropped when the context is cancelled.",
+      "The same library also has an immediate mode (limoni.Run) with no messages, and compat/bubbletea runs Bubble Tea models on it."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14",
+    "stars": 194,
+    "createdAt": "2026-08-06",
+    "updatedAt": "2026-11-12"
+  },
+  {
+    "id": "actomaton",
+    "name": "Actomaton",
+    "language": "Swift",
+    "elmFamily": false,
+    "targets": ["mobile", "desktop"],
+    "tier": "superset",
+    "status": "active",
+    "repo": "https://github.com/Actomaton/Actomaton",
+    "website": "https://actomaton.github.io/Actomaton/documentation/actomaton/",
+    "summary": "An actor-based state machine for Swift async/await, inspired by Elm and TCA: reducers return Effect values, with effect queues for cancellation and SwiftUI and UIKit stores.",
+    "snippetSource": "https://github.com/Actomaton/Actomaton/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "Reducer { action, state, environment in ... } changes an inout State and returns an Effect<Action> (Effect.empty, next, fireAndForget, init with an async closure, sequence, stream, cancel), which the Actomaton actor runs.",
+      "No subscription function: Effect.sequence(id:) turns an AsyncSequence into actions and Effect.stream(id:) bridges delegates and callbacks, both long-running and stopped with Effect.cancel(id:) or by an EffectQueue policy.",
+      "Views: ActomatonUI has a Store for SwiftUI and UIKit; a SwiftUI view reads the state through WithViewStore and sends actions with send.",
+      "Superset: reducers of child features compose into a parent with Reducer.combine and contramap over CasePath and KeyPath, EffectQueue policies (runNewest, runOldest with suspendNew or discardNew, delays) cancel or suspend effects, and TestActomaton checks every state change and received action."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14",
+    "stars": 265,
+    "createdAt": "2021-09-05",
+    "updatedAt": "2026-10-24"
+  },
+  {
+    "id": "websharper-mvu",
+    "name": "WebSharper.Mvu",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/dotnet-websharper/mvu",
+    "website": "https://dotnet-websharper.github.io/mvu/",
+    "summary": "Elm-inspired Model-View-Update for WebSharper client apps, where the render function is called once with a reactive View of the model.",
+    "snippetSource": "https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/Client.fs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "equivalent",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "App.Create takes update : Message -> Model -> Action<Message, Model>; Action is DoNothing, SetModel, UpdateModel, Command of (Dispatch -> unit), CommandAsync of (Dispatch -> Async<unit>) or CombinedAction, and the runtime applies it (DispatchAsync wraps an async call whose result becomes a message).",
+      "The render function takes Dispatch and a WebSharper.UI View<Model> and is called once; the reactive View, not a new render, follows each change of the model.",
+      "No subscription function: a long-running source is a Command or CommandAsync that holds dispatch, or one update re-issues; App.WithInitAction runs one at start.",
+      "Paging (App.CreatePaged), routing bound to the model (App.WithRouting), local storage of the model and RemoteDev time travel debugging; WebSharper JavaScript interop is called from inside commands."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14",
+    "stars": 28,
+    "createdAt": "2018-04-11",
+    "updatedAt": "2026-11-08"
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",
