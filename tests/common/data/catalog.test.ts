@@ -104,8 +104,8 @@ describe('data files', () => {
   it('spell the requirements an adjacent entry misses as its note starts', () => {
     const prefixOf = (id: string) =>
       pipe(frameworkById(id), O.map(missesNotePrefixOf))
-    expect(prefixOf('brick')).toEqual(O.some('Misses Cmd: '))
-    expect(prefixOf('phoenix-liveview')).toEqual(O.some('Misses Cmd and Sub: '))
+    expect(prefixOf('ngrx')).toEqual(O.some('Misses Cmd: '))
+    expect(prefixOf('redux')).toEqual(O.some('Misses Cmd and Sub: '))
     expect(prefixOf('halogen')).toEqual(O.some('Misses update, Cmd and Sub: '))
     expect(prefixOf('pinia')).toEqual(
       O.some('Misses Model, Msg, update, Cmd and Sub: '),
