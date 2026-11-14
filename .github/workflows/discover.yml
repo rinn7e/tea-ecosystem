@@ -152,6 +152,8 @@ jobs:
           path: ${{ runner.temp }}/discover-execution.json
           retention-days: 7
           if-no-files-found: ignore
+          # A re-run of the job uploads it again under the same name
+          overwrite: true
 
       # The branch of the run goes to the next job as a bundle, when it has
       # a commit (`scripts/bundle-discovered.sh`)
@@ -167,6 +169,7 @@ jobs:
           name: discover-bundle
           path: ${{ runner.temp }}/discover.bundle
           retention-days: 1
+          overwrite: true
 
   propose:
     needs: search
