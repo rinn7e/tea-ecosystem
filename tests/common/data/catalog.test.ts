@@ -86,11 +86,12 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
-  it('give the directory of a monorepo entry inside its own repository', () => {
+  it('give the source of an entry inside its repository, or as its own page', () => {
     const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) =>
         f.source !== undefined &&
-        (f.repo === undefined || !f.source.startsWith(`${f.repo}/`)),
+        (f.repo === undefined ||
+          !(f.source.startsWith(`${f.repo}/`) || f.source === f.url)),
     )
     expect(wrong.map((f) => f.id)).toEqual([])
   })

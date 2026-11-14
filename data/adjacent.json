@@ -39,7 +39,7 @@
     "url": "https://react.dev/reference/react/useReducer",
     "logo": "use-reducer.svg",
     "repo": "https://github.com/react/react",
-    "source": "https://github.com/react/react/blob/main/packages/react/src/ReactHooks.js",
+    "source": "https://react.dev/reference/react/useReducer",
     "summary": "A pure reducer for local state; effects live in useEffect and event handlers.",
     "snippetSource": "https://github.com/reactjs/react.dev/blob/main/src/content/reference/react/useReducer.md",
     "rubric": {

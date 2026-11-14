@@ -118,11 +118,11 @@ export type Framework = {
   // Codeberg or another Gitea): where its stars and dates come from. Absent
   // when its source is not public.
   repo?: string
-  // The full URL of its directory inside `repo`, for an entry that is one
-  // package of a monorepo (Oak in the repository of the Monad language,
-  // @xstate/store beside XState), or of its file for one that is a single
-  // function of a bigger library (useReducer in React): where its source
-  // links go instead of the root of `repo`
+  // Where its source links go instead of the root of `repo`: the full URL
+  // of its directory inside `repo`, for an entry that is one package of a
+  // monorepo (Oak in the repository of the Monad language, @xstate/store
+  // beside XState), or its own reference page (`url`), for one that is a
+  // single function of a bigger library (useReducer in React)
   source?: string
   // Where the project lived before it moved (Tyrian and Indigo moved into
   // one monorepo in 2025, teatui to Codeberg): its `createdAt` comes from
@@ -214,11 +214,15 @@ export const sourceLabelOf = (framework: Framework): string => {
       .slice(repo.length)
       .replace(/^\/(-\/)?(tree|blob|src\/branch)\/[^/]+\//, '')
       .replace(/\/$/, '')
+  const pageLabel = (url: string): string =>
+    `${hostOf(url)}${new URL(url).pathname.replace(/\/$/, '')}`
   return framework.repo === undefined
     ? hostOf(framework.url)
     : framework.source === undefined
       ? repoLabel(framework.repo)
-      : `${repoLabel(framework.repo)} · ${directoryOf(framework.repo, framework.source)}`
+      : framework.source.startsWith(`${framework.repo}/`)
+        ? `${repoLabel(framework.repo)} · ${directoryOf(framework.repo, framework.source)}`
+        : pageLabel(framework.source)
 }
 
 // Its own website or docs, when they are not its source: the page links
