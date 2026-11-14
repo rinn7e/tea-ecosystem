@@ -766,15 +766,17 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "missing"
     },
     "notes": [
-      "Began as a fork of Scalm.",
-      "A bridge lets a Tyrian app and an Indigo game talk through their messages.",
-      "Its docs have a page on how it differs from Elm.",
-      "Moved in 2025 to the indigoengine monorepo with Indigo; the old repository is archived."
+      "update returns (Model, Cmd[F, Msg]); Cmd is data (Cmd.Run, Cmd.SideEffect, Cmd.Emit, Cmd.Batch) over a Cats Effect F that the runtime runs (https://github.com/PurpleKingdomGames/indigoengine/blob/main/tyrian-platform/src/tyrian/platform/Cmd.scala).",
+      "subscriptions(model): Sub[F, Msg] is a function of the model; Sub.make, Sub.fromEvent and Sub.fromStream carry an id and a release, and the runtime starts and stops them (https://github.com/PurpleKingdomGames/indigoengine/blob/main/tyrian-platform/src/tyrian/platform/Sub.scala).",
+      "No ports: interop goes through Sub.make, Sub.fromEvent, Cmd.Run and Scala.js facades, and TyrianApp.launch returns Unit, so the host has no handle to send messages in.",
+      "Began as a fork of Scalm; a bridge lets a Tyrian app and an Indigo game talk through their messages.",
+      "Moved in 2025 to the indigoengine monorepo with Indigo; the old repository is archived.",
+      "These grades are of the released API (TyrianIOApp, Cmd and Sub); the 0.30 milestones on main add tyrian.App, whose update returns a Result, with watchers and extensions (mini apps composed into their parent)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-06-04",
     "updatedAt": "2026-11-11",
@@ -786,7 +788,7 @@
     "language": "Scala",
     "elmFamily": false,
     "targets": ["game", "web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/PurpleKingdomGames/indigoengine",
     "source": "https://github.com/PurpleKingdomGames/indigoengine/tree/main/indigo",
@@ -800,14 +802,19 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Frame driven: updateModel returns an Outcome that carries the next model and the events to send; the view is a scene.",
+      "Superset: SubSystems are mini games with their own state, update and present, kept by the engine and talking to the game only through events (indigo/shared/subsystems/SubSystem.scala); scenes split a game the same way.",
+      "Frame driven: updateModel(context, model) returns GlobalEvent => Outcome[Model], and a FrameTick event arrives every frame; the view is present, which returns a SceneUpdateFragment.",
+      "Outcome carries the next model and the events to emit; the engine performs the effect events among them (PlaySound, AssetEvent.LoadAssets, ScreenCaptureEvent) and sends results back as events (AssetEvent.AssetBatchLoaded), a closed set as in Elm. Arbitrary I/O is meant to go through an embedding Tyrian app (https://github.com/PurpleKingdomGames/indigo-docs/blob/main/website/documentation/misc/indigo-vs-elm.md).",
+      "Messages are GlobalEvent, an extendable trait, so they are open as tea.Msg is in Bubble Tea.",
+      "No subscriptions function: input, frame and viewport events are built into the engine and arrive on their own, and a SubSystem is the sanctioned place for a long-running source such as the network.",
+      "Game.events.push sends events in and Game.events.eventCallback reads events out, from outside the game.",
       "Moved in 2025 to the indigoengine monorepo with Tyrian; the old repository is archived."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-30",
     "updatedAt": "2026-11-11",
@@ -833,8 +840,13 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update(msg, model) returns (Model, Cmd[Msg]) in the App trait (in the plain Scalm.start form update returns only a Model); a Cmd is Cmd.RunTask over a Task that the runtime executes (src/main/scala/scalm/Effects.scala).",
+      "subscriptions(model): Sub[Msg] is a function of the model; Sub.every, Sub.timeout and Sub.fromEvent carry an id and a cancel, and the runtime starts and stops them when the ids change.",
+      "No ports: host callbacks are wrapped as an Observable inside effects (Sub.ofTotalObservable, Task.RunObservable), and Scalm.start gives no handle to send messages in.",
+      "Scala 2.12 and Scala.js 0.6 only; last commit February 2018 (repository pushed to in 2021)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-01-08",
     "updatedAt": "2021-05-12",
@@ -878,7 +890,7 @@
     "language": "TypeScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/foldkit/foldkit",
     "website": "https://foldkit.dev",
@@ -895,10 +907,13 @@
       "ports": "native"
     },
     "notes": [
-      "All or nothing by design: no React interop and no way around Effect.",
-      "Purity is kept by convention; the compiler cannot stop an effect inside update the way Elm does."
+      "Superset: server rendering with hydration is built in, and Mounts and ManagedResources manage element lifecycles and stateful handles; Submodel composes child models with OutMessages, as nested modules do in Elm.",
+      "update returns { model, commands? }; a Command is a named Effect value (Command.define) that the runtime forks and whose result comes back as a Message (https://github.com/foldkit/foldkit/blob/main/packages/foldkit/src/update/update.ts).",
+      "Subscription.make takes modelToDependencies and dependenciesToStream; the runtime diffs the dependencies after each Model change and restarts the Effect Stream only when they change.",
+      "Port.inbound and Port.outbound are Schema-typed channels to the host, reached through the EmbedHandle of Runtime.embed.",
+      "All in on Effect by design; purity inside update is kept by convention and an oxlint plugin, not by the compiler."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-06-21",
     "updatedAt": "2026-11-08",
@@ -922,10 +937,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": ["tea-effect presents itself as its spiritual successor."],
-    "verified": false,
+    "notes": [
+      "update returns [Model, Cmd<Msg>]; a Cmd is an Observable of fp-ts Tasks that the runtime runs (src/Cmd.ts).",
+      "program takes subscriptions: (model) => Sub<Msg>, and the runtime switchMaps over the model stream so subscriptions restart when the model changes (src/Platform.ts); Sub is an RxJS Observable (src/Time.ts every).",
+      "No ports (the README lists \"no ports\" among the differences from Elm), but program returns dispatch, so outside code can send messages in (src/Platform.ts).",
+      "tea-effect presents itself as its spiritual successor."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-03-22",
     "updatedAt": "2022-10-08",
@@ -937,7 +957,7 @@
     "language": "TypeScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/savkelita/tea-effect",
     "summary": "The Elm Architecture on Effect, with React hooks; started in 2026 as a successor to elm-ts.",
@@ -949,10 +969,16 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: the useProgram hook (React.makeUseProgram) runs a program inside a React component, so each feature mounted through it keeps its own loop and state in React.",
+      "update is (msg, model) => [Model, Cmd<Msg>]; a Cmd is an Effect Stream of messages that the runtime runs (src/Cmd.ts, src/Platform.ts).",
+      "Platform.program takes subscriptions: (model) => Sub<Msg>; subscriptions are keyed Effect Streams, and the runtime diffs the keys after each model change so only the delta starts or stops.",
+      "No ports: there is no Port module, but the program returns dispatch, so outside code can send messages in (src/Platform.ts).",
+      "Platform.program is a headless runtime."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-01-06",
     "updatedAt": "2026-10-31",
@@ -977,10 +1003,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "equivalent"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update returns readonly [State, Cmd<Action>?]; a Cmd is a plain value { home, type } that the runtime hands to the EffectManager matching its home (src/cmd.ts, src/program.ts).",
+      "Program has an optional subscriptions: (state) => Sub<Action>; after each update the runtime gathers the Subs and calls every EffectManager, which starts and stops its sources.",
+      "No ports: the host plugs in through an EffectManager of your own (setup, onEffects, onSelfAction), passed as the last argument of Program.run, in the way of the effect managers of Elm; run returns only a function that ends the program.",
+      "Msg is called Action and Model is called State; there is no built-in view library, and view is a pure function of state and dispatch that a library such as React renders."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-01-26",
     "updatedAt": "2025-02-05",
@@ -992,7 +1023,7 @@
     "language": "TypeScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/atheck/react-elmish",
     "summary": "The Elmish pattern for React, with commands and subscriptions.",
@@ -1003,11 +1034,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: each React component runs its own loop with its own model, messages and update (useElmish), whose state React keeps; the view is the component.",
+      "update returns [Model, Cmd?] (an UpdateMap or an update function); a Cmd is an array of functions of dispatch, and useElmish runs them with execCmd after the update (src/cmd.ts, src/useElmish.ts).",
+      "Sub is managed: the subscription function runs once on mount, returns functions of dispatch, and the destructor each one returns runs on unmount; it does not follow the model (https://github.com/atheck/react-elmish#subscriptions).",
+      "No ports: parent and host communication goes through callback props, called by a Cmd."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-03-07",
     "updatedAt": "2026-10-31",
@@ -1032,12 +1068,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
     "notes": [
-      "Untyped: messages are action functions rather than a closed union."
+      "Untyped: messages are action functions rather than a closed union; an action (State, Payload) -> [NextState, ...Effects] is the update step for its own message, and the docs call actions messages.",
+      "update returns the next state, or an array of the next state and effects; effects are [effecter, payload] values the runtime runs after the state change (docs/architecture/effects.md).",
+      "subscriptions: (state) => [...] is a function of the state; the runtime diffs the list after every state change and starts and stops each subscriber (patchSubs in index.js).",
+      "app() returns the dispatch function, which controls the app from outside; calling it with no arguments stops every subscription."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-20",
     "updatedAt": "2025-03-20",
@@ -1059,13 +1098,18 @@
       "model": "native",
       "msg": "native",
       "update": "native",
-      "view": "native",
+      "view": "missing",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Headless: no view; app takes init, subscribe and observe, and observe is a callback that sees each state so any presentation layer can render it.",
+      "Untyped: an action is a function (state) => [state, effect], as in Hyperapp; effects are values built by effects.none, batch, defer, thunk and act, which the runtime runs in effectStage.",
+      "subscribe(state) returns a list of sub(fn, ...params) values; subscribeStage diffs the list after every action by function and parameters, starts new ones and calls cancel on the removed ones.",
+      "app() returns dispatch, which feeds actions from outside."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-08-21",
     "updatedAt": "2023-03-04",
