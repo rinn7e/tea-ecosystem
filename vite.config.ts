@@ -59,6 +59,10 @@ export default defineConfig(({ mode }) => {
       port: 5180,
     },
     test: {
+      // The tests live in `tests/` only: a file elsewhere that looks like a
+      // test (a `.test.ts` dropped in `data/` by the weekly search, for
+      // example) never runs
+      include: ['tests/**/*.test.{ts,tsx}'],
       // Local tools may keep extra worktrees under `.claude/`: their copy of
       // the tests is not this checkout's
       exclude: [...configDefaults.exclude, '.claude/**'],

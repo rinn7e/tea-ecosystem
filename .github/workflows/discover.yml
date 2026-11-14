@@ -1,0 +1,224 @@
+name: Discover
+
+# Once a week, an AI agent (Claude Code) searches for TEA frameworks that
+# the catalog does not list yet, grades each against the rubric from its
+# own docs and source, and commits each entry on the branch of the run,
+# `discover/<day>` (`.github/discover-prompt.md`). A second job checks the
+# final data of the branch, makes a fresh commit of it (no commit of the
+# agent is ever pushed), and opens one draft pull request with every
+# candidate of the run, so they never conflict with each other. A person reviews it,
+# turns down the candidates they do not want, and merges: nothing merges
+# on its own. While an earlier pull request of the search is still open,
+# the run skips its search before the agent starts, so it spends nothing
+# and never opens a second one that would conflict with the first.
+#
+# The agent reads untrusted pages, so its job is treated as untrusted as a
+# whole: its token can only read, it saves no cache that a later job
+# restores, and all it hands on is a bundle of the branch, which the second
+# job (with no agent) checks before anything of it is pushed. Only that
+# second job may write.
+on:
+  schedule:
+    # Mondays at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+# One search at a time, so two runs never propose the same candidate
+concurrency:
+  group: discover
+  cancel-in-progress: false
+
+env:
+  # The most candidates one run proposes, which caps its cost with the
+  # turn and dollar limits of the agent below
+  MAX_CANDIDATES: 3
+
+jobs:
+  search:
+    # Candidates branch from `master` and their pull requests go into it
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      # The pull requests already proposed
+      pull-requests: read
+      # The @rinn7e packages come from GitHub Packages (`.npmrc`)
+      packages: read
+    outputs:
+      base: ${{ steps.context.outputs.base }}
+      day: ${{ steps.context.outputs.day }}
+      found: ${{ steps.bundle.outputs.found }}
+      # An earlier try pushed the commit of the run and failed to open its
+      # pull request: the propose job finishes it, with no search
+      resume: ${{ startsWith(steps.context.outputs.gate, 'pushed') }}
+    steps:
+      # `master` as it is when the job starts, also on a re-run of an older
+      # run, so the agent never reads a stale catalog
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      # No cache here: a job that runs the agent must not save one that the
+      # other workflows restore
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      # Installed before the agent starts, so it only runs the checks. The
+      # token reads the public @rinn7e packages; it is written to the user
+      # .npmrc of the runner, never to the one of the repository, and the
+      # file is gone before the agent starts
+      - run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          pnpm install --frozen-lockfile
+          rm ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # The day of the run (its `discoveredAt` and its branch), the commit
+      # the branch starts from, and whether this run may propose at all
+      # (`scripts/gate-discovered.sh`), with the pull requests the search
+      # opened before, so the agent skips their candidates
+      - id: context
+        run: |
+          day="$(date -u +%F)"
+          echo "day=$day" >> "$GITHUB_OUTPUT"
+          echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          mkdir -p tmp/discover
+          gate="$(DAY="$day" scripts/gate-discovered.sh tmp/discover/proposed.json)"
+          echo "gate=$gate" >> "$GITHUB_OUTPUT"
+          case "$gate" in
+            go) ;;
+            pushed*) echo "An earlier try of this run pushed its commit and failed to open its pull request: the propose job opens it now, with no search." >> "$GITHUB_STEP_SUMMARY" ;;
+            *) echo "This run skips its search, as ${gate#skip: }. A later run searches again." >> "$GITHUB_STEP_SUMMARY" ;;
+          esac
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+      # The agent may read the web and the repository, edit the files of a
+      # new entry, run the checks and commit on local branches. With
+      # `--permission-mode default`, every tool call the list does not
+      # allow is denied; `git diff` and `git log` are allowed bare only, as
+      # their options can write files (`--output`). The agent can still read
+      # its own environment, the API key included: the job holds nothing
+      # that can write, and the owner caps the spend of the key. The timeout
+      # is below the one of the job, so what the agent committed before it
+      # still reaches the next job.
+      - id: agent
+        if: steps.context.outputs.gate == 'go'
+        uses: anthropics/claude-code-action@f3b070c88125d33dbae5653df5f143101d4ea9dc # v1.0.276
+        timeout-minutes: 45
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # The read-only token of this job, in place of the Claude GitHub
+          # App
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Follow the instructions in `.github/discover-prompt.md`.
+            Today is ${{ steps.context.outputs.day }}.
+            Propose at most ${{ env.MAX_CANDIDATES }} candidates.
+          claude_args: |
+            --model claude-opus-5-5
+            --effort medium
+            --max-turns 150
+            --max-budget-usd 5
+            --permission-mode default
+            --allowedTools "Read,Glob,Grep,WebSearch,WebFetch"
+            --allowedTools "Edit(data/frameworks.json),Edit(data/adjacent.json),Write(data/snippet/*)"
+            --allowedTools "Bash(git switch *),Bash(git add *),Bash(git commit *),Bash(git branch *)"
+            --allowedTools "Bash(git restore data/frameworks.json data/adjacent.json),Bash(git clean -fdq data/snippet/)"
+            --allowedTools "Bash(git status),Bash(git diff),Bash(git log)"
+            --allowedTools "Bash(pnpm run format),Bash(pnpm run test)"
+            --allowedTools "Bash(gh repo view *),Bash(gh search repos *)"
+
+      # The report of the agent (what it proposed, what it skipped and
+      # why), as plain text, so the skipped projects can go to
+      # `data/rejected.json`
+      - name: Keep the report of the agent
+        if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
+        run: |
+          {
+            echo '## Report of the agent'
+            echo
+            echo '```text'
+            if [ -f "$EXECUTION_FILE" ]; then
+              jq -r '([.[] | select(.type == "result") | .result | strings] | last)
+                // ([.[] | select(.type == "assistant") | .message.content[]? | select(.type == "text") | .text] | last)
+                // "No report."' "$EXECUTION_FILE" | sed 's/```/` ` `/g'
+            else
+              echo 'No report: the agent did not finish (it failed or timed out).'
+            fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          EXECUTION_FILE: ${{ steps.agent.outputs.execution_file }}
+
+      # The branch of the run goes to the next job as a bundle, when it has
+      # a commit (`scripts/bundle-discovered.sh`)
+      - id: bundle
+        if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
+        run: scripts/bundle-discovered.sh "$RUNNER_TEMP/discover.bundle"
+        env:
+          BASE: ${{ steps.context.outputs.base }}
+          DAY: ${{ steps.context.outputs.day }}
+      - if: ${{ !cancelled() && steps.bundle.outputs.found == 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: discover-bundle
+          path: ${{ runner.temp }}/discover.bundle
+          retention-days: 1
+
+  propose:
+    needs: search
+    # Also after an agent that stopped at its limits: the candidates it
+    # committed are checked as any other, and a branch that fails a check
+    # is left out
+    if: ${{ !cancelled() && (needs.search.outputs.found == 'true' || needs.search.outputs.resume == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      # Push the branch of the run
+      contents: write
+      # Open its draft pull request
+      pull-requests: write
+      # The @rinn7e packages come from GitHub Packages (`.npmrc`)
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.search.outputs.base }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          pnpm install --frozen-lockfile
+          rm ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - if: needs.search.outputs.found == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: discover-bundle
+          path: ${{ runner.temp }}
+      # Only a regular bundle file is read
+      - if: needs.search.outputs.found == 'true'
+        run: |
+          [ -f "$RUNNER_TEMP/discover.bundle" ] && [ ! -L "$RUNNER_TEMP/discover.bundle" ]
+          git bundle verify --quiet "$RUNNER_TEMP/discover.bundle"
+          git fetch --quiet "$RUNNER_TEMP/discover.bundle" 'refs/heads/discover/*:refs/heads/discover/*'
+      - name: Open the draft pull request of the run
+        run: scripts/propose-discovered.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE: ${{ needs.search.outputs.base }}
+          DAY: ${{ needs.search.outputs.day }}

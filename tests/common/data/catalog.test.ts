@@ -19,10 +19,12 @@ import {
   rubricProblemsOf,
   sameLanguageEntriesOf,
 } from '@/common/data/catalog'
+import { repoKeyOf } from '@/common/data/rejected'
 import {
   FIRST_LIST_DAY,
   hasPublicRepo,
   isLanguageEntry,
+  sourceUrlOf,
 } from '@/common/type/framework'
 
 import {
@@ -47,6 +49,18 @@ describe('data files', () => {
       ...adjacentEntries.map((e) => e.id),
     ]
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  // A search that proposes a listed project again under a new id fails
+  // here
+  it('list each source once, across both files', () => {
+    const entries = [...frameworks, ...adjacentEntries]
+    const keys = entries.map((f) => repoKeyOf(sourceUrlOf(f)))
+    expect(
+      entries
+        .filter((_, i) => keys.indexOf(keys[i] ?? '') !== i)
+        .map((f) => f.id),
+    ).toEqual([])
   })
 
   it('use ids that are readable URL segments', () => {
