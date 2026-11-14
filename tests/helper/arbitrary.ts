@@ -145,29 +145,29 @@ export const listingFilterArb: fc.Arbitrary<ListingFilter> = fc.oneof(
   adjacentFilterArb,
 )
 
-// Two values for a law of equality: the same value built apart (a deep
-// copy, so an `Eq` that compares by reference fails), the value with one
-// field taken from another where that field differs, or two values drawn
-// apart
+// Two values for a law of equality: two equal values built apart
+// (`fc.clone`, so an `Eq` that compares by reference fails), a value and
+// the same with one field taken from another value where they differ, or
+// two values drawn apart
 export const pairArb = <A extends object>(
   arb: fc.Arbitrary<A>,
 ): fc.Arbitrary<[A, A]> =>
-  fc
-    .tuple(arb, arb, fc.nat(), fc.nat(2))
-    .map(([x, y, pick, kind]) => {
-      const keys = Object.keys(x).filter((key) => key in y)
-      return { x, y, kind, key: keys[pick % keys.length] }
-    })
-    .filter(
-      ({ x, y, kind, key }) =>
-        kind !== 1 ||
-        (key !== undefined &&
-          !isDeepStrictEqual(Reflect.get(x, key), Reflect.get(y, key))),
-    )
-    .map(({ x, y, kind, key }): [A, A] =>
-      kind === 0
-        ? [x, structuredClone(x)]
-        : kind === 1 && key !== undefined
-          ? [x, { ...structuredClone(x), [key]: Reflect.get(y, key) }]
-          : [x, y],
-    )
+  fc.oneof(
+    fc.clone(arb, 2).map(([x, y]): [A, A] => [x, y]),
+    fc
+      .tuple(fc.clone(arb, 2), arb, fc.nat())
+      .map(([[x, copy], y, pick]) => {
+        const keys = Object.keys(x).filter((key) => key in y)
+        return { x, copy, y, key: keys[pick % keys.length] }
+      })
+      .filter(
+        ({ x, y, key }) =>
+          key !== undefined &&
+          !isDeepStrictEqual(Reflect.get(x, key), Reflect.get(y, key)),
+      )
+      .map(({ x, copy, y, key }): [A, A] => [
+        x,
+        { ...copy, [key ?? '']: Reflect.get(y, key ?? '') },
+      ]),
+    fc.tuple(arb, arb),
+  )
