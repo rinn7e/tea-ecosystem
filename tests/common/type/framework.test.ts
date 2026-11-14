@@ -34,7 +34,9 @@ describe('sourceUrlOf', () => {
   })
 
   it('falls back to the page of an entry whose source is not public', () => {
-    expect(sourceUrlOf(entry('hojicha'))).toBe('https://docs.rs/crate/hojicha')
+    expect(sourceUrlOf(entry('hojicha'))).toBe(
+      'https://docs.rs/crate/hojicha/latest',
+    )
   })
 })
 

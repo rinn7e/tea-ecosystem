@@ -748,26 +748,26 @@ describe('sort menu of the cards', () => {
 })
 
 describe('hiddenArchivedCountOf', () => {
-  const purescript: ListingFilter = {
+  const rust: ListingFilter = {
     ...defaultCatalogFilter(),
-    language: O.some('PureScript'),
+    language: O.some('Rust'),
   }
 
   it('counts the archived entries a filter matches while they are hidden', () => {
-    // Spork and Pux, archived PureScript frameworks
-    expect(hiddenArchivedCountOf(frameworks, purescript)).toBe(2)
+    // Seed, the archived Rust framework
+    expect(hiddenArchivedCountOf(frameworks, rust)).toBe(1)
   })
 
   it('counts none while the archive is shown', () => {
     expect(
       hiddenArchivedCountOf(frameworks, {
-        ...purescript,
+        ...rust,
         statuses: statusChoiceOf([]),
       }),
     ).toBe(0)
     expect(
       hiddenArchivedCountOf(frameworks, {
-        ...purescript,
+        ...rust,
         statuses: statusChoiceOf(['active', 'archived']),
       }),
     ).toBe(0)
@@ -781,13 +781,14 @@ describe('hiddenArchivedCountOf', () => {
         ...defaultAdjacentFilter(),
         ...filter,
       })
-    expect(count({ language: O.some('PureScript') })).toBe(2)
-    // Seed is archived; Dartea is an archived mobile framework; every
-    // archived framework is full TEA; ts-elmish and Comet lack Sub
+    expect(count({ language: O.some('Rust') })).toBe(1)
+    // Seed, the one archived framework, is a full TEA web framework, and
+    // no mobile framework is archived; ts-elmish and Comet lack Sub
     expect(count({ query: 'seed' })).toBe(1)
-    expect(count({ targets: choiceOf(targets, ['mobile']) })).toBe(1)
-    expect(count({ tiers: choiceOf(catalogTiers, ['full']) })).toBe(6)
-    expect(count({ show: O.some('frameworks') })).toBe(6)
+    expect(count({ targets: choiceOf(targets, ['web']) })).toBe(1)
+    expect(count({ targets: choiceOf(targets, ['mobile']) })).toBe(0)
+    expect(count({ tiers: choiceOf(catalogTiers, ['full']) })).toBe(1)
+    expect(count({ show: O.some('frameworks') })).toBe(1)
     expect(adjacentCount({ lacks: choiceOf(lackables, ['sub']) })).toBe(2)
   })
 
@@ -795,7 +796,7 @@ describe('hiddenArchivedCountOf', () => {
     expect(
       archivedHintCountOf(frameworks, {
         ...defaultCatalogFilter(),
-        language: O.some('PureScript'),
+        language: O.some('Rust'),
         statuses: statusChoiceOf(['active']),
       }),
     ).toBe(0)
@@ -820,17 +821,17 @@ describe('hiddenArchivedCountOf', () => {
         statuses: statusChoiceOf(['active', 'quiet', 'archived']),
         ...filter,
       })
-    expect(shownOf({ query: 'spo' })).toBe(1)
-    expect(shownOf({ language: O.some('PureScript') })).toBe(2)
+    expect(shownOf({ query: 'see' })).toBe(1)
+    expect(shownOf({ language: O.some('Rust') })).toBe(1)
     // No filter that narrows the list, or statuses chosen in the popover
     expect(shownOf({})).toBe(0)
     expect(
-      shownOf({ query: 'spo', statuses: statusChoiceOf(['archived']) }),
+      shownOf({ query: 'see', statuses: statusChoiceOf(['archived']) }),
     ).toBe(0)
     expect(
       shownArchivedCountOf(frameworks, {
         ...defaultCatalogFilter(),
-        query: 'spo',
+        query: 'see',
       }),
     ).toBe(0)
   })

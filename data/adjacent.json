@@ -401,7 +401,7 @@
     "tier": "adjacent",
     "status": "active",
     "repo": "https://github.com/statelyai/xstate",
-    "website": "https://stately.ai/docs/xstate",
+    "website": "https://stately.ai/docs/xstate/v5",
     "logo": "xstate.svg",
     "summary": "Statecharts with actions on transitions: a close neighbour worth knowing, not TEA.",
     "snippetSource": "https://github.com/statelyai/xstate/blob/next/README.md",
@@ -462,7 +462,7 @@
     "tier": "adjacent",
     "status": "active",
     "repo": "https://github.com/phoenixframework/phoenix_live_view",
-    "website": "https://hexdocs.pm/phoenix_live_view",
+    "website": "https://phoenix-live-view.hexdocs.pm/",
     "summary": "Server-driven UI whose event handlers run effects directly.",
     "snippetSource": "https://github.com/phoenixframework/phoenix_live_view/blob/main/guides/introduction/welcome.md",
     "rubric": {
@@ -824,7 +824,7 @@
     "repo": "https://github.com/ReactorKit/ReactorKit",
     "logo": "reactorkit.png",
     "summary": "mutate returns streams of mutations, close to Cmd, but effects and reduce are split by stream.",
-    "snippetSource": "https://github.com/ReactorKit/ReactorKit/blob/master/README.md",
+    "snippetSource": "https://github.com/ReactorKit/ReactorKit/blob/main/README.md",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -942,7 +942,7 @@
     "status": "quiet",
     "repo": "https://github.com/superhawk610/douglas",
     "summary": "A tiny Bubble Tea and iced inspired terminal UI framework whose view returns a string.",
-    "snippetSource": "https://github.com/superhawk610/douglas/blob/master/README.md",
+    "snippetSource": "https://github.com/superhawk610/douglas/blob/main/README.md",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -972,7 +972,7 @@
     "tier": "adjacent",
     "status": "active",
     "repo": "https://github.com/noheltcj/oxide-mvu",
-    "website": "https://docs.rs/oxide-mvu",
+    "website": "https://docs.rs/oxide-mvu/latest/oxide_mvu/",
     "summary": "A no_std Model-View-Update runtime where update is a pure function returning a new model and an effect.",
     "snippetSource": "https://github.com/noheltcj/oxide-mvu/blob/main/README.md",
     "rubric": {
