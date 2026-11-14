@@ -18,7 +18,9 @@ import {
   cardSortOf,
   cardSorts,
   carriedFilterOf,
+  entryNounOf,
   filterFrameworks,
+  hiddenArchivedCountOf,
   init,
   isFiltered,
   languageCountsOf,
@@ -688,5 +690,39 @@ describe('sort menu of the cards', () => {
     expect(sorted.filter.sort).toEqual(sortOfCardSort('popularity'))
     const [plain] = update({ _tag: 'SetSort', sort: O.none }, sorted)
     expect(plain.filter.sort).toEqual(O.none)
+  })
+})
+
+describe('hiddenArchivedCountOf', () => {
+  const purescript: ListingFilter = {
+    ...defaultListingFilter(),
+    language: O.some('PureScript'),
+  }
+
+  it('counts the archived entries a filter matches while they are hidden', () => {
+    expect(hiddenArchivedCountOf(frameworks, purescript)).toBe(
+      filterFrameworks({ ...purescript, statuses: ['archived'] })(frameworks)
+        .length,
+    )
+    expect(hiddenArchivedCountOf(frameworks, purescript)).toBeGreaterThan(0)
+  })
+
+  it('counts none while the archive is shown', () => {
+    expect(
+      hiddenArchivedCountOf(frameworks, { ...purescript, statuses: [] }),
+    ).toBe(0)
+    expect(
+      hiddenArchivedCountOf(frameworks, {
+        ...purescript,
+        statuses: ['active', 'archived'],
+      }),
+    ).toBe(0)
+  })
+
+  it('names one entry or several of each list', () => {
+    expect(entryNounOf('catalog', 1)).toBe('framework')
+    expect(entryNounOf('catalog', 2)).toBe('frameworks')
+    expect(entryNounOf('adjacent', 1)).toBe('library')
+    expect(entryNounOf('adjacent', 3)).toBe('libraries')
   })
 })

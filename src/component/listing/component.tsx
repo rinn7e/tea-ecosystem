@@ -78,7 +78,9 @@ import {
   cardSortLabel,
   cardSortOf,
   cardSorts,
+  entryNounOf,
   filterFrameworks,
+  hiddenArchivedCountOf,
   isFiltered,
   languageCountsOf,
   otherListLinkOf,
@@ -1085,18 +1087,8 @@ const emptyView = ({
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const archivedCount =
-    filter.statuses.length === 0 || filter.statuses.includes('archived')
-      ? 0
-      : filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
-  const noun =
-    kind === 'catalog'
-      ? archivedCount === 1
-        ? 'framework'
-        : 'frameworks'
-      : archivedCount === 1
-        ? 'library'
-        : 'libraries'
+  const archivedCount = hiddenArchivedCountOf(entries, filter)
+  const noun = entryNounOf(kind, archivedCount)
   const other = otherListMatchesOf(kind, filter)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
@@ -1139,6 +1131,41 @@ const emptyView = ({
         ),
       )}
     </div>
+  )
+}
+
+// Results found, and archived entries of this list match the filters too
+// while the archive is hidden: one quiet line above the results, with the
+// same button as the empty view, so a filter does not hide that the
+// archive holds more. Only under a filter: with none, the archive is not
+// news.
+const archivedHintView = ({
+  kind,
+  entries,
+  filter,
+  dispatch,
+}: {
+  kind: ListKind
+  entries: Framework[]
+  filter: ListingFilter
+  dispatch: Dispatcher<Msg>
+}) => {
+  const count = isFiltered(filter) ? hiddenArchivedCountOf(entries, filter) : 0
+  const noun = entryNounOf(kind, count)
+  return count === 0 ? null : (
+    <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
+      <span>
+        {count} archived {noun} also {count === 1 ? 'matches' : 'match'}.
+      </span>
+      <button
+        type='button'
+        onClick={() => dispatch({ _tag: 'ToggleStatus', status: 'archived' })}
+        className='text-accent inline-flex items-center gap-[4px] hover:underline'
+      >
+        <IconArchive size={14} stroke={1.75} aria-hidden />
+        Show the archived {noun}
+      </button>
+    </p>
   )
 }
 
@@ -1245,6 +1272,13 @@ const ListingComponent = ({
           total: entries.length,
           dispatch,
         })}
+        {shown.length > 0 &&
+          archivedHintView({
+            kind,
+            entries,
+            filter: model.filter,
+            dispatch,
+          })}
         {shown.length > 0 && otherListHintView({ kind, filter: model.filter })}
         {shown.length === 0
           ? emptyView({ kind, entries, filter: model.filter, dispatch })

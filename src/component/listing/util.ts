@@ -160,6 +160,28 @@ export const filterFrameworks =
 export const otherListOf = (kind: ListKind): ListKind =>
   kind === 'catalog' ? 'adjacent' : 'catalog'
 
+// How many archived entries of a list match its filter while the archive
+// is hidden (the statuses leave archived out): what "Show the archived"
+// would add. None while the archived entries are shown already.
+export const hiddenArchivedCountOf = (
+  entries: Framework[],
+  filter: ListingFilter,
+): number =>
+  filter.statuses.length === 0 || filter.statuses.includes('archived')
+    ? 0
+    : filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
+
+// An entry of a list in words, one or several: "1 framework" on the
+// catalog, "2 libraries" on the TEA-adjacent page
+export const entryNounOf = (kind: ListKind, count: number): string =>
+  kind === 'catalog'
+    ? count === 1
+      ? 'framework'
+      : 'frameworks'
+    : count === 1
+      ? 'library'
+      : 'libraries'
+
 // The part of a filter that means the same on both lists: the search, the
 // language, the targets and the statuses, with the layout and the sort.
 // The tiers, what an adjacent library lacks and the kind of entry belong
