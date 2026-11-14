@@ -449,7 +449,7 @@ describe('otherListMatchesOf', () => {
         query: 'seed',
         isAlso: false,
       }),
-    ).toBe('1 archived framework in the catalog matches "seed".')
+    ).toBe('1 archived framework in the Main catalog matches "seed".')
   })
 
   it('links to the matches with the filter that shows them', () => {
@@ -459,7 +459,7 @@ describe('otherListMatchesOf', () => {
       label: 'Show in TEA-adjacent',
     })
     expect(otherListLinkOf('adjacent', matches).label).toBe(
-      'Show in the catalog',
+      'Show in Main catalog',
     )
   })
 

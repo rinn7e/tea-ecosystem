@@ -202,7 +202,8 @@ export const otherListMatchesOf = (
 // What a list says about the matches of a search in the other list, under
 // its results (`isAlso`) or in place of them when it has none: "3
 // TEA-adjacent libraries also match "react"", "1 archived framework in the
-// catalog matches "seed"".
+// Main catalog matches "seed"". The catalog is the "Main catalog" there, to
+// set it apart from the TEA-adjacent page.
 export const otherListMatchTextOf = ({
   kind,
   matches,
@@ -220,7 +221,7 @@ export const otherListMatchTextOf = ({
   const verb = count === 1 ? 'matches' : 'match'
   return kind === 'catalog'
     ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} "${query}".`
-    : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the catalog ${also}${verb} "${query}".`
+    : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the Main catalog ${also}${verb} "${query}".`
 }
 
 // The link to the matches on the other list, with the filter that shows
@@ -236,7 +237,7 @@ export const otherListLinkOf = (
       }
     : {
         destination: destinationOfScreen(catalogScreen(matches.filter)),
-        label: 'Show in the catalog',
+        label: 'Show in Main catalog',
       }
 
 export const isFiltered = (filter: ListingFilter): boolean =>
@@ -449,7 +450,7 @@ const sortWordsOf = (
       return {
         name: 'Tier',
         ascending: 'Originator first',
-        descending: 'adjacent first',
+        descending: 'Originator last',
       }
     case 'rubric':
       return {
