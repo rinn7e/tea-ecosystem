@@ -1,6 +1,6 @@
 name: Discover
 
-# Once a week, an AI agent (Claude Code) searches for TEA frameworks that
+# Once a week, an AI agent (the Claude Agent SDK) searches for TEA frameworks that
 # the catalog does not list yet, grades each against the rubric from its
 # own docs and source, and commits each entry on the branch of the run,
 # `discover/<day>` (`.github/discover-prompt.md`). A second job checks the
@@ -101,40 +101,27 @@ jobs:
           GH_REPO: ${{ github.repository }}
 
       # The agent may read the web and the repository, edit the files of a
-      # new entry, run the checks and commit on local branches. With
-      # `--permission-mode default`, every tool call the list does not
-      # allow is denied; `git diff` and `git log` are allowed bare only, as
-      # their options can write files (`--output`). The agent can still read
-      # its own environment, the API key included: the job holds nothing
-      # that can write, and the owner caps the spend of the key. The timeout
+      # new entry, run the checks and commit on local branches, with the
+      # tools and limits of `scripts/discover-agent.mjs` (the Claude Agent
+      # SDK). The agent can still read its own environment, the API key
+      # included: the job holds nothing that can write, and the owner caps
+      # the spend of the key. Its commits need a name, which never leaves
+      # the run (the propose job makes a commit of its own). The timeout
       # is below the one of the job, so what the agent committed before it
       # still reaches the next job.
       - id: agent
         if: steps.context.outputs.gate == 'go'
-        uses: anthropics/claude-code-action@f3b070c88125d33dbae5653df5f143101d4ea9dc # v1.0.276
         timeout-minutes: 45
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # The read-only token of this job, in place of the Claude GitHub
-          # App
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Follow the instructions in `.github/discover-prompt.md`.
-            Today is ${{ steps.context.outputs.day }}.
-            Propose at most ${{ env.MAX_CANDIDATES }} candidates.
-          claude_args: |
-            --model claude-opus-5-5
-            --effort medium
-            --max-turns 150
-            --max-budget-usd 5
-            --permission-mode default
-            --allowedTools "Read,Glob,Grep,WebSearch,WebFetch"
-            --allowedTools "Edit(data/frameworks.json),Edit(data/adjacent.json),Write(data/snippet/*)"
-            --allowedTools "Bash(git switch *),Bash(git add *),Bash(git commit *),Bash(git branch *)"
-            --allowedTools "Bash(git restore data/frameworks.json data/adjacent.json),Bash(git clean -fdq data/snippet/)"
-            --allowedTools "Bash(git status),Bash(git diff),Bash(git log)"
-            --allowedTools "Bash(pnpm run format),Bash(pnpm run test)"
-            --allowedTools "Bash(gh repo view *),Bash(gh search repos *)"
+        run: |
+          git config user.name 'discover-agent'
+          git config user.email 'discover-agent@localhost'
+          node scripts/discover-agent.mjs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # The read-only token of this job, for `gh search repos`
+          GH_TOKEN: ${{ github.token }}
+          DAY: ${{ steps.context.outputs.day }}
+          EXECUTION_FILE: ${{ runner.temp }}/discover-execution.json
 
       # The report of the agent (what it proposed, what it skipped and
       # why), as plain text, so the skipped projects can go to
@@ -156,7 +143,7 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
         env:
-          EXECUTION_FILE: ${{ steps.agent.outputs.execution_file }}
+          EXECUTION_FILE: ${{ runner.temp }}/discover-execution.json
 
       # The branch of the run goes to the next job as a bundle, when it has
       # a commit (`scripts/bundle-discovered.sh`)
