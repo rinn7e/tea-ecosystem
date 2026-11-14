@@ -967,7 +967,7 @@
     "logo": "xstate.svg",
     "repo": "https://github.com/statelyai/xstate",
     "summary": "An event store from Stately whose transitions return the next context and queue effects, but with no view and no subscriptions.",
-    "snippetSource": "https://github.com/statelyai/xstate/blob/main/packages/xstate-store/README.md",
+    "snippetSource": "https://stately.ai/docs/xstate-store#effects",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -978,7 +978,7 @@
       "ports": "missing"
     },
     "notes": [
-      "A transition (context, event, enqueue) returns the next context; enqueue.effect queues a function that the store runs after it, and its result comes back by sending an event.",
+      "A transition (context, event, enqueue) returns the next context; store.transition(state, event) returns the next state and its effects: emitted events as data, and the functions queued by enqueue.effect, whose results come back by triggering an event.",
       "The effect is a function, not a value the runtime reads, and outside events reach the store only by calling send or trigger: no subscriptions, the hard requirement it misses.",
       "A store, not an app: the view comes from React, Solid or another library through a selector."
     ],
