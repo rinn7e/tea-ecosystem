@@ -89,7 +89,7 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-12-10",
-    "updatedAt": "2026-11-10",
+    "updatedAt": "2026-11-13",
     "stars": 95
   },
   {
@@ -121,7 +121,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13",
     "createdAt": "2016-06-26",
-    "updatedAt": "2026-11-12",
+    "updatedAt": "2026-11-14",
     "stars": 2450
   },
   {
@@ -323,7 +323,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2016-09-07",
     "updatedAt": "2026-10-13",
-    "stars": 910
+    "stars": 911
   },
   {
     "id": "bolero",
@@ -381,7 +381,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2017-06-12",
     "updatedAt": "2024-10-01",
-    "stars": 465
+    "stars": 466
   },
   {
     "id": "fabulous",
@@ -409,7 +409,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2018-02-05",
     "updatedAt": "2026-11-13",
-    "stars": 1306
+    "stars": 1307
   },
   {
     "id": "avalonia-funcui",
@@ -586,7 +586,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2022-02-11",
     "updatedAt": "2026-11-11",
-    "stars": 2507
+    "stars": 2506
   },
   {
     "id": "shore",
@@ -857,7 +857,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2025-06-21",
     "updatedAt": "2026-11-08",
-    "stars": 1231
+    "stars": 1234
   },
   {
     "id": "elm-ts",
@@ -911,7 +911,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2026-01-06",
     "updatedAt": "2026-10-31",
-    "stars": 15
+    "stars": 16
   },
   {
     "id": "typescript-tea",
@@ -1053,8 +1053,8 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-07-15",
-    "updatedAt": "2026-11-12",
-    "stars": 32022
+    "updatedAt": "2026-11-13",
+    "stars": 32028
   },
   {
     "id": "libcosmic",
@@ -1082,8 +1082,8 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2021-11-13",
-    "updatedAt": "2026-11-11",
-    "stars": 966
+    "updatedAt": "2026-11-13",
+    "stars": 968
   },
   {
     "id": "relm4",
@@ -1346,7 +1346,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-01-10",
     "updatedAt": "2026-11-12",
-    "stars": 45732
+    "stars": 45720
   },
   {
     "id": "composable-architecture",
@@ -1377,7 +1377,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-05-03",
     "updatedAt": "2026-11-05",
-    "stars": 15018
+    "stars": 15019
   },
   {
     "id": "mobius-swift",
@@ -1463,7 +1463,7 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2018-09-08",
-    "updatedAt": "2026-11-03",
+    "updatedAt": "2026-11-13",
     "stars": 75
   },
   {
@@ -1661,7 +1661,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 60,
+    "stars": 62,
     "createdAt": "2024-12-10",
     "updatedAt": "2026-10-07"
   },
@@ -1692,7 +1692,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 15,
+    "stars": 17,
     "createdAt": "2026-06-21",
     "updatedAt": "2026-10-29"
   },
@@ -1722,7 +1722,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 198,
+    "stars": 200,
     "createdAt": "2026-04-23",
     "updatedAt": "2026-10-30"
   },
@@ -1820,7 +1820,7 @@
     "discoveredAt": "2026-11-13",
     "stars": 441,
     "createdAt": "2026-03-10",
-    "updatedAt": "2026-11-12"
+    "updatedAt": "2026-11-14"
   },
   {
     "id": "abies",
@@ -1915,7 +1915,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 23,
+    "stars": 24,
     "createdAt": "2016-12-03",
     "updatedAt": "2018-01-04"
   },
@@ -1979,7 +1979,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 5,
+    "stars": 7,
     "createdAt": "2026-11-04",
     "updatedAt": "2026-11-08"
   },
@@ -2103,7 +2103,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 118,
+    "stars": 119,
     "createdAt": "2023-02-15",
     "updatedAt": "2026-08-23"
   },
@@ -2135,7 +2135,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
-    "stars": 30,
+    "stars": 31,
     "createdAt": "2023-06-04",
     "updatedAt": "2026-11-04"
   },

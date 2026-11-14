@@ -28,7 +28,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-05-29",
     "updatedAt": "2026-11-11",
-    "stars": 61438
+    "stars": 61436
   },
   {
     "id": "use-reducer",
@@ -60,7 +60,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2013-05-24",
     "updatedAt": "2026-11-13",
-    "stars": 252565
+    "stars": 252592
   },
   {
     "id": "redux-loop",
@@ -269,7 +269,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-04-09",
     "updatedAt": "2026-11-06",
-    "stars": 58930
+    "stars": 58919
   },
   {
     "id": "mobx",
@@ -299,8 +299,8 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-03-14",
-    "updatedAt": "2026-11-12",
-    "stars": 28211
+    "updatedAt": "2026-11-13",
+    "stars": 28210
   },
   {
     "id": "choo",
@@ -420,8 +420,8 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-09-14",
-    "updatedAt": "2026-11-13",
-    "stars": 30459
+    "updatedAt": "2026-11-14",
+    "stars": 30461
   },
   {
     "id": "re-frame",
@@ -573,7 +573,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2023-02-12",
     "updatedAt": "2026-11-12",
-    "stars": 23257
+    "stars": 23266
   },
   {
     "id": "xilem",
@@ -602,7 +602,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2022-11-16",
     "updatedAt": "2026-11-03",
-    "stars": 5605
+    "stars": 5606
   },
   {
     "id": "brick",
@@ -662,7 +662,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-11-18",
     "updatedAt": "2026-11-03",
-    "stars": 1441
+    "stars": 1442
   },
   {
     "id": "bloc",
@@ -692,8 +692,8 @@
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2018-10-07",
-    "updatedAt": "2026-11-12",
-    "stars": 12486
+    "updatedAt": "2026-11-14",
+    "stars": 12485
   },
   {
     "id": "mvikotlin",
@@ -753,7 +753,7 @@
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-12-22",
     "updatedAt": "2026-08-31",
-    "stars": 1345
+    "stars": 1346
   },
   {
     "id": "workflow",
@@ -1057,8 +1057,8 @@
     "verified": true,
     "discoveredAt": "2026-11-14",
     "createdAt": "2015-09-14",
-    "updatedAt": "2026-11-13",
-    "stars": 30459
+    "updatedAt": "2026-11-14",
+    "stars": 30461
   },
   {
     "id": "halogen",
