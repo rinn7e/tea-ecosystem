@@ -101,8 +101,17 @@ const stub = (bin: string, name: string, body: string): void => {
   chmodSync(path.join(bin, name), 0o755)
 }
 
+// The inputs of the scripts, which each test sets itself: one inherited
+// from the job that runs the tests (the workflow sets `BRANCH` and `DAY`
+// on the steps that run `pnpm run test`) would change what a test checks
+const scriptInputs = ['BASE', 'BRANCH', 'DAY', 'MAX_CANDIDATES']
+
 const baseEnv = {
-  ...process.env,
+  ...Object.fromEntries(
+    Object.entries(process.env).filter(
+      ([name]) => !scriptInputs.includes(name),
+    ),
+  ),
   GIT_CONFIG_NOSYSTEM: '1',
   GIT_CONFIG_GLOBAL: '/dev/null',
   GIT_AUTHOR_NAME: 'Test',
