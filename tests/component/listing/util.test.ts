@@ -11,8 +11,10 @@ import {
   catalogScreen,
   defaultListingFilter,
   destinationOfScreen,
+  lackables,
   toggleChoice,
 } from '@/common/type/destination'
+import { targets } from '@/common/type/framework'
 import {
   archivedHintCountOf,
   balancedRows,
@@ -463,6 +465,25 @@ describe('otherListMatchesOf', () => {
     ).toEqual(O.none)
   })
 
+  it('does not point on every target chosen', () => {
+    // Every target chosen shows every entry, as no target does
+    expect(
+      otherListMatchesOf('catalog', {
+        ...defaultListingFilter(),
+        targets: [...targets],
+      }),
+    ).toEqual(O.none)
+    expect(
+      pipe(
+        otherListMatchesOf('catalog', {
+          ...searchOf('redux'),
+          targets: [...targets],
+        }),
+        O.map((m) => m.subject),
+      ),
+    ).toEqual(O.some('"redux"'))
+  })
+
   it('finds no TEA-adjacent library in Scala', () => {
     expect(
       otherListMatchesOf('catalog', {
@@ -757,6 +778,18 @@ describe('hiddenArchivedCountOf', () => {
       archivedHintCountOf(frameworks, {
         ...defaultListingFilter(),
         tiers: ['reference', 'full', 'superset'],
+      }),
+    ).toBe(0)
+    expect(
+      archivedHintCountOf(frameworks, {
+        ...defaultListingFilter(),
+        targets: [...targets],
+      }),
+    ).toBe(0)
+    expect(
+      archivedHintCountOf(adjacentEntries, {
+        ...defaultListingFilter(),
+        lacks: [...lackables],
       }),
     ).toBe(0)
   })

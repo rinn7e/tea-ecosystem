@@ -238,11 +238,12 @@ const narrowsStatuses = (chosen: Status[]): boolean =>
   chosen.length > 0 &&
   chosen.length < statuses.length
 
-// Whether a carried filter narrows the other list at all
+// Whether a carried filter narrows the other list at all (every target
+// chosen narrows nothing, as no target does)
 const narrowsOtherList = (carried: ListingFilter): boolean =>
   carried.query !== '' ||
   O.isSome(carried.language) ||
-  carried.targets.length > 0 ||
+  narrowsChoice(carried.targets, targets) ||
   narrowsStatuses(carried.statuses)
 
 // Whether a filter that belongs to one list only is on: it stays behind,
@@ -275,7 +276,7 @@ export const otherListMatchesOf = (
   const subject =
     carried.query !== '' &&
     O.isNone(carried.language) &&
-    carried.targets.length === 0 &&
+    !narrowsChoice(carried.targets, targets) &&
     !narrowsStatuses(carried.statuses)
       ? `"${carried.query}"`
       : hasOneListFilter(filter)
