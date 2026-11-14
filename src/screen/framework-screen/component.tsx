@@ -10,7 +10,6 @@ import {
   type Framework,
   concepts,
   hostOf,
-  isRecentlyAdded,
   sourceLabelOf,
   sourceUrlOf,
   websiteLabelOf,
@@ -18,13 +17,13 @@ import {
 } from '@/common/type/framework'
 import { codeBlockView } from '@/component/code-block'
 import {
+  addedView,
   conceptLabel,
   conceptMeaning,
   dateView,
   gradeBadgeView,
   gradeMeaning,
   kindLineOf,
-  recentRibbonView,
   shownGradeOf,
   sourceLinkView,
   statusView,
@@ -208,7 +207,6 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
           {tierBadgeView({ tier: framework.tier })}
           {statusView({ status: framework.status })}
         </div>
-        {isRecentlyAdded(framework, recentSince) && recentRibbonView()}
         {targetChipsView({ targets: framework.targets, align: 'center' })}
         {/* Created on one side of the axis, updated on the other, and on
             it the stars and the code button, one link to the source */}
@@ -234,13 +232,10 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
               </span>
             </div>
           )}
-        {/* The day it joined this catalog, on the axis under its dates */}
+        {/* The day it joined this catalog, on the axis under its dates:
+            inside the ribbon while it is recent */}
         <span className='text-ink-faint text-sm'>
-          {dateView({
-            id: framework.id,
-            which: 'added',
-            day: framework.discoveredAt,
-          })}
+          {addedView({ framework, recentSince })}
         </span>
       </header>
 

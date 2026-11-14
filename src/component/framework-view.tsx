@@ -23,6 +23,7 @@ import {
   type Tier,
   concepts,
   isLanguageEntry,
+  isRecentlyAdded,
   sourceUrlOf,
 } from '@/common/type/framework'
 import { dayMonthYearOf, monthYearOf } from '@/common/util/date'
@@ -438,17 +439,8 @@ export const starsView = ({ stars }: { stars: number | undefined }) =>
     </span>
   )
 
-// The ribbon of an entry found after the first list (`isRecentlyAdded`),
-// under the title of its page: a short band in the accent with both ends
-// notched, on the axis
-export const recentRibbonView = () => (
-  <span className='bg-accent text-accent-ink inline-flex px-[12px] py-[1px] text-[0.6875rem] leading-[1.45] whitespace-nowrap [clip-path:polygon(0_0,100%_0,calc(100%-5px)_50%,100%_100%,0_100%,5px_50%)]'>
-    Recently added
-  </span>
-)
-
-// The same ribbon on the right edge of a card, under its tier badge: the
-// left end notched, the right end past the edge of the card and folded
+// The ribbon of an entry found after the first list (`isRecentlyAdded`)
+// on the right edge of a card, under its tier badge: the left end notched, the right end past the edge of the card and folded
 // behind it (a small darker triangle under it). It takes no presses, so a
 // press on it reaches the card under it.
 export const recentEdgeRibbonView = () => (
@@ -546,5 +538,31 @@ export const dateView = ({
       {dateIconView({ which })}
       {words.shown}
     </TooltipTrigger>
+  )
+}
+
+// The day an entry was added to the catalog, on the axis of its page. An
+// entry found after the first list (`isRecentlyAdded`) shows it inside the
+// ribbon, a short band in the accent with both ends notched ("Recently
+// added · 14 Nov 2026"); any other shows it as its other dates.
+export const addedView = ({
+  framework,
+  recentSince,
+}: {
+  framework: Framework
+  recentSince: string
+}) => {
+  const words = dateTextOf('added', framework.discoveredAt)
+  return isRecentlyAdded(framework, recentSince) ? (
+    <TooltipTrigger
+      id={`${framework.id}-added`}
+      content={{ title: words.title, text: words.text }}
+      label={`Recently added, ${words.shown}`}
+      className='bg-accent text-accent-ink inline-flex cursor-default px-[14px] py-[2px] text-xs whitespace-nowrap tabular-nums [clip-path:polygon(0_0,100%_0,calc(100%-6px)_50%,100%_100%,0_100%,6px_50%)]'
+    >
+      Recently added · {words.shown}
+    </TooltipTrigger>
+  ) : (
+    dateView({ id: framework.id, which: 'added', day: framework.discoveredAt })
   )
 }
