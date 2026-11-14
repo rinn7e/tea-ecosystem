@@ -118,10 +118,11 @@ const logoUrl = (file: string): string =>
   `${BASE_URL.replace(/\/$/, '')}/logo/${file}`
 
 // One frame for every tile (its own logo, the logo of its language, a
-// glyph or two letters). A tile with a logo file is white in both modes, as
-// those files are drawn on white; the others have no file (a language mark
-// drawn here, a glyph, two letters), so they take the panel and the ink of
-// the mode, and a dark page shows no white square for them.
+// glyph or two letters), in the panel and the ink of the mode, so a dark
+// page shows no white square: a logo file is drawn as it is, its own
+// background included. The one exception: a logo drawn in dark ink on a
+// transparent ground (`logoOnLight`) keeps a white tile, or it would vanish
+// on the dark panel.
 export const frameworkTileView = ({
   framework,
   size,
@@ -135,7 +136,12 @@ export const frameworkTileView = ({
   )
   if (framework.logo !== undefined) {
     return (
-      <span className={cn(frame, 'bg-tile')}>
+      <span
+        className={cn(
+          frame,
+          framework.logoOnLight === true ? 'bg-light-tile' : 'bg-panel',
+        )}
+      >
         <img
           src={logoUrl(framework.logo)}
           alt=''

@@ -134,6 +134,7 @@
     "status": "quiet",
     "repo": "https://github.com/fjvallarino/monomer",
     "logo": "monomer.svg",
+    "logoOnLight": true,
     "summary": "A native desktop GUI toolkit for Haskell, inspired by Elm.",
     "snippetSource": "https://github.com/fjvallarino/monomer/blob/main/examples/tutorial/Tutorial01_Basics.hs",
     "rubric": {
@@ -1095,6 +1096,7 @@
     "status": "active",
     "repo": "https://github.com/Relm4/Relm4",
     "logo": "relm4.png",
+    "logoOnLight": true,
     "summary": "An idiomatic GUI library for Rust on GTK4, inspired by Elm, with components and workers.",
     "snippetSource": "https://github.com/Relm4/Relm4/blob/main/examples/simple.rs",
     "rubric": {
@@ -1866,6 +1868,7 @@
     "repo": "https://github.com/setdef/Rooibos",
     "website": "https://www.rooibos.run/",
     "logo": "rooibos.png",
+    "logoOnLight": true,
     "summary": "The Elm Architecture for terminal apps in Ruby, built on RatatuiRuby.",
     "snippetSource": "https://github.com/setdef/Rooibos/blob/stable/README.md",
     "rubric": {

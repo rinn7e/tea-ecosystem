@@ -58,14 +58,13 @@
   --color-ribbon-fold: var(--ribbon-fold);
   /* Orange of the button that clears the filters */
   --color-reset: var(--reset);
-  /* A logo tile: white with dark ink in both modes, as the logo files are
-   * drawn on white */
   /* GitHub stars: the star in the yellow of GitHub, the count in a yellow
    * dark enough to read as text on the panel */
   --color-star: #e3b341;
+  /* The tile of a logo drawn in dark ink for a light page (`logoOnLight`),
+   * white in both modes */
+  --color-light-tile: #ffffff;
   --color-star-ink: var(--star-ink);
-  --color-tile: #ffffff;
-  --color-tile-ink: #000e16;
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Source Code Pro', ui-monospace, Menlo, Consolas, monospace;
 }

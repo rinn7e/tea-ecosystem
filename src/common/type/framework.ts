@@ -154,6 +154,10 @@ export type Framework = {
   // monogram stands in (test "name a logo file that exists in
   // public/logo").
   logo?: string
+  // Its `logo` is drawn in dark ink on a transparent ground, for a light
+  // page: its tile stays white in dark mode too, where it would vanish on
+  // the dark panel (`frameworkTileView`)
+  logoOnLight?: true
   // A logo made of text, for a project whose mark is an emoji or a glyph
   // in its title (react-tea-cup: a cup of tea), used when it has no `logo`
   logoText?: string
@@ -210,6 +214,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     source: t.string,
     originRepo: t.string,
     logo: t.string,
+    logoOnLight: t.literal(true),
     logoText: t.string,
     stars: t.number,
     snippetSource: t.string,
