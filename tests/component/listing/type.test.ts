@@ -1,38 +1,28 @@
-import { describe, expect, it } from 'vitest'
+import { fc, test } from '@fast-check/vitest'
+import { isDeepStrictEqual } from 'node:util'
+import { describe, expect } from 'vitest'
 
-import {
-  AdjacentFilterEq,
-  CatalogFilterEq,
-  choiceOf,
-  defaultAdjacentFilter,
-  defaultCatalogFilter,
-  lackables,
-} from '@/common/type/destination'
-import { init, mkModelEq } from '@/component/listing'
+import { ListingFilterEq } from '@/common/type/destination'
+import { type Model, mkModelEq } from '@/component/listing'
+
+import { listingFilterArb } from '../../helper/arbitrary'
+
+const modelArb = fc.record(
+  {
+    filter: listingFilterArb,
+    panel: fc.constantFrom<Model<never>['panel']>('closed', 'open', 'closing'),
+    panelSeq: fc.nat(3),
+  },
+  { noNullPrototype: true },
+)
 
 describe('mkModelEq', () => {
-  it('compares a model of the catalog by its filter and its popover', () => {
-    const eq = mkModelEq(CatalogFilterEq)
-    const catalog = init(defaultCatalogFilter())
-    expect(eq.equals(catalog, init(defaultCatalogFilter()))).toBe(true)
-    expect(eq.equals(catalog, { ...catalog, panel: 'open' })).toBe(false)
-    expect(
-      eq.equals(catalog, init({ ...defaultCatalogFilter(), query: 'x' })),
-    ).toBe(false)
-  })
-
-  it('compares a model of the adjacent list by what an entry lacks', () => {
-    const eq = mkModelEq(AdjacentFilterEq)
-    const adjacent = init(defaultAdjacentFilter())
-    expect(eq.equals(adjacent, init(defaultAdjacentFilter()))).toBe(true)
-    expect(
-      eq.equals(
-        adjacent,
-        init({
-          ...defaultAdjacentFilter(),
-          lacks: choiceOf(lackables, ['cmd']),
-        }),
-      ),
-    ).toBe(false)
-  })
+  test.prop([modelArb, modelArb])(
+    'agrees with deep equality, from the Eq of the filter',
+    (x, y) => {
+      expect(mkModelEq(ListingFilterEq).equals(x, y)).toBe(
+        isDeepStrictEqual(x, y),
+      )
+    },
+  )
 })

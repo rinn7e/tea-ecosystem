@@ -1,15 +1,13 @@
+import { fc, test } from '@fast-check/vitest'
 import * as S from 'fp-ts/string'
-import { describe, expect, it } from 'vitest'
+import { isDeepStrictEqual } from 'node:util'
+import { describe, expect } from 'vitest'
 
 import {
   StatusChoiceEq,
-  anyChoice,
-  anyStatusChoice,
   choiceOf,
   defaultStatusChoice,
   getChoiceEq,
-  isAnyTicked,
-  isStatusTicked,
   isTicked,
   narrowsChoice,
   passesStatus,
@@ -18,126 +16,78 @@ import {
   toggleChoice,
   toggleStatus,
 } from '@/common/type/destination'
+import { statuses } from '@/common/type/framework'
 
-const options = ['web', 'ssr', 'tui'] as const
+import { choiceArb, statusChoiceArb } from '../../../helper/arbitrary'
+
+const options = ['web', 'ssr', 'server', 'tui'] as const
 
 describe('choiceOf', () => {
-  it('gives one state per meaning', () => {
-    expect(choiceOf(options, [])).toEqual(anyChoice(false))
-    expect(choiceOf(options, ['tui', 'ssr', 'web'])).toEqual(anyChoice(true))
-    expect(choiceOf(options, ['tui', 'web'])).toEqual({
-      _tag: 'Only',
-      chosen: ['web', 'tui'],
-    })
-  })
-
-  it('leaves out what the list does not offer', () => {
-    expect(choiceOf(['web', 'ssr'], ['game'])).toEqual(anyChoice(false))
-    expect(choiceOf(['web', 'ssr'], ['web', 'ssr', 'game'])).toEqual(
-      anyChoice(true),
-    )
-  })
-
-  it('narrows only with some options, not none or every one', () => {
-    expect(narrowsChoice(choiceOf(options, []))).toBe(false)
-    expect(narrowsChoice(choiceOf(options, ['web']))).toBe(true)
-    expect(narrowsChoice(choiceOf(options, [...options]))).toBe(false)
-  })
+  test.prop([fc.subarray([...options]), fc.subarray(['game', 'mobile'])])(
+    'keeps what it is given among the options, in their order, and narrows only with some of them',
+    (chosen, outside) => {
+      const choice = choiceOf(options, [...outside, ...chosen].reverse())
+      expect(tickedOf(options, choice)).toEqual(chosen)
+      expect(narrowsChoice(choice)).toBe(
+        chosen.length > 0 && chosen.length < options.length,
+      )
+    },
+  )
 })
 
 describe('toggleChoice', () => {
-  it('ticks and unticks, in the order of the options', () => {
-    const one = toggleChoice(options, anyChoice(false), 'tui')
-    expect(one).toEqual({ _tag: 'Only', chosen: ['tui'] })
-    const two = toggleChoice(options, one, 'web')
-    expect(two).toEqual({ _tag: 'Only', chosen: ['web', 'tui'] })
-    expect(toggleChoice(options, two, 'tui')).toEqual({
-      _tag: 'Only',
-      chosen: ['web'],
-    })
-  })
-
-  it('keeps every box ticked on screen, and narrows nothing', () => {
-    const two = choiceOf(options, ['web', 'ssr'])
-    const every = toggleChoice(options, two, 'tui')
-    expect(every).toEqual(anyChoice(true))
-    expect(tickedOf(options, every)).toEqual([...options])
-    expect(isAnyTicked(every)).toBe(true)
-    // Unticking one from every box leaves the others
-    expect(toggleChoice(options, every, 'ssr')).toEqual({
-      _tag: 'Only',
-      chosen: ['web', 'tui'],
-    })
-  })
-
-  it('goes back to no box ticked when the last one is unticked', () => {
-    const none = toggleChoice(options, choiceOf(options, ['ssr']), 'ssr')
-    expect(none).toEqual(anyChoice(false))
-    expect(isTicked(none, 'ssr')).toBe(false)
-    expect(isAnyTicked(none)).toBe(false)
-  })
+  test.prop([choiceArb(options), fc.constantFrom(...options)])(
+    'flips one box and leaves the others, and twice gives the choice back',
+    (choice, value) => {
+      const once = toggleChoice(options, choice, value)
+      expect(isTicked(once, value)).toBe(!isTicked(choice, value))
+      options
+        .filter((option) => option !== value)
+        .forEach((option) =>
+          expect(isTicked(once, option)).toBe(isTicked(choice, option)),
+        )
+      expect(toggleChoice(options, once, value)).toEqual(choice)
+    },
+  )
 })
 
 describe('the statuses', () => {
-  it('reads the default statuses as the default, whatever the order', () => {
-    expect(statusChoiceOf(['quiet', 'active'])).toEqual(defaultStatusChoice())
-    expect(statusChoiceOf(['active', 'quiet', 'archived'])).toEqual(
-      anyChoice(true),
-    )
-    expect(statusChoiceOf([])).toEqual(anyChoice(false))
-  })
+  test.prop([fc.subarray([...statuses]), fc.constantFrom(...statuses)])(
+    'read the default statuses as the default, in any order, and flip one box at a time',
+    (chosen, status) => {
+      const choice = statusChoiceOf([...chosen].reverse())
+      expect(choice._tag === 'Default').toBe(
+        isDeepStrictEqual(chosen, ['active', 'quiet']),
+      )
+      const once = toggleStatus(choice, status)
+      expect(toggleStatus(once, status)).toEqual(choice)
+    },
+  )
 
-  it('shows and hides the archive from the default with one press each', () => {
-    const shown = toggleStatus(defaultStatusChoice(), 'archived')
-    expect(shown).toEqual(anyChoice(true))
-    expect(toggleStatus(shown, 'archived')).toEqual(defaultStatusChoice())
-  })
-
-  it('ticks the default statuses and hides the archive by default', () => {
-    expect(isStatusTicked(defaultStatusChoice(), 'quiet')).toBe(true)
-    expect(isStatusTicked(defaultStatusChoice(), 'archived')).toBe(false)
-    expect(passesStatus(defaultStatusChoice(), 'archived')).toBe(false)
-    // No box ticked shows every status, as every box does
-    expect(passesStatus(anyChoice(false), 'archived')).toBe(true)
-  })
+  test.prop([statusChoiceArb])(
+    'hide the archive only under the default or a choice without it',
+    (choice) => {
+      expect(passesStatus(choice, 'archived')).toBe(
+        choice._tag === 'Any' ||
+          (choice._tag === 'Only' && choice.chosen.includes('archived')),
+      )
+      expect(passesStatus(defaultStatusChoice(), 'archived')).toBe(false)
+    },
+  )
 })
 
 describe('the equality of choices', () => {
-  const eq = getChoiceEq(S.Eq)
+  test.prop([choiceArb(options), choiceArb(options)])(
+    'agrees with deep equality',
+    (x, y) => {
+      expect(getChoiceEq(S.Eq).equals(x, y)).toBe(isDeepStrictEqual(x, y))
+    },
+  )
 
-  it('tells every state apart', () => {
-    expect(eq.equals(anyChoice(true), anyChoice(true))).toBe(true)
-    expect(eq.equals(anyChoice(true), anyChoice(false))).toBe(false)
-    expect(
-      eq.equals(choiceOf(options, ['web']), choiceOf(options, ['web'])),
-    ).toBe(true)
-    expect(
-      eq.equals(choiceOf(options, ['web']), choiceOf(options, ['ssr'])),
-    ).toBe(false)
-    expect(
-      eq.equals(choiceOf(options, ['web', 'ssr']), choiceOf(options, ['web'])),
-    ).toBe(false)
-    expect(eq.equals(anyChoice(false), choiceOf(options, ['web']))).toBe(false)
-  })
-
-  it('tells the default statuses apart from every other', () => {
-    expect(
-      StatusChoiceEq.equals(defaultStatusChoice(), defaultStatusChoice()),
-    ).toBe(true)
-    expect(
-      StatusChoiceEq.equals(defaultStatusChoice(), statusChoiceOf(['active'])),
-    ).toBe(false)
-    expect(
-      StatusChoiceEq.equals(defaultStatusChoice(), anyStatusChoice(true)),
-    ).toBe(false)
-    expect(
-      StatusChoiceEq.equals(anyStatusChoice(true), anyStatusChoice(false)),
-    ).toBe(false)
-    expect(
-      StatusChoiceEq.equals(
-        statusChoiceOf(['archived']),
-        statusChoiceOf(['archived']),
-      ),
-    ).toBe(true)
-  })
+  test.prop([statusChoiceArb, statusChoiceArb])(
+    'of statuses agrees with deep equality',
+    (x, y) => {
+      expect(StatusChoiceEq.equals(x, y)).toBe(isDeepStrictEqual(x, y))
+    },
+  )
 })

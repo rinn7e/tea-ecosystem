@@ -182,4 +182,7 @@ A fact with an owner gets a type only its owner makes, so a write that skips the
 
 - Vitest, in `tests/`, mirroring the path of the code under test (`src/util/url.ts` is `tests/util/url.test.ts`), importing through `@/`.
 - Build models the way the app does: `bootOn(path)` and `navigate` in `tests/helper/app.ts`, never by hand.
+- Prefer a property to a list of cases: a rule that holds for every value, checked by fast-check (`@fast-check/vitest`, `test.prop`) on random values from the generators of `tests/helper/arbitrary.ts`. A new branch is then covered with no new case: the filters of both lists, their URL round trip, Clear filters, the toggles and every box ticked read as none are each one property. The generators build values the way the app does (`choiceOf`, `statusChoiceOf`), so only states the app can be in come out, and keep each field at its default most of the time, so a value that differs in one field alone comes out too.
+- Keep an example only for what a rule cannot state: a spelling (the exact URL of a filter), a fact of the data (PureScript has two archived frameworks), or a sequence of messages (the popover opening, then fading out).
+- Check that a property catches what it is for: break the code it guards for a moment and see it fail.
 - Before calling a change done: `pnpm run check`, `lint`, `format:check` and `test`, then check the change in a browser (both color schemes, and 375 px wide with no horizontal scroll).

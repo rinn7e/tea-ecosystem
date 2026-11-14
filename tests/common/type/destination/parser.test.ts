@@ -1,3 +1,4 @@
+import { test } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
 import { describe, expect, it } from 'vitest'
 
@@ -9,14 +10,13 @@ import {
   anyChoice,
   buildScreen,
   catalogScreen,
-  catalogTiers,
   choiceOf,
-  defaultAdjacentFilter,
   defaultCatalogFilter,
   defaultStatusChoice,
   destinationOfScreen,
   frameworkScreen,
   lackables,
+  listScreenOf,
   notFoundScreen,
   parseDestination,
   rubricScreen,
@@ -24,6 +24,8 @@ import {
   toUrlString,
 } from '@/common/type/destination'
 import { targets } from '@/common/type/framework'
+
+import { listingFilterArb } from '../../../helper/arbitrary'
 
 const parse = (path: string) => parseDestination(`http://localhost${path}`)
 
@@ -47,22 +49,15 @@ describe('destination URL', () => {
     )
   })
 
-  it('keeps the catalog filter in the query', () => {
-    const screen = catalogScreen({
-      list: 'catalog',
-      tiers: choiceOf(catalogTiers, ['full', 'superset']),
-      targets: choiceOf(targets, ['desktop', 'tui']),
-      statuses: statusChoiceOf([]),
-      query: 'rust tea',
-      show: O.some('frameworks'),
-      language: O.some('F#'),
-      layout: 'table',
-      sort: O.some({ column: 'stars', direction: 'ascending' }),
-    })
-    expect(roundTrip(screen)).toEqual(screen)
-  })
+  test.prop([listingFilterArb])(
+    'reads back every filter of either list it writes',
+    (filter) => {
+      const screen = listScreenOf(filter)
+      expect(roundTrip(screen)).toEqual(screen)
+    },
+  )
 
-  it('keeps the adjacent filter in the query, with lacks for tier', () => {
+  it('spells the adjacent filter with lacks for tier', () => {
     const screen = adjacentScreen({
       list: 'adjacent',
       lacks: choiceOf(lackables, ['cmd', 'sub']),
@@ -76,7 +71,6 @@ describe('destination URL', () => {
     expect(toUrlString(destinationOfScreen(screen))).toBe(
       '/adjacent?lacks=cmd,sub&target=web&status=archived&layout=table',
     )
-    expect(roundTrip(screen)).toEqual(screen)
   })
 
   it('leaves the default statuses out, and writes no choice as all', () => {
@@ -149,21 +143,10 @@ describe('destination URL', () => {
       _tag: 'Only',
       chosen: ['web'],
     })
-    // Every target it offers is every box ticked, and writes them back
-    const six = targetOptionsOf('adjacent')
-    expect(targetsOf(`/adjacent?target=${six.join(',')}`)).toEqual(
-      anyChoice(true),
-    )
+    // Every target it offers is every box ticked
     expect(
-      toUrlString(
-        destinationOfScreen(
-          adjacentScreen({
-            ...defaultAdjacentFilter(),
-            targets: anyChoice(true),
-          }),
-        ),
-      ),
-    ).toBe(`/adjacent?target=${six.join(',')}`)
+      targetsOf(`/adjacent?target=${targetOptionsOf('adjacent').join(',')}`),
+    ).toEqual(anyChoice(true))
   })
 
   it('reads every screen back', () => {

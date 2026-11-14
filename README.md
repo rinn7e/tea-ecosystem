@@ -36,7 +36,7 @@ The thinking behind it is in [doc/analysis.md](doc/analysis.md).
 
 ## Stack
 
-React with [react-tea-cup](https://github.com/vankeisb/react-tea-cup) (The Elm Architecture for React), `tea-cup-fp`, `fp-ts`, `io-ts`, Vite, TypeScript, Tailwind CSS v4 and Vitest. Frontend only: the data is bundled at build time, and the site is static on GitHub Pages.
+React with [react-tea-cup](https://github.com/vankeisb/react-tea-cup) (The Elm Architecture for React), `tea-cup-fp`, `fp-ts`, `io-ts`, Vite, TypeScript, Tailwind CSS v4, and Vitest with fast-check for property tests. Frontend only: the data is bundled at build time, and the site is static on GitHub Pages.
 
 ## Run it
 

@@ -1,15 +1,19 @@
+import { test } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
+import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it } from 'vitest'
 
 import {
   adjacentEntries,
+  entriesOf,
   frameworks,
   targetOptionsOf,
 } from '@/common/data/catalog'
 import {
   type AdjacentFilter,
   type CatalogFilter,
+  type Choice,
   type EntryCategory,
   type ListingFilter,
   type ListingSort,
@@ -50,6 +54,8 @@ import {
   sortOfCardSort,
   update,
 } from '@/component/listing'
+
+import { listingFilterArb } from '../../helper/arbitrary'
 
 describe('filterFrameworks', () => {
   it('shows everything but the archived entries with no filter', () => {
@@ -125,39 +131,89 @@ describe('filterFrameworks', () => {
   })
 })
 
-describe('what counts as filtered', () => {
-  it('counts a filter of its own list, a full choice too', () => {
-    const catalog = defaultCatalogFilter()
-    const adjacent = defaultAdjacentFilter()
-    expect(isFiltered(catalog)).toBe(false)
-    expect(isFiltered(adjacent)).toBe(false)
-    expect(isFiltered({ ...catalog, show: O.some('languages') })).toBe(true)
-    expect(isFiltered({ ...catalog, tiers: anyChoice(true) })).toBe(true)
-    expect(
-      isFiltered({ ...adjacent, lacks: choiceOf(lackables, ['cmd']) }),
-    ).toBe(true)
-  })
+// The same filter with every choice that ticks every box ticking none: the
+// two narrow nothing, so every line of the list must read them alike
+const noneForEvery = (filter: ListingFilter): ListingFilter => {
+  const none = <A>(choice: Choice<A>): Choice<A> =>
+    choice._tag === 'Any' ? anyChoice<A>(false) : choice
+  return filter.list === 'catalog'
+    ? { ...filter, tiers: none(filter.tiers), targets: none(filter.targets) }
+    : { ...filter, lacks: none(filter.lacks), targets: none(filter.targets) }
+}
 
-  it('counts the boxes of the popover that differ from their default', () => {
-    const catalog = defaultCatalogFilter()
-    const adjacent = defaultAdjacentFilter()
-    expect(panelFilterCountOf(catalog)).toBe(0)
-    // The category of entry is not in the popover
-    expect(panelFilterCountOf({ ...catalog, show: O.some('languages') })).toBe(
-      0,
-    )
-    expect(
-      panelFilterCountOf({
-        ...catalog,
-        tiers: anyChoice(true),
-        targets: choiceOf(targets, ['web']),
-        statuses: statusChoiceOf(['active']),
-      }),
-    ).toBe(3)
-    expect(
-      panelFilterCountOf({ ...adjacent, lacks: choiceOf(lackables, ['cmd']) }),
-    ).toBe(1)
-  })
+const defaultOf = (filter: ListingFilter): ListingFilter =>
+  filter.list === 'catalog' ? defaultCatalogFilter() : defaultAdjacentFilter()
+
+describe('the lines of a list', () => {
+  test.prop([listingFilterArb])(
+    'read every box ticked as no box ticked',
+    (filter) => {
+      const entries = entriesOf(filter.list)
+      const none = noneForEvery(filter)
+      expect(filterFrameworks(filter)(entries)).toEqual(
+        filterFrameworks(none)(entries),
+      )
+      expect(archivedHintCountOf(entries, filter)).toBe(
+        archivedHintCountOf(entries, none),
+      )
+      expect(shownArchivedCountOf(entries, filter)).toBe(
+        shownArchivedCountOf(entries, none),
+      )
+      expect(otherListMatchesOf(filter)).toEqual(otherListMatchesOf(none))
+    },
+  )
+
+  test.prop([listingFilterArb])(
+    'never offer to show and to hide the archive at once',
+    (filter) => {
+      const entries = entriesOf(filter.list)
+      expect(
+        archivedHintCountOf(entries, filter) > 0 &&
+          shownArchivedCountOf(entries, filter) > 0,
+      ).toBe(false)
+    },
+  )
+
+  test.prop([listingFilterArb])(
+    'point to matches the other list really shows, under the filter it opens with',
+    (filter) => {
+      pipe(
+        otherListMatchesOf(filter),
+        O.map((matches) => {
+          expect(matches.filter.list).toBe(otherListOf(filter.list))
+          expect(matches.count).toBeGreaterThan(0)
+          expect(matches.count).toBe(
+            filterFrameworks(matches.filter)(entriesOf(matches.filter.list))
+              .length,
+          )
+        }),
+      )
+    },
+  )
+
+  test.prop([listingFilterArb])(
+    'count as filtered unless the filter is the default of its list',
+    (filter) => {
+      const shown = { ...filter, layout: 'cards', sort: O.none }
+      expect(isFiltered(filter)).toBe(
+        !isDeepStrictEqual(shown, defaultOf(filter)),
+      )
+      // The popover holds the targets, the statuses and the tier or what
+      // an entry lacks; the search, the language and the category are not
+      // in it
+      const popover = {
+        ...defaultOf(filter),
+        targets: filter.targets,
+        statuses: filter.statuses,
+        ...(filter.list === 'catalog'
+          ? { tiers: filter.tiers }
+          : { lacks: filter.lacks }),
+      }
+      expect(panelFilterCountOf(filter) === 0).toBe(
+        isDeepStrictEqual(popover, defaultOf(filter)),
+      )
+    },
+  )
 })
 
 describe('lacks', () => {
@@ -172,21 +228,6 @@ describe('lacks', () => {
     expect(shown.map((e) => e.id)).toContain('redux-loop')
     expect(shown.map((e) => e.id)).toContain('yew')
     expect(shown.map((e) => e.id)).not.toContain('workflow')
-  })
-})
-
-describe('ToggleShow', () => {
-  it('chooses a category, and clears it when chosen again', () => {
-    const toggle = (show: O.Option<EntryCategory>, category: EntryCategory) =>
-      update(
-        { _tag: 'ToggleShow', category },
-        init({ ...defaultCatalogFilter(), show }),
-      )[0].filter.show
-    expect(toggle(O.none, 'languages')).toEqual(O.some('languages'))
-    expect(toggle(O.some('languages'), 'frameworks')).toEqual(
-      O.some('frameworks'),
-    )
-    expect(toggle(O.some('frameworks'), 'frameworks')).toEqual(O.none)
   })
 })
 
@@ -220,18 +261,6 @@ describe('language', () => {
     expect(
       languageCountsOf(adjacentEntries).map((c) => c.language),
     ).not.toContain('Kotlin and Swift')
-  })
-
-  it('chooses a language, and clears it when chosen again', () => {
-    const chosen = update(
-      { _tag: 'ToggleLanguage', language: 'Rust' },
-      init(defaultCatalogFilter()),
-    )[0]
-    expect(chosen.filter.language).toEqual(O.some('Rust'))
-    expect(
-      update({ _tag: 'ToggleLanguage', language: 'Rust' }, chosen)[0].filter
-        .language,
-    ).toEqual(O.none)
   })
 })
 
@@ -290,79 +319,6 @@ describe('sort', () => {
     expect(days[0]).toBe([...days].sort().at(-1))
     expect(days).toEqual([...days].sort().reverse())
   })
-
-  it('sorts names from A, and turns around on the same column', () => {
-    const byName = update(
-      { _tag: 'SortBy', column: 'name' },
-      init(defaultCatalogFilter()),
-    )[0]
-    expect(byName.filter.sort).toEqual(
-      O.some({ column: 'name', direction: 'ascending' }),
-    )
-    expect(
-      update({ _tag: 'SortBy', column: 'name' }, byName)[0].filter.sort,
-    ).toEqual(O.some({ column: 'name', direction: 'descending' }))
-    expect(
-      update({ _tag: 'SortBy', column: 'stars' }, byName)[0].filter.sort,
-    ).toEqual(O.some({ column: 'stars', direction: 'descending' }))
-  })
-
-  it('keeps the sort when the filters are cleared', () => {
-    const sort: ListingSort = { column: 'stars', direction: 'ascending' }
-    const sorted = init({
-      ...defaultCatalogFilter(),
-      query: 'rust',
-      sort: O.some(sort),
-    })
-    expect(update({ _tag: 'ClearFilter' }, sorted)[0].filter.sort).toEqual(
-      sorted.filter.sort,
-    )
-  })
-})
-
-describe('filter popover', () => {
-  const open = update({ _tag: 'TogglePanel' }, init(defaultCatalogFilter()))[0]
-
-  it('opens on the button, and fades out before it closes', () => {
-    expect(open.panel).toBe('open')
-    const closing = update({ _tag: 'TogglePanel' }, open)[0]
-    expect(closing.panel).toBe('closing')
-    expect(
-      update({ _tag: 'PanelClosed', seq: closing.panelSeq }, closing)[0].panel,
-    ).toBe('closed')
-  })
-
-  it('closes on Escape and a press outside, not inside or another key', () => {
-    expect(update({ _tag: 'PanelKeyDown', key: 'Escape' }, open)[0].panel).toBe(
-      'closing',
-    )
-    expect(update({ _tag: 'PanelKeyDown', key: 'a' }, open)[0].panel).toBe(
-      'open',
-    )
-    expect(
-      update({ _tag: 'PanelPointerDown', isInside: false }, open)[0].panel,
-    ).toBe('closing')
-    expect(
-      update({ _tag: 'PanelPointerDown', isInside: true }, open)[0].panel,
-    ).toBe('open')
-  })
-
-  it('stays open while choosing, and a stale fade does not close it', () => {
-    const chosen = update(
-      {
-        _tag: 'ToggleTier',
-        tier: 'full',
-        options: ['reference', 'full', 'superset'],
-      },
-      open,
-    )[0]
-    expect(chosen.panel).toBe('open')
-    const closing = update({ _tag: 'TogglePanel' }, chosen)[0]
-    const reopened = update({ _tag: 'TogglePanel' }, closing)[0]
-    expect(
-      update({ _tag: 'PanelClosed', seq: closing.panelSeq }, reopened)[0].panel,
-    ).toBe('open')
-  })
 })
 
 describe('balancedRows', () => {
@@ -395,25 +351,6 @@ describe('logosPerRowOf', () => {
     expect(logosPerRowOf(768)).toBe(13)
     expect(logosPerRowOf(1280)).toBe(13)
     expect(logosPerRowOf(0)).toBe(1)
-  })
-})
-
-describe('the statuses of a list', () => {
-  it('shows every entry with every box ticked, as with none', () => {
-    expect(
-      filterFrameworks({
-        ...defaultCatalogFilter(),
-        statuses: statusChoiceOf(['active', 'quiet', 'archived']),
-      })(frameworks),
-    ).toEqual(frameworks)
-  })
-
-  it('shows the archive from the default statuses with one press', () => {
-    const shown = update(
-      { _tag: 'ToggleStatus', status: 'archived' },
-      init(defaultCatalogFilter()),
-    )[0].filter.statuses
-    expect(shown).toEqual(anyChoice(true))
   })
 })
 
@@ -530,44 +467,6 @@ describe('otherListMatchesOf', () => {
     ).toEqual(O.none)
   })
 
-  it('does not point on every target chosen', () => {
-    // Every target chosen shows every entry, as no target does
-    expect(
-      otherListMatchesOf({
-        ...defaultCatalogFilter(),
-        targets: choiceOf(targets, [...targets]),
-      }),
-    ).toEqual(O.none)
-    expect(
-      pipe(
-        otherListMatchesOf({
-          ...searchOf('redux'),
-          targets: choiceOf(targets, [...targets]),
-        }),
-        O.map((m) => m.subject),
-      ),
-    ).toEqual(O.some('"redux"'))
-  })
-
-  it('reads every target TEA-adjacent offers as none', () => {
-    // No TEA-adjacent library is a game: its popover offers six targets
-    const six = targetOptionsOf('adjacent')
-    expect(six).not.toContain('game')
-    expect(choiceOf(six, six)).toEqual(anyChoice(true))
-    expect(
-      otherListMatchesOf({
-        ...defaultAdjacentFilter(),
-        targets: choiceOf(six, six),
-      }),
-    ).toEqual(O.none)
-    expect(
-      archivedHintCountOf(adjacentEntries, {
-        ...defaultAdjacentFilter(),
-        targets: choiceOf(six, six),
-      }),
-    ).toBe(0)
-  })
-
   it('reads targets carried with one TEA-adjacent offers left out as narrowing', () => {
     // Everything but TUI on the catalog, game included: on TEA-adjacent it
     // hides the TUI libraries
@@ -597,19 +496,6 @@ describe('otherListMatchesOf', () => {
         }),
       ),
     ).toBe(true)
-  })
-
-  it('names the search alone under every tier chosen', () => {
-    // Every tier chosen narrows nothing, so no filter stays behind
-    expect(
-      pipe(
-        otherListMatchesOf({
-          ...searchOf('redux'),
-          tiers: choiceOf(catalogTiers, ['reference', 'full', 'superset']),
-        }),
-        O.map((m) => m.subject),
-      ),
-    ).toEqual(O.some('"redux"'))
   })
 
   it('finds no TEA-adjacent library in Scala', () => {
@@ -919,25 +805,7 @@ describe('hiddenArchivedCountOf', () => {
         query: ' ',
       }),
     ).toBe(0)
-    // Every tier chosen shows every entry, as no choice does
-    expect(
-      archivedHintCountOf(frameworks, {
-        ...defaultCatalogFilter(),
-        tiers: choiceOf(catalogTiers, ['reference', 'full', 'superset']),
-      }),
-    ).toBe(0)
-    expect(
-      archivedHintCountOf(frameworks, {
-        ...defaultCatalogFilter(),
-        targets: choiceOf(targets, [...targets]),
-      }),
-    ).toBe(0)
-    expect(
-      archivedHintCountOf(adjacentEntries, {
-        ...defaultAdjacentFilter(),
-        lacks: choiceOf(lackables, [...lackables]),
-      }),
-    ).toBe(0)
+    // Every box ticked reads as none: "the lines of a list" above
   })
 
   it('keeps naming the archived ones once they are shown', () => {
