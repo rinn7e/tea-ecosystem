@@ -516,7 +516,7 @@ const searchView = ({
       placeholder='Search by name, language, status, target or idea'
       value={filter.query}
       onChange={(e) => dispatch({ _tag: 'SetQuery', query: e.target.value })}
-      className='border-line bg-panel text-ink placeholder:text-ink-faint focus:border-edge h-[40px] w-full rounded-none border pr-[12px] pl-[38px] text-[0.9375rem] outline-none'
+      className='border-line bg-panel text-ink placeholder:text-ink-faint focus:border-edge h-[40px] w-full rounded-none border pr-[12px] pl-[38px] text-base outline-none lg:text-[0.9375rem]'
     />
   </label>
 )
@@ -650,7 +650,7 @@ const sortMenuView = ({
 }) => {
   const chosen = cardSortOf(filter.sort)
   return (
-    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge focus-within:offset-shadow-edge relative flex h-[38px] items-center border-2 text-[0.9375rem] transition-shadow'>
+    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge focus-within:offset-shadow-edge relative flex h-[38px] items-center border-2 text-base transition-shadow lg:text-[0.9375rem]'>
       <IconArrowsSort
         size={16}
         stroke={1.75}

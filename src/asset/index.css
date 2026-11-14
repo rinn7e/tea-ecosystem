@@ -53,6 +53,9 @@
   --color-native-on-accent: var(--native-on-accent);
   --color-equivalent-on-accent: var(--equivalent-on-accent);
   --color-missing-on-accent: var(--missing-on-accent);
+  /* The fold of the ribbon of a recent card, where it wraps behind the
+   * edge: the accent in shadow */
+  --color-ribbon-fold: var(--ribbon-fold);
   /* Orange of the button that clears the filters */
   --color-reset: var(--reset);
   /* A logo tile: white with dark ink in both modes, as the logo files are
@@ -91,6 +94,7 @@
   --native-on-accent: #7ee36f;
   --equivalent-on-accent: #ffd54a;
   --missing-on-accent: #ff8f7a;
+  --ribbon-fold: #064469;
   --reset: #b54d00;
   color-scheme: light;
 }
@@ -120,6 +124,7 @@
     --native-on-accent: #0f5c09;
     --equivalent-on-accent: #6b4f00;
     --missing-on-accent: #9e2412;
+    --ribbon-fold: #2a6383;
     --reset: #f2994a;
     color-scheme: dark;
   }

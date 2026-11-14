@@ -92,7 +92,7 @@ Shapes:
 
 The Elm site has none; this site keeps one. Dark derives from the same tokens: a deep navy page (`#07131B`), light ink (`#E4EEF4`), a lighter blue (`#4CB4EE`) for links and accents, and the bar in a darker blue (`#0B5F8F`). Box shadows use a dark line (`#22323D`).
 
-Language logos keep their brand color (Simple Icons `hex`) in both modes. A color that would fall under 3:1 against either panel (black Rust, pale Gleam pink, JavaScript yellow) is moved to the nearest shade of it that reaches 3:1 on both (`readableColorOf` in `src/common/data/language-logo/index.ts`), so one color serves both modes and nothing switches with the theme.
+Language logos keep their brand color (Simple Icons `hex`) in both modes. A color that would fall under 3:1 against either panel (black Rust, pale Gleam pink, JavaScript yellow) is moved to the nearest shade of it that reaches 3:1 on both (`readableColorOf` in `src/common/data/language-logo/logo.ts`), so one color serves both modes and nothing switches with the theme.
 
 ## 6. Do not
 

@@ -452,7 +452,7 @@ export const recentRibbonView = () => (
 // behind it (a small darker triangle under it). It takes no presses, so a
 // press on it reaches the card under it.
 export const recentEdgeRibbonView = () => (
-  <span className='pointer-events-none absolute top-[52px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-t-[color-mix(in_srgb,var(--accent)_55%,black)] after:border-r-transparent'>
+  <span className='after:border-t-ribbon-fold pointer-events-none absolute top-[52px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent'>
     <span className='bg-accent text-accent-ink py-[2px] pr-[12px] pl-[16px] text-[0.6875rem] leading-[1.45] whitespace-nowrap [clip-path:polygon(0_0,100%_0,100%_100%,0_100%,8px_50%)]'>
       Recently added
     </span>

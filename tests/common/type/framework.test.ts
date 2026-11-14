@@ -52,6 +52,23 @@ describe('sourceLabelOf', () => {
     )
   })
 
+  it('reads the folder of a monorepo on GitLab and on a Gitea', () => {
+    expect(
+      sourceLabelOf({
+        ...entry('lustre'),
+        repo: 'https://gitlab.com/o/r',
+        source: 'https://gitlab.com/o/r/-/tree/main/pkg',
+      }),
+    ).toBe('gitlab.com/o/r · pkg')
+    expect(
+      sourceLabelOf({
+        ...entry('lustre'),
+        repo: 'https://codeberg.org/o/r',
+        source: 'https://codeberg.org/o/r/src/branch/main/pkg',
+      }),
+    ).toBe('codeberg.org/o/r · pkg')
+  })
+
   it('reads as the host of its page when its source is not public', () => {
     expect(sourceLabelOf(entry('hojicha'))).toBe('docs.rs')
   })

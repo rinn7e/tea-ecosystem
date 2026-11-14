@@ -235,7 +235,9 @@ describe('sort', () => {
     const newest = sortFrameworks(
       O.some({ column: 'added', direction: 'descending' }),
     )(all)
-    expect(newest[0]?.id).toBe('monad-oak')
+    const days = newest.map((f) => f.discoveredAt)
+    expect(days[0]).toBe([...days].sort().at(-1))
+    expect(days).toEqual([...days].sort().reverse())
   })
 
   it('sorts names from A, and turns around on the same column', () => {
@@ -676,7 +678,7 @@ describe('sort menu of the cards', () => {
   it('names a sort only the table makes', () => {
     const byName: ListingSort = { column: 'name', direction: 'ascending' }
     expect(cardSortOf(O.some(byName))).toEqual(O.none)
-    expect(sortLabelOf(byName)).toBe('Name, A to Z')
+    expect(sortLabelOf(byName)).toBe('Framework, A to Z')
     expect(sortLabelOf({ column: 'stars', direction: 'ascending' })).toBe(
       'Stars, fewest first',
     )

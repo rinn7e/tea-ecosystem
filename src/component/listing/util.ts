@@ -520,7 +520,7 @@ const sortWordsOf = (
 ): { name: string; ascending: string; descending: string } => {
   switch (column) {
     case 'name':
-      return { name: 'Name', ascending: 'A to Z', descending: 'Z to A' }
+      return { name: 'Framework', ascending: 'A to Z', descending: 'Z to A' }
     case 'tier':
       return {
         name: 'Tier',
