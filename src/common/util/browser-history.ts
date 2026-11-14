@@ -1,6 +1,8 @@
 import { cmdSucceed } from '@rinn7e/tea-cup-prelude'
 import { type Cmd } from 'tea-cup-fp'
 
+import { pageScrollTop } from './page-scroll'
+
 // The part of the Navigation API this file reads. Not every browser has
 // it, and the DOM types of TypeScript do not declare `window.navigation`.
 type HistoryEntry = { readonly url: string | null }
@@ -55,7 +57,7 @@ const isScrollState = (state: unknown): state is ScrollState =>
 
 // Called by `Link` at the click, before the move is dispatched
 export const saveScrollOfEntry = (): void => {
-  const state: ScrollState = { scrollY: window.scrollY }
+  const state: ScrollState = { scrollY: pageScrollTop() }
   window.history.replaceState(state, '')
 }
 

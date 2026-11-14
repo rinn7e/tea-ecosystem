@@ -1,10 +1,11 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
 import { listOf } from '@/common/data/catalog'
 import { SetGlobalMsgContext } from '@/common/global-context'
 import { recentSinceOf } from '@/common/type/framework'
+import { PAGE_SCROLL_ID, scrollPageTo } from '@/common/util'
 import { backToTopView } from '@/component/back-to-top'
 import { FooterMemo } from '@/component/footer'
 import { type HeaderSection } from '@/component/header'
@@ -118,8 +119,16 @@ const screenView = ({
 // its place (a list never flashes at the top before its scroll comes back)
 const useScrollOf = (scroll: Model['scroll']) => {
   useLayoutEffect(() => {
-    window.scrollTo({ top: scroll.top })
+    scrollPageTo(scroll.top)
   }, [scroll.seq, scroll.top])
+}
+
+// Once at boot, the box the page scrolls in takes the focus (without
+// scrolling), so Space and Page Down scroll the page before any click
+const useFocusOfPageScroll = () => {
+  useEffect(() => {
+    document.getElementById(PAGE_SCROLL_ID)?.focus({ preventScroll: true })
+  }, [])
 }
 
 export const App = ({
@@ -130,30 +139,43 @@ export const App = ({
   dispatch: Dispatcher<Msg>
 }) => {
   useScrollOf(model.scroll)
+  useFocusOfPageScroll()
   return (
     <SetGlobalMsgContext value={dispatch}>
       <TooltipDispatchContext value={dispatch}>
-        {/* On a phone the page leaves room at the bottom for the tab bar */}
-        <div className='bg-page text-ink flex min-h-dvh flex-col pb-[60px] lg:pb-0'>
-          <HeaderMemo
-            active={headerSectionOf(model.screenModel)}
-            now={model.now}
-          />
-          {/* The page ends with more room than it starts with, so the
+        {/* The window never scrolls: the page scrolls in its own box
+            (`page-scroll.ts`), and on a phone the tab bar sits below it,
+            so Safari keeps its toolbar the same size and the page never
+            slides under the bar. The box is focusable, so the keys that
+            scroll a page (Space, Page Down) scroll it, and its scrollbar
+            always holds its place, so a short page does not shift sideways
+            from a long one. */}
+        <div className='bg-page text-ink flex h-dvh flex-col overflow-hidden'>
+          <div
+            id={PAGE_SCROLL_ID}
+            tabIndex={-1}
+            className='flex min-h-0 flex-1 flex-col overflow-y-scroll overscroll-contain outline-hidden'
+          >
+            <HeaderMemo
+              active={headerSectionOf(model.screenModel)}
+              now={model.now}
+            />
+            {/* The page ends with more room than it starts with, so the
               shadow of the last card stays clear of the footer */}
-          <main className='flex flex-1 justify-center px-[16px] pt-[32px] pb-[56px] lg:pt-[48px] lg:pb-[80px]'>
-            <div
-              className={cn(
-                'w-full',
-                isListScreen(model.screenModel)
-                  ? 'max-w-[1080px]'
-                  : 'max-w-[860px]',
-              )}
-            >
-              {screenView({ model, dispatch })}
-            </div>
-          </main>
-          <FooterMemo />
+            <main className='flex flex-1 justify-center px-[16px] pt-[32px] pb-[56px] lg:pt-[48px] lg:pb-[80px]'>
+              <div
+                className={cn(
+                  'w-full',
+                  isListScreen(model.screenModel)
+                    ? 'max-w-[1080px]'
+                    : 'max-w-[860px]',
+                )}
+              >
+                {screenView({ model, dispatch })}
+              </div>
+            </main>
+            <FooterMemo />
+          </div>
           <BottomNavMemo active={headerSectionOf(model.screenModel)} />
           {backToTopView({
             model: model.backToTop,

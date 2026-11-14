@@ -158,9 +158,9 @@ html {
   /* No zoom on a double tap, so quick taps on the bars and buttons are
    * taps (and no delay waiting for a second one); a pinch still zooms */
   touch-action: manipulation;
-  /* The scrollbar always holds its place, so a short page does not shift
-   * sideways from a long one */
-  overflow-y: scroll;
+  /* The window never scrolls (the page scrolls in its own box, `App`), so
+   * it never bounces either */
+  overscroll-behavior: none;
   background: var(--page);
 }
 

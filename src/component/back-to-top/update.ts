@@ -1,6 +1,8 @@
 import { cmdSucceed } from '@rinn7e/tea-cup-prelude'
 import { Cmd } from 'tea-cup-fp'
 
+import { scrollPageTo } from '@/common/util'
+
 import { type Model, type Msg } from './type'
 
 // How far down the page (in px) the button shows
@@ -10,12 +12,12 @@ export const init = (): Model => ({ isShown: false })
 
 const scrollToTopCmd = (): Cmd<Msg> =>
   cmdSucceed(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    scrollPageTo(
+      0,
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'auto'
         : 'smooth',
-    })
+    )
   })
 
 export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {

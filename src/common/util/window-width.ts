@@ -1,6 +1,8 @@
 import { DocumentEvents, WindowEvents } from 'react-tea-cup'
 import { Sub } from 'tea-cup-fp'
 
+import { pageWidth } from './page-scroll'
+
 // The width of the window, kept in the root model (`windowWidth`): read in
 // `init` and on every change, so views read it from the model. It is the
 // width the page lays out in (`clientWidth`, without the scrollbar), not
@@ -15,7 +17,7 @@ export const breakpoints = {
   lg: 1024,
 }
 
-export const windowWidthOf = (): number => document.documentElement.clientWidth
+export const windowWidthOf = (): number => pageWidth()
 
 const windowEvents = new WindowEvents()
 const documentEvents = new DocumentEvents()

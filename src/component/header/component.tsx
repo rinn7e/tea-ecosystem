@@ -210,11 +210,12 @@ const bottomTabView = ({
 )
 
 // The links of the top bar in the same order, the emblem (the catalog) on
-// the axis. Hidden from the `lg` width up, where the top bar has them.
+// the axis, below the box the page scrolls in (`App`), not over it. Hidden
+// from the `lg` width up, where the top bar has them.
 const BottomNavComponent = ({ active }: BottomNavProps) => (
   <nav
     aria-label='Pages'
-    className='border-line bg-panel fixed inset-x-0 bottom-0 z-30 grid h-[60px] grid-cols-5 border-t pb-[env(safe-area-inset-bottom)] lg:hidden'
+    className='border-line bg-panel z-30 grid shrink-0 grid-cols-5 grid-rows-[60px] border-t pb-[env(safe-area-inset-bottom)] lg:hidden'
   >
     {bottomTabView({
       label: 'about',
