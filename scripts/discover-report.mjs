@@ -40,7 +40,7 @@ export const reportOf = (messages, artifact) => {
     return endedWellOf(result) && typeof result.result === 'string'
       ? result.result
       : [
-          `No report: the agent did not finish (${whyOf(result)}). Its full transcript is the artifact \`${artifact}\` of this run.`,
+          `No report: the agent did not finish (${whyOf(result)}). Its full transcript is the artifact \`${artifact}\` of this run, unless it held a secret.`,
           ...(last === undefined ? [] : ['', 'What it said last:', '', last]),
         ].join('\n')
   }

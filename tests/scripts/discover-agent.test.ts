@@ -11,7 +11,6 @@ import {
   promptOf,
   redactOf,
   run,
-  secretsOf,
   shownOf,
 } from '../../scripts/discover-agent.mjs'
 
@@ -61,6 +60,24 @@ describe('the options of the discovery agent', () => {
         'Bash(pnpm run test)',
         'Bash(gh repo view *)',
         'Bash(gh search repos *)',
+      ],
+      // No commit message from a file: the spellings Claude Code matches
+      disallowedTools: [
+        'Bash(git commit -F*)',
+        'Bash(git commit * -F*)',
+        'Bash(git commit -t*)',
+        'Bash(git commit * -t*)',
+        'Bash(git commit *-*F *)',
+        'Bash(git commit *-*F/*)',
+        'Bash(git commit *--fil*)',
+        'Bash(git commit *--te*)',
+        'Bash(git commit *--c*)',
+        'Bash(git commit *--allow-empty-*)',
+        'Bash(git commit *"-*)',
+        'Bash(git commit *-"*)',
+        "Bash(git commit *'-*)",
+        "Bash(git commit *-'*)",
+        'Bash(git commit *\\\\\\\\*)',
       ],
       permissionMode: 'dontAsk',
       settingSources: [],
@@ -279,17 +296,6 @@ describe('the live log of the discovery agent', () => {
       )
     },
   )
-
-  it('hide the key and the tokens, not a value too short to be one', () => {
-    expect(
-      secretsOf({
-        ANTHROPIC_API_KEY: key,
-        GH_TOKEN: '12345678',
-        GITHUB_TOKEN: '1234567',
-        HOME: '/home/runner',
-      }),
-    ).toEqual([key, '12345678'])
-  })
 
   test.prop([fc.anything()])(
     'never throw on a message of an unknown shape',

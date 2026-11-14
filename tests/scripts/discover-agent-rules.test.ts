@@ -9,7 +9,6 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
-import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -27,17 +26,30 @@ import { scriptOf } from '../helper/script-repo'
 // here. Found on the first run (14 Nov 2026): a `Write(...)` rule never
 // matches, the Write tool follows the `Edit(...)` rules; and Claude Code
 // allows the options of a read-only command such as `git log` on its own,
-// but not `--output` or a redirect to a file.
+// but not `--output` or a redirect to a file. The deny rules of
+// `DENIED_TOOLS` each have a commit that only they turn back, which would
+// copy a file that holds the key into a message (all but the plain
+// template cases, which git turns back on its own); the run must end with
+// no commit that holds it.
 
 type Case = { call: Call; allowed: boolean; writes?: string }
 
 // Made in `beforeAll` and removed in `afterAll`, so a skipped suite leaves
 // nothing behind
-const root = path.join(realpathSync(tmpdir()), `discover-agent-${randomUUID()}`)
+// Under `/tmp`, not the temp folder of the machine: the commands of the
+// cases hold this path, and Claude Code matches the deny rules on their
+// text, so a folder such as `-claude--worktrees-` (`--c`) would make every
+// case match one rule, and a rule taken out would go unseen. The guard in
+// `beforeAll` keeps it to lowercase words with single dashes.
+const root = path.join(realpathSync('/tmp'), `discover-agent-${randomUUID()}`)
 const repo = path.join(root, 'repo')
 const inRepo = (file: string): string => path.join(repo, file)
 const outside = (file: string): string => path.join(root, file)
 const key = 'sk-ant-test-not-a-key'
+// A file with the key in it, as the agent could write one in a real run
+// (`/proc/self/environ` itself holds NUL bytes, which git refuses in a
+// message)
+const environ = outside('environ')
 
 const write = (file: string): Call => ({
   name: 'Write',
@@ -140,6 +152,42 @@ const cases: Case[] = [
   denied(bash('git config core.hooksPath data')),
   denied(bash('curl -s http://127.0.0.1:1')),
   denied(bash('gh api user')),
+  // A commit message from a file, in each spelling of `DENIED_TOOLS`. Each
+  // one would commit with the key in its message if it ran
+  // (`--allow-empty`), except a template on its own: git turns back an
+  // unedited one, unless `--cleanup=verbatim` or `--allow-empty-message`
+  // says otherwise, which are the last two template cases
+  denied(bash(`git commit -F ${environ} --allow-empty`)),
+  denied(bash(`git commit -q -F ${environ} --allow-empty`)),
+  denied(bash(`git commit --allow-empty -F${environ}`)),
+  // Relative to the work tree, as no rule of a cluster catches it
+  denied(bash('git commit -F../environ --allow-empty')),
+  denied(bash('git commit --allow-empty -F../environ')),
+  denied(bash(`git commit --allow-empty -qF ${environ}`)),
+  denied(bash(`git commit --allow-empty -qF${environ}`)),
+  denied(bash(`git commit --allow-empty --file=${environ}`)),
+  denied(bash(`git commit --allow-empty --fil ${environ}`)),
+  denied(bash(`git commit --allow-empty --template=${environ} --no-edit`)),
+  denied(bash(`git commit -t ${environ} --allow-empty --no-edit`)),
+  denied(bash(`git commit --allow-empty -t ${environ} --no-edit`)),
+  denied(
+    bash(
+      `git commit --allow-empty -qt ${environ} --cleanup=verbatim --no-edit`,
+    ),
+  ),
+  denied(
+    bash(
+      `git commit --allow-empty --allow-empty-message --no-edit -qt ${environ}`,
+    ),
+  ),
+  denied(bash(`git commit --allow-empty "-F" ${environ}`)),
+  denied(bash(`git commit --allow-empty -"F" ${environ}`)),
+  denied(bash(`git commit --allow-empty '-F' ${environ}`)),
+  denied(bash(`git commit --allow-empty -'F' ${environ}`)),
+  denied(bash('git commit --allow-empty -\\F../environ')),
+  // The messages the agent writes still pass the deny rules
+  allowed(bash("git commit --allow-empty -q -m 'Add F# Elmish for Fable'")),
+  allowed(bash("git commit --allow-empty -qm 'Add elm-tea at the top'")),
 ]
 
 // The ids of the calls the run denied: the `permission_denials` of its
@@ -249,6 +297,9 @@ const git = (...args: string[]): void => {
 
 describe('the permission rules of the discovery agent, in Claude Code', () => {
   beforeAll(async () => {
+    if (!/^(?:[a-z0-9/]|-(?!-))+$/.test(root)) {
+      throw new Error(`a deny rule could match the folder of the test: ${root}`)
+    }
     ;['data/snippet', 'src', 'tests', 'bin'].forEach((dir) =>
       mkdirSync(path.join(dir === 'bin' ? root : repo, dir), {
         recursive: true,
@@ -259,6 +310,7 @@ describe('the permission rules of the discovery agent, in Claude Code', () => {
     writeFileSync(inRepo('data/frameworks.json'), '[]\n')
     writeFileSync(inRepo('data/adjacent.json'), '[]\n')
     writeFileSync(inRepo('src/main.ts'), 'main\n')
+    writeFileSync(environ, `HOME=/home/runner\nANTHROPIC_API_KEY=${key}\n`)
     // The checks of the repository, as stubs: the rule is what is tested
     writeFileSync(
       inRepo('package.json'),
@@ -345,6 +397,16 @@ describe('the permission rules of the discovery agent, in Claude Code', () => {
         readFileSync(inRepo(file), 'utf8'),
       ),
     ).toEqual(['[ ]\n', '[ ]\n'])
+  })
+
+  it('make no commit that holds the key', () => {
+    const log = spawnSync('git', ['log', '--all', '--format=%an %ae%n%B'], {
+      cwd: repo,
+      env: gitEnv,
+      encoding: 'utf8',
+    })
+    expect(log.stdout).toContain('Add F# Elmish for Fable')
+    expect(log.stdout).not.toContain(key)
   })
 
   it('write a file only through a call that is allowed', () => {

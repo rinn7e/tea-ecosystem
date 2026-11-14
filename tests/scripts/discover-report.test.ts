@@ -17,7 +17,7 @@ const said = (text: string) => ({
 })
 const init = { type: 'system', subtype: 'init' }
 const artifact = 'discover-transcript-2'
-const stopped = `Its full transcript is the artifact \`${artifact}\` of this run.`
+const stopped = `Its full transcript is the artifact \`${artifact}\` of this run, unless it held a secret.`
 const reportIn = (messages: unknown[]): string => reportOf(messages, artifact)
 const ended = (more: Record<string, unknown>) => ({
   type: 'result',

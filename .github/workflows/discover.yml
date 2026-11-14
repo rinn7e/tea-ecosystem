@@ -20,7 +20,14 @@ name: Discover
 # whole: its token can only read, it saves no cache that a later job
 # restores, and all it hands on is a bundle of the branch, which the second
 # job (with no agent) checks before anything of it is pushed. Only that
-# second job may write.
+# second job may write. What leaves the search job is its log, its summary,
+# the `outputs` of the job (which its scripts set, never the agent) and two
+# artifacts: the transcript of the agent and the bundle of the branch, with
+# the commits of the agent and their messages as they are.
+# Any signed-in GitHub user can download the artifacts of a public
+# repository, and GitHub masks secrets only in the log, so each upload is
+# checked first for the values of the key and the token of the job, and
+# skipped with an error when one turns up (`scripts/check-secrets.mjs`).
 on:
   schedule:
     # Mondays at 06:00 UTC
@@ -126,8 +133,10 @@ jobs:
       # SDK), which prints one line per step, so the run can be followed
       # live in this log. The agent can still read its own environment, the
       # API key included: the job holds nothing that can write, and the
-      # owner caps the spend of the key. Its commits need a name, which
-      # never leaves the run (the propose job makes a commit of its own).
+      # owner caps the spend of the key; its rules deny most spellings of
+      # the options of `git commit` that read a file, and the bundle step
+      # checks what gets through. Its commits need a name, which never
+      # reaches the repository (the propose job makes a commit of its own).
       # The timeout is below the one of the job, so what the agent committed
       # before it still reaches the next job.
       - id: agent
@@ -171,8 +180,19 @@ jobs:
       # The full transcript of the agent (every message, call and result),
       # also after a failure or a timeout. Any signed-in GitHub user can
       # download the artifacts of a public repository: the script writes
-      # the key and the tokens into it as `***`
-      - if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
+      # the key and the tokens into it as `***`, and a transcript that still
+      # holds one is not uploaded
+      - id: transcript
+        if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
+        run: |
+          if [ -e "$EXECUTION_FILE" ]; then
+            node scripts/check-secrets.mjs 'The transcript of the agent' < "$EXECUTION_FILE"
+          fi
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          EXECUTION_FILE: ${{ runner.temp }}/discover-execution.json
+      - if: ${{ !cancelled() && steps.transcript.outcome == 'success' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           # One a try of the run, so a re-run keeps the transcript of the
@@ -183,11 +203,14 @@ jobs:
           if-no-files-found: ignore
 
       # The branch of the run goes to the next job as a bundle, when it has
-      # a commit (`scripts/bundle-discovered.sh`)
+      # a commit and holds no value of the key or the token
+      # (`scripts/bundle-discovered.sh`)
       - id: bundle
         if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
         run: scripts/bundle-discovered.sh "$RUNNER_TEMP/discover.bundle"
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
           BASE: ${{ steps.context.outputs.base }}
           DAY: ${{ steps.context.outputs.day }}
           BRANCH: ${{ steps.context.outputs.branch }}
