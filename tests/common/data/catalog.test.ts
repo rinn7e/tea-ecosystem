@@ -10,9 +10,9 @@ import {
   rubricProblemsOf,
 } from '@/common/data/catalog'
 import {
+  FIRST_LIST_DAY,
   hasPublicRepo,
   isLanguageEntry,
-  isRepoUrl,
 } from '@/common/type/framework'
 
 describe('data files', () => {
@@ -90,11 +90,7 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
-  it('fall back to the website as repo only for an entry with no public source', () => {
-    const wrong = [...frameworks, ...adjacentEntries].filter(
-      (f) => !isRepoUrl(f.repo) && f.website !== f.repo,
-    )
-    expect(wrong.map((f) => f.id)).toEqual([])
+  it('fall back to the website as repo only for the entries with no public source', () => {
     expect(
       [...frameworks, ...adjacentEntries]
         .filter((f) => !hasPublicRepo(f))
@@ -117,7 +113,7 @@ describe('data files', () => {
   it('give every entry the day it was added, not before the first list', () => {
     const day = /^\d{4}-\d{2}-\d{2}$/
     const wrong = [...frameworks, ...adjacentEntries].filter(
-      (f) => !day.test(f.discoveredAt) || f.discoveredAt < '2026-11-13',
+      (f) => !day.test(f.discoveredAt) || f.discoveredAt < FIRST_LIST_DAY,
     )
     expect(wrong.map((f) => f.id)).toEqual([])
   })

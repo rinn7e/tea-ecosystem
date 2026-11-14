@@ -116,8 +116,8 @@ export type Framework = {
   // Its repository, as a full URL of owner and name on any host (GitHub,
   // GitLab, Codeberg or another Gitea): where its source links go, and
   // where its stars and dates come from. When its source is not public,
-  // it falls back to its website, and `website` holds the same URL
-  // (`hasPublicRepo` tells the two apart by the host).
+  // it falls back to its website, and `website` holds the same URL, which
+  // is how `hasPublicRepo` tells the two apart.
   repo: string
   // Its own website or docs, apart from its repository (sky-lang.org for
   // Sky), shown under the summary of its page when it is not its source.
@@ -200,26 +200,12 @@ export const isLanguageEntry = (framework: Framework): boolean =>
 
 const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
 
-// A repository on a code host: GitHub, a GitLab, Codeberg or another
-// Gitea, at the address of its owner and name. Anything else in `repo` is
-// the website an entry with no public source falls back to (a package
-// registry such as docs.rs).
-export const isRepoUrl = (url: string): boolean => {
-  const host = hostOf(url)
-  return (
-    (host === 'github.com' ||
-      host === 'gitlab.com' ||
-      host.startsWith('gitlab.') ||
-      host === 'codeberg.org' ||
-      host.startsWith('gitea.')) &&
-    /^\/[^/\s]+\/[^/\s]+\/?$/.test(new URL(url).pathname)
-  )
-}
-
 // Whether its source is public: its `repo` is a repository, not the
-// website it falls back to. Only then does it have stars and dates.
+// website it falls back to, which the data marks by giving `website` the
+// same URL. Only then does it have stars and dates.
 export const hasPublicRepo = (framework: Framework): boolean =>
-  isRepoUrl(framework.repo)
+  framework.website === undefined ||
+  framework.repo.replace(/\/$/, '') !== framework.website.replace(/\/$/, '')
 
 // Where its source lives: its directory in a monorepo or its reference
 // page (`source`), else its repository (the website of an entry whose

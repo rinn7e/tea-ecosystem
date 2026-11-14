@@ -6,8 +6,8 @@ import { frameworkById } from '@/common/data/catalog'
 import {
   FIRST_LIST_DAY,
   type Framework,
+  hasPublicRepo,
   isRecentlyAdded,
-  isRepoUrl,
   recentSinceOf,
   sourceLabelOf,
   sourceUrlOf,
@@ -93,18 +93,20 @@ describe('isRecentlyAdded', () => {
   })
 })
 
-describe('isRepoUrl', () => {
-  it('reads a repository on a code host by its owner and name', () => {
-    expect(isRepoUrl('https://github.com/lustre-labs/lustre')).toBe(true)
-    expect(isRepoUrl('https://codeberg.org/JasterV/teatui')).toBe(true)
-    expect(isRepoUrl('https://gitlab.com/owner/name')).toBe(true)
+describe('hasPublicRepo', () => {
+  it('reads a repo that is its own website as no public source', () => {
+    expect(hasPublicRepo(entry('hojicha'))).toBe(false)
   })
 
-  it('reads a website, a registry page or a folder as no repository', () => {
-    expect(isRepoUrl('https://docs.rs/crate/hojicha')).toBe(false)
-    expect(isRepoUrl('https://sky-lang.org')).toBe(false)
+  it('reads a repository on any host as public, with or without a website', () => {
+    expect(hasPublicRepo(entry('lustre'))).toBe(true)
+    expect(hasPublicRepo(entry('sky'))).toBe(true)
+    expect(hasPublicRepo(entry('teatui'))).toBe(true)
     expect(
-      isRepoUrl('https://github.com/monad-lang/monad/tree/main/motes/oak'),
-    ).toBe(false)
+      hasPublicRepo({
+        ...entry('lustre'),
+        repo: 'https://git.example.org/owner/name',
+      }),
+    ).toBe(true)
   })
 })

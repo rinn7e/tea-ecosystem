@@ -1,8 +1,9 @@
 // Fills `stars`, `createdAt` and `updatedAt` of every entry whose `repo`
-// is a repository (`isRepoUrl`) in `data/frameworks.json` and
-// `data/adjacent.json`, from the API of the host in the URL of its `repo`.
-// An entry with no public source has its website in `repo` instead, and is
-// left as it is:
+// is a repository in `data/frameworks.json` and `data/adjacent.json`, from
+// the API of the host in the URL of its `repo`. An entry with no public
+// source has its website in `repo` instead, with the same URL in `website`
+// (`hasPublicRepo` in `src/common/type/framework.ts`), and is left as it
+// is:
 //
 // - GitHub (`github.com`): `updatedAt` is the last push (`pushed_at`, not
 //   `updated_at`, which a star also changes).
@@ -31,20 +32,12 @@ const USER_AGENT = 'tea-ecosystem (+https://github.com/rinn7e/tea-ecosystem)'
 
 const dayOf = (timestamp) => timestamp.slice(0, 10)
 
-// A repository on a code host, at the address of its owner and name: the
-// same rule as `isRepoUrl` in `src/common/type/framework.ts`
-const isRepoUrl = (url) => {
-  const { host, pathname } = new URL(url)
-  const site = host.replace(/^www\./, '')
-  return (
-    (site === 'github.com' ||
-      site === 'gitlab.com' ||
-      site.startsWith('gitlab.') ||
-      site === 'codeberg.org' ||
-      site.startsWith('gitea.')) &&
-    /^\/[^/\s]+\/[^/\s]+\/?$/.test(pathname)
-  )
-}
+// Whether the source of an entry is public: the same rule as
+// `hasPublicRepo` in `src/common/type/framework.ts`, an entry with no public
+// source giving `website` the URL of its `repo`
+const hasPublicRepo = (entry) =>
+  entry.website === undefined ||
+  entry.repo.replace(/\/$/, '') !== entry.website.replace(/\/$/, '')
 
 const getJson = async (url, extraHeaders) => {
   const response = await fetch(url, {
@@ -121,7 +114,7 @@ for (const file of FILES) {
   const entries = JSON.parse(await readFile(file, 'utf8'))
   const updated = []
   for (const entry of entries) {
-    if (!isRepoUrl(entry.repo)) {
+    if (!hasPublicRepo(entry)) {
       updated.push(entry)
     } else {
       try {
