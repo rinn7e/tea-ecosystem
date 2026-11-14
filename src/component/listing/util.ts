@@ -6,12 +6,17 @@ import { pipe } from 'fp-ts/function'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 
-import { type ListKind, entriesOf } from '@/common/data/catalog'
+import {
+  type ListKind,
+  entriesOf,
+  targetOptionsOf,
+} from '@/common/data/catalog'
 import {
   languagePopularity,
   pinnedLanguages,
 } from '@/common/data/language-popularity'
 import {
+  type Choice,
   type Destination,
   type ListingFilter,
   type ListingSort,
@@ -19,12 +24,16 @@ import {
   type SortColumn,
   type SortDirection,
   adjacentScreen,
+  anyChoice,
   catalogScreen,
-  catalogTiers,
+  choiceOf,
   defaultListingFilter,
-  defaultStatuses,
   destinationOfScreen,
-  lackables,
+  isAnyTicked,
+  narrowsChoice,
+  passesChoice,
+  passesStatus,
+  statusChoiceOf,
 } from '@/common/type/destination'
 import {
   type Concept,
@@ -36,8 +45,6 @@ import {
   concepts,
   isLanguageEntry,
   languagesOf,
-  statuses,
-  targets,
 } from '@/common/type/framework'
 import { breakpoints } from '@/common/util/window-width'
 import {
@@ -138,16 +145,12 @@ export const filterFrameworks =
       frameworks,
       A.filter(
         (framework) =>
-          (filter.tiers.length === 0 ||
-            filter.tiers.includes(framework.tier)) &&
-          (filter.lacks.length === 0 ||
-            filter.lacks.some((concept) => lacks(concept)(framework))) &&
-          (filter.targets.length === 0 ||
-            filter.targets.some((target) =>
-              framework.targets.includes(target),
-            )) &&
-          (filter.statuses.length === 0 ||
-            filter.statuses.includes(framework.status)) &&
+          passesChoice(filter.tiers, (tier) => tier === framework.tier) &&
+          passesChoice(filter.lacks, (concept) => lacks(concept)(framework)) &&
+          passesChoice(filter.targets, (target) =>
+            framework.targets.includes(target),
+          ) &&
+          passesStatus(filter.statuses, framework.status) &&
           matchesEntryKind(filter)(framework) &&
           pipe(
             filter.language,
@@ -164,16 +167,18 @@ export const filterFrameworks =
 export const otherListOf = (kind: ListKind): ListKind =>
   kind === 'catalog' ? 'adjacent' : 'catalog'
 
-// How many archived entries of a list match its filter while the archive
+// The archived entries of a list that match its filter while the archive
 // is hidden (the statuses leave archived out): what "Show the archived"
 // would add. None while the archived entries are shown already.
 export const hiddenArchivedCountOf = (
   entries: Framework[],
   filter: ListingFilter,
 ): number =>
-  filter.statuses.length === 0 || filter.statuses.includes('archived')
+  passesStatus(filter.statuses, 'archived')
     ? 0
-    : filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
+    : filterFrameworks({ ...filter, statuses: statusChoiceOf(['archived']) })(
+        entries,
+      ).length
 
 // An entry of a list in words, one or several: "1 framework" on the
 // catalog, "2 libraries" on the TEA-adjacent page
@@ -186,57 +191,53 @@ export const entryNounOf = (kind: ListKind, count: number): string =>
       ? 'library'
       : 'libraries'
 
-// The targets the entries of a list run on, in the order of `targets`: the
-// ones its popover offers (TEA-adjacent has no game library)
-export const targetOptionsOf = (entries: Framework[]): Target[] =>
-  targets.filter((target) => entries.some((f) => f.targets.includes(target)))
+// A choice of targets as the other list reads it, among its `options`:
+// the ones it offers kept, none when it offers none of them
+const carriedTargetsOf = (
+  options: Target[],
+  choice: Choice<Target>,
+): O.Option<Choice<Target>> =>
+  choice._tag === 'Any'
+    ? O.some(anyChoice<Target>(choice.allSelected))
+    : pipe(
+        options.filter((option) => choice.chosen.includes(option)),
+        O.fromPredicate((kept) => kept.length > 0),
+        O.map((kept) => choiceOf(options, kept)),
+      )
 
 // The part of a filter of list `kind` that means the same on both lists:
 // the search, the language, the targets and the statuses, with the layout
 // and the sort. The tiers, what an adjacent library lacks and the kind of
-// entry belong to one list only, and stay behind. Every target the list
-// offers chosen narrows nothing there, so it is carried as none.
+// entry belong to one list only, and stay behind. The targets become a
+// choice among the ones the other list offers (`targetOptionsOf`); none
+// when it offers none of those chosen, so nothing there can match.
 export const carriedFilterOf = (
   kind: ListKind,
   filter: ListingFilter,
-): ListingFilter => ({
-  ...defaultListingFilter(),
-  query: filter.query.trim(),
-  language: filter.language,
-  targets: narrowsChoice(filter.targets, targetOptionsOf(entriesOf(kind)))
-    ? filter.targets
-    : [],
-  statuses: filter.statuses,
-  layout: filter.layout,
-  sort: filter.sort,
-})
-
-const isDefaultStatuses = (statuses: Status[]): boolean =>
-  A.getEq(S.Eq).equals(statuses, defaultStatuses())
-
-// Whether a choice of a filter of the popover leaves some options out:
-// none chosen, or every one, shows every entry (`toggleChoice`). Judged by
-// the options left out, not by how many are chosen: a choice can hold one
-// the list does not offer (`game` carried to TEA-adjacent).
-const narrowsChoice = <A>(
-  chosen: readonly A[],
-  options: readonly A[],
-): boolean =>
-  chosen.length > 0 && options.some((option) => !chosen.includes(option))
+): O.Option<ListingFilter> =>
+  pipe(
+    carriedTargetsOf(targetOptionsOf(otherListOf(kind)), filter.targets),
+    O.map((carried) => ({
+      ...defaultListingFilter(),
+      query: filter.query.trim(),
+      language: filter.language,
+      targets: carried,
+      statuses: filter.statuses,
+      layout: filter.layout,
+      sort: filter.sort,
+    })),
+  )
 
 // Whether a filter narrows the list enough that its archived entries are
 // news: a search with more than spaces, a language, some targets, tiers or
-// concepts an adjacent library lacks, or the kind of entry (choosing every
-// option of one narrows nothing, every target the list offers included)
-const narrowsForArchive = (
-  entries: Framework[],
-  filter: ListingFilter,
-): boolean =>
+// concepts an adjacent library lacks (not every one, `narrowsChoice`), or
+// the kind of entry
+const narrowsForArchive = (filter: ListingFilter): boolean =>
   filter.query.trim() !== '' ||
   O.isSome(filter.language) ||
-  narrowsChoice(filter.targets, targetOptionsOf(entries)) ||
-  narrowsChoice(filter.tiers, catalogTiers) ||
-  narrowsChoice(filter.lacks, lackables) ||
+  narrowsChoice(filter.targets) ||
+  narrowsChoice(filter.tiers) ||
+  narrowsChoice(filter.lacks) ||
   O.isSome(filter.show)
 
 // How many archived entries the line above the results of a list names:
@@ -248,46 +249,42 @@ export const archivedHintCountOf = (
   entries: Framework[],
   filter: ListingFilter,
 ): number =>
-  isDefaultStatuses(filter.statuses) && narrowsForArchive(entries, filter)
+  filter.statuses._tag === 'Default' && narrowsForArchive(filter)
     ? hiddenArchivedCountOf(entries, filter)
     : 0
 
 // How many archived entries the same line names once "Show the archived"
-// added them: under the statuses that button leads to (the default ones
-// and archived) and a filter that narrows the list, the archived entries
+// added them: under every status box ticked (where that button leads from
+// the default, and where the pointer to the archived matches of the other
+// list opens) and a filter that narrows the list, the archived entries
 // that match it, so the line stays and offers to hide them again. None
 // under any other statuses, which the reader chose in the popover.
 export const shownArchivedCountOf = (
   entries: Framework[],
   filter: ListingFilter,
 ): number =>
-  A.getEq(S.Eq).equals(filter.statuses, [...defaultStatuses(), 'archived']) &&
-  narrowsForArchive(entries, filter)
-    ? filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
+  filter.statuses._tag === 'Any' &&
+  filter.statuses.allSelected &&
+  narrowsForArchive(filter)
+    ? filterFrameworks({ ...filter, statuses: statusChoiceOf(['archived']) })(
+        entries,
+      ).length
     : 0
 
-// Whether statuses leave out some of what a list shows by default: not
-// the default ones, and not every status (none chosen, or all three), which
-// widens a list instead
-const narrowsStatuses = (chosen: Status[]): boolean =>
-  !isDefaultStatuses(chosen) &&
-  chosen.length > 0 &&
-  chosen.length < statuses.length
-
-// Whether a carried filter narrows the other list at all (`carriedFilterOf`
-// already carries every target chosen as none)
+// Whether a carried filter narrows the other list at all: statuses narrow
+// only when they leave out some of what a list shows by default (`Only`);
+// the default ones, or every one, do not
 const narrowsOtherList = (carried: ListingFilter): boolean =>
   carried.query !== '' ||
   O.isSome(carried.language) ||
-  carried.targets.length > 0 ||
-  narrowsStatuses(carried.statuses)
+  narrowsChoice(carried.targets) ||
+  carried.statuses._tag === 'Only'
 
 // Whether a filter that belongs to one list only narrows it: it stays
 // behind, so the pointer cannot say the other list matches "these filters"
-// (every tier or lack chosen narrows nothing, as none does)
 const hasOneListFilter = (filter: ListingFilter): boolean =>
-  narrowsChoice(filter.tiers, catalogTiers) ||
-  narrowsChoice(filter.lacks, lackables) ||
+  narrowsChoice(filter.tiers) ||
+  narrowsChoice(filter.lacks) ||
   O.isSome(filter.show)
 
 // What the pointer to the other list says and opens (`otherListMatchesOf`)
@@ -304,32 +301,39 @@ export type OtherListMatches = {
 // when every filter on is carried, else "the filters that apply there". The
 // entries the other list shows by default come first; when none of them
 // match and the statuses are the default ones, its archived entries
-// (`isArchived`), shown with every status. None when no carried filter
-// narrows the other list (`narrowsOtherList`: statuses that widen it do
-// not), or the other list does not match it at all.
+// (`isArchived`), shown with every status box ticked, so the archived line
+// there offers to hide them. None when no carried filter narrows the other
+// list (`narrowsOtherList`), or the other list does not match it at all.
 export const otherListMatchesOf = (
   kind: ListKind,
   filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
   const entries = entriesOf(otherListOf(kind))
-  const carried = carriedFilterOf(kind, filter)
-  const subject =
-    carried.query !== '' &&
-    O.isNone(carried.language) &&
-    carried.targets.length === 0 &&
-    !narrowsStatuses(carried.statuses)
-      ? `"${carried.query}"`
-      : hasOneListFilter(filter)
-        ? 'the filters that apply there'
-        : 'these filters'
-  const tries = [
-    { filter: carried, isArchived: false },
-    ...(isDefaultStatuses(carried.statuses)
-      ? [{ filter: { ...carried, statuses: [] }, isArchived: true }]
-      : []),
-  ]
-  return narrowsOtherList(carried)
-    ? pipe(
+  return pipe(
+    carriedFilterOf(kind, filter),
+    O.filter(narrowsOtherList),
+    O.chain((carried) => {
+      const subject =
+        carried.query !== '' &&
+        O.isNone(carried.language) &&
+        !narrowsChoice(carried.targets) &&
+        carried.statuses._tag !== 'Only'
+          ? `"${carried.query}"`
+          : hasOneListFilter(filter)
+            ? 'the filters that apply there'
+            : 'these filters'
+      const tries = [
+        { filter: carried, isArchived: false },
+        ...(carried.statuses._tag === 'Default'
+          ? [
+              {
+                filter: { ...carried, statuses: anyChoice<Status>(true) },
+                isArchived: true,
+              },
+            ]
+          : []),
+      ]
+      return pipe(
         tries,
         A.findFirstMap(({ filter: shown, isArchived }) =>
           pipe(
@@ -344,7 +348,8 @@ export const otherListMatchesOf = (
           ),
         ),
       )
-    : O.none
+    }),
+  )
 }
 
 // What a list says about the matches in the other list, under its
@@ -387,11 +392,13 @@ export const otherListLinkOf = (
         label: 'Show in Main catalog',
       }
 
+// Whether anything is ticked or typed: Clear filters shows, also for a
+// choice with every box ticked, which stays ticked on screen
 export const isFiltered = (filter: ListingFilter): boolean =>
-  filter.tiers.length > 0 ||
-  filter.lacks.length > 0 ||
-  filter.targets.length > 0 ||
-  !A.getEq(S.Eq).equals(filter.statuses, defaultStatuses()) ||
+  isAnyTicked(filter.tiers) ||
+  isAnyTicked(filter.lacks) ||
+  isAnyTicked(filter.targets) ||
+  filter.statuses._tag !== 'Default' ||
   filter.query !== '' ||
   O.isSome(filter.show) ||
   O.isSome(filter.language)

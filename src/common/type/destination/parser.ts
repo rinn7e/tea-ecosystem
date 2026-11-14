@@ -11,16 +11,23 @@ import {
   str,
   zero,
 } from '@rinn7e/fp-ts-routing'
-import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import * as RA from 'fp-ts/ReadonlyArray'
 import { pipe } from 'fp-ts/function'
-import * as S from 'fp-ts/string'
 import * as t from 'io-ts'
 
+import { type ListKind, targetOptionsOf } from '@/common/data/catalog'
 import { BASE_URL } from '@/common/env'
-import { type Status, statuses, targets } from '@/common/type/framework'
+import { statuses } from '@/common/type/framework'
 
+import {
+  type StatusChoice,
+  anyChoice,
+  choiceOf,
+  defaultStatusChoice,
+  statusChoiceOf,
+  tickedOf,
+} from './choice'
 import {
   type BuildLanguage,
   type Destination,
@@ -34,7 +41,6 @@ import {
   buildScreen,
   catalogScreen,
   catalogTiers,
-  defaultStatuses,
   firstDirectionOf,
   frameworkScreen,
   lackables,
@@ -122,27 +128,33 @@ const anyStrings = new Match<object>(
   new Formatter((r) => r),
 )
 
-// The known values of `options` a list names, in their order, so an old
-// or mistyped link still opens
-const choicesOf =
-  <A extends string>(options: readonly A[]) =>
-  (value: string | undefined): A[] => {
-    const named = (value ?? '').split(',')
-    return options.filter((option) => named.includes(option))
-  }
+// The values a list names: `?tier=full,superset`
+const namedOf = (value: string | undefined): string[] =>
+  (value ?? '').split(',')
 
-// `status` names the statuses shown, `all` for no choice (every one);
-// none known, or no `status`, is the default, unless an old link asks for
-// the archive (`includeArchived`)
-const statusesOf = (params: ListingParams): Status[] => {
-  const named = choicesOf(statuses)(params.status)
+// The choice of the options a list names (`choiceOf`): an option the list
+// does not offer is left out, so an old or mistyped link still opens
+const choiceOfParam = <A extends string>(
+  options: readonly A[],
+  value: string | undefined,
+) =>
+  choiceOf(
+    options,
+    options.filter((o) => namedOf(value).includes(o)),
+  )
+
+// `status` names the statuses shown, `all` for no box ticked (every status
+// shown); none known, or no `status`, is the default, unless an old link
+// asks for the archive (`includeArchived`)
+const statusesOf = (params: ListingParams): StatusChoice => {
+  const named = statuses.filter((s) => namedOf(params.status).includes(s))
   return params.status === 'all'
-    ? []
+    ? anyChoice(false)
     : named.length > 0
-      ? named
+      ? statusChoiceOf(named)
       : params.status === undefined && params.includeArchived === 'true'
-        ? []
-        : defaultStatuses()
+        ? anyChoice(false)
+        : defaultStatusChoice()
 }
 
 const listLanguageOf = (value: string | undefined): O.Option<string> =>
@@ -178,9 +190,9 @@ const languageOf = (value: string | undefined): BuildLanguage =>
   value === 'swift' || value === 'kotlin' ? value : 'typescript'
 
 const catalogFilterOf = (params: ListingParams): ListingFilter => ({
-  tiers: choicesOf(catalogTiers)(params.tier),
-  lacks: [],
-  targets: choicesOf(targets)(params.target),
+  tiers: choiceOfParam(catalogTiers, params.tier),
+  lacks: anyChoice(false),
+  targets: choiceOfParam(targetOptionsOf('catalog'), params.target),
   statuses: statusesOf(params),
   query: params.query ?? '',
   show: showOf(params.show),
@@ -190,9 +202,9 @@ const catalogFilterOf = (params: ListingParams): ListingFilter => ({
 })
 
 const adjacentFilterOf = (params: ListingParams): ListingFilter => ({
-  tiers: [],
-  lacks: choicesOf(lackables)(params.lacks),
-  targets: choicesOf(targets)(params.target),
+  tiers: anyChoice(false),
+  lacks: choiceOfParam(lackables, params.lacks),
+  targets: choiceOfParam(targetOptionsOf('adjacent'), params.target),
   statuses: statusesOf(params),
   query: params.query ?? '',
   show: showOf(params.show),
@@ -234,19 +246,29 @@ export const parseDestination = (href: string): Destination => ({
 // Formatter
 // ------------------------------------------------------------------
 
+// The boxes ticked, or nothing for none: every box ticked names every
+// option, which parses back to the same choice
 const listParamOf = (chosen: readonly string[]): string | undefined =>
   chosen.length === 0 ? undefined : chosen.join(',')
 
-// Defaults are left out of the URL, so the plain catalog is just `/`
-const listingParamsOf = (filter: ListingFilter): ListingParams => ({
-  tier: listParamOf(filter.tiers),
-  lacks: listParamOf(filter.lacks),
-  target: listParamOf(filter.targets),
-  status: A.getEq(S.Eq).equals(filter.statuses, defaultStatuses())
+// `all` for no box ticked, which shows every status as every box does
+const statusParamOf = (choice: StatusChoice): string | undefined =>
+  choice._tag === 'Default'
     ? undefined
-    : filter.statuses.length === 0
+    : choice._tag === 'Any' && !choice.allSelected
       ? 'all'
-      : filter.statuses.join(','),
+      : tickedOf(statuses, choice).join(',')
+
+// Defaults are left out of the URL, so the plain catalog is just `/`. The
+// targets of list `kind` are its own options (`targetOptionsOf`).
+const listingParamsOf = (
+  kind: ListKind,
+  filter: ListingFilter,
+): ListingParams => ({
+  tier: listParamOf(tickedOf(catalogTiers, filter.tiers)),
+  lacks: listParamOf(tickedOf(lackables, filter.lacks)),
+  target: listParamOf(tickedOf(targetOptionsOf(kind), filter.targets)),
+  status: statusParamOf(filter.statuses),
   query: filter.query === '' ? undefined : filter.query,
   show: pipe(filter.show, O.toUndefined),
   language: pipe(filter.language, O.toUndefined),
@@ -268,7 +290,10 @@ export const toUrlString = (destination: Destination): string => {
   const getPath = () => {
     switch (screen._tag) {
       case 'CatalogScreen':
-        return format(catalogMatch.formatter, listingParamsOf(screen.filter))
+        return format(
+          catalogMatch.formatter,
+          listingParamsOf('catalog', screen.filter),
+        )
       case 'FrameworkScreen':
         return format(frameworkMatch.formatter, {
           frameworkId: screen.frameworkId,
@@ -278,7 +303,10 @@ export const toUrlString = (destination: Destination): string => {
       case 'AboutScreen':
         return format(aboutMatch.formatter, {})
       case 'AdjacentScreen':
-        return format(adjacentMatch.formatter, listingParamsOf(screen.filter))
+        return format(
+          adjacentMatch.formatter,
+          listingParamsOf('adjacent', screen.filter),
+        )
       case 'BuildScreen':
         return format(buildMatch.formatter, {
           language:

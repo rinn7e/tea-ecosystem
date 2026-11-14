@@ -81,6 +81,7 @@ Every fact lives in one place in the model, and the types allow only the states 
 
 - The destination is never stored. The screen model says which screen is shown (its tag, read by `currentScreenOf`), and a screen with params keeps them as fields of its own: the catalog `filter`, the framework of a framework page, the `language` of the guide.
 - A change of a param (a filter, a language) only updates its owner. The URL follows after the step, with no navigation.
+- A filter of the popover is a `Choice` (`src/common/type/destination/choice.ts`), never a plain array: `Any` narrows nothing (no box ticked, or every one, with `allSelected` for the popover), and `Only` holds some of the options the list offers, never every one. `choiceOf` is the one way to build it, at the toggle, the URL parser and the carry to the other list, so whether a filter narrows is always `narrowsChoice`, with no count of options. The statuses add `Default` (active and quiet) to it (`StatusChoice`).
 
 ## Make impossible updates impossible
 

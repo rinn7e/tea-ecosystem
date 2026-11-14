@@ -8,8 +8,8 @@ import {
   defaultListingFilter,
   firstDirectionOf,
   toggleChoice,
+  toggleStatus,
 } from '@/common/type/destination'
-import { statuses } from '@/common/type/framework'
 
 import { type Model, type Msg } from './type'
 
@@ -64,7 +64,7 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     case 'ToggleStatus':
       return withFilter(model, {
         ...model.filter,
-        statuses: toggleChoice(statuses, model.filter.statuses, msg.status),
+        statuses: toggleStatus(model.filter.statuses, msg.status),
       })
     case 'SetQuery':
       return withFilter(model, { ...model.filter, query: msg.query })

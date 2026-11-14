@@ -1,15 +1,18 @@
-import * as A from 'fp-ts/Array'
 import * as EqClass from 'fp-ts/Eq'
 import * as O from 'fp-ts/Option'
 import { type Option } from 'fp-ts/Option'
 import * as S from 'fp-ts/string'
 
+import { type Concept, type Target, type Tier } from '@/common/type/framework'
+
 import {
-  type Concept,
-  type Status,
-  type Target,
-  type Tier,
-} from '@/common/type/framework'
+  type Choice,
+  type StatusChoice,
+  StatusChoiceEq,
+  anyChoice,
+  defaultStatusChoice,
+  getChoiceEq,
+} from './choice'
 
 // How a list (the catalog, TEA-adjacent) shows its entries
 export type ListingLayout = 'cards' | 'table'
@@ -70,17 +73,17 @@ export const buildLanguages: readonly BuildLanguage[] = [
 
 // The filters of a list, which a link can share. The catalog filters by
 // `tier`, the adjacent list by the part an entry `lacks`; each leaves the
-// other one empty.
-// Each filter of the popover is a set of choices: an entry passes when it
-// matches any of them, and no choice (like every one) passes every entry
-// (`toggleChoice`)
+// other one `Any`.
+// Each filter of the popover is a `Choice` among the options the list
+// offers: an entry passes when it matches any option chosen, and `Any`
+// (no box ticked, or every one) passes every entry
 export type ListingFilter = {
-  tiers: Tier[]
+  tiers: Choice<Tier>
   // What an entry of the adjacent list lacks
-  lacks: Concept[]
-  targets: Target[]
+  lacks: Choice<Concept>
+  targets: Choice<Target>
   // Active and quiet by default: archived entries are hidden until chosen
-  statuses: Status[]
+  statuses: StatusChoice
   query: string
   // Only the language entries (Elm, Gren), or only the frameworks; none
   // shows every entry
@@ -135,10 +138,10 @@ export type Screen =
   | NotFoundScreen
 
 export const ListingFilterEq: EqClass.Eq<ListingFilter> = EqClass.struct({
-  tiers: A.getEq(S.Eq),
-  lacks: A.getEq(S.Eq),
-  targets: A.getEq(S.Eq),
-  statuses: A.getEq(S.Eq),
+  tiers: getChoiceEq(S.Eq),
+  lacks: getChoiceEq(S.Eq),
+  targets: getChoiceEq(S.Eq),
+  statuses: StatusChoiceEq,
   query: S.Eq,
   show: O.getEq(S.Eq),
   language: O.getEq(S.Eq),
@@ -194,24 +197,11 @@ export const lackables: readonly Concept[] = [
   'sub',
 ]
 
-// The statuses a list shows until others are chosen
-export const defaultStatuses = (): Status[] => ['active', 'quiet']
-
-// Chooses `value` among `options`, or unchooses it when chosen; the
-// choices stay in the order of `options`. Every option chosen shows every
-// entry, as no choice does, but stays chosen on screen.
-export const toggleChoice = <A extends string>(
-  options: readonly A[],
-  chosen: readonly A[],
-  value: A,
-): A[] =>
-  options.filter((option) => (option === value) !== chosen.includes(option))
-
 export const defaultListingFilter = (): ListingFilter => ({
-  tiers: [],
-  lacks: [],
-  targets: [],
-  statuses: defaultStatuses(),
+  tiers: anyChoice(false),
+  lacks: anyChoice(false),
+  targets: anyChoice(false),
+  statuses: defaultStatusChoice(),
   query: '',
   show: O.none,
   language: O.none,

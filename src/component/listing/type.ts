@@ -44,8 +44,8 @@ export const ModelEq: EqClass.Eq<Model> = EqClass.struct({
 })
 
 export type Msg =
-  // Chooses an option of a filter of the popover, or unchooses it when
-  // chosen (`toggleChoice`); `options` are the ones the popover shows
+  // Ticks an option of a filter of the popover, or unticks it when ticked
+  // (`toggleChoice`); `options` are the ones the popover shows
   | { _tag: 'ToggleTier'; tier: Tier; options: Tier[] }
   | { _tag: 'ToggleLacks'; concept: Concept; options: Concept[] }
   | { _tag: 'ToggleTarget'; target: Target; options: Target[] }

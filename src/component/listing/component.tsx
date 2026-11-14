@@ -14,11 +14,14 @@ import {
 import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
-import * as S from 'fp-ts/string'
 import React, { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import { type ListKind, entriesOf } from '@/common/data/catalog'
+import {
+  type ListKind,
+  entriesOf,
+  targetOptionsOf,
+} from '@/common/data/catalog'
 import {
   type EntryKind,
   type ListingFilter,
@@ -26,10 +29,14 @@ import {
   type ListingSort,
   type SortColumn,
   catalogTiers,
-  defaultStatuses,
+  choiceOf,
   destinationOfScreen,
   frameworkScreen,
+  isAnyTicked,
+  isStatusTicked,
+  isTicked,
   lackables,
+  statusChoiceOf,
 } from '@/common/type/destination'
 import {
   type Framework,
@@ -90,7 +97,6 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
-  targetOptionsOf,
 } from './util'
 
 const entryKinds: readonly EntryKind[] = ['languages', 'frameworks']
@@ -361,8 +367,11 @@ const tierChoicesView = ({
         label: tierLabel(tier),
         icon: null,
         tone: tierTone,
-        count: filterFrameworks({ ...filter, tiers: [tier] })(entries).length,
-        isChosen: filter.tiers.includes(tier),
+        count: filterFrameworks({
+          ...filter,
+          tiers: choiceOf(catalogTiers, [tier]),
+        })(entries).length,
+        isChosen: isTicked(filter.tiers, tier),
         onClick: () =>
           dispatch({ _tag: 'ToggleTier', tier, options: [...catalogTiers] }),
       }),
@@ -390,9 +399,11 @@ const lacksChoicesView = ({
         label: `Lacks ${conceptLabel(concept)}`,
         icon: null,
         tone: gradeTone('missing'),
-        count: filterFrameworks({ ...filter, lacks: [concept] })(entries)
-          .length,
-        isChosen: filter.lacks.includes(concept),
+        count: filterFrameworks({
+          ...filter,
+          lacks: choiceOf(lackables, [concept]),
+        })(entries).length,
+        isChosen: isTicked(filter.lacks, concept),
         onClick: () =>
           dispatch({
             _tag: 'ToggleLacks',
@@ -404,16 +415,19 @@ const lacksChoicesView = ({
   })
 
 // The targets the entries of the list run on, in the order of `targets`
+// (`targetOptionsOf`)
 const targetChoicesView = ({
+  kind,
   entries,
   filter,
   dispatch,
 }: {
+  kind: ListKind
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const options = targetOptionsOf(entries)
+  const options = targetOptionsOf(kind)
   return choiceRowView({
     children: options.map((target) =>
       choiceBoxView({
@@ -425,9 +439,11 @@ const targetChoicesView = ({
         label: targetLabel(target),
         icon: targetIconView({ target }),
         tone: targetTone,
-        count: filterFrameworks({ ...filter, targets: [target] })(entries)
-          .length,
-        isChosen: filter.targets.includes(target),
+        count: filterFrameworks({
+          ...filter,
+          targets: choiceOf(options, [target]),
+        })(entries).length,
+        isChosen: isTicked(filter.targets, target),
         onClick: () => dispatch({ _tag: 'ToggleTarget', target, options }),
       }),
     ),
@@ -453,12 +469,14 @@ const statusChoicesView = ({
         label: statusLabel(status),
         icon: statusDotView({
           status,
-          isOnAccent: filter.statuses.includes(status),
+          isOnAccent: isStatusTicked(filter.statuses, status),
         }),
         tone: tierTone,
-        count: filterFrameworks({ ...filter, statuses: [status] })(entries)
-          .length,
-        isChosen: filter.statuses.includes(status),
+        count: filterFrameworks({
+          ...filter,
+          statuses: statusChoiceOf([status]),
+        })(entries).length,
+        isChosen: isStatusTicked(filter.statuses, status),
         onClick: () => dispatch({ _tag: 'ToggleStatus', status }),
       }),
     ),
@@ -522,13 +540,14 @@ const searchView = ({
 )
 
 // How many of the filters in the popover differ from their default: the
-// tier (or what an entry lacks), the target and the status
+// tier (or what an entry lacks), the target and the status. A choice with
+// every box ticked counts, as it stays ticked on screen.
 const panelFilterCountOf = (filter: ListingFilter): number =>
   [
-    filter.tiers.length > 0,
-    filter.lacks.length > 0,
-    filter.targets.length > 0,
-    !A.getEq(S.Eq).equals(filter.statuses, defaultStatuses()),
+    isAnyTicked(filter.tiers),
+    isAnyTicked(filter.lacks),
+    isAnyTicked(filter.targets),
+    filter.statuses._tag !== 'Default',
   ].filter((isOn) => isOn).length
 
 // A row of the popover: its name, then its boxes
@@ -617,6 +636,7 @@ const searchRowView = ({
             {panelSectionView({
               title: 'Target',
               children: targetChoicesView({
+                kind,
                 entries,
                 filter: model.filter,
                 dispatch,

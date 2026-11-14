@@ -3,9 +3,14 @@ import { describe, expect, it } from 'vitest'
 
 import {
   catalogScreen,
+  catalogTiers,
+  choiceOf,
   destinationOfScreen,
   frameworkScreen,
+  lackables,
+  statusChoiceOf,
 } from '@/common/type/destination'
+import { targets } from '@/common/type/framework'
 import { catalogDestinationOf, destinationOf } from '@/util'
 
 import { bootOn, navigate, step } from './helper/app'
@@ -32,10 +37,10 @@ describe('the screen stack', () => {
       bootOn('/rubric'),
       destinationOfScreen(
         catalogScreen({
-          tiers: ['full'],
-          lacks: [],
-          targets: [],
-          statuses: ['active', 'quiet'],
+          tiers: choiceOf(catalogTiers, ['full']),
+          lacks: choiceOf(lackables, []),
+          targets: choiceOf(targets, []),
+          statuses: statusChoiceOf(['active', 'quiet']),
           query: '',
           show: O.none,
           language: O.none,
@@ -45,7 +50,9 @@ describe('the screen stack', () => {
       ),
     )
     expect(model.catalog.listing.filter.layout).toBe('table')
-    expect(model.catalog.listing.filter.tiers).toEqual(['full'])
+    expect(model.catalog.listing.filter.tiers).toEqual(
+      choiceOf(catalogTiers, ['full']),
+    )
   })
 
   it('ignores catalog messages while another screen covers it', () => {

@@ -5,16 +5,23 @@ import {
   type Screen,
   aboutScreen,
   adjacentScreen,
+  anyChoice,
   buildScreen,
   catalogScreen,
+  catalogTiers,
+  choiceOf,
   defaultListingFilter,
+  defaultStatusChoice,
   destinationOfScreen,
   frameworkScreen,
+  lackables,
   notFoundScreen,
   parseDestination,
   rubricScreen,
+  statusChoiceOf,
   toUrlString,
 } from '@/common/type/destination'
+import { targets } from '@/common/type/framework'
 
 const parse = (path: string) => parseDestination(`http://localhost${path}`)
 
@@ -40,10 +47,10 @@ describe('destination URL', () => {
 
   it('keeps the catalog filter in the query', () => {
     const screen = catalogScreen({
-      tiers: ['full', 'superset'],
-      lacks: [],
-      targets: ['desktop', 'tui'],
-      statuses: [],
+      tiers: choiceOf(catalogTiers, ['full', 'superset']),
+      lacks: choiceOf(lackables, []),
+      targets: choiceOf(targets, ['desktop', 'tui']),
+      statuses: statusChoiceOf([]),
       query: 'rust tea',
       show: O.some('frameworks'),
       language: O.some('F#'),
@@ -55,10 +62,10 @@ describe('destination URL', () => {
 
   it('keeps the adjacent filter in the query, with lacks for tier', () => {
     const screen = adjacentScreen({
-      tiers: [],
-      lacks: ['cmd', 'sub'],
-      targets: ['web'],
-      statuses: ['archived'],
+      tiers: choiceOf(catalogTiers, []),
+      lacks: choiceOf(lackables, ['cmd', 'sub']),
+      targets: choiceOf(targets, ['web']),
+      statuses: statusChoiceOf(['archived']),
       query: '',
       show: O.none,
       language: O.none,
@@ -76,26 +83,39 @@ describe('destination URL', () => {
       const { screen } = parseDestination(`http://localhost${path}`)
       return screen._tag === 'CatalogScreen' ? screen.filter : undefined
     }
-    expect(filterOf('/')?.statuses).toEqual(['active', 'quiet'])
-    expect(filterOf('/?status=all')?.statuses).toEqual([])
-    expect(filterOf('/?status=quiet,active,archived')?.statuses).toEqual([
-      'active',
-      'quiet',
-      'archived',
-    ])
-    expect(filterOf('/?status=nonsense')?.statuses).toEqual(['active', 'quiet'])
+    expect(filterOf('/')?.statuses).toEqual(defaultStatusChoice())
+    expect(filterOf('/?status=active,quiet')?.statuses).toEqual(
+      defaultStatusChoice(),
+    )
+    expect(filterOf('/?status=all')?.statuses).toEqual(anyChoice(false))
+    expect(filterOf('/?status=quiet,active,archived')?.statuses).toEqual(
+      anyChoice(true),
+    )
+    expect(filterOf('/?status=nonsense')?.statuses).toEqual(
+      defaultStatusChoice(),
+    )
     // A link made before the status filter
-    expect(filterOf('/?includeArchived=true')?.statuses).toEqual([])
-    // Every tier chosen stays chosen
-    expect(filterOf('/?tier=superset,full,reference')?.tiers).toEqual([
-      'reference',
-      'full',
-      'superset',
-    ])
+    expect(filterOf('/?includeArchived=true')?.statuses).toEqual(
+      anyChoice(false),
+    )
+    // Every tier chosen stays ticked, and narrows nothing
+    expect(filterOf('/?tier=superset,full,reference')?.tiers).toEqual(
+      anyChoice(true),
+    )
     expect(
       toUrlString(
         destinationOfScreen(
-          catalogScreen({ ...defaultListingFilter(), statuses: [] }),
+          catalogScreen({ ...defaultListingFilter(), tiers: anyChoice(true) }),
+        ),
+      ),
+    ).toBe('/?tier=reference,full,superset')
+    expect(
+      toUrlString(
+        destinationOfScreen(
+          catalogScreen({
+            ...defaultListingFilter(),
+            statuses: statusChoiceOf([]),
+          }),
         ),
       ),
     ).toBe('/?status=all')

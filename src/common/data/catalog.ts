@@ -14,7 +14,9 @@ import {
   type Framework,
   FrameworkJson,
   type Grade,
+  type Target,
   languagesOf,
+  targets,
 } from '@/common/type/framework'
 
 import adjacentData from '../../../data/adjacent.json'
@@ -87,6 +89,13 @@ export type ListKind = 'catalog' | 'adjacent'
 
 export const entriesOf = (kind: ListKind): Framework[] =>
   kind === 'catalog' ? frameworks : adjacentEntries
+
+// The targets the entries of a list run on, in the order of `targets`: the
+// options of its target filter (TEA-adjacent has no game library)
+export const targetOptionsOf = (kind: ListKind): Target[] =>
+  targets.filter((target) =>
+    entriesOf(kind).some((f) => f.targets.includes(target)),
+  )
 
 // The list an entry belongs to: where its page goes back to
 export const listOf = (framework: Framework): ListKind =>
