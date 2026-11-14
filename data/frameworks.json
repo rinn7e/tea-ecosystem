@@ -1395,11 +1395,12 @@
       "ports": "managed"
     },
     "notes": [
-      "Reducers return Effect values; long-running effects with cancellation stand in for subscriptions.",
-      "Superset: child features with their own state, actions and reducer compose into a parent, and TestStore checks every state change and every effect a test causes.",
-      "Dependencies are injected and replaced in tests."
+      "Superset: TestStore checks every state change and every effect a test causes, and dependencies are injected and replaced in tests; child features compose into a parent (Scope, ifLet, forEach) as nested modules do in Elm.",
+      "Reducer.reduce(into: inout State, action: Action) -> Effect<Action> changes the state and returns an Effect (none, run, send, merge, concatenate) that the Store runs; results return as actions.",
+      "No subscription function: a long-running source is Effect.run { send in for await ... { send(...) } }, stopped with Effect.cancellable(id:) and Effect.cancel(id:).",
+      "Ports are managed: Store.send sends an action into a running store from outside; the outside world is otherwise reached through injected dependencies (DependencyKey clients) inside run effects."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-03",
     "updatedAt": "2026-11-05",
@@ -1426,9 +1427,11 @@
       "ports": "managed"
     },
     "notes": [
-      "Headless: there is no view function; the loop drives UIKit or SwiftUI through a connection."
+      "update(model:event:) returns Next<Model, Effect>; effects are values of an Effect enum (Next.dispatchEffects) that an effect handler runs and turns into events.",
+      "Headless: there is no view function; the loop drives UIKit or SwiftUI through a Connectable and MobiusController.",
+      "No subscription function: outside events enter through an EventSource (subscribe(consumer:) returns a Disposable) added with Builder.withEventSource, or MobiusLoop.dispatchEvent."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-03-04",
     "updatedAt": "2026-08-05",
@@ -1485,8 +1488,12 @@
       "sub": "managed",
       "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update is an Update<Model, Event, Effect> that returns next(model) or next(model, effects); effects are values that the Connectable effect handler given to Mobius.loop runs, and results return as events.",
+      "Sub is managed: EventSource.subscribe(consumer) returns a Disposable, is added with MobiusLoop.Builder.eventSource, and the loop disposes it with the loop; there is no function of the model (https://drewcarlson.github.io/mobius.kt/latest/reference/event-source/).",
+      "Headless: the view is any UI connected to the loop with loop.observer or a Controller; mobiuskt-compose adds rememberMobiusLoop. Ports are managed the same way as in Mobius for Java: events enter through an EventSource or dispatchEvent."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-08",
     "updatedAt": "2026-11-13",
@@ -1507,15 +1514,20 @@
       "model": "native",
       "msg": "native",
       "update": "native",
-      "view": "native",
+      "view": "missing",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Modular: core, Android lifecycle, RxJava and Jetpack Compose artifacts."
+      "StateReducer.reduce(event) builds a Result of the new state, UI effects and commands with state { }, effects { } and commands { }; reducer does not run anything, ElmStore does.",
+      "Cmd: a Command is data handed to Actor.execute(command), which returns a Flow<Event> that ElmStore collects and feeds back to the store (https://github.com/vivid-money/elmslie/blob/master/elmslie-core/src/commonMain/kotlin/money/vivid/elmslie/core/store/Actor.kt).",
+      "Sub is managed: there is no subscriptions function; a command can return a long-running Flow, which the store cancels on stop and which Actor.switch(key) and cancelSwitchFlows replace or cancel.",
+      "Headless: there is no view in the core; the Android module drives views imperatively through render(state) of ElmRendererDelegate, so view is missing, as for Mobius.",
+      "Modular: a multiplatform core (Android, JVM, iOS, JS and more), an Android lifecycle module and a BOM.",
+      "Ports are managed: Store.accept(event) sends an event into a running ElmStore from outside (elmslie-core Store.kt)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-01-12",
     "updatedAt": "2026-09-10",
@@ -1537,13 +1549,19 @@
       "model": "native",
       "msg": "native",
       "update": "native",
-      "view": "native",
+      "view": "missing",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Updater is (message, state) -> Pair<state, Set<command>>, built with infix command and noCommand; it runs no effects (https://github.com/Xlopec/Tea-bag/blob/master/tea-core/src/commonMain/kotlin/io/github/xlopec/tea/core/Updater.kt).",
+      "Cmd: commands are plain values; the Resolver reads the Flow<Snapshot> and runs them in a CoroutineScope with effect, effects and sideEffect, sending results back through the Sink.",
+      "Sub is managed: Component.subscribeIn(input: Flow<M>, scope) (ExperimentalTeaApi) feeds an external message flow into the component and returns a Job; there is no function of the model.",
+      "Headless: a Component is a function from a Flow of messages to a Flow of snapshots, so the UI is any collector.",
+      "Ports are managed: a Component takes a Flow of messages that the host owns and feeds (tea-core Component.kt)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-24",
     "updatedAt": "2026-10-22",
@@ -1555,7 +1573,7 @@
     "language": "Dart",
     "elmFamily": false,
     "targets": ["mobile"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://github.com/p69/dartea",
     "summary": "An MVU engine for Flutter inspired by TEA and Elmish.",
@@ -1566,11 +1584,17 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: each Program (or ProgramWidget) is a self-contained component with its own model, update, view and subscription, and a DarteaMessagesBus (msgsToBus, UpdChild toParent) lets components message each other.",
+      "update is (msg, model) -> Upd(model, effects: Cmd); a Cmd is a list of Effect callbacks (Cmd.ofAsyncFunc, Cmd.ofMsg, Cmd.batch, Cmd.fmap) that the widget state runs after each update.",
+      "Subscribe is TSubHolder Function(currentSub, dispatch, model), called by the engine after every model update and once more on dispose: it is a function of the model, but creating and cancelling the source (a Timer, a StreamSubscription) is hand-written with the holder, so Sub is graded managed.",
+      "Msg is an abstract Message class that user messages implement, matched with is checks.",
+      "Ports are managed: DarteaMessagesBus.dispatchOf(context) returns a function that sends a message into a program from outside it (messages_bus.dart)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-04-08",
     "updatedAt": "2022-12-15",
@@ -1582,7 +1606,7 @@
     "language": "Dart",
     "elmFamily": false,
     "targets": ["mobile"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/Nhowka/FlutterMVU",
     "website": "https://pub.dev/packages/mvu_layer",
@@ -1594,11 +1618,18 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
+      "sub": "native",
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: MVUBuilder is a StatefulWidget that keeps its own loop, and MVUWidget and MVUProvider put several loops in one widget tree for descendants to dispatch to (lib/src/mvu/mvu_builder.dart, mvu_widgets.dart).",
+      "Import package:mvu_layer/mvu.dart for the Elm shape: update is (Msg, Model) -> (Model, Cmd<Msg>) as a record, and a Cmd is a list of Effect functions that receive a Dispatch (Cmd.none, Cmd.ofMsg, Cmd.batch, Cmd.map).",
+      "Subscriptions: Subs<Model, Msg> subscriptions(Model model) returns (SubscriptionId, Subscribe) pairs; a new id starts one and a missing id cancels it by calling the function it returned (Sub.fromStream, Sub.fromFuture; SubHandler.model gives the live model since 0.4).",
+      "Msg is a user-chosen type, recommended as a sealed class so the switch in update is exhaustive; MVUBuilder or MVUWidget glue init, update and view together.",
+      "The older mvu_layer.dart API (Messenger, Update class) is still shipped beside the new one.",
+      "Ports are managed: Messenger exposes a public dispatcher that sends a message into the running model (msg_provider.dart)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-07-20",
     "updatedAt": "2026-03-19",
@@ -1610,11 +1641,12 @@
     "language": "Dart",
     "elmFamily": false,
     "targets": ["mobile"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://pub.dev/packages/mvu_flutter",
     "website": "https://pub.dev/packages/mvu_flutter",
-    "summary": "A fuller Elm-style implementation for Flutter, with detailed docs.",
+    "summary": "An Elm-style MVU package for Flutter (Program, Update, View) from 2021, since discontinued on pub.dev.",
+    "snippetSource": "https://pub.dev/packages/mvu_flutter/versions/3.1.0",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -1622,10 +1654,17 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: a Program is a widget with its own loop, an app is split into several Programs, and dispatchGlobal sends a message to another Program (README of 3.1.0, lib/src/runtime/dispatch_global.dart).",
+      "Last real release is 3.1.0 (June 2021): Program takes a model, a view, an Update object, optional commands and an optional subscriptions function; update returns a ProducedState of a new model and a list of Cmd, and the README says update must be pure and effects go in commands.",
+      "A Cmd is a function (Dispatch) -> dynamic that the manager runs in order after each update (also the initial commands); messages are Msg subclasses, usually Freezed unions.",
+      "Subscriptions is List<StreamSubscription> Function(Dispatch), called once when the Program starts; the manager cancels the returned subscriptions on dispose. It is not a function of the model, so Sub is managed, and dispatchGlobal can also send a message from anywhere.",
+      "Discontinued on pub.dev: versions 5.0.0 and 6.0.0 are empty stubs saying the package is deprecated and unavailable, and the GitHub repo is gone. The grades come from the 3.1.0 archive.",
+      "Ports are managed: the global dispatchGlobal and View.dispatch send a message into a running Program from anywhere."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z"
   },
   {
@@ -1639,7 +1678,7 @@
     "repo": "https://github.com/lbliii/milo-cli",
     "website": "https://lbliii.github.io/milo-cli/",
     "logoText": "ᗣᗣ",
-    "summary": "The Elm Architecture for terminal apps in Python, with commands, sagas and subscriptions (ticks, terminal resize).",
+    "summary": "The Elm Architecture for terminal apps in Python: pure reducers that return commands and sagas, Kida templates as views, and ticks and resize events as messages.",
     "snippetSource": "https://github.com/lbliii/milo-cli/blob/main/examples/counter/app.py",
     "rubric": {
       "model": "native",
@@ -1647,13 +1686,18 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "To check: whether commands are returned from the reducer or started beside it (a saga runner would make it TEA-adjacent)."
+      "A reducer (state, action) returns the new state or a ReducerResult(state, cmds=..., sagas=..., view=...); the Store runs the Cmd, Batch, Sequence and TickCmd values after the reducer returns, so effects are returned as data (https://github.com/lbliii/milo-cli/blob/main/src/milo/_types.py).",
+      "A Cmd is a thunk returning an Action; sagas are generators yielding Call, Put, Delay, TakeEvery and the like, also returned from the reducer in ReducerResult.sagas and run by the Store on a thread pool, not started beside it, so the loop still ports to Elm commands.",
+      "No subscriptions function: App(tick_rate) dispatches @@TICK, terminal resize arrives as @@RESIZE and keys as @@KEY, and TickCmd(interval) reschedules itself from the reducer.",
+      "A Flow combines FlowScreens, each with its own reducer and template, into one reducer over a FlowState that the store holds, routing each action to the current screen by hand (Flow.build_reducer in src/milo/flow.py), the nested pattern of Elm, so the entry is full TEA.",
+      "Messages are Action(type, payload) values matched by type, and the view is a Kida template of the state; it also has forms and CLI plus MCP command generation.",
+      "Ports are managed: Store.dispatch(action) sends an action into a running store from outside (src/milo/state.py)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-03-26",
     "updatedAt": "2026-08-05",
