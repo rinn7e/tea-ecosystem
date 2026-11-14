@@ -105,8 +105,16 @@ const stub = (bin: string, name: string, body: string): void => {
 
 // The inputs of the scripts, which each test sets itself: one inherited
 // from the job that runs the tests (the workflow sets `BRANCH` and `DAY`
-// on the steps that run `pnpm run test`) would change what a test checks
-const scriptInputs = ['BASE', 'BRANCH', 'DAY', 'MAX_CANDIDATES']
+// on the steps that run `pnpm run test`, and a shell may hold a real key
+// or token) would change what a test checks
+const scriptInputs = [
+  'ANTHROPIC_API_KEY',
+  'BASE',
+  'BRANCH',
+  'DAY',
+  'GITHUB_TOKEN',
+  'MAX_CANDIDATES',
+]
 
 const baseEnv = {
   ...Object.fromEntries(

@@ -20,7 +20,14 @@ name: Discover
 # whole: its token can only read, it saves no cache that a later job
 # restores, and all it hands on is a bundle of the branch, which the second
 # job (with no agent) checks before anything of it is pushed. Only that
-# second job may write.
+# second job may write. What leaves the search job is its log, its summary,
+# the `outputs` of the job (which its scripts set, never the agent) and two
+# artifacts: the transcript of the agent and the bundle of the branch, with
+# the commits of the agent and their messages as they are.
+# Any signed-in GitHub user can download the artifacts of a public
+# repository, and GitHub masks secrets only in the log, so each upload is
+# checked first for the values of the key and the token of the job, and
+# skipped with an error when one turns up (`scripts/check-secrets.mjs`).
 on:
   schedule:
     # Mondays at 06:00 UTC
@@ -194,11 +201,14 @@ jobs:
           if-no-files-found: ignore
 
       # The branch of the run goes to the next job as a bundle, when it has
-      # a commit (`scripts/bundle-discovered.sh`)
+      # a commit and holds no value of the key or the token
+      # (`scripts/bundle-discovered.sh`)
       - id: bundle
         if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
         run: scripts/bundle-discovered.sh "$RUNNER_TEMP/discover.bundle"
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
           BASE: ${{ steps.context.outputs.base }}
           DAY: ${{ steps.context.outputs.day }}
           BRANCH: ${{ steps.context.outputs.branch }}
