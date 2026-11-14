@@ -159,6 +159,27 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
 
 export const HeaderMemo = memo(HeaderComponent, HeaderPropsEq.equals)
 
+// The icon of a tab grows and settles back on each tap, also on the tab
+// already shown, as the tab bars of phone apps do: a feedback that the tap
+// landed when the page does not change. One run of a transform, not a
+// state of the model, and none under reduced motion.
+const popIconOf = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const icon = e.currentTarget.querySelector('[data-tab-icon]')
+  if (
+    icon !== null &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    icon.animate(
+      [
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.18)', offset: 0.4 },
+        { transform: 'scale(1)' },
+      ],
+      { duration: 260, easing: 'ease-out' },
+    )
+  }
+}
+
 const bottomTabView = ({
   label,
   icon,
@@ -173,6 +194,7 @@ const bottomTabView = ({
   <Link
     destination={destination}
     aria-current={isActive ? 'page' : undefined}
+    onClick={popIconOf}
     className={cn(
       'flex flex-col items-center justify-center gap-[2px] border-t-2 text-[0.6875rem] transition-colors',
       isActive
@@ -180,7 +202,9 @@ const bottomTabView = ({
         : 'text-ink-muted hover:text-accent border-transparent',
     )}
   >
-    {icon}
+    <span data-tab-icon className='flex'>
+      {icon}
+    </span>
     {label}
   </Link>
 )
