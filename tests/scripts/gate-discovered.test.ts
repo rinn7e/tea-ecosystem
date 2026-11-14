@@ -25,11 +25,11 @@ const current = (): ScriptRepo => {
   }
 }
 
-const gate = (answers: Answers = {}) => {
+const gate = (answers: Answers = {}, env: Record<string, string> = {}) => {
   const result = current().run(
     'gate-discovered.sh',
     ['proposed.json'],
-    { DAY: day },
+    { DAY: day, ...env },
     answers,
   )
   return {
@@ -81,6 +81,29 @@ describe('gate-discovered.sh', () => {
       )
     },
   )
+
+  it('lets a run started by hand search on a day that already proposed, but not while a pull request is open', () => {
+    const manual = { BRANCH: `${runBranch}-7` }
+    const merged = pullRequestOf(runBranch, { state: 'MERGED' })
+    expect(gate({ pullRequests: [merged] }, manual).out).toBe('go\n')
+    expect(
+      gate(
+        {
+          pullRequests: [
+            merged,
+            pullRequestOf(`${runBranch}-7`, { state: 'CLOSED' }),
+          ],
+        },
+        manual,
+      ).out,
+    ).toBe(`skip: a pull request was already opened from ${runBranch}-7\n`)
+    expect(
+      gate(
+        { pullRequests: [pullRequestOf(runBranch, { state: 'OPEN' })] },
+        manual,
+      ).out,
+    ).toBe('skip: an earlier pull request of the search is still open\n')
+  })
 
   it('says when the branch of the day is on GitHub with no pull request, and at which commit', () => {
     const { out, log } = gate({ onGitHub: { [runBranch]: 'abc1234' } })

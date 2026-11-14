@@ -19,7 +19,9 @@
 # GitHub turns no `@name`, `#12` or link into a mention or a reference.
 # Needs `gh` (`GH_TOKEN`, `GH_REPO`) and `jq`.
 #
-# Run: BASE=<commit> DAY=<YYYY-MM-DD> scripts/propose-discovered.sh
+# The branch is `$BRANCH`, or `discover/$DAY` when the workflow names none.
+#
+# Run: BASE=<commit> DAY=<YYYY-MM-DD> [BRANCH=<branch>] scripts/propose-discovered.sh
 set -euo pipefail
 # A failing command inside `$(...)` stops the script too (bash 4.4 and
 # later, as on the runners of GitHub)
@@ -30,7 +32,7 @@ day="${DAY:?the day of the run}"
 max="${MAX_CANDIDATES:-3}"
 repo_url="https://x-access-token:${GH_TOKEN:?a token that may push and open pull requests}@github.com/${GITHUB_REPOSITORY:?owner/name}.git"
 here="$(dirname "$0")"
-branch="discover/$day"
+branch="${BRANCH:-discover/$day}"
 
 # The fresh commit of the data of `$2` on top of `$1`: the two data files
 # and the examples it adds, each a plain file, with a message and an author

@@ -3,7 +3,8 @@
 # propose (`.github/workflows/discover.yml`). It prints one line:
 #
 # - `go`: it may;
-# - `pushed <commit>`: `discover/$DAY` is already on GitHub at that commit,
+# - `pushed <commit>`: the branch of the run (`$BRANCH`, `discover/$DAY`
+#   unless the workflow names another) is already on GitHub at that commit,
 #   with no pull request (a run that pushed, then failed to open it, for
 #   example before Actions was allowed to create pull requests): the
 #   propose job opens its pull request when it holds the same commit;
@@ -20,20 +21,22 @@
 #
 # - an earlier pull request of the search is still open (a person merges
 #   or closes it first, so two never conflict);
-# - a pull request was already opened from `discover/$DAY` (a run of the
-#   same day that a person merged or closed).
+# - a pull request was already opened from the branch of the run (a run
+#   of the same day that a person merged or closed). A run started by hand
+#   has a branch of its own (`discover/$DAY-<run number>`), so it is held
+#   back only by an open pull request.
 #
 # Every value is read in a plain assignment, so a failing `gh` or `git`
 # stops the script instead of reading as "nothing proposed yet". Needs `gh`
 # (`GH_TOKEN`, `GH_REPO`) and `jq`.
 #
-# Run: DAY=<YYYY-MM-DD> scripts/gate-discovered.sh <proposed.json>
+# Run: DAY=<YYYY-MM-DD> [BRANCH=<branch>] scripts/gate-discovered.sh <proposed.json>
 set -euo pipefail
 
 day="${DAY:?the day of the run}"
 proposed="${1:?the file to write the proposed pull requests to}"
 repo_url="https://x-access-token:${GH_TOKEN:?a token that may read the repository}@github.com/${GITHUB_REPOSITORY:?owner/name}.git"
-branch="discover/$day"
+branch="${BRANCH:-discover/$day}"
 
 all="$(gh pr list --state all --limit 1000 \
   --json number,headRefName,state,isCrossRepository,title,body,url)"

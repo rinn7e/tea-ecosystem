@@ -3,7 +3,8 @@ name: Discover
 # Once a week, an AI agent (the Claude Agent SDK) searches for TEA frameworks that
 # the catalog does not list yet, grades each against the rubric from its
 # own docs and source, and commits each entry on the branch of the run,
-# `discover/<day>` (`.github/discover-prompt.md`). A second job checks the
+# `discover/<day>`, or `discover/<day>-<run number>` for a run started by
+# hand (`.github/discover-prompt.md`). A second job checks the
 # final data of the branch, makes a fresh commit of it (no commit of the
 # agent is ever pushed), and opens one draft pull request with every
 # candidate of the run, so they never conflict with each other. A person reviews it,
@@ -50,6 +51,7 @@ jobs:
     outputs:
       base: ${{ steps.context.outputs.base }}
       day: ${{ steps.context.outputs.day }}
+      branch: ${{ steps.context.outputs.branch }}
       found: ${{ steps.bundle.outputs.found }}
       # An earlier try pushed the commit of the run and failed to open its
       # pull request: the propose job finishes it, with no search
@@ -79,17 +81,27 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # The day of the run (its `discoveredAt` and its branch), the commit
-      # the branch starts from, and whether this run may propose at all
+      # The day of the run (its `discoveredAt`), its branch, the commit the
+      # branch starts from, and whether this run may propose at all
       # (`scripts/gate-discovered.sh`), with the pull requests the search
-      # opened before, so the agent skips their candidates
+      # opened before, so the agent skips their candidates. A run started by
+      # hand gets a branch of its own, `discover/<day>-<run number>`, so it
+      # can search on a day that already proposed; it still waits while a
+      # pull request of the search is open. A re-run keeps its run number,
+      # so it finds the branch its earlier try pushed.
       - id: context
         run: |
           day="$(date -u +%F)"
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            branch="discover/$day-$GITHUB_RUN_NUMBER"
+          else
+            branch="discover/$day"
+          fi
           echo "day=$day" >> "$GITHUB_OUTPUT"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           mkdir -p tmp/discover
-          gate="$(DAY="$day" scripts/gate-discovered.sh tmp/discover/proposed.json)"
+          gate="$(DAY="$day" BRANCH="$branch" scripts/gate-discovered.sh tmp/discover/proposed.json)"
           echo "gate=$gate" >> "$GITHUB_OUTPUT"
           case "$gate" in
             go) ;;
@@ -122,6 +134,7 @@ jobs:
           # The read-only token of this job, for `gh search repos`
           GH_TOKEN: ${{ github.token }}
           DAY: ${{ steps.context.outputs.day }}
+          BRANCH: ${{ steps.context.outputs.branch }}
           EXECUTION_FILE: ${{ runner.temp }}/discover-execution.json
 
       # The report of the agent (what it proposed, what it skipped and
@@ -167,6 +180,7 @@ jobs:
         env:
           BASE: ${{ steps.context.outputs.base }}
           DAY: ${{ steps.context.outputs.day }}
+          BRANCH: ${{ steps.context.outputs.branch }}
       - if: ${{ !cancelled() && steps.bundle.outputs.found == 'true' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -224,3 +238,4 @@ jobs:
           GH_REPO: ${{ github.repository }}
           BASE: ${{ needs.search.outputs.base }}
           DAY: ${{ needs.search.outputs.day }}
+          BRANCH: ${{ needs.search.outputs.branch }}

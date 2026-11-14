@@ -49,7 +49,7 @@ Skip a project, with a one line reason in your report, when it is:
 
 ## The branch of the run
 
-Before the first candidate, start the branch of the run from the base: `git switch -c discover/<day>`, with the day of the run (`discover/2026-11-16`). Every candidate goes on it, one commit each. Never start another branch. Only the data of the branch leaves the run: the workflow checks the final data files and examples, and makes a commit of its own of them, so your commits, their messages and anything else you change never reach GitHub.
+Before the first candidate, start the branch of the run from the base: `git switch -c <branch>`, with the branch the workflow prompt names (`discover/2026-11-16`, or `discover/2026-11-16-7` for a run started by hand). Every candidate goes on it, one commit each. Never start another branch. Only the data of the branch leaves the run: the workflow checks the final data files and examples, and makes a commit of its own of them, so your commits, their messages and anything else you change never reach GitHub.
 
 ## For each candidate
 

@@ -9,13 +9,15 @@
 # Every value is read in a plain assignment, so a failing `git` stops the
 # step instead of reading as "no branch".
 #
-# Run: BASE=<commit> DAY=<YYYY-MM-DD> scripts/bundle-discovered.sh <bundle>
+# The branch is `$BRANCH`, or `discover/$DAY` when the workflow names none.
+#
+# Run: BASE=<commit> DAY=<YYYY-MM-DD> [BRANCH=<branch>] scripts/bundle-discovered.sh <bundle>
 set -euo pipefail
 
 base="${BASE:?the commit the run started from}"
 day="${DAY:?the day of the run}"
 out="${1:?the file to write the bundle to}"
-branch="discover/$day"
+branch="${BRANCH:-discover/$day}"
 
 refs="$(git for-each-ref --format='%(refname:short)' 'refs/heads/discover/')"
 exists="$(git for-each-ref --format='%(refname)' "refs/heads/$branch")"
