@@ -93,12 +93,11 @@ export const listOf = (framework: Framework): ListKind =>
   framework.tier === 'adjacent' ? 'adjacent' : 'catalog'
 
 // The other entries in a language of an entry (any of the two of one that
-// ships one library per platform, as the language filter matches), list by
-// list: the Main
-// catalog first, then the TEA-adjacent page, each in its own order, a list
-// with none left out. The page of an entry shows them under "More in
-// <language>", so a Haskell framework also points to the Haskell libraries
-// that are not TEA, and back.
+// ships one library per platform, as the language filter matches), list
+// by list: the Main catalog first, then the TEA-adjacent page, each in its
+// own order, a list with none left out. The page of an entry shows them
+// under "More in <language>", so a Haskell framework also points to the
+// Haskell libraries that are not TEA, and back.
 export const sameLanguageEntriesOf = (
   framework: Framework,
 ): { kind: ListKind; entries: Framework[] }[] =>

@@ -122,8 +122,9 @@ const relatedChipView = ({ framework }: { framework: Framework }) => (
   </Link>
 )
 
-// The other entries in its language, from both lists: the Main catalog,
-// then the TEA-adjacent page, each under its name (`sameLanguageEntriesOf`)
+// The other entries in any of its languages, from both lists: the Main
+// catalog, then the TEA-adjacent page, each under its name
+// (`sameLanguageEntriesOf`)
 const relatedView = ({ framework }: { framework: Framework }) => {
   const groups = sameLanguageEntriesOf(framework)
   return groups.length === 0 ? null : (
