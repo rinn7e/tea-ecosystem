@@ -158,7 +158,7 @@ describe('language', () => {
   it('keeps the entries of a language, both languages of a pair too', () => {
     const shownIn = (language: string) =>
       filterFrameworks({
-        ...defaultCatalogFilter(),
+        ...defaultAdjacentFilter(),
         language: O.some(language),
         statuses: statusChoiceOf([]),
       })(adjacentEntries).map((e) => e.language)
@@ -282,6 +282,40 @@ describe('sort', () => {
       sorted.filter.sort,
     )
   })
+
+  it('clears each list back to its default filter, keeping layout and sort', () => {
+    const sort = O.some<ListingSort>({
+      column: 'stars',
+      direction: 'ascending',
+    })
+    const catalog = init({
+      ...defaultCatalogFilter(),
+      tiers: choiceOf(catalogTiers, ['full']),
+      show: O.some('frameworks'),
+      targets: choiceOf(targets, ['web']),
+      query: 'rust',
+      language: O.some('Rust'),
+      layout: 'table',
+      sort,
+    })
+    expect(update({ _tag: 'ClearFilter' }, catalog)[0].filter).toEqual({
+      ...defaultCatalogFilter(),
+      layout: 'table',
+      sort,
+    })
+    const adjacent = init({
+      ...defaultAdjacentFilter(),
+      lacks: choiceOf(lackables, ['cmd']),
+      statuses: statusChoiceOf(['archived']),
+      layout: 'table',
+      sort,
+    })
+    expect(update({ _tag: 'ClearFilter' }, adjacent)[0].filter).toEqual({
+      ...defaultAdjacentFilter(),
+      layout: 'table',
+      sort,
+    })
+  })
 })
 
 describe('filter popover', () => {
@@ -403,7 +437,9 @@ describe('otherListMatchesOf', () => {
 
   it('counts the matches of a search in the other list, as it shows them', () => {
     expect(countOf(searchOf('XState'))).toEqual(
-      O.some(filterFrameworks(searchOf('XState'))(adjacentEntries).length),
+      O.some(
+        filterFrameworks(adjacentSearchOf('XState'))(adjacentEntries).length,
+      ),
     )
     expect(countOf(adjacentSearchOf('Bubble Tea'))).toEqual(
       O.some(filterFrameworks(searchOf('Bubble Tea'))(frameworks).length),
@@ -846,30 +882,21 @@ describe('hiddenArchivedCountOf', () => {
   })
 
   it('names the archived ones above the results under each narrowing filter', () => {
-    const count = (
-      entries: typeof frameworks,
-      filter: Partial<CatalogFilter> & Partial<AdjacentFilter>,
-    ) =>
-      archivedHintCountOf(
-        entries,
-        entries === adjacentEntries
-          ? { ...defaultAdjacentFilter(), ...filter, list: 'adjacent' }
-          : { ...defaultCatalogFilter(), ...filter, list: 'catalog' },
-      )
-    expect(count(frameworks, { language: O.some('PureScript') })).toBe(2)
+    const count = (filter: Partial<CatalogFilter>) =>
+      archivedHintCountOf(frameworks, { ...defaultCatalogFilter(), ...filter })
+    const adjacentCount = (filter: Partial<AdjacentFilter>) =>
+      archivedHintCountOf(adjacentEntries, {
+        ...defaultAdjacentFilter(),
+        ...filter,
+      })
+    expect(count({ language: O.some('PureScript') })).toBe(2)
     // Seed is archived; Dartea is an archived mobile framework; every
     // archived framework is full TEA; ts-elmish and Comet lack Sub
-    expect(count(frameworks, { query: 'seed' })).toBe(1)
-    expect(count(frameworks, { targets: choiceOf(targets, ['mobile']) })).toBe(
-      1,
-    )
-    expect(count(frameworks, { tiers: choiceOf(catalogTiers, ['full']) })).toBe(
-      6,
-    )
-    expect(count(frameworks, { show: O.some('frameworks') })).toBe(6)
-    expect(
-      count(adjacentEntries, { lacks: choiceOf(lackables, ['sub']) }),
-    ).toBe(2)
+    expect(count({ query: 'seed' })).toBe(1)
+    expect(count({ targets: choiceOf(targets, ['mobile']) })).toBe(1)
+    expect(count({ tiers: choiceOf(catalogTiers, ['full']) })).toBe(6)
+    expect(count({ show: O.some('frameworks') })).toBe(6)
+    expect(adjacentCount({ lacks: choiceOf(lackables, ['sub']) })).toBe(2)
   })
 
   it('names none under statuses the reader chose', () => {

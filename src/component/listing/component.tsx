@@ -1097,18 +1097,16 @@ const tableView = ({
 // matches the filters that mean the same there (`carriedFilterOf`), it
 // says how many and links to them there.
 const emptyView = ({
-  list,
   entries,
   filter,
   dispatch,
 }: {
-  list: ListId
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
   const archivedCount = hiddenArchivedCountOf(entries, filter)
-  const noun = entryNounOf(list, archivedCount)
+  const noun = entryNounOf(filter.list, archivedCount)
   const other = otherListMatchesOf(filter)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
@@ -1161,12 +1159,10 @@ const emptyView = ({
 // narrows the list (`archivedHintCountOf`). Once the button shows them,
 // the line stays and offers to hide them again (`shownArchivedCountOf`).
 const archivedHintView = ({
-  list,
   entries,
   filter,
   dispatch,
 }: {
-  list: ListId
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
@@ -1174,7 +1170,7 @@ const archivedHintView = ({
   const hidden = archivedHintCountOf(entries, filter)
   const shown = shownArchivedCountOf(entries, filter)
   const count = hidden + shown
-  const noun = entryNounOf(list, count)
+  const noun = entryNounOf(filter.list, count)
   return count === 0 ? null : (
     <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
       <span>
@@ -1294,14 +1290,13 @@ const ListingComponent = ({
         })}
         {shown.length > 0 &&
           archivedHintView({
-            list,
             entries,
             filter: model.filter,
             dispatch,
           })}
         {shown.length > 0 && otherListHintView({ filter: model.filter })}
         {shown.length === 0
-          ? emptyView({ list, entries, filter: model.filter, dispatch })
+          ? emptyView({ entries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'
             ? cardsView({ shown, recentSince })
             : tableView({ shown, sort: model.filter.sort, dispatch })}

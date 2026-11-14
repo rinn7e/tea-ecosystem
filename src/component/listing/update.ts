@@ -5,13 +5,12 @@ import { Cmd, Task, Time } from 'tea-cup-fp'
 import {
   type ListingFilter,
   type ListingSort,
-  anyChoice,
-  defaultStatusChoice,
+  defaultAdjacentFilter,
+  defaultCatalogFilter,
   firstDirectionOf,
   toggleChoice,
   toggleStatus,
 } from '@/common/type/destination'
-import { type Concept, type Target, type Tier } from '@/common/type/framework'
 
 import { type Model, type Msg } from './type'
 
@@ -45,15 +44,6 @@ const closePanel = <F extends ListingFilter>(
       ]
     : [model, Cmd.none()]
 }
-
-// What Clear filters resets of the filters both lists have: all but the
-// layout and the sort
-const clearedShared = () => ({
-  targets: anyChoice<Target>(false),
-  statuses: defaultStatusChoice(),
-  query: '',
-  language: O.none,
-})
 
 // A filter change updates the model only: the URL follows after the step
 // (`withUrl`), as a replace while typing a query
@@ -146,11 +136,16 @@ export const update = <F extends ListingFilter>(
         filter.list === 'catalog'
           ? {
               ...filter,
-              ...clearedShared(),
-              tiers: anyChoice<Tier>(false),
-              show: O.none,
+              ...defaultCatalogFilter(),
+              layout: filter.layout,
+              sort: filter.sort,
             }
-          : { ...filter, ...clearedShared(), lacks: anyChoice<Concept>(false) },
+          : {
+              ...filter,
+              ...defaultAdjacentFilter(),
+              layout: filter.layout,
+              sort: filter.sort,
+            },
       )
     // The Filters button opens the popover, or closes it when open
     case 'TogglePanel':

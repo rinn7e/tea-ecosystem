@@ -71,13 +71,7 @@ export const buildLanguages: readonly BuildLanguage[] = [
   'kotlin',
 ]
 
-// The filters of a list, which a link can share: the ones both lists have,
-// and the ones of its own list, which the other list has no field for
-// (`list` says which). The catalog filters by tier and by the category of
-// entry, the adjacent list by the part an entry lacks.
-// Each filter of the popover is a `Choice` among the options the list
-// offers: an entry passes when it matches any option chosen, and `Any`
-// (no box ticked, or every one) passes every entry
+// The filters both lists have
 type SharedFilter = {
   targets: Choice<Target>
   // Active and quiet by default: archived entries are hidden until chosen
@@ -105,6 +99,13 @@ export type AdjacentFilter = SharedFilter & {
   lacks: Choice<Concept>
 }
 
+// The filters of a list, which a link can share: the ones both lists have,
+// and the ones of its own list, which the other list has no field for
+// (`list` says which). The catalog filters by tier and by the category of
+// entry, the adjacent list by the part an entry lacks.
+// Each filter of the popover is a `Choice` among the options the list
+// offers: an entry passes when it matches any option chosen, and `Any`
+// (no box ticked, or every one) passes every entry
 export type ListingFilter = CatalogFilter | AdjacentFilter
 
 export type CatalogScreen = {
@@ -148,26 +149,31 @@ export type Screen =
   | BuildScreen
   | NotFoundScreen
 
-const SharedFilterEq: EqClass.Eq<SharedFilter> = EqClass.struct({
+// The `Eq` of each filter both lists have, spread into the `Eq` of each
+// list, so a field added to `SharedFilter` must be added here
+const sharedFilterEqs: {
+  [K in keyof SharedFilter]: EqClass.Eq<SharedFilter[K]>
+} = {
   targets: getChoiceEq(S.Eq),
   statuses: StatusChoiceEq,
   query: S.Eq,
   language: O.getEq(S.Eq),
   layout: S.Eq,
   sort: O.getEq(ListingSortEq),
+}
+
+export const CatalogFilterEq: EqClass.Eq<CatalogFilter> = EqClass.struct({
+  ...sharedFilterEqs,
+  list: S.Eq,
+  tiers: getChoiceEq(S.Eq),
+  show: O.getEq(S.Eq),
 })
 
-export const CatalogFilterEq: EqClass.Eq<CatalogFilter> = {
-  equals: (x, y) =>
-    SharedFilterEq.equals(x, y) &&
-    getChoiceEq(S.Eq).equals(x.tiers, y.tiers) &&
-    O.getEq(S.Eq).equals(x.show, y.show),
-}
-
-export const AdjacentFilterEq: EqClass.Eq<AdjacentFilter> = {
-  equals: (x, y) =>
-    SharedFilterEq.equals(x, y) && getChoiceEq(S.Eq).equals(x.lacks, y.lacks),
-}
+export const AdjacentFilterEq: EqClass.Eq<AdjacentFilter> = EqClass.struct({
+  ...sharedFilterEqs,
+  list: S.Eq,
+  lacks: getChoiceEq(S.Eq),
+})
 
 // Two filters of different lists are never equal
 export const ListingFilterEq: EqClass.Eq<ListingFilter> = {

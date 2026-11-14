@@ -10,6 +10,7 @@ The rules of this app. They follow the code convention of the realworld `fronten
 - [No update wrapper (and the URL exception)](#no-update-wrapper-and-the-url-exception)
 - [Follow the component tree](#follow-the-component-tree)
 - [One source of truth](#one-source-of-truth)
+- [Make impossible states impossible](#make-impossible-states-impossible)
 - [Make impossible updates impossible](#make-impossible-updates-impossible)
 - [Data files](#data-files)
 - [The samples of the guide](#the-samples-of-the-guide)
