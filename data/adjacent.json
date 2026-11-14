@@ -21,7 +21,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: the reducer returns only state, effects run in middleware (thunks, sagas) outside it, and outside events are dispatched from anywhere."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-05-29",
@@ -51,7 +53,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: the reducer returns only state; effects and outside events live in useEffect and event handlers."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2013-05-24",
@@ -79,7 +83,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Sub: the reducer returns a loop of state and command, but outside events have no managed source."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2016-01-05",
@@ -107,7 +113,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Sub: update returns state and an effect, but outside events have no managed source."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2017-06-12",
@@ -134,7 +142,7 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": ["Misses Sub: its README puts subscriptions out of scope."],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-07-29",
@@ -162,7 +170,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Sub: update returns the model with commands, but there are no subscriptions."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2024-09-18",
@@ -191,7 +201,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: effects are Observables that watch actions from outside the reducer, which returns no effects."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2017-03-02",
@@ -220,7 +232,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Model, Msg, update, Cmd and Sub: stores change state in place inside actions, with no message type and no effect values."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-11-18",
@@ -248,7 +262,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Msg, update, Cmd and Sub: a store with setters, with no message type and no effect values."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-04-09",
@@ -277,7 +293,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Model, Msg, update, Cmd and Sub: observable mutable state, changed in place, the opposite model."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-03-14",
@@ -305,7 +323,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses update, Cmd and Sub: stores mutate state on emitted events, so there is no update that returns effects."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2016-05-10",
@@ -332,7 +352,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: event handlers return the next state and may run effects directly, and outside events have no managed source."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2016-10-07",
@@ -361,7 +383,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Msg, update, Cmd and Sub: Model-View-Intent over streams, with intents in place of messages and no update function."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2014-11-07",
@@ -390,7 +414,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Model, update, Cmd and Sub: statecharts with actions on transitions, in place of an update that returns effects."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-09-14",
@@ -418,7 +444,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Sub: effects are data (reg-event-fx returns an effect map), but its subscriptions are derived queries, not sources of outside events."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2014-12-05",
@@ -446,7 +474,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: event handlers run effects directly instead of returning them, and a LiveView subscribes to outside sources itself (PubSub in mount)."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2018-09-12",
@@ -475,7 +505,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: update runs effects through the component link, and outside sources send their messages through that link too."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2017-12-16",
@@ -503,7 +535,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: components and messages, without effects as values, and components subscribe to events when they are mounted, not through a function of the model."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2021-04-07",
@@ -532,7 +566,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Msg, update, Cmd and Sub: immediate mode, where the app owns its loop; its docs describe TEA as a pattern to build on top."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2023-02-12",
@@ -559,7 +595,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Msg, update, Cmd and Sub: a reactive view tree over app state, with callbacks that mutate state in place of messages and an update."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2022-11-16",
@@ -587,7 +625,9 @@
       "sub": "managed",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd: the event handler runs IO directly in EventM instead of returning effects as values."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-05-09",
@@ -615,7 +655,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: actions schedule effects imperatively instead of returning them as values, and outside sources are started by the app, not by the runtime."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-11-18",
@@ -644,7 +686,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: event handlers emit states and run effects inside the bloc, and outside sources are started by the app, not by the runtime."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2018-10-07",
@@ -672,7 +716,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: a pure reducer with effects in an executor beside it, not returned from it, and outside sources are started by the app, not by the runtime."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2021-12-10",
@@ -700,7 +746,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: intents reduce state and post side effects inside the same block, and outside sources are started by the app, not by the runtime."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-12-22",
@@ -727,7 +775,9 @@
       "sub": "managed",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd: a workflow renders and handles actions, and its effects run through workers and side effects instead of being returned from an update."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2020-06-02",
@@ -754,7 +804,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: Redux for Swift, with the same gaps: the reducer returns only state, and actions are dispatched from anywhere."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2015-12-15",
@@ -782,7 +834,9 @@
       "sub": "equivalent",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses Cmd and Sub: mutate returns streams of mutations, close to Cmd, but effects and reduce are split by stream, and outside sources are merged in by the app."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2017-01-06",
@@ -809,7 +863,9 @@
       "sub": "missing",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "Misses update, Cmd and Sub: Model-View-Update in name, but state is changed in place."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2019-06-15",
@@ -837,7 +893,7 @@
       "ports": "missing"
     },
     "notes": [
-      "Misses Cmd: update returns { Model; Cmd }, but the only command the runtime reads is Quit, so effects run directly inside update (the system monitor demo calls Get-Process there).",
+      "Misses update and Cmd: update returns { Model; Cmd }, but the only command the runtime reads is Quit, so effects run directly inside update (the system monitor demo calls Get-Process there).",
       "SubscriptionFn is a function of the model that returns Sub objects (TeaKeySub, TeaCharSub, TeaTimerSub) which the runtime polls.",
       "Messages are plain strings or PSCustomObject values with a Type field, not a closed type."
     ],
@@ -961,8 +1017,8 @@
       "ports": "equivalent"
     },
     "notes": [
+      "Misses Model, update and Cmd: update runs in Effectful, so it performs effects itself instead of returning them as values, and it returns the next view instead of a model.",
       "Its own comparison with Elm says it removes state: each HyperView has an Action type and an update that returns the next view; ViewState can thread a state through the actions.",
-      "update runs in Effectful, so it performs effects itself instead of returning them as values: the hard requirement it misses.",
       "onLoad in a view sends an action after a delay (polling), stopped by drawing a view without it; pushEvent sends an event to the JavaScript of the page."
     ],
     "verified": true,
@@ -994,8 +1050,8 @@
       "ports": "missing"
     },
     "notes": [
+      "Misses Cmd and Sub: the effect is a function, not a value the runtime reads, and outside events reach the store only by calling send or trigger.",
       "A transition (context, event, enqueue) returns the next context; store.transition(state, event) returns the next state and its effects: emitted events as data, and the functions queued by enqueue.effect, whose results come back by triggering an event.",
-      "The effect is a function, not a value the runtime reads, and outside events reach the store only by calling send or trigger: no subscriptions, the hard requirement it misses.",
       "A store, not an app: the view comes from React, Solid or another library through a selector."
     ],
     "verified": true,
@@ -1003,5 +1059,36 @@
     "createdAt": "2015-09-14",
     "updatedAt": "2026-11-13",
     "stars": 30459
+  },
+  {
+    "id": "halogen",
+    "name": "Halogen",
+    "language": "PureScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "adjacent",
+    "status": "active",
+    "repo": "https://github.com/purescript-halogen/purescript-halogen",
+    "logo": "halogen.png",
+    "summary": "A component framework for PureScript: as powerful as TEA, with components, queries and slots, but not shaped like it.",
+    "snippetSource": "https://github.com/purescript-halogen/purescript-halogen/blob/master/examples/basic/src/Button.purs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "equivalent",
+      "ports": "native"
+    },
+    "notes": [
+      "Misses update, Cmd and Sub: handleAction runs effects directly in the HalogenM monad instead of returning them as data, and subscriptions are started imperatively from an emitter.",
+      "As powerful as TEA, with components, queries and slots, but not shaped like it: a Halogen program ports back to Elm only by pulling every effect out of handleAction into a Cmd."
+    ],
+    "verified": false,
+    "discoveredAt": "2026-11-13",
+    "createdAt": "2015-02-25",
+    "updatedAt": "2026-10-11",
+    "stars": 1602
   }
 ]
