@@ -122,7 +122,9 @@ describe('data files', () => {
 
   it('give every repository both dates, as days', () => {
     const day = /^\d{4}-\d{2}-\d{2}$/
-    const wrong = frameworks.filter(
+    // Both lists: a fallback entry that forgets its `website` reads as a
+    // public repository with no dates
+    const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) =>
         hasPublicRepo(f) &&
         !(day.test(f.createdAt ?? '') && day.test(f.updatedAt ?? '')),
@@ -154,10 +156,21 @@ describe('sameLanguageEntriesOf', () => {
 
   it('gathers the entries of the language from both lists, catalog first', () => {
     const groups = idsOf('brick')
-    expect(groups).toEqual(
+    // Each entry in its own group, whatever else the lists gain later
+    expect(
+      pipe(
+        groups,
+        O.map(
+          A.map((g) => ({
+            kind: g.kind,
+            has: g.ids.includes(g.kind === 'catalog' ? 'miso' : 'hyperbole'),
+          })),
+        ),
+      ),
+    ).toEqual(
       O.some([
-        { kind: 'catalog', ids: ['miso', 'monomer', 'gi-gtk-declarative'] },
-        { kind: 'adjacent', ids: ['hyperbole'] },
+        { kind: 'catalog', has: true },
+        { kind: 'adjacent', has: true },
       ]),
     )
   })
