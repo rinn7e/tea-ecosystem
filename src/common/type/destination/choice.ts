@@ -13,8 +13,10 @@ import { type Status, statuses } from '@/common/type/framework'
 // statuses or what its entries lack), an entry passes when it matches any
 // option chosen. One state per meaning, so no view has to work out again
 // whether a choice narrows the list:
-// - `Any` narrows nothing: no box ticked, or every one (`allSelected`,
-//   which only tells the popover to draw every box ticked)
+// - `Any` narrows nothing: no box ticked, or every one (`allSelected`:
+//   the popover draws every box ticked, the URL names every option, and
+//   for the statuses it is where "Show the archived" leads, so the
+//   archived line there offers Hide)
 // - `Only` narrows: a non-empty part of the options it was given, never
 //   every one, and never one outside them (each caller passes the options
 //   of its list: `targetOptionsOf` for the targets)

@@ -379,8 +379,8 @@ export const otherListMatchTextOf = ({
   const also = isAlso ? 'also ' : ''
   const verb = count === 1 ? 'matches' : 'match'
   return matches.filter.list === 'adjacent'
-    ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} ${subject}.`
-    : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the Main catalog ${also}${verb} ${subject}.`
+    ? `${count} ${archived}TEA-adjacent ${entryNounOf('adjacent', count)} ${also}${verb} ${subject}.`
+    : `${count} ${archived}${entryNounOf('catalog', count)} in the Main catalog ${also}${verb} ${subject}.`
 }
 
 // The link to the matches on the other list, with the filter that shows

@@ -46,7 +46,8 @@ const closePanel = <F extends ListingFilter>(
 }
 
 // A filter change updates the model only: the URL follows after the step
-// (`withUrl`), as a replace while typing a query
+// (`withUrl`), as a replace while typing a query or changing only the order
+// (`isRefinement`)
 // The filters of one list change only on that list: a tier or the
 // category of entry on the catalog, what an entry lacks on the adjacent
 // list

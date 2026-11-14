@@ -124,6 +124,45 @@ describe('filterFrameworks', () => {
   })
 })
 
+describe('the toggles of each list', () => {
+  const catalog = init(defaultCatalogFilter())
+  const adjacent = init(defaultAdjacentFilter())
+
+  it('ticks what an entry lacks on the adjacent list', () => {
+    const [next] = update(
+      { _tag: 'ToggleLacks', concept: 'cmd', options: [...lackables] },
+      adjacent,
+    )
+    expect(next.filter.lacks).toEqual(choiceOf(lackables, ['cmd']))
+  })
+
+  it('ticks a target on either list', () => {
+    const [next] = update(
+      { _tag: 'ToggleTarget', target: 'web', options: [...targets] },
+      catalog,
+    )
+    expect(next.filter.targets).toEqual(choiceOf(targets, ['web']))
+  })
+
+  it('ignores a filter of the other list', () => {
+    expect(
+      update(
+        { _tag: 'ToggleTier', tier: 'full', options: [...catalogTiers] },
+        adjacent,
+      )[0],
+    ).toEqual(adjacent)
+    expect(
+      update({ _tag: 'ToggleShow', category: 'languages' }, adjacent)[0],
+    ).toEqual(adjacent)
+    expect(
+      update(
+        { _tag: 'ToggleLacks', concept: 'cmd', options: [...lackables] },
+        catalog,
+      )[0],
+    ).toEqual(catalog)
+  })
+})
+
 describe('lacks', () => {
   it('keeps only the adjacent entries that miss a part', () => {
     const shown = filterFrameworks({
