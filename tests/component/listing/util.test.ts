@@ -401,31 +401,110 @@ describe('otherListMatchesOf', () => {
     )
   })
 
-  it('carries the language, targets and statuses, and leaves the tiers', () => {
-    const scala: ListingFilter = {
-      ...defaultListingFilter(),
-      language: O.some('Scala'),
+  it('carries what means the same on both lists, and leaves the rest', () => {
+    const full: ListingFilter = {
       tiers: ['full'],
+      lacks: ['cmd'],
+      targets: ['web'],
+      statuses: ['active'],
+      query: ' react ',
+      show: O.some('frameworks'),
+      language: O.some('TypeScript'),
+      layout: 'table',
+      sort: O.some({ column: 'stars', direction: 'descending' }),
     }
-    expect(carriedFilterOf(scala)).toEqual({
+    expect(carriedFilterOf(full)).toEqual({
       ...defaultListingFilter(),
-      language: O.some('Scala'),
+      targets: ['web'],
+      statuses: ['active'],
+      query: 'react',
+      language: O.some('TypeScript'),
+      layout: 'table',
+      sort: O.some({ column: 'stars', direction: 'descending' }),
     })
-    const adjacentScala = filterFrameworks(carriedFilterOf(scala))(
-      adjacentEntries,
-    ).length
-    expect(countOf('catalog', scala)).toEqual(
-      adjacentScala === 0 ? O.none : O.some(adjacentScala),
-    )
+  })
+
+  it('points on targets alone, or statuses that leave some out', () => {
     expect(
-      pipe(
-        otherListMatchesOf('adjacent', {
+      O.isSome(
+        otherListMatchesOf('catalog', {
           ...defaultListingFilter(),
-          language: O.some('TypeScript'),
+          targets: ['web'],
         }),
-        O.map((m) => m.subject),
       ),
+    ).toBe(true)
+    expect(
+      O.isSome(
+        otherListMatchesOf('catalog', {
+          ...defaultListingFilter(),
+          statuses: ['active'],
+        }),
+      ),
+    ).toBe(true)
+  })
+
+  it('does not point on statuses that widen the list', () => {
+    expect(
+      otherListMatchesOf('catalog', {
+        ...defaultListingFilter(),
+        statuses: ['active', 'quiet', 'archived'],
+      }),
+    ).toEqual(O.none)
+    expect(
+      otherListMatchesOf('catalog', {
+        ...defaultListingFilter(),
+        statuses: [],
+      }),
+    ).toEqual(O.none)
+  })
+
+  it('finds no TEA-adjacent library in Scala', () => {
+    expect(
+      otherListMatchesOf('catalog', {
+        ...defaultListingFilter(),
+        language: O.some('Scala'),
+      }),
+    ).toEqual(O.none)
+  })
+
+  it('skips the archived fallback under statuses the reader chose', () => {
+    // Seed is archived: under the default statuses the pointer falls back
+    // to it, under Active only it does not
+    expect(
+      otherListMatchesOf('adjacent', {
+        ...searchOf('seed'),
+        statuses: ['active'],
+      }),
+    ).toEqual(O.none)
+  })
+
+  it('names what the matches match', () => {
+    const subjectOf = (kind: 'catalog' | 'adjacent', filter: ListingFilter) =>
+      pipe(
+        otherListMatchesOf(kind, filter),
+        O.map((m) => m.subject),
+      )
+    expect(
+      subjectOf('adjacent', {
+        ...defaultListingFilter(),
+        language: O.some('TypeScript'),
+      }),
     ).toEqual(O.some('these filters'))
+    expect(
+      subjectOf('adjacent', {
+        ...searchOf('elm'),
+        language: O.some('TypeScript'),
+      }),
+    ).toEqual(O.some('these filters'))
+    // The tier stays behind, so the other list does not match "these
+    // filters", only the ones that apply there
+    expect(
+      subjectOf('catalog', {
+        ...defaultListingFilter(),
+        tiers: ['reference'],
+        language: O.some('TypeScript'),
+      }),
+    ).toEqual(O.some('the filters that apply there'))
   })
 
   it('names a search alone in quotes', () => {

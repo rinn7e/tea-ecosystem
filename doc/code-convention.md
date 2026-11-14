@@ -52,7 +52,7 @@ How the history follows a step (`urlWriteOf`):
 
 1. A landing (`UrlChanged`) already has its entry: it writes nothing, unless the app shows another destination than the one its URL opens (then it replaces).
 2. The same destination writes nothing.
-3. Typing in the catalog search replaces the entry (`isQueryEdit`): refining a search is not a new place.
+3. Typing in the search of a list, or changing only its order (a header of the table, or the sort menu of the cards, whose arrow keys change it at every step), replaces the entry (`isRefinement`): refining a list is not a new place.
 4. A step onto a screen below the one shown goes back in the history when the entry under the current one holds its URL (`BackOrPushUrl`, see the next section).
 5. Any other change of destination pushes an entry.
 

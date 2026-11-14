@@ -33,6 +33,7 @@ import {
   concepts,
   isLanguageEntry,
   languagesOf,
+  statuses,
 } from '@/common/type/framework'
 import { breakpoints } from '@/common/util/window-width'
 import {
@@ -176,16 +177,30 @@ export const carriedFilterOf = (filter: ListingFilter): ListingFilter => ({
 const isDefaultStatuses = (statuses: Status[]): boolean =>
   A.getEq(S.Eq).equals(statuses, defaultStatuses())
 
+// Whether statuses leave out some of what a list shows by default: not
+// the default ones, and not every status (none chosen, or all three), which
+// widens a list instead
+const narrowsStatuses = (chosen: Status[]): boolean =>
+  !isDefaultStatuses(chosen) &&
+  chosen.length > 0 &&
+  chosen.length < statuses.length
+
 // Whether a carried filter narrows the other list at all
 const narrowsOtherList = (carried: ListingFilter): boolean =>
   carried.query !== '' ||
   O.isSome(carried.language) ||
   carried.targets.length > 0 ||
-  !isDefaultStatuses(carried.statuses)
+  narrowsStatuses(carried.statuses)
+
+// Whether a filter that belongs to one list only is on: it stays behind,
+// so the pointer cannot say the other list matches "these filters"
+const hasOneListFilter = (filter: ListingFilter): boolean =>
+  filter.tiers.length > 0 || filter.lacks.length > 0 || O.isSome(filter.show)
 
 // The matches in the other list of the filter a list is under, the filter
-// that shows them there, and how the pointer names what they match (the
-// search in quotes when it is the only filter, else "these filters"). The
+// that shows them there, and how the pointer names what they match: the
+// search in quotes when it is the only filter carried, "these filters"
+// when every filter on is carried, else "the filters that apply there". The
 // entries the other list shows by default come first; when none of them
 // match and the statuses are the default ones, its archived entries
 // (`isArchived`), shown with every status. None when the filter carries
@@ -207,9 +222,11 @@ export const otherListMatchesOf = (
     carried.query !== '' &&
     O.isNone(carried.language) &&
     carried.targets.length === 0 &&
-    isDefaultStatuses(carried.statuses)
+    !narrowsStatuses(carried.statuses)
       ? `"${carried.query}"`
-      : 'these filters'
+      : hasOneListFilter(filter)
+        ? 'the filters that apply there'
+        : 'these filters'
   const tries = [
     { filter: carried, isArchived: false },
     ...(isDefaultStatuses(carried.statuses)

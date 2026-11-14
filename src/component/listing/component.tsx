@@ -1115,8 +1115,9 @@ const emptyView = ({
           Show the archived {noun}
         </button>
       )}
-      {/* The other list has what this search names: the TEA-adjacent page
-          for a library that is not TEA, the catalog for one that is */}
+      {/* The other list matches the filters this one carries over
+          (`carriedFilterOf`): the TEA-adjacent page for a library that is
+          not TEA, the Main catalog for one that is */}
       {pipe(
         other,
         O.fold(
@@ -1143,9 +1144,9 @@ const emptyView = ({
 
 // Results found, and the other list matches the same filters too
 // (`carriedFilterOf`: the search, the language, the targets, the statuses):
-// one quiet line above the results, so a search for "react", or the Scala
-// logo, on the catalog also points to the matching libraries of the
-// TEA-adjacent page. Nothing when no such filter is on, or the other list
+// one quiet line above the results, so a search for "react", or the
+// TypeScript logo, on the catalog also points to the matching libraries
+// of the TEA-adjacent page. Nothing when no such filter is on, or the other list
 // does not match it.
 const otherListHintView = ({
   kind,
