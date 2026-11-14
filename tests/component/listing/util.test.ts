@@ -52,7 +52,6 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
-  sortShortcutLabel,
   sortShortcutOf,
   update,
 } from '@/component/listing'
@@ -738,9 +737,6 @@ describe('sort menu of the cards', () => {
       // Twice from any sort lands on the default order, once on the newest
       const once = sortOfCardSort(sortShortcutOf(sort))
       expect(sortShortcutOf(once)).toBe(isAdded ? 'added' : 'default')
-      expect(sortShortcutLabel(sortShortcutOf(sort))).toBe(
-        isAdded ? 'Default' : 'New',
-      )
     },
   )
 

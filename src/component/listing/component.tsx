@@ -96,7 +96,6 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
-  sortShortcutLabel,
   sortShortcutOf,
 } from './util'
 
@@ -704,25 +703,25 @@ const sortShortcutView = ({
   dispatch: Dispatcher<Msg>
 }) => {
   const shortcut = sortShortcutOf(filter.sort)
+  // On while the list shows the newest first: solid, as a chosen layout
+  // is, and a press leads back to the order of the list
+  const isOn = shortcut === 'default'
   return (
     <button
       type='button'
+      aria-pressed={isOn}
       onClick={() =>
         dispatch({ _tag: 'SetSort', sort: sortOfCardSort(shortcut) })
       }
-      aria-label={
-        shortcut === 'added'
-          ? 'Sort by the newly added first'
-          : 'Back to the default order'
-      }
+      aria-label='Sort by the newly added first'
       className={cn(
-        'flex h-[38px] items-center border-2 px-[14px] text-[0.9375rem] transition-shadow',
-        shortcut === 'added'
-          ? 'shine border-star bg-star/15 text-star-ink hover:offset-shadow-star'
-          : 'border-ink-faint bg-panel text-ink-muted hover:offset-shadow',
+        'border-star flex h-[38px] items-center border-2 px-[14px] text-[0.9375rem] transition-shadow',
+        isOn
+          ? 'bg-star text-on-star'
+          : 'shine bg-star/15 text-star-ink hover:offset-shadow-star',
       )}
     >
-      {sortShortcutLabel(shortcut)}
+      New
     </button>
   )
 }

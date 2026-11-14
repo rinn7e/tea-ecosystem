@@ -551,8 +551,8 @@ export const cardSortOf = (sort: O.Option<ListingSort>): O.Option<CardSort> =>
     ),
   )
 
-// The shortcut beside the sort leads to the newest entries first, and back
-// to the order of the list once they are
+// The New button beside the sort leads to the newest entries first, and
+// back to the order of the list once they are: where a press of it leads
 export type SortShortcut = 'added' | 'default'
 
 export const sortShortcutOf = (sort: O.Option<ListingSort>): SortShortcut =>
@@ -562,9 +562,6 @@ export const sortShortcutOf = (sort: O.Option<ListingSort>): SortShortcut =>
   )
     ? 'default'
     : 'added'
-
-export const sortShortcutLabel = (shortcut: SortShortcut): string =>
-  shortcut === 'added' ? 'New' : 'Default'
 
 const sortWordsOf = (
   column: SortColumn,

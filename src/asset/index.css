@@ -61,6 +61,9 @@
   /* GitHub stars: the star in the yellow of GitHub, the count in a yellow
    * dark enough to read as text on the panel */
   --color-star: #e3b341;
+  /* Text on the gold of the stars (the New button when it is on), dark in
+   * both modes */
+  --color-on-star: #241a00;
   /* The tile of a logo drawn in dark ink for a light page (`logoOnLight`),
    * white in both modes */
   --color-light-tile: #ffffff;
