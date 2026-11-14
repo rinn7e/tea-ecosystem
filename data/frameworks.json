@@ -342,13 +342,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "missing"
     },
     "notes": [
-      "Keyed, model-dependent subscriptions since v4 (Program.withSubscription), which users can define themselves.",
-      "The runtime is renderer-agnostic: the entries below reuse it for WebAssembly, desktop, mobile and terminal."
+      "update is 'msg -> 'model -> 'model * Cmd<'msg>; Cmd<'msg> is a list of effects (Dispatch<'msg> -> unit) that the runtime runs (Cmd.OfAsync.perform, Cmd.OfPromise.either, Cmd.ofEffect).",
+      "Program.withSubscription takes 'model -> Sub<'msg>, a list of (SubId, Dispatch -> IDisposable); the runtime diffs it after each update, starting new ids and disposing removed ones (since v4; the timer sample in docs/docs/subscription.fsx uses it).",
+      "No ports: JavaScript is reached with Fable imports from inside effects and subscriptions, and the program gives the host no handle to send messages in.",
+      "view is 'model -> Dispatch<'msg> -> 'view and the runtime is renderer-agnostic: Bolero, Elmish.WPF, Avalonia.FuncUI, ReactiveElmish.Avalonia and Xelmish run on the Elmish package for WebAssembly, desktop and games."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-09-07",
     "updatedAt": "2026-10-13",
@@ -360,7 +362,7 @@
     "language": "F#",
     "elmFamily": false,
     "targets": ["web", "ssr"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/fsbolero/Bolero",
     "logo": "bolero.png",
@@ -373,10 +375,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": ["Can render on the server and stream updates, through Blazor."],
-    "verified": false,
+    "notes": [
+      "Superset: server-side rendering through Blazor render modes (BoleroRenderMode Server, WebAssembly, Auto, with prerender) and stream rendering (Program.mkStreamRendering loads the model after the first render).",
+      "Runs the standard Elmish 4 loop in ProgramComponent: update returns Model * Cmd<Msg> (Elmish.Cmd.OfAsync.perform), and Program.withSubscription subscriptions are started in OnAfterRenderAsync (ProgramRun.fs).",
+      "Ports are managed: ProgramComponent has a public Dispatch, the dispatch method of the component, so Blazor code holding it can send messages in (src/Bolero/Components.fs); JavaScript is also reached through the effect types Cmd.OfJS and Cmd.OfAuthorized.",
+      "ElmishComponent only re-renders when its sub-model changes; it has no model of its own."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-25",
     "updatedAt": "2026-09-06",
@@ -404,9 +411,11 @@
       "ports": "missing"
     },
     "notes": [
-      "The view is static XAML with bindings, not a function that returns a view tree."
+      "WpfProgram.mkProgram takes init and update returning 'model * Cmd<'msg> (Elmish.Cmd), and mkProgramWithCmdMsg lets update return plain command data that a toCmd function turns into Cmd.",
+      "WpfProgram.withSubscription takes 'model -> Sub<'msg> and passes it to Elmish 4, whose keyed subscriptions are started and stopped automatically (src/Elmish.WPF/WpfProgram.fs).",
+      "The view is a list of bindings (Binding.oneWay (fun m -> m.Count), Binding.cmd Increment) over static XAML, a function of the model but not one that returns a view tree; graded the same as ReactiveElmish.Avalonia."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-06-12",
     "updatedAt": "2024-10-01",
@@ -418,7 +427,7 @@
     "language": "F#",
     "elmFamily": false,
     "targets": ["mobile", "desktop"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/fabulous-dev/Fabulous",
     "logo": "fabulous.png",
@@ -433,8 +442,13 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: components that own local state and can embed an independent MVU program (Context.Mvu), beside the root program.",
+      "Program.statefulWithCmd takes init and update returning 'model * Cmd<'msg>; Cmd is a list of effects run by the runtime (Cmd.OfAsync.perform, Cmd.OfTask.either), and statefulWithCmdMsg lets update return command data mapped by mapCmd.",
+      "Program.withSubscription takes 'model -> Sub<'msg>, a list of (SubId, Dispatch -> IDisposable) that the runtime starts and stops by id as the model changes (Sub.fs).",
+      "view is 'model -> WidgetBuilder<'msg, 'marker>, reconciled with the native UI of MAUI or Avalonia; there are no ports, the host is .NET."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-02-05",
     "updatedAt": "2026-11-13",
@@ -462,9 +476,12 @@
       "ports": "missing"
     },
     "notes": [
-      "Superset: nested stateful components, with local state, offered beside the Elmish runtime that comes from Avalonia.FuncUI.Elmish."
+      "Superset: Component (fun ctx -> ...) with hooks (ctx.useState, useEffect) gives nested stateful components with local state, beside the Elmish integration.",
+      "TEA comes from Avalonia.FuncUI.Elmish over Elmish 5: Program.withHost and Program.runWithAvaloniaSyncDispatch run a standard Elmish program, so update returns Model * Cmd and Program.withSubscription takes a keyed function of the model (ClockApp example); ctx.useElmish runs the same loop inside one component.",
+      "The README Elmish counter shows an update that returns only the state; the loop itself is the Elmish runtime, so Cmd and Sub work as in Elmish.",
+      "view is 'state -> dispatch -> IView, a tree of component descriptions that the host diffs; there are no ports."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-09",
     "updatedAt": "2026-08-23",
@@ -488,13 +505,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
+      "update is 'msg -> 'model -> 'model * Cmd<'msg>; Cmd<'msg> is a list of Sub (Dispatch -> unit) effects that the runtime runs (Cmd.ofSub, Cmd.OfAsync.perform, Cmd.ofMsg).",
+      "Sub is managed: the package carries its own copy of the Elmish 3 loop, so Program.withSubscription takes 'model -> Cmd<'msg>, runs once at start and is never restarted or stopped; a source that lives on is a Cmd that dispatches again (the Spinned message in the counter, timerSubscription in App.fs).",
+      "view is 'model -> Dispatch<'msg> -> TerminalElement built with the Feliz-style View.label and View.button DSL; the runtime diffs the tree (TreeDiff.fs). There are no ports.",
       "A port to Terminal.Gui v2 is published as OnurGumus.Terminal.Gui.Elmish."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-27",
     "updatedAt": "2024-09-21",

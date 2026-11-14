@@ -25,6 +25,3 @@ fn update(msg: Event(Nil), n: Int) -> #(Int, Cmd(Event(Nil))) {
 fn view(n: Int) -> String {
   color.fg(color.Charmple, term.bold("count: " <> int.to_string(n)))
 }
-```
-
----

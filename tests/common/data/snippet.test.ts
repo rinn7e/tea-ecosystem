@@ -28,6 +28,16 @@ describe('snippets', () => {
     expect(wrong.map((e) => e.id)).toEqual([])
   })
 
+  it('hold only code, with no fence or rule of the Markdown they were copied from', () => {
+    const isMarkdown = (line: string) => /^(```|---\s*$)/.test(line)
+    const wrong = entries.filter((e) =>
+      O.exists((s: { code: string }) => s.code.split('\n').some(isMarkdown))(
+        snippetOf(e.id),
+      ),
+    )
+    expect(wrong.map((e) => e.id)).toEqual([])
+  })
+
   it('highlight the code', () => {
     const elm = snippetOf('elm')
     expect(O.isSome(elm)).toBe(true)
