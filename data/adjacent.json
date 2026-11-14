@@ -17,14 +17,17 @@
       "msg": "native",
       "update": "native",
       "view": "missing",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: the reducer returns only state, effects run in middleware (thunks, sagas) outside it, and outside events are dispatched from anywhere."
+      "Misses Cmd and Sub: Reducer is (state, action) => S, so it returns only state; effects run in middleware (thunks, sagas) outside it, and outside events are dispatched from anywhere.",
+      "The store has getState, dispatch and subscribe; subscribe only notifies of state changes, it is not an event source (https://github.com/reduxjs/redux/blob/master/src/types/store.ts).",
+      "A headless core: the view comes from React-Redux or any other library, so view is missing.",
+      "Ports are managed: createStore returns a store whose dispatch(action) sends an action from outside."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-05-29",
     "updatedAt": "2026-11-11",
@@ -42,55 +45,28 @@
     "website": "https://react.dev/reference/react/useReducer",
     "logo": "use-reducer.svg",
     "source": "https://react.dev/reference/react/useReducer",
-    "summary": "A pure reducer for local state; effects live in useEffect and event handlers.",
+    "summary": "A pure reducer for local state; effects live in event handlers and useEffect.",
     "snippetSource": "https://github.com/reactjs/react.dev/blob/main/src/content/reference/react/useReducer.md",
     "rubric": {
       "model": "native",
       "msg": "native",
       "update": "native",
       "view": "native",
-      "cmd": "missing",
-      "sub": "missing",
+      "cmd": "equivalent",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
-      "Misses Cmd and Sub: the reducer returns only state; effects and outside events live in useEffect and event handlers."
+      "Misses Cmd: the reducer takes (state, action) and returns the next state; the docs say it must be pure, so effects run in event handlers and useEffect (https://react.dev/reference/react/useReducer).",
+      "Sub is managed: useEffect is declared in the component with its dependencies, and React starts it and runs its cleanup when they change or the component unmounts.",
+      "dispatch takes any value, usually an object with a type property by convention, so Msg is a tagged union by convention only.",
+      "The view is the component function; state is local to the component."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2013-05-24",
     "updatedAt": "2026-11-13",
     "stars": 252592
-  },
-  {
-    "id": "raj",
-    "name": "Raj",
-    "language": "JavaScript",
-    "elmFamily": false,
-    "targets": ["web"],
-    "tier": "adjacent",
-    "status": "quiet",
-    "repo": "https://github.com/andrejewski/raj",
-    "logo": "raj.svg",
-    "summary": "A minimal runtime where update returns state and an effect; outside events have no managed source.",
-    "snippetSource": "https://github.com/andrejewski/raj/blob/master/README.md",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "missing",
-      "ports": "missing"
-    },
-    "notes": [
-      "Misses Sub: update returns state and an effect, but outside events have no managed source."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2017-06-12",
-    "updatedAt": "2020-05-11",
-    "stars": 196
   },
   {
     "id": "ts-elmish",
@@ -110,10 +86,14 @@
       "view": "native",
       "cmd": "native",
       "sub": "missing",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": ["Misses Sub: its README puts subscriptions out of scope."],
-    "verified": false,
+    "notes": [
+      "Misses Sub: its README puts subscriptions out of scope and leaves them to the view layer (useEffect in React), so the library itself has none.",
+      "update(state, action) returns [State, Effect]; an Effect is a list of functions (dispatch) => ... that runProgram queues and runs, built with Effect.none or the basic-effects and railway-effects packages.",
+      "Action is a union such as 'increment' | 'decrement'; runProgram returns dispatch, stop and setState, and the react and mithril packages supply the view layer."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-07-29",
     "updatedAt": "2022-11-17",
@@ -138,12 +118,14 @@
       "view": "native",
       "cmd": "native",
       "sub": "missing",
-      "ports": "missing"
+      "ports": "equivalent"
     },
     "notes": [
-      "Misses Sub: update returns the model with commands, but there are no subscriptions."
+      "Misses Sub: update(msg, model) returns (Model, Cmd | None) and the Cmd (action, payload, return_msg) is sent as an HX-Trigger header for the browser to run, but nothing outside a user click or a command result reaches update.",
+      "Msg is a pydantic class with action: str and value; the Model is one value that the server keeps in FastTEA.model, shared by every visitor, and the README hello example changes it in place.",
+      "A Cmd handler (@app.cmd) is JavaScript run in the browser, and it can return {msg: {action, value}} to feed a message back through /update; only one Cmd or None can be returned per update, and effects cannot run on the server."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2024-09-18",
     "updatedAt": "2024-11-24",
@@ -168,13 +150,16 @@
       "update": "native",
       "view": "missing",
       "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: effects are Observables that watch actions from outside the reducer, which returns no effects."
+      "Misses Cmd: the reducer made with createReducer and on() returns only state; an effect is a createEffect Observable that listens to Actions and emits new actions, so it runs outside the reducer (https://ngrx.io/guide/effects).",
+      "Sub is managed: an effect can also be a long-running stream of web socket messages or time-based events, started by provideEffects and resubscribed after an error (up to 10 times by default).",
+      "A headless store: Angular components select state with selectors and dispatch actions made by createAction, so view is missing.",
+      "Ports are managed: the injectable Store has dispatch(action), usable from any code in the Angular injector."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-03-02",
     "updatedAt": "2026-11-03",
@@ -196,16 +181,20 @@
     "rubric": {
       "model": "equivalent",
       "msg": "missing",
-      "update": "missing",
+      "update": "equivalent",
       "view": "missing",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
       "ports": "missing"
     },
     "notes": [
-      "Misses Model, Msg, update, Cmd and Sub: stores change state in place inside actions, with no message type and no effect values."
+      "Misses Model, Msg, update, Cmd and Sub: a store is one mutable reactive object and its actions change it in place (this.count++), with no message type and no effect values.",
+      "Actions are plain methods; an async action awaits an API call and assigns the result to the state itself (https://github.com/vuejs/pinia/blob/v4/packages/docs/core-concepts/actions.md). Vuex mutations are string-typed commits with a handler that also mutates state in place.",
+      "No subscriptions: store.$subscribe and store.$onAction only observe state changes and action calls of the store, they bring in no outside events.",
+      "A state library: the view comes from Vue components that read the store.",
+      "The grades follow Pinia, the current store of Vue; Vuex, its predecessor, would grade Msg native, as Choo does, since a commit names its mutation by a string with a payload."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-11-18",
     "updatedAt": "2026-11-10",
@@ -226,16 +215,18 @@
     "rubric": {
       "model": "native",
       "msg": "missing",
-      "update": "missing",
+      "update": "equivalent",
       "view": "missing",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
       "ports": "missing"
     },
     "notes": [
-      "Misses Msg, update, Cmd and Sub: a store with setters, with no message type and no effect values."
+      "Misses Msg, update, Cmd and Sub: create((set) => ({ ... })) makes a store whose action functions call set to change state, so there is no message type, no update function, and effects run inside those actions.",
+      "subscribe and the hooks only observe state changes; outside events enter by calling a setter.",
+      "The middleware redux in zustand/middleware adds a reducer and dispatch on top, still returning only state."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-09",
     "updatedAt": "2026-11-06",
@@ -257,16 +248,19 @@
     "rubric": {
       "model": "equivalent",
       "msg": "missing",
-      "update": "missing",
+      "update": "equivalent",
       "view": "missing",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
       "ports": "missing"
     },
     "notes": [
-      "Misses Model, Msg, update, Cmd and Sub: observable mutable state, changed in place, the opposite model."
+      "Misses Model, Msg, update, Cmd and Sub: observable mutable state, changed in place by actions, the opposite of an immutable model.",
+      "An action is any function that modifies observables (https://github.com/mobxjs/mobx/blob/main/docs/actions.md); it takes no message and returns no model or effect.",
+      "Effects run directly inside actions: an async action or flow awaits a call and assigns to observables; autorun, reaction and when run side effects when observables change.",
+      "No subscriptions: the example feeds the store from setInterval calling an action. A state library: the view is an observer React component."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-03-14",
     "updatedAt": "2026-11-13",
@@ -287,16 +281,18 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "missing",
+      "update": "equivalent",
       "view": "native",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Misses update, Cmd and Sub: stores mutate state on emitted events, so there is no update that returns effects."
+      "Misses update, Cmd and Sub: stores mutate state on emitted events, so there is no update that returns effects.",
+      "State is one shared object that may be mutated freely; a store is a function (state, emitter) that registers emitter.on(event, handler), and a handler runs effects directly and then calls emitter.emit('render').",
+      "Events are named by strings with a payload (emit('increment', 1)); app.emitter is also reachable from outside the app."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-05-10",
     "updatedAt": "2026-02-20",
@@ -316,16 +312,18 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
+      "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
-      "sub": "missing",
-      "ports": "missing"
+      "sub": "equivalent",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: event handlers return the next state and may run effects directly, and outside events have no managed source."
+      "Misses update, Cmd and Sub: event handlers return the next state but may run effects directly, and outside events have no managed source.",
+      "update is a collection of event handlers (state) => state, which may also return a Promise or an async generator that AppRun renders as it resolves; the effect is the code inside the handler, not a value the runtime runs.",
+      "Subscriptions are imperative: a component calls app.on or starts a timer in mounted and cleans up in unload; the global app.run and app.on bus carries events in and out."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-10-07",
     "updatedAt": "2026-07-15",
@@ -342,21 +340,25 @@
     "repo": "https://github.com/cyclejs/cyclejs",
     "website": "https://cycle.js.org",
     "logo": "cycle-js.png",
-    "summary": "Model-View-Intent over streams: a different model, with no update function.",
+    "summary": "Model-View-Intent over streams: intents and reducers in place of messages and update, with drivers for effects.",
     "snippetSource": "https://github.com/cyclejs/cyclejs/blob/master/examples/basic/counter/src/main.js",
     "rubric": {
       "model": "native",
       "msg": "equivalent",
-      "update": "missing",
+      "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "equivalent"
     },
     "notes": [
-      "Misses Msg, update, Cmd and Sub: Model-View-Intent over streams, with intents in place of messages and no update function."
+      "Misses Msg, update and Cmd: Model-View-Intent over streams, with intents in place of messages, a fold in place of update, and effects as sink streams that drivers read.",
+      "In the counter, main(sources) folds an action$ stream of -1 and +1 into count$ and maps it to vdom$; @cycle/state keeps one state atom updated by a stream of reducers (prev => next) (https://github.com/cyclejs/cyclejs/blob/master/docs/content/api/state.md).",
+      "Drivers listen to sink streams, perform the side effects and return source streams (https://github.com/cyclejs/cyclejs/blob/master/docs/content/documentation/drivers.md); a request is data on a sink (HTTP), but the response comes back as a stream, not a message to update.",
+      "Sources such as sources.DOM.select(...).events and xs.periodic are streams the runtime subscribes to, and run returns a dispose function; they are not declared as a function of the model.",
+      "Ports are equivalent: the drivers passed to run(main, drivers) are the sanctioned way to reach the host, with no handle to send messages in."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2014-11-07",
     "updatedAt": "2026-06-09",
@@ -374,21 +376,25 @@
     "website": "https://stately.ai/docs/xstate/v5",
     "logo": "xstate.svg",
     "logoOnLight": true,
-    "summary": "Statecharts with actions on transitions: a close neighbour worth knowing, not TEA.",
+    "summary": "Statecharts and actors: pure transitions that queue effects, with invoked actors declared on states as long-running sources; a close neighbour, not TEA.",
     "snippetSource": "https://github.com/statelyai/xstate/blob/next/README.md",
     "rubric": {
-      "model": "equivalent",
+      "model": "native",
       "msg": "native",
-      "update": "missing",
+      "update": "native",
       "view": "missing",
       "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Model, update, Cmd and Sub: statecharts with actions on transitions, in place of an update that returns effects."
+      "Misses Cmd: a transition queues effects with enq(() => ...) and the actor runs those functions after the next snapshot, so an effect is a function, not a value whose result comes back as a message; async work is an invoked actor whose onDone or onError transition gets the result (https://github.com/statelyai/xstate/blob/next/docs/how-xstate-runs-machines.md).",
+      "A snapshot is an immutable { value, context }, events are { type } objects, and a transition is ({ context, event }, enq) => { target, context }; transition(machine, snapshot, event) computes [nextSnapshot, effects] without running them.",
+      "Sub is managed: invoke is declared on the states of the machine (rule 2 of the rubric), and the runtime starts the child actor when a state is entered and stops it on exit; enq.listen and enq.subscribeTo wire in other actors (https://github.com/statelyai/xstate/blob/next/docs/invoke.md).",
+      "No view: a state machine library. These notes follow the v6 beta on the next branch (6.0.0-beta.2).",
+      "Ports are managed: createActor(machine) returns an actor whose send(event) is called from outside."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-09-14",
     "updatedAt": "2026-11-14",

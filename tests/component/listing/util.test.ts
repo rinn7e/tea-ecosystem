@@ -230,9 +230,9 @@ describe('lacks', () => {
       lacks: choiceOf(lackables, ['sub']),
       statuses: statusChoiceOf([]),
     })(adjacentEntries)
-    // Missing (raj) and another shape (yew) both lack it; a Sub that meets
-    // the requirement (workflow) does not
-    expect(shown.map((e) => e.id)).toContain('raj')
+    // Missing (fasttea) and another shape (yew) both lack it; a Sub that
+    // meets the requirement (workflow) does not
+    expect(shown.map((e) => e.id)).toContain('fasttea')
     expect(shown.map((e) => e.id)).toContain('yew')
     expect(shown.map((e) => e.id)).not.toContain('workflow')
   })

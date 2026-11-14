@@ -3081,6 +3081,38 @@
     "stars": 5545
   },
   {
+    "id": "raj",
+    "name": "Raj",
+    "language": "JavaScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "quiet",
+    "repo": "https://github.com/andrejewski/raj",
+    "logo": "raj.svg",
+    "summary": "A minimal runtime where update returns state and an effect, with declarative subscriptions from its companion package raj-subscription.",
+    "snippetSource": "https://github.com/andrejewski/raj/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "update(message, state) returns [state, effect]; an effect is a function (dispatch) => void that the runtime calls, so effects are values handed to the runtime (index.js).",
+      "Subscriptions come from raj-subscription, the package of its author that the Raj homepage lists: withSubscriptions takes subscriptions: model => ({ key: ... }) and starts or cancels each subscription as its key appears in or leaves the result (https://github.com/andrejewski/raj-subscription).",
+      "Untyped: a message can be any value, a tagged union by convention; the view is (state, dispatch), and raj-react renders the React elements it returns; runtime(program) returns only an end function, with no way to dispatch from outside."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2017-06-12",
+    "updatedAt": "2020-05-11",
+    "stars": 196
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",
