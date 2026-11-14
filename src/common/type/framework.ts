@@ -180,13 +180,11 @@ export type Framework = {
   // Whether every grade was checked against its docs or source. The first
   // list was graded from memory and a light web check.
   verified: boolean
-  // When it was added to this catalog: the day of the first list
-  // (`FIRST_LIST_DAY`) and of the first additions (`YYYY-MM-DD`), or, from
-  // 14 Nov 2026 on, the time in UTC (`YYYY-MM-DDTHH:MM:SSZ`), so the
-  // entries of one day sort newest first. A day alone sorts before any
-  // time of that day. Shown and compared as a day (`addedDayOf`); only the
-  // sort by newly added reads the time (test "give every entry the day it
-  // was added, not before the first list")
+  // When it was added to this catalog, in UTC (`YYYY-MM-DDTHH:MM:SSZ`), so
+  // the entries of one day sort newest first: on the day of the first list
+  // (`FIRST_LIST_DAY`) or later. Shown and compared as a day
+  // (`addedDayOf`); only the sort by newly added reads the time (test "give
+  // every entry the day it was added, not before the first list")
   discoveredAt: string
 }
 
@@ -301,7 +299,7 @@ export const recentSinceOf = (now: number): string => {
   return `${since.getFullYear()}-${pad(since.getMonth() + 1)}-${pad(since.getDate())}`
 }
 
-// The day it was added (`YYYY-MM-DD`), with or without a time
+// The day it was added (`YYYY-MM-DD`), without its time
 export const addedDayOf = (framework: Framework): string =>
   framework.discoveredAt.slice(0, 10)
 

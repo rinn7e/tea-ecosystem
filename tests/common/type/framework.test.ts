@@ -6,6 +6,7 @@ import { frameworkById } from '@/common/data/catalog'
 import {
   FIRST_LIST_DAY,
   type Framework,
+  addedDayOf,
   hasPublicRepo,
   isRecentlyAdded,
   recentSinceOf,
@@ -110,7 +111,7 @@ describe('isRecentlyAdded', () => {
   })
 
   it('keeps the ribbon on the 30th day, and drops it the next', () => {
-    expect(entry('monad-oak').discoveredAt).toBe('2026-11-14')
+    expect(addedDayOf(entry('monad-oak'))).toBe('2026-11-14')
     expect(
       isRecentlyAdded(entry('monad-oak'), recentSinceOf(noonOf(12, 14))),
     ).toBe(true)
@@ -120,7 +121,7 @@ describe('isRecentlyAdded', () => {
   })
 
   it('never marks the first list', () => {
-    expect(entry('lustre').discoveredAt).toBe(FIRST_LIST_DAY)
+    expect(addedDayOf(entry('lustre'))).toBe(FIRST_LIST_DAY)
     expect(isRecentlyAdded(entry('lustre'), recentSinceOf(day))).toBe(false)
   })
 })

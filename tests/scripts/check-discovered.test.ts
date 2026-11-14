@@ -17,15 +17,14 @@ type Entry = { id: string; repo: string; discoveredAt: string }
 const entryOf = (id: string): Entry => ({
   id,
   repo: `https://github.com/o/${id}`,
-  discoveredAt: day,
+  discoveredAt: `${day}T06:02:11Z`,
 })
 
-const elm: Entry = { ...entryOf('elm'), discoveredAt: '2026-11-13' }
-const lustre: Entry = { ...entryOf('lustre'), discoveredAt: '2026-11-13' }
+const listed = '2026-11-13T07:24:58Z'
+const elm: Entry = { ...entryOf('elm'), discoveredAt: listed }
+const lustre: Entry = { ...entryOf('lustre'), discoveredAt: listed }
 const base: Entry[] = [elm, lustre]
-const baseAdjacent: Entry[] = [
-  { ...entryOf('redux'), discoveredAt: '2026-11-13' },
-]
+const baseAdjacent: Entry[] = [{ ...entryOf('redux'), discoveredAt: listed }]
 
 const repo: { at: ScriptRepo | undefined } = { at: undefined }
 
@@ -86,12 +85,6 @@ describe('check-discovered.sh', () => {
     write('data/snippet/new-tea.rs', 'fn main() {}\n')
     const store = entryOf('new-store')
     write('data/adjacent.json', json([...baseAdjacent, store]))
-    commit()
-    expect(problem()).toBe('')
-  })
-
-  it('passes a new entry dated with a time in UTC of the day of the run', () => {
-    setEntries({ ...newTea, discoveredAt: `${day}T06:02:11Z` })
     commit()
     expect(problem()).toBe('')
   })
@@ -166,6 +159,7 @@ describe('check-discovered.sh', () => {
     ['an id with a line break at its end', { id: 'a\n' }],
     ['another discoveredAt', { discoveredAt: '2026-11-15' }],
     ['a time of another day', { discoveredAt: '2026-11-15T06:00:00Z' }],
+    ['the day alone, with no time', { discoveredAt: day }],
     ['a time with no zone', { discoveredAt: `${day}T06:00:00` }],
     [
       'a time after the day and a line break',

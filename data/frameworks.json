@@ -25,7 +25,7 @@
       "Frameworks written in Elm (elm-pages, elm-land) are libraries of this column, not entries of their own."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2012-04-19",
     "updatedAt": "2026-11-02",
     "stars": 7940
@@ -56,7 +56,7 @@
       "Programs on Node use the same Model, update and subscriptions without a view."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-12-20",
     "updatedAt": "2026-10-29",
     "stars": 507
@@ -87,7 +87,7 @@
       "Superset: server-side TEA. The backend has its own Model, update and subscriptions; data sync and migrations are part of the platform."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-12-10",
     "updatedAt": "2026-11-13",
     "stars": 95
@@ -119,7 +119,7 @@
       "update schedules effects with io; it does not run them."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-06-26",
     "updatedAt": "2026-11-14",
     "stars": 2450
@@ -149,7 +149,7 @@
       "handleEvent returns responses: model updates, Task (one result) and Producer (a stream of events)."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-09-23",
     "updatedAt": "2026-01-04",
     "stars": 671
@@ -178,7 +178,7 @@
       "update returns a transition with an IO action that may produce the next event; input streams feed events from outside."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-05-31",
     "updatedAt": "2024-01-11",
     "stars": 289
@@ -208,7 +208,7 @@
       "Mostly maintained by one developer."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-07",
     "updatedAt": "2026-09-13",
     "stars": 322
@@ -235,7 +235,7 @@
     },
     "notes": ["Maintained by CollegeVine and used in production there."],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-24",
     "updatedAt": "2026-09-09",
     "stars": 70
@@ -262,7 +262,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-01-24",
     "updatedAt": "2023-01-12",
     "stars": 568
@@ -289,7 +289,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-02-26",
     "updatedAt": "2021-08-12",
     "stars": 155
@@ -320,7 +320,7 @@
       "The runtime is renderer-agnostic: the entries below reuse it for WebAssembly, desktop, mobile and terminal."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-09-07",
     "updatedAt": "2026-10-13",
     "stars": 911
@@ -348,7 +348,7 @@
     },
     "notes": ["Can render on the server and stream updates, through Blazor."],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-25",
     "updatedAt": "2026-09-06",
     "stars": 1139
@@ -378,7 +378,7 @@
       "The view is static XAML with bindings, not a function that returns a view tree."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-06-12",
     "updatedAt": "2024-10-01",
     "stars": 466
@@ -406,7 +406,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-02-05",
     "updatedAt": "2026-11-13",
     "stars": 1307
@@ -436,7 +436,7 @@
       "Superset: nested stateful components, with local state, offered beside the Elmish runtime that comes from Avalonia.FuncUI.Elmish."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-09",
     "updatedAt": "2026-08-23",
     "stars": 1268
@@ -466,7 +466,7 @@
       "A port to Terminal.Gui v2 is published as OnurGumus.Terminal.Gui.Elmish."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-27",
     "updatedAt": "2024-09-21",
     "stars": 234
@@ -495,7 +495,7 @@
       "The original repository is no longer active; forks under the rescript-tea name continue it."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-24",
     "updatedAt": "2024-06-11",
     "stars": 599
@@ -522,7 +522,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-11-22",
     "updatedAt": "2026-10-27",
     "stars": 210
@@ -552,7 +552,7 @@
       "Leaves is its set of reusable components, and Spices its styling library."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2023-12-13",
     "updatedAt": "2026-03-18",
     "stars": 474
@@ -583,7 +583,7 @@
       "There is no subscriptions function: long-running sources are effects that keep dispatching."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2022-02-11",
     "updatedAt": "2026-11-11",
     "stars": 2506
@@ -611,7 +611,7 @@
     },
     "notes": ["Needs Erlang/OTP 28 or later."],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-05-25",
     "updatedAt": "2026-06-18",
     "stars": 115
@@ -638,7 +638,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2024-01-01",
     "updatedAt": "2024-02-25",
     "stars": 66
@@ -666,7 +666,7 @@
     },
     "notes": ["beamtea itself can be used from Erlang directly."],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-07-29",
     "updatedAt": "2026-07-29",
     "stars": 4
@@ -695,7 +695,7 @@
       "Its app behaviour has init, update, render and subscribe(model)."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-01-13",
     "updatedAt": "2023-03-20",
     "stars": 852
@@ -730,7 +730,7 @@
       "Moved in 2025 to the indigoengine monorepo with Indigo; the old repository is archived."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-06-04",
     "updatedAt": "2026-11-11",
     "stars": 74
@@ -763,7 +763,7 @@
       "Moved in 2025 to the indigoengine monorepo with Tyrian; the old repository is archived."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-30",
     "updatedAt": "2026-11-11",
     "stars": 74
@@ -790,7 +790,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-01-08",
     "updatedAt": "2021-05-12",
     "stars": 118
@@ -822,7 +822,7 @@
       "Component packages (forms, router, drawer, pagination) live in tea-cup-package."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-01-24",
     "updatedAt": "2026-05-06",
     "stars": 34
@@ -854,7 +854,7 @@
       "Purity is kept by convention; the compiler cannot stop an effect inside update the way Elm does."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-06-21",
     "updatedAt": "2026-11-08",
     "stars": 1234
@@ -881,7 +881,7 @@
     },
     "notes": ["tea-effect presents itself as its spiritual successor."],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-03-22",
     "updatedAt": "2022-10-08",
     "stars": 303
@@ -908,7 +908,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-01-06",
     "updatedAt": "2026-10-31",
     "stars": 16
@@ -936,7 +936,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-01-26",
     "updatedAt": "2025-02-05",
     "stars": 21
@@ -963,7 +963,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-03-07",
     "updatedAt": "2026-10-31",
     "stars": 13
@@ -993,7 +993,7 @@
       "Untyped: messages are action functions rather than a closed union."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-20",
     "updatedAt": "2025-03-20",
     "stars": 19190
@@ -1021,7 +1021,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-08-21",
     "updatedAt": "2023-03-04",
     "stars": 43
@@ -1051,7 +1051,7 @@
       "update returns a Task; subscription(&self) is a function of the state."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-07-15",
     "updatedAt": "2026-11-13",
     "stars": 32028
@@ -1080,7 +1080,7 @@
       "The loop is the one of iced; what libcosmic adds (widgets, theming, the shell of an app or a panel applet) is a toolkit, not a part of the architecture, so it is full TEA."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-11-13",
     "updatedAt": "2026-11-13",
     "stars": 968
@@ -1111,7 +1111,7 @@
       "Superset: components with their own model, messages, update and view, and workers that run an update loop with no view."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-06-06",
     "updatedAt": "2026-11-12",
     "stars": 1999
@@ -1139,7 +1139,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-15",
     "updatedAt": "2025-01-27",
     "stars": 2065
@@ -1170,7 +1170,7 @@
       "Commands go through an orders object passed to update; streams stand in for subscriptions."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-12-01",
     "updatedAt": "2026-11-01",
     "stars": 3830
@@ -1197,7 +1197,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-10-26",
     "updatedAt": "2023-04-03",
     "stars": 304
@@ -1225,7 +1225,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-12-27",
     "updatedAt": "2026-11-09",
     "stars": 10
@@ -1256,7 +1256,7 @@
       "Its repository is on a Gitea host that needs a sign-in to view, so the site links its docs instead."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13"
+    "discoveredAt": "2026-11-13T07:24:58Z"
   },
   {
     "id": "osteak",
@@ -1281,7 +1281,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-04-05",
     "updatedAt": "2026-04-23",
     "stars": 17
@@ -1312,7 +1312,7 @@
       "Moved from GitHub to Codeberg in 2026; the GitHub repository is archived."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "stars": 1,
     "createdAt": "2025-08-18",
     "updatedAt": "2026-05-24"
@@ -1344,7 +1344,7 @@
       "Bubbles (components), Lip Gloss (styling) and Huh (forms) are built on it; v2 moved to charm.land/bubbletea/v2."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-01-10",
     "updatedAt": "2026-11-12",
     "stars": 45720
@@ -1375,7 +1375,7 @@
       "Dependencies are injected and replaced in tests."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-03",
     "updatedAt": "2026-11-05",
     "stars": 15019
@@ -1404,7 +1404,7 @@
       "Headless: there is no view function; the loop drives UIKit or SwiftUI through a connection."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-03-04",
     "updatedAt": "2026-08-05",
     "stars": 583
@@ -1435,7 +1435,7 @@
       "Headless: the view is any Android UI connected to the loop."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-01-19",
     "updatedAt": "2026-08-07",
     "stars": 1266
@@ -1462,7 +1462,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-08",
     "updatedAt": "2026-11-13",
     "stars": 75
@@ -1491,7 +1491,7 @@
       "Modular: core, Android lifecycle, RxJava and Jetpack Compose artifacts."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-01-12",
     "updatedAt": "2026-09-10",
     "stars": 133
@@ -1519,7 +1519,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-24",
     "updatedAt": "2026-10-22",
     "stars": 12
@@ -1546,7 +1546,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-04-08",
     "updatedAt": "2022-12-15",
     "stars": 133
@@ -1574,7 +1574,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-07-20",
     "updatedAt": "2026-03-19",
     "stars": 17
@@ -1601,7 +1601,7 @@
     },
     "notes": [],
     "verified": false,
-    "discoveredAt": "2026-11-13"
+    "discoveredAt": "2026-11-13T07:24:58Z"
   },
   {
     "id": "milo",
@@ -1629,7 +1629,7 @@
       "To check: whether commands are returned from the reducer or started beside it (a saga runner would make it TEA-adjacent)."
     ],
     "verified": false,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-03-26",
     "updatedAt": "2026-08-05",
     "stars": 2
@@ -1661,7 +1661,7 @@
       "Only the browser side exists so far; the full-stack part (server functions) is a stated goal, not shipped."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 62,
     "createdAt": "2024-12-10",
     "updatedAt": "2026-10-07"
@@ -1692,7 +1692,7 @@
       "The web side (WebApp) is a stateless server step, Msg -> Model -> Model, with the model carried in a request header and no Cmd."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 17,
     "createdAt": "2026-06-21",
     "updatedAt": "2026-10-29"
@@ -1722,7 +1722,7 @@
       "No subscriptions function: a recurring timer is a cmd_delay that update reschedules on every Tick, and the App has hooks such as on_key and on_system_theme_change."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 200,
     "createdAt": "2026-04-23",
     "updatedAt": "2026-10-30"
@@ -1752,7 +1752,7 @@
       "No subscriptions function: Cmd.every and Cmd.tick ask the runtime for repeating or one-shot Tick messages, and AsyncRunner delivers the results of background tasks."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 588,
     "createdAt": "2026-01-31",
     "updatedAt": "2026-10-13"
@@ -1784,7 +1784,7 @@
       "Beta, and Zig 0.16 only."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 32,
     "createdAt": "2026-06-07",
     "updatedAt": "2026-09-29"
@@ -1818,7 +1818,7 @@
       "Superset: server-side TEA in the Sky.Live shape, and the same program built as a wasm client, a terminal UI or a native app."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 441,
     "createdAt": "2026-03-10",
     "updatedAt": "2026-11-14"
@@ -1850,7 +1850,7 @@
       "Superset: four render modes (static, server, WASM, auto) and a native WinUI 3 renderer share one core, and only View differs."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 2,
     "createdAt": "2024-11-14",
     "updatedAt": "2026-09-08"
@@ -1883,7 +1883,7 @@
       "In beta: the docs of the guides are partly stubs, so the grades come from the source and the command docs."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 13,
     "createdAt": "2026-01-08",
     "updatedAt": "2026-10-12"
@@ -1915,7 +1915,7 @@
       "Messages are keywords or tagged vectors, matched with core.match by convention. The last push was in January 2018."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 24,
     "createdAt": "2016-12-03",
     "updatedAt": "2018-01-04"
@@ -1945,7 +1945,7 @@
       "subscriptions : model -> msg Sub.t declares keys, mouse, timers (Sub.every, Sub.after) and workers; a timer or worker lives as long as its id stays declared."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 91,
     "createdAt": "2025-06-29",
     "updatedAt": "2026-11-11"
@@ -1979,7 +1979,7 @@
       "Runs on native OCaml and compiles to JavaScript with Melange."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 7,
     "createdAt": "2026-11-04",
     "updatedAt": "2026-11-08"
@@ -2010,7 +2010,7 @@
       "subscriptions :: Model -> Array (Subscription Msg) is re-run after every update and reconciled (onInterval, onTimeout, onOnline, window events); the message type needs an Eq instance for that."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 29,
     "createdAt": "2017-12-11",
     "updatedAt": "2026-09-08"
@@ -2041,7 +2041,7 @@
       "Superset: Feature, slots and bindings compose stateful parts with outputs, on top of the plain Program."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 3,
     "createdAt": "2023-04-22",
     "updatedAt": "2026-11-08"
@@ -2072,7 +2072,7 @@
       "Cmd covers async tasks, delays and quit; a test harness can advance time for delayed Cmd chains."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 11,
     "createdAt": "2026-03-07",
     "updatedAt": "2026-08-05"
@@ -2103,7 +2103,7 @@
       "A store can be local to a view model or shared as a global app store; subscriptions of a view model end with mkStoreWithTerminate."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 119,
     "createdAt": "2023-02-15",
     "updatedAt": "2026-08-23"
@@ -2135,7 +2135,7 @@
       "The F# API and a C# module (Command, Subscription) share one runtime."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 31,
     "createdAt": "2023-06-04",
     "updatedAt": "2026-11-04"
@@ -2168,7 +2168,7 @@
       "The view returns Props that a platform render function draws; the last release is from 2022."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 299,
     "createdAt": "2018-07-31",
     "updatedAt": "2022-09-21"
@@ -2199,7 +2199,7 @@
       "The Swift version lives in pavelannin/Keemun-Swift; a StateTransform maps the state to a ViewState that Compose or SwiftUI draws."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 4,
     "createdAt": "2023-11-11",
     "updatedAt": "2026-10-26"
@@ -2232,7 +2232,7 @@
       "The core is pure Dart and puer_flutter adds the FeatureBuilder widgets; time-travel debugging is included."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 12,
     "createdAt": "2026-02-23",
     "updatedAt": "2026-03-27"
@@ -2264,7 +2264,7 @@
       "The release is 2.0.0-rc.1; the repository moved from pcharbon70 to agentjido."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 213,
     "createdAt": "2025-11-20",
     "updatedAt": "2026-11-02"
@@ -2296,7 +2296,7 @@
       "Superset: parent and child composition (children, events, external messages) and the testing tools (rehearse, simulate, dispatchViolations)."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 0,
     "createdAt": "2026-10-16",
     "updatedAt": "2026-11-13"
@@ -2327,7 +2327,7 @@
       "mountProgram and start return a handle with dispatch() and call() for messages from outside; an ESLint purity config bans unmanaged effects in update."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 4,
     "createdAt": "2026-06-10",
     "updatedAt": "2026-11-07"
@@ -2359,7 +2359,7 @@
       "view is a callback you supply, so any renderer works; element() returns { dispatch, stop }, an incoming port for outside code."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 0,
     "createdAt": "2026-08-17",
     "updatedAt": "2026-09-18"
@@ -2390,7 +2390,7 @@
       "Program.send feeds messages from outside; the port has its own sibling ports of Bubbles, Lip Gloss and others."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 9,
     "createdAt": "2026-03-16",
     "updatedAt": "2026-11-11"
@@ -2422,7 +2422,7 @@
       "Program.send feeds messages from outside the loop; experimental, before version 1.0."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 13,
     "createdAt": "2026-06-04",
     "updatedAt": "2026-10-26"
@@ -2454,7 +2454,7 @@
       "Program.Send feeds messages from outside; components come from the separate Cinnamon library."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 1,
     "createdAt": "2026-06-24",
     "updatedAt": "2026-08-20"
@@ -2486,7 +2486,7 @@
       "The runtime handle has send(msg) for messages from outside; an independent implementation, not a port of the Go code."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 1,
     "createdAt": "2026-01-31",
     "updatedAt": "2026-01-31"
@@ -2517,7 +2517,7 @@
       "Program.Send feeds messages from outside; renders are scheduled on animation frames."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 5,
     "createdAt": "2024-03-08",
     "updatedAt": "2026-10-15"
@@ -2549,7 +2549,7 @@
       "Program.Send feeds messages from other goroutines; the repo is a monorepo of ten libraries."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 48,
     "createdAt": "2025-10-14",
     "updatedAt": "2026-08-25"
@@ -2580,7 +2580,7 @@
       "A Component trait nests sub-models with their own message type, mapped with Command::map; 18 ready-made widgets."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 5,
     "createdAt": "2026-02-13",
     "updatedAt": "2026-04-09"
@@ -2611,7 +2611,7 @@
       "The README says it is under active development and not production-ready."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 5,
     "createdAt": "2025-12-26",
     "updatedAt": "2026-04-13"
@@ -2643,7 +2643,7 @@
       "Cmd is an async future (msg, batch, sequence, tick, perform, quit)."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 5,
     "createdAt": "2026-05-12",
     "updatedAt": "2026-09-21"
@@ -2675,7 +2675,7 @@
       "The repository is a restored copy of the lazops/rustea crate code; last commit in April 2025."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-13",
+    "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 1,
     "createdAt": "2024-08-24",
     "updatedAt": "2025-04-13"
@@ -2872,7 +2872,7 @@
       "Command.perform hands an effect value to a Host that the app writes, in place of ports; the oak mote also renders pages on the server (Ssr) for the http mote."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T00:57:05Z",
     "createdAt": "2026-04-08",
     "updatedAt": "2026-11-13",
     "stars": 7

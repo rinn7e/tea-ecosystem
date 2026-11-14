@@ -317,7 +317,7 @@ describe('sort', () => {
     expect(least.at(-1)?.stars).toBeUndefined()
   })
 
-  it('sorts by the day an entry was added, the newest first', () => {
+  it('sorts by the time an entry was added, the newest first', () => {
     const newest = sortFrameworks(
       O.some({ column: 'added', direction: 'descending' }),
     )(all)

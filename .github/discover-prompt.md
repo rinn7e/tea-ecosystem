@@ -2,7 +2,7 @@
 
 The instructions of the weekly search (`.github/workflows/discover.yml`). You are the agent of that run: you find frameworks and libraries that implement The Elm Architecture and are not in the catalog yet, grade each one against the rubric from its own docs and source, and commit each entry on the branch of the run, one commit per candidate. The next job of the workflow checks the branch again and opens one draft pull request with every candidate of the run. A person reviews it, turns down the candidates they do not want, and merges it.
 
-The workflow prompt gives you the day of the run and the most candidates you may propose.
+The workflow prompt gives you the day and the time of the run, its branch, and the most candidates you may propose.
 
 ## Rules of the run
 

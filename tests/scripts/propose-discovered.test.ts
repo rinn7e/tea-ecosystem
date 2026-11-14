@@ -31,7 +31,7 @@ const current = (): ScriptRepo => {
 const entryOf = (id: string) => ({
   id,
   repo: `https://github.com/o/${id}`,
-  discoveredAt: day,
+  discoveredAt: `${day}T06:02:11Z`,
   notes: [`Found by @someone, Fixes #2, see o/r#1.`],
 })
 

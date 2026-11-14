@@ -11,9 +11,9 @@
 # - add from 1 to `$3` entries to `data/frameworks.json` and
 #   `data/adjacent.json`, and leave every existing entry as it was and
 #   where it was, in its file;
-# - give each new entry an id of lowercase words joined by `-`, the day
-#   `$4` or a time in UTC of that day (`$4THH:MM:SSZ`) as its
-#   `discoveredAt`, and a `repo` of one line that starts with `https://`;
+# - give each new entry an id of lowercase words joined by `-`, a time in
+#   UTC of the day `$4` (`$4THH:MM:SSZ`) as its `discoveredAt`, and a
+#   `repo` of one line that starts with `https://`;
 # - change no other file, but add at most one example for each new entry,
 #   `data/snippet/<id>.<ext>`, as a plain file (no rename, no change to
 #   another example, no link).
@@ -52,7 +52,7 @@ entries="$(jq -n --arg day "$day" \
          | select(
              ((.id | type) != "string" or (.id | test("\\A[a-z0-9]+(-[a-z0-9]+)*\\z") | not))
              or ((.discoveredAt | type) != "string"
-               or (.discoveredAt | test("\\A" + $day + "(T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)?\\z") | not))
+               or (.discoveredAt | test("\\A" + $day + "T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\\z") | not))
              or ((.repo | type) != "string" or (.repo | test("\\Ahttps://\\S+\\z") | not)))
          | .id],
        ids: [$added[].id | tostring] }' 2>/dev/null || true)"
@@ -68,7 +68,7 @@ else
   elif [ "$count" = 0 ] || [ "$count" -gt "$max" ]; then
     echo "it adds $count entries, not 1 to $max"
   elif [ "$bad" != "[]" ]; then
-    echo "its new entries need an id of lowercase words joined by -, a discoveredAt on $day and a repo of one line that starts with https://: $bad"
+    echo "its new entries need an id of lowercase words joined by -, a discoveredAt at a time of $day and a repo of one line that starts with https://: $bad"
   else
     # The ids are checked, so they may go into a pattern: one alternative
     # each

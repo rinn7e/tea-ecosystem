@@ -180,9 +180,8 @@ describe('data files', () => {
   })
 
   it('give every entry the day it was added, not before the first list', () => {
-    // A day, or from 14 Nov 2026 on the time in UTC, so the entries of one
-    // day sort newest first
-    const added = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?$/
+    // The time in UTC, so the entries of one day sort newest first
+    const added = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
     const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) => !added.test(f.discoveredAt) || f.discoveredAt < FIRST_LIST_DAY,
     )
