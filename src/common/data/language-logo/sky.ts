@@ -1,4 +1,4 @@
-import { type LogoPath } from './language-logo-path'
+import { type LogoPath } from './path'
 
 // The mark of Sky: an S in a rounded square. From the favicon of
 // sky-lang.org (`brand/favicon.svg`), the square drawn as a path.

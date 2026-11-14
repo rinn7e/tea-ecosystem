@@ -1,4 +1,4 @@
-import { type LogoPath } from './language-logo-path'
+import { type LogoPath } from './path'
 
 // The PowerShell prompt, which Simple Icons does not carry. From Devicon
 // (`icons/powershell/powershell-original.svg` of v2.16.0, MIT license),

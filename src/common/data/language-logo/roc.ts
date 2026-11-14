@@ -1,4 +1,4 @@
-import { type LogoPath } from './language-logo-path'
+import { type LogoPath } from './path'
 
 // The bird of Roc, which Simple Icons does not carry. From the favicon of
 // roc-lang.org (`favicon.svg`), its one polygon drawn as a path.

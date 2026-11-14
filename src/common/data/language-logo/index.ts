@@ -25,12 +25,12 @@ import {
   siZig,
 } from 'simple-icons'
 
-import { javaLogoPaths } from './java-logo'
-import { type LogoPath } from './language-logo-path'
-import { leanLogoPaths } from './lean-logo'
-import { powershellLogoPaths } from './powershell-logo'
-import { rocLogoPaths } from './roc-logo'
-import { skyLogoPaths } from './sky-logo'
+import { javaLogoPaths } from './java'
+import { leanLogoPaths } from './lean'
+import { type LogoPath } from './path'
+import { powershellLogoPaths } from './powershell'
+import { rocLogoPaths } from './roc'
+import { skyLogoPaths } from './sky'
 
 // The logo of a language: its name, and either its shapes (`Shapes`: the
 // box they are drawn in, each shape with its color) or a picture in
@@ -39,8 +39,8 @@ import { skyLogoPaths } from './sky-logo'
 // monad-lang.org, without the words over it, in the dark of its site made
 // readable on both panels: `readableColorOf('0d1117')`, #67696d). A logo
 // of Simple Icons (CC0) is one shape in a 24 x 24 box; the languages it
-// does not carry have their own files (Java, PowerShell, Roc, Lean, Sky:
-// `<language>-logo.ts`).
+// does not carry have their own files in this folder (Java, PowerShell,
+// Roc, Lean, Sky: `<language>.ts`), drawn with the shapes of `path.ts`.
 export type LanguageLogo =
   | { _tag: 'Shapes'; title: string; viewBox: string; paths: LogoPath[] }
   | { _tag: 'Image'; title: string; file: string }

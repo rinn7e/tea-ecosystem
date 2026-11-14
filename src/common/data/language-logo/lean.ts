@@ -1,4 +1,4 @@
-import { type LogoPath } from './language-logo-path'
+import { type LogoPath } from './path'
 
 // The wordmark of Lean (LEAN, with an upside down A), which Simple Icons
 // does not carry. Redrawn as lines from the logo of the Lean community
