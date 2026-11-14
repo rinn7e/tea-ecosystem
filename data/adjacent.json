@@ -966,6 +966,7 @@
     "url": "https://stately.ai/docs/xstate-store",
     "logo": "xstate.svg",
     "repo": "https://github.com/statelyai/xstate",
+    "source": "https://github.com/statelyai/xstate/tree/next/packages/xstate-store",
     "summary": "An event store from Stately whose transitions return the next context and queue effects, but with no view and no subscriptions.",
     "snippetSource": "https://stately.ai/docs/xstate-store#effects",
     "rubric": {

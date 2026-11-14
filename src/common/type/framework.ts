@@ -118,6 +118,11 @@ export type Framework = {
   // Codeberg or another Gitea): where its stars and dates come from. Absent
   // when its source is not public.
   repo?: string
+  // The full URL of its directory inside `repo`, for an entry that is one
+  // package of a monorepo (Oak in the repository of the Monad language,
+  // @xstate/store beside XState): where its source links go instead of the
+  // root of `repo`
+  source?: string
   // Where the project lived before it moved (Tyrian and Indigo moved into
   // one monorepo in 2025, teatui to Codeberg): its `createdAt` comes from
   // here
@@ -161,6 +166,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
   }),
   t.partial({
     repo: t.string,
+    source: t.string,
     originRepo: t.string,
     logo: t.string,
     logoText: t.string,
@@ -182,7 +188,43 @@ export const languagesOf = (framework: Framework): string[] =>
 export const isLanguageEntry = (framework: Framework): boolean =>
   framework.name === framework.language
 
-// Where its source lives: its repository, else its own page (a package
-// registry for the few whose source is not public)
+// Where its source lives: its directory in a monorepo (`source`), else its
+// repository, else its own page (a package registry for the few whose
+// source is not public). The star button and the source link of its page
+// both open it.
 export const sourceUrlOf = (framework: Framework): string =>
-  framework.repo ?? framework.url
+  framework.source ?? framework.repo ?? framework.url
+
+const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
+
+// The source as its link reads: the host and the repository
+// (`github.com/lustre-labs/lustre`), then the directory of a monorepo
+// entry after a dot (`github.com/monad-lang/monad · motes/oak`); the host
+// alone for an entry whose source is not public
+export const sourceLabelOf = (framework: Framework): string => {
+  const repoLabel = (repo: string): string =>
+    `${hostOf(repo)}${new URL(repo).pathname.replace(/\/$/, '')}`
+  const directoryOf = (repo: string, source: string): string =>
+    source
+      .slice(repo.length)
+      .replace(/^\/(-\/)?(tree|src\/branch)\/[^/]+\//, '')
+      .replace(/\/$/, '')
+  return framework.repo === undefined
+    ? hostOf(framework.url)
+    : framework.source === undefined
+      ? repoLabel(framework.repo)
+      : `${repoLabel(framework.repo)} · ${directoryOf(framework.repo, framework.source)}`
+}
+
+// Its own website or docs, when they are not its source: the page links
+// to them under its summary
+export const websiteOf = (framework: Framework): string | undefined => {
+  const same = (a: string, b: string | undefined): boolean =>
+    b !== undefined && a.replace(/\/$/, '') === b.replace(/\/$/, '')
+  return same(framework.url, framework.repo) ||
+    same(framework.url, framework.source)
+    ? undefined
+    : framework.url
+}
+
+export const websiteLabelOf = (url: string): string => hostOf(url)

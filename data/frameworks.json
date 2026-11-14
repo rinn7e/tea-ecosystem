@@ -737,6 +737,7 @@
     "status": "active",
     "url": "https://github.com/PurpleKingdomGames/indigoengine",
     "repo": "https://github.com/PurpleKingdomGames/indigoengine",
+    "source": "https://github.com/PurpleKingdomGames/indigoengine/tree/main/tyrian",
     "originRepo": "https://github.com/PurpleKingdomGames/tyrian",
     "logo": "tyrian.png",
     "summary": "An Elm-inspired UI library for Scala 3 and Scala.js, by the makers of the Indigo game engine.",
@@ -771,6 +772,7 @@
     "status": "active",
     "url": "https://github.com/PurpleKingdomGames/indigoengine",
     "repo": "https://github.com/PurpleKingdomGames/indigoengine",
+    "source": "https://github.com/PurpleKingdomGames/indigoengine/tree/main/indigo",
     "originRepo": "https://github.com/PurpleKingdomGames/indigo",
     "logo": "indigo.svg",
     "summary": "A functional game engine for Scala.js whose loop is a variation of The Elm Architecture.",
@@ -2686,6 +2688,7 @@
     "status": "active",
     "url": "https://monad-lang.org/docs/web-and-oak.html",
     "repo": "https://github.com/monad-lang/monad",
+    "source": "https://github.com/monad-lang/monad/tree/main/motes/oak",
     "summary": "The web stack of the Monad language: an Elm-shaped app compiled to wasm, with a pure update that returns Command values and subscriptions declared from the model.",
     "snippetSource": "https://monad-lang.org/docs/web-and-oak.html",
     "rubric": {

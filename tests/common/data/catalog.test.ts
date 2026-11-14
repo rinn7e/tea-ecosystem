@@ -86,6 +86,15 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
+  it('give the directory of a monorepo entry inside its own repository', () => {
+    const wrong = [...frameworks, ...adjacentEntries].filter(
+      (f) =>
+        f.source !== undefined &&
+        (f.repo === undefined || !f.source.startsWith(`${f.repo}/`)),
+    )
+    expect(wrong.map((f) => f.id)).toEqual([])
+  })
+
   it('give every repository both dates, as days', () => {
     const day = /^\d{4}-\d{2}-\d{2}$/
     const wrong = frameworks.filter(

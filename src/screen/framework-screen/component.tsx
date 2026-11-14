@@ -1,4 +1,4 @@
-import { IconArrowLeft, IconExternalLink } from '@tabler/icons-react'
+import { IconArrowLeft, IconExternalLink, IconWorld } from '@tabler/icons-react'
 import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
@@ -7,7 +7,14 @@ import { memo } from 'react'
 import { entriesOf, listOf } from '@/common/data/catalog'
 import { snippetOf } from '@/common/data/snippet'
 import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
-import { type Framework, concepts } from '@/common/type/framework'
+import {
+  type Framework,
+  concepts,
+  sourceLabelOf,
+  sourceUrlOf,
+  websiteLabelOf,
+  websiteOf,
+} from '@/common/type/framework'
 import { codeBlockView } from '@/component/code-block'
 import {
   conceptLabel,
@@ -33,7 +40,7 @@ const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
 // Where an example comes from, short: the site and the project (the first
 // two parts of the path), then the file (`github.com/lustre-labs/lustre ·
 // README.md`)
-const sourceLabelOf = (url: string): string => {
+const exampleSourceLabelOf = (url: string): string => {
   const parts = new URL(url).pathname.split('/').filter((part) => part !== '')
   const project = [hostOf(url), ...parts.slice(0, 2)].join('/')
   return parts.length > 2 ? `${project} · ${parts[parts.length - 1]}` : project
@@ -64,7 +71,7 @@ const exampleView = ({ framework }: { framework: Framework }) =>
                   className='hover:text-accent inline-flex min-w-0 items-center gap-[4px]'
                 >
                   <span className='truncate'>
-                    From {sourceLabelOf(framework.snippetSource)}
+                    From {exampleSourceLabelOf(framework.snippetSource)}
                   </span>
                   <IconExternalLink size={13} stroke={1.75} aria-hidden />
                 </a>
@@ -132,7 +139,8 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
   const { framework } = model
   return (
     <article className='flex flex-col gap-[28px]'>
-      {/* Back on the left, the project on the right */}
+      {/* Back on the left, the source of the project on the right: the
+          same place as its star button */}
       <div className='flex items-center justify-between gap-[12px]'>
         <Link
           destination={listDestination}
@@ -145,13 +153,13 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
             : 'All TEA-adjacent'}
         </Link>
         <a
-          href={framework.url}
+          href={sourceUrlOf(framework)}
           target='_blank'
           rel='noreferrer'
-          className='text-ink-muted hover:text-accent inline-flex items-center gap-[6px] text-sm'
+          className='text-ink-muted hover:text-accent inline-flex min-w-0 items-center gap-[6px] text-sm'
         >
-          {hostOf(framework.url)}
-          <IconExternalLink size={16} stroke={1.75} />
+          <span className='truncate'>{sourceLabelOf(framework)}</span>
+          <IconExternalLink size={16} stroke={1.75} className='shrink-0' />
         </a>
       </div>
 
@@ -167,6 +175,24 @@ const FrameworkComponent = ({ model, listDestination }: Props) => {
         <p className='text-ink-muted max-w-[620px] text-base text-balance'>
           {framework.summary}
         </p>
+        {/* Its website or docs, when they are not its source */}
+        {pipe(
+          O.fromNullable(websiteOf(framework)),
+          O.fold(
+            () => null,
+            (website) => (
+              <a
+                href={website}
+                target='_blank'
+                rel='noreferrer'
+                className='text-accent inline-flex items-center gap-[6px] text-sm hover:underline'
+              >
+                <IconWorld size={16} stroke={1.75} aria-hidden />
+                {websiteLabelOf(website)}
+              </a>
+            ),
+          ),
+        )}
         <div className='flex flex-wrap items-center justify-center gap-[12px]'>
           {tierBadgeView({ tier: framework.tier })}
           {statusView({ status: framework.status })}
