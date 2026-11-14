@@ -43,6 +43,9 @@ describe('sourceLabelOf', () => {
     expect(sourceLabelOf(entry('monad-oak'))).toBe(
       'github.com/monad-lang/monad · motes/oak',
     )
+    expect(sourceLabelOf(entry('use-reducer'))).toBe(
+      'github.com/react/react · packages/react/src/ReactHooks.js',
+    )
     expect(sourceLabelOf(entry('xstate-store'))).toBe(
       'github.com/statelyai/xstate · packages/xstate-store',
     )

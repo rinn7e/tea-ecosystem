@@ -120,8 +120,9 @@ export type Framework = {
   repo?: string
   // The full URL of its directory inside `repo`, for an entry that is one
   // package of a monorepo (Oak in the repository of the Monad language,
-  // @xstate/store beside XState): where its source links go instead of the
-  // root of `repo`
+  // @xstate/store beside XState), or of its file for one that is a single
+  // function of a bigger library (useReducer in React): where its source
+  // links go instead of the root of `repo`
   source?: string
   // Where the project lived before it moved (Tyrian and Indigo moved into
   // one monorepo in 2025, teatui to Codeberg): its `createdAt` comes from
@@ -211,7 +212,7 @@ export const sourceLabelOf = (framework: Framework): string => {
   const directoryOf = (repo: string, source: string): string =>
     source
       .slice(repo.length)
-      .replace(/^\/(-\/)?(tree|src\/branch)\/[^/]+\//, '')
+      .replace(/^\/(-\/)?(tree|blob|src\/branch)\/[^/]+\//, '')
       .replace(/\/$/, '')
   return framework.repo === undefined
     ? hostOf(framework.url)
