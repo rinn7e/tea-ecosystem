@@ -14,8 +14,6 @@ export const PANEL_ATTRIBUTE = 'data-filter-panel'
 const isInsidePanel = (target: EventTarget | null): boolean =>
   target instanceof Element && target.closest(`[${PANEL_ATTRIBUTE}]`) !== null
 
-// Only while the Filters popover is open: Escape closes it, and so does a
-// press outside it
 export const subscriptions = <F extends ListingFilter>(
   model: Model<F>,
 ): Sub<Msg> =>

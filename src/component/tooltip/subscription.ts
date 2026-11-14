@@ -6,10 +6,9 @@ import { type Model, type Msg } from './type'
 
 const windowEvents = new WindowEvents<Msg>()
 
-// Only while a tooltip is on its way or open: Escape closes it, and so does
-// anything that moves the page under it (a scroll, of the page or of a box
-// such as the table, caught in the capture phase; a resize) or a press
-// elsewhere
+// Anything that moves the page under the tooltip closes it: a scroll (of
+// the page or of a box such as the table, caught in the capture phase) or a
+// resize
 export const subscriptions = (model: Model): Sub<Msg> =>
   O.isNone(model.tooltip)
     ? Sub.none()

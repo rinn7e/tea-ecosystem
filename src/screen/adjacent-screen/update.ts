@@ -5,7 +5,6 @@ import * as Listing from '@/component/listing'
 
 import { type Model, type Msg } from './type'
 
-// Opened with the filter of its destination
 export const init = (filter: AdjacentFilter): Model => ({
   listing: Listing.init(filter),
 })

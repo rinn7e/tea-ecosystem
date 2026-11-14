@@ -31,7 +31,6 @@ export type UrlWrite =
   | { readonly _tag: 'ReplaceUrl'; readonly url: string }
   | { readonly _tag: 'BackOrPushUrl'; readonly url: string }
 
-// The filter of a list destination (the catalog, the adjacent list)
 const listFilterOf = (destination: Destination): O.Option<ListingFilter> => {
   const { screen } = destination
   switch (screen._tag) {
@@ -107,7 +106,6 @@ export const urlWriteOf = (
   }
 }
 
-// The destination the app boots on: the page's URL
 export const bootDestinationOf = (
   location: Pick<Location, 'href'>,
 ): Destination => parseDestination(location.href)

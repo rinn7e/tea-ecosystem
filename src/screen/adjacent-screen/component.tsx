@@ -4,8 +4,6 @@ import { ListingMemo } from '@/component/listing/component'
 
 import { type Props, PropsEq } from './type'
 
-// The TEA-adjacent libraries: the same listing as the catalog, over
-// `data/adjacent.json`
 const AdjacentComponent = ({
   model,
   logosPerRow,

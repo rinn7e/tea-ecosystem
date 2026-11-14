@@ -55,7 +55,6 @@ Object.entries(grammars).forEach(([name, grammar]) => {
   hljs.registerLanguage(name, grammar)
 })
 
-// The grammar of each file extension of `data/snippet/`
 const grammarOfExtension: Record<string, keyof typeof grammars> = {
   cljs: 'clojure',
   cs: 'csharp',
@@ -89,8 +88,8 @@ const grammarOfExtension: Record<string, keyof typeof grammars> = {
   zig: 'rust',
 }
 
-// An example of an entry, copied from its own docs (`snippetSource` of the
-// data files says where): its code, highlighted
+// Copied from the docs of the entry itself (`snippetSource` of the data
+// files says where)
 export type Snippet = {
   code: string
   html: string
@@ -105,7 +104,6 @@ const snippetFiles: Record<string, string> = import.meta.glob<string>(
 
 const fileNameOf = (path: string): string => path.split('/').pop() ?? path
 
-// `elm.elm` -> the id `elm` and the extension `elm`
 const splitFileName = (fileName: string): { id: string; extension: string } => {
   const dot = fileName.lastIndexOf('.')
   return { id: fileName.slice(0, dot), extension: fileName.slice(dot + 1) }

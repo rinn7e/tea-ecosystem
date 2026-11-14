@@ -51,7 +51,6 @@ export const conceptLabel = (concept: Concept): string => {
   }
 }
 
-// What a concept means, for the rubric and the framework page
 export const conceptMeaning = (concept: Concept): string => {
   switch (concept) {
     case 'model':
@@ -71,9 +70,8 @@ export const conceptMeaning = (concept: Concept): string => {
   }
 }
 
-// How a grade is shown: as it is, except an optional part (Ports) that is
-// not there, which is `none` (grey) rather than `missing` (red): its
-// absence keeps no entry out of TEA
+// An optional part (Ports) that is not there shows as `none` (grey) rather
+// than `missing` (red): its absence keeps no entry out of TEA
 export type ShownGrade = Grade | 'none'
 
 export const shownGrades: readonly ShownGrade[] = [
@@ -119,9 +117,9 @@ export const gradeMeaning = (grade: ShownGrade): string => {
   }
 }
 
-// The colors of a badge, its border apart from its fill (background and
-// text), so a chosen filter box can swap the border for the blue edge and
-// keep the colors a card shows
+// The border is apart from the fill (background and text), so a chosen
+// filter box can swap the border for the blue edge and keep the colors a
+// card shows
 export type Tone = { border: string; fill: string }
 
 const toneClass = (tone: Tone): string => `${tone.border} ${tone.fill}`
@@ -157,9 +155,6 @@ export const targetTone: Tone = {
   fill: 'bg-field text-ink-muted',
 }
 
-// What an entry is, said in its language line: a language of its own
-// (Elm, Gren), a framework written in one, or (on the adjacent list) a
-// library written in one
 export const languageLineOf = (framework: Framework): string =>
   isLanguageEntry(framework)
     ? 'Language'
@@ -180,8 +175,6 @@ export const tierLabel = (tier: Tier): string => {
   }
 }
 
-// What a tier asks of an entry: the rule of the rubric, on the rubric page
-// and in the tooltip of its filter
 export const tierMeaning = (tier: Tier): string => {
   switch (tier) {
     case 'reference':
@@ -206,7 +199,6 @@ export const statusLabel = (status: Status): string => {
   }
 }
 
-// What a status means, for the tooltip of its filter
 export const statusMeaning = (status: Status): string => {
   switch (status) {
     case 'active':
@@ -237,7 +229,6 @@ export const targetLabel = (target: Target): string => {
   }
 }
 
-// Where an entry with a target runs
 export const targetMeaning = (target: Target): string => {
   switch (target) {
     case 'web':
@@ -279,9 +270,8 @@ export const tierBadgeView = ({ tier }: { tier: Tier }) => (
   </span>
 )
 
-// The dot of a status, in its color. On the accent fill of a chosen
-// option (`isOnAccent`) the same dot takes the colors made for it, so it
-// stands out from the blue
+// On the accent fill of a chosen option (`isOnAccent`) the dot takes the
+// colors made for it, so it stands out from the blue
 export const statusDotView = ({
   status,
   isOnAccent = false,
@@ -320,15 +310,9 @@ export const statusView = ({ status }: { status: Status }) => (
   </span>
 )
 
-// One cell per concept, colored by grade: the shape of a framework at a
-// glance. Each cell is as wide as its label, so a long one (Update) never
-// clips
-// The rubric of an entry as a strip of its parts, each in the color of its
-// grade. Resting on a part shows its grade and what the grade means, in
-// the tooltip of the app (`id` is the entry, so each part has its own).
-// Inside a link (`isInLink`, the strip of a card), a part shows the pointer
-// and a tap on a touch screen follows the link instead of opening the
-// tooltip.
+// Each part is as wide as its label, so a long one (Update) never clips.
+// Inside a link (`isInLink`, the strip of a card), a tap on a touch screen
+// follows the link instead of opening the tooltip.
 export const rubricStripView = ({
   id,
   rubric,
@@ -358,10 +342,8 @@ export const rubricStripView = ({
   </div>
 )
 
-// What a part of the strip says in its tooltip: the part and its grade,
-// what the part is, then the legend of all five grades and their colors,
-// this one at full strength (where a legend of grades used to be on the
-// page)
+// The legend of all five grades is in this tooltip, where it used to be on
+// the page
 const gradeTooltipOf = (concept: Concept, grade: Grade): Content => ({
   title: `${conceptLabel(concept)}: ${gradeLabel(shownGradeOf(concept, grade))}`,
   text: conceptMeaning(concept),
@@ -393,8 +375,8 @@ export const targetIconView = ({ target }: { target: Target }) => {
   }
 }
 
-// Where an entry runs, as one small chip per target: easier to scan than a
-// list of words. Square corners, as every chip of the style guide.
+// Chips are easier to scan than a list of words. Square corners, as every
+// chip of the style guide.
 export const targetChipsView = ({
   targets,
   align,
@@ -412,7 +394,6 @@ export const targetChipsView = ({
   </div>
 )
 
-// One target as a chip: its icon and its name
 export const targetChipView = ({ target }: { target: Target }) => (
   <span
     key={target}
@@ -426,8 +407,6 @@ export const targetChipView = ({ target }: { target: Target }) => (
   </span>
 )
 
-// The stars of the repository of an entry; nothing for one with no public
-// repository
 export const starsView = ({ stars }: { stars: number | undefined }) =>
   stars === undefined ? null : (
     <span
@@ -452,10 +431,8 @@ export const recentEdgeRibbonView = () => (
   </span>
 )
 
-// One button that opens the source of an entry in a new tab, like the
-// star button of GitHub: its stars, a divider, then the code icon (the code
-// icon alone for an entry with no public repository). On a card it sits
-// above the link that covers the card (`relative z-10`).
+// Drawn like the star button of GitHub. On a card it sits above the link
+// that covers the card (`relative z-10`).
 export const sourceLinkView = ({ framework }: { framework: Framework }) => (
   <a
     href={sourceUrlOf(framework)}
@@ -478,9 +455,8 @@ export const sourceLinkView = ({ framework }: { framework: Framework }) => (
 
 type DateField = 'created' | 'updated' | 'added'
 
-// What a date of an entry says: its words, in its tooltip and for screen
-// readers, and how it reads on screen (the month of its repository dates,
-// the day it was added to the catalog, which is recent)
+// The repository dates show their month, the day an entry was added shows
+// the day, since it is recent
 const dateTextOf = (which: DateField, day: string) => {
   switch (which) {
     case 'created':
@@ -515,10 +491,6 @@ const dateIconView = ({ which }: { which: DateField }) => {
   }
 }
 
-// A date of an entry: an icon for which one (a calendar with a plus for
-// the day its repository was created, a commit for its last push, sparks
-// for the day it was added to the catalog) and the date, its meaning in
-// its tooltip
 export const dateView = ({
   id,
   which,
@@ -542,10 +514,6 @@ export const dateView = ({
   )
 }
 
-// The day an entry was added to the catalog, on the axis of its page. An
-// entry found after the first list (`isRecentlyAdded`) shows it inside the
-// ribbon, a short band in the accent with both ends notched ("Recently
-// added · 14 Nov 2026"); any other shows it as its other dates.
 export const addedView = ({
   framework,
   recentSince,

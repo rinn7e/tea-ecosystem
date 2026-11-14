@@ -20,25 +20,20 @@ import {
   type Tier,
 } from '@/common/type/framework'
 
-// A list of entries (the catalog, or the TEA-adjacent libraries) with its
-// stats, search, filters and cards or table. Each list is a base layer of
-// the screen stack: the root keeps its model while an entry page covers
-// it, so closing the page shows the list as it was left. Its filter is the
-// destination's (`CatalogScreen`, `AdjacentScreen`).
+// Each list is a base layer of the screen stack: the root keeps its model
+// while an entry page covers it, so closing the page shows the list as it was
+// left. Its filter is the destination's (`CatalogScreen`, `AdjacentScreen`).
 // `F` is the filter of its list (`CatalogFilter`, `AdjacentFilter`), so a
 // list never holds the filter of the other one
 export type Model<F extends ListingFilter> = {
   filter: F
-  // The popover of the Filters button (tiers or what an entry lacks, and
-  // targets): `closing` while it fades out, until `PanelClosed`. Not in the
-  // URL: a list opens with it closed.
+  // Not in the URL: a list opens with it closed
   panel: 'closed' | 'open' | 'closing'
   // Counts every open and close, so a fade timer of an older close does
   // nothing
   panelSeq: number
 }
 
-// The `Eq` of a model, from the `Eq` of the filter of its list
 export const mkModelEq = <F extends ListingFilter>(
   filterEq: EqClass.Eq<F>,
 ): EqClass.Eq<Model<F>> =>
@@ -49,40 +44,32 @@ export const mkModelEq = <F extends ListingFilter>(
   })
 
 export type Msg =
-  // Ticks an option of a filter of the popover, or unticks it when ticked
-  // (`toggleChoice`, `toggleStatus` for the statuses); `options` are the
-  // ones the popover shows
+  // `options` are the ones the popover shows
   | { _tag: 'ToggleTier'; tier: Tier; options: Tier[] }
   | { _tag: 'ToggleLacks'; concept: Concept; options: Concept[] }
   | { _tag: 'ToggleTarget'; target: Target; options: Target[] }
   | { _tag: 'ToggleStatus'; status: Status }
   | { _tag: 'SetQuery'; query: string }
-  // Narrows to a category, or back to every entry when it is the one shown
   | { _tag: 'ToggleShow'; category: EntryCategory }
-  // Narrows to a language, or back to every language when it is the one
-  // shown
   | { _tag: 'ToggleLanguage'; language: string }
   | { _tag: 'SetLayout'; layout: ListingLayout }
-  // Sorts by a column of the table, or turns its direction around when it
-  // is the column sorted by already
+  // Turns the direction around when it is the column sorted by already
   | { _tag: 'SortBy'; column: SortColumn }
-  // Sets the order whole, from the sort menu of the cards: none for the
-  // order of the list
+  // From the sort menu of the cards: none for the order of the list
   | { _tag: 'SetSort'; sort: O.Option<ListingSort> }
   | { _tag: 'ClearFilter' }
   | { _tag: 'TogglePanel' }
-  // While the popover is open: a key, or a press inside or outside it
+  // Only while the popover is open
   | { _tag: 'PanelKeyDown'; key: string }
   | { _tag: 'PanelPointerDown'; isInside: boolean }
   | { _tag: 'PanelClosed'; seq: number }
 
 export type Props = {
   model: Model<ListingFilter>
-  // How many language logos fit in a row (`logosPerRowOf` the width of the
-  // window): a resize draws the list again only when this number changes
+  // Not the width of the window, so a resize draws the list again only when
+  // this number changes
   logosPerRow: number
-  // The first day that counts as recent (`recentSinceOf`): which entries
-  // show the ribbon "Recently added"
+  // Which entries show the ribbon "Recently added" (`recentSinceOf`)
   recentSince: string
   dispatch: Dispatcher<Msg>
 }

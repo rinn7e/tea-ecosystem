@@ -18,12 +18,9 @@ import {
 
 import { type Props, PropsEq } from './type'
 
-// A row of the lists of grades and concepts: the name on the left, what it
-// means on the right; stacked on a phone
 const rowClass =
   'border-line flex flex-col items-start gap-[6px] border-b px-[18px] py-[14px] last:border-b-0 lg:grid lg:grid-cols-[120px_1fr] lg:items-center lg:gap-[16px]'
 
-// A tier: one cell of the box of tiers
 const tierCardView = ({ title, rule }: { title: string; rule: string }) => (
   <div className='bg-panel flex flex-col items-center gap-[8px] px-[18px] py-[18px] text-center'>
     <span className='text-ink text-lg font-normal'>{title}</span>
@@ -31,7 +28,6 @@ const tierCardView = ({ title, rule }: { title: string; rule: string }) => (
   </div>
 )
 
-// Static for now: the model and the messages are empty
 const RubricComponent = (_props: Props) => (
   <div className='flex flex-col gap-[32px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>

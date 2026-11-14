@@ -2,9 +2,8 @@ import { EqAlways } from '@rinn7e/tea-cup-prelude'
 import * as EqClass from 'fp-ts/Eq'
 import { type Dispatcher } from 'tea-cup-fp'
 
-// The about page: what the site is for and how it was made. Static for
-// now, so its model and its messages are empty: a feature on it (a sort, a
-// section that opens) starts from this frame
+// Static for now, so its model and its messages are empty: a feature on it
+// (a sort, a section that opens) starts from this frame
 export type Model = Record<string, never>
 
 export const ModelEq: EqClass.Eq<Model> = EqClass.struct({})

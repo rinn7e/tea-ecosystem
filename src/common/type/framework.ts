@@ -216,8 +216,8 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
   }),
 ])
 
-// The languages an entry is written in: one, or two for an entry that
-// ships one library per platform ("Kotlin and Swift")
+// Two languages for an entry that ships one library per platform ("Kotlin
+// and Swift")
 export const languagesOf = (framework: Framework): string[] =>
   framework.language.split(' and ')
 
@@ -227,24 +227,19 @@ export const languagesOf = (framework: Framework): string[] =>
 export const isLanguageEntry = (framework: Framework): boolean =>
   framework.name === framework.language
 
-// The site of a URL, without `www.`: `sky-lang.org`
 export const hostOf = (url: string): string =>
   new URL(url).host.replace(/^www\./, '')
 
-// Two URLs that name the same page, with or without a slash at the end
 const isSameUrl = (a: string, b: string | undefined): boolean =>
   b !== undefined && a.replace(/\/$/, '') === b.replace(/\/$/, '')
 
-// Whether its source is public: its `repo` is a repository, not the
-// website it falls back to, which the data marks by giving `website` the
-// same URL. Only then does it have stars and dates.
+// The data marks an entry whose source is not public by giving `website`
+// the same URL as `repo`, which falls back to it. Only an entry with a
+// public repository has stars and dates.
 export const hasPublicRepo = (framework: Framework): boolean =>
   !isSameUrl(framework.repo, framework.website)
 
-// Where its source lives: its directory in a monorepo or its reference
-// page (`source`), else its repository (the website of an entry whose
-// source is not public). The star button and the source link of its page
-// both open it.
+// The star button and the source link of its page both open it
 export const sourceUrlOf = (framework: Framework): string =>
   framework.source ?? framework.repo
 
@@ -253,7 +248,6 @@ export const sourceUrlOf = (framework: Framework): string =>
 // entry after a dot (`github.com/monad-lang/monad · motes/oak`); the host
 // alone for an entry whose source is not public
 export const sourceLabelOf = (framework: Framework): string => {
-  // The host and the path of a URL: `github.com/lustre-labs/lustre`
   const addressOf = (url: string): string =>
     `${hostOf(url)}${new URL(url).pathname.replace(/\/$/, '')}`
   const directoryOf = (repo: string, source: string): string =>
@@ -270,10 +264,9 @@ export const sourceLabelOf = (framework: Framework): string => {
         : addressOf(framework.source)
 }
 
-// Its own website or docs, when it has one that is not its source: the
-// page links to it under its summary. None when `website` is absent, or is
+// The page links to it under its summary, so it is left out when it is
 // the address its source link already opens (an entry with no public
-// source, or useReducer, whose source is its reference page).
+// source, or useReducer, whose source is its reference page)
 export const websiteOf = (framework: Framework): string | undefined =>
   framework.website === undefined ||
   isSameUrl(framework.website, framework.repo) ||
@@ -290,10 +283,9 @@ export const FIRST_LIST_DAY = '2026-11-13'
 // How long an entry found after the first list shows as recently added
 export const RECENT_DAYS = 30
 
-// The first day that still counts as recent at `now` (ms since 1970), in
-// the local days of the reader, as `discoveredAt` is a local day. A day, not
-// a time, so a view that takes it is drawn again once a day, not every
-// minute.
+// `now` is in ms since 1970. It returns a local day of the reader, as
+// `discoveredAt` is a local day, and a day, not a time, so a view that
+// takes it is drawn again once a day, not every minute.
 export const recentSinceOf = (now: number): string => {
   const today = new Date(now)
   const since = new Date(
@@ -305,9 +297,8 @@ export const recentSinceOf = (now: number): string => {
   return `${since.getFullYear()}-${pad(since.getMonth() + 1)}-${pad(since.getDate())}`
 }
 
-// Found after the first list, and not longer ago than `RECENT_DAYS`: its
-// card and its page show the ribbon "Recently added" (the table shows the
-// day in its Added column instead)
+// Its card and its page show the ribbon "Recently added" (the table shows
+// the day in its Added column instead)
 export const isRecentlyAdded = (
   framework: Framework,
   recentSince: string,

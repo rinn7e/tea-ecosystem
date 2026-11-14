@@ -45,9 +45,7 @@ const exampleSourceLabelOf = (url: string): string => {
   return parts.length > 2 ? `${project} · ${parts[parts.length - 1]}` : project
 }
 
-// Its example, as its own docs write it, highlighted: the language on the
-// left, where it was copied from on the right. Nothing for an entry with no
-// example.
+// The example as its own docs write it
 const exampleView = ({ framework }: { framework: Framework }) =>
   pipe(
     snippetOf(framework.id),
@@ -109,7 +107,6 @@ const rubricView = ({ framework }: { framework: Framework }) => (
   </div>
 )
 
-// One entry of "More in <language>": its tile, its name and its language
 const relatedChipView = ({ framework }: { framework: Framework }) => (
   <Link
     key={framework.id}
@@ -122,9 +119,6 @@ const relatedChipView = ({ framework }: { framework: Framework }) => (
   </Link>
 )
 
-// The other entries in any of its languages, from both lists: the Main
-// catalog, then the TEA-adjacent page, each under its name
-// (`sameLanguageEntriesOf`)
 const relatedView = ({ framework }: { framework: Framework }) => {
   const groups = sameLanguageEntriesOf(framework)
   return groups.length === 0 ? null : (
@@ -150,8 +144,8 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
   const { framework } = model
   return (
     <article className='flex flex-col gap-[28px]'>
-      {/* Back on the left, the source of the project on the right: the
-          same place as its star button */}
+      {/* The source of the project on the right, the same place as its
+          star button */}
       <div className='flex items-center justify-between gap-[12px]'>
         <Link
           destination={listDestination}
@@ -245,7 +239,6 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
       <section className='flex flex-col gap-[14px]'>
         {sectionTitleView({ title: 'Rubric' })}
         {rubricView({ framework })}
-        {/* Where these grades come from */}
         {framework.verified ? (
           <p className='text-native text-center text-sm'>
             Every grade is checked against its docs or source.

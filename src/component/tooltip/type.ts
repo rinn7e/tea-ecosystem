@@ -5,9 +5,7 @@ import { type Option } from 'fp-ts/Option'
 export type Content = {
   title: string
   text: string
-  // A legend under the text, such as the grades of the rubric: each row a
-  // badge (its label and classes) and what it means, the current one at
-  // full strength
+  // Such as the grades of the rubric
   legend?: LegendRow[]
 }
 
@@ -48,7 +46,6 @@ export type Model = {
 }
 
 export type Msg =
-  // A mouse reached a trigger, or left it
   | { _tag: 'Hover'; id: string; anchor: Anchor; content: Content }
   | { _tag: 'Leave'; id: string }
   // A finger tapped a trigger: touch screens have no hover

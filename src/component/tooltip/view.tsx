@@ -27,7 +27,6 @@ type Placement = {
   arrowLeft: number
 }
 
-// Centred on the trigger, kept on the screen; above it when there is room
 export const placementOf = (anchor: Anchor, hasLegend = false): Placement => {
   const width = hasLegend ? LEGEND_WIDTH : WIDTH
   const middle = (anchor.left + anchor.right) / 2
@@ -48,7 +47,6 @@ export const placementOf = (anchor: Anchor, hasLegend = false): Placement => {
   }
 }
 
-// The legend: one row per badge, the current one at full strength
 const legendView = ({ rows }: { rows: LegendRow[] }) => (
   <span className='border-line flex flex-col gap-[6px] border-t pt-[10px]'>
     {rows.map((row) => (
@@ -75,9 +73,8 @@ const legendView = ({ rows }: { rows: LegendRow[] }) => (
   </span>
 )
 
-// The open tooltip, once for the whole app at the root: a small dialog on
-// the panel color, with a darker grey border and hard offset shadow than
-// the cards (so it stands apart from them) and an arrow on its trigger. Fixed to the screen, so it sits over everything
+// A darker grey border and a harder offset shadow than the cards, so it
+// stands apart from them. Fixed to the screen, so it sits over everything
 // without a portal. Its place comes from the model, so it is set with
 // `style` (no class can hold a measured position).
 //
@@ -138,7 +135,6 @@ const tooltipBoxView = ({ tooltip }: { tooltip: Tooltip }) => {
   )
 }
 
-// Drawn while shown and while it fades out
 export const tooltipLayerView = ({ model }: { model: Model }) =>
   pipe(
     model.tooltip,
