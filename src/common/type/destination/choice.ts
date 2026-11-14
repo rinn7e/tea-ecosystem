@@ -15,8 +15,9 @@ import { type Status, statuses } from '@/common/type/framework'
 // whether a choice narrows the list:
 // - `Any` narrows nothing: no box ticked, or every one (`allSelected`,
 //   which only tells the popover to draw every box ticked)
-// - `Only` narrows: a non-empty part of the options, never every one, and
-//   never one the list does not offer
+// - `Only` narrows: a non-empty part of the options it was given, never
+//   every one, and never one outside them (each caller passes the options
+//   of its list: `targetOptionsOf` for the targets)
 // Owned: read it anywhere as a `ChoiceShape`, but only `choiceOf` and
 // `anyChoice` make one (the brand has no value), and they hold that.
 // Review: a cast to it outside this file makes a state that cannot happen.

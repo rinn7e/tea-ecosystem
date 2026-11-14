@@ -97,10 +97,10 @@ A state the app cannot be in must not type check, or, when a type cannot say it,
 
 A fact with an owner gets a type only its owner makes, so a write that skips the owner does not type check: a branded type, `Brand<T, B>` (`src/common/type/brand-wrapper.ts`), where `B` is a `declare class` with one private method that the owner declares next to the type and never exports.
 
-| Value                    | Made only by                                                                                                                  | So you cannot                                                                       |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `CurrentScreenModel`     | `currentScreenModelOfMove` (used by the navigation only), `sameScreenWith` (`src/type.ts`)                                    | change the screen without a move                                                    |
-| `Choice`, `StatusChoice` | `choiceOf`, `anyChoice`, `statusChoiceOf`, `defaultStatusChoice`, `anyStatusChoice` (`src/common/type/destination/choice.ts`) | store a filter that ticks every option as narrowing, or one the list does not offer |
+| Value                    | Made only by                                                                                                                  | So you cannot                                                                                                                            |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `CurrentScreenModel`     | `currentScreenModelOfMove` (used by the navigation only), `sameScreenWith` (`src/type.ts`)                                    | change the screen without a move                                                                                                         |
+| `Choice`, `StatusChoice` | `choiceOf`, `anyChoice`, `statusChoiceOf`, `defaultStatusChoice`, `anyStatusChoice` (`src/common/type/destination/choice.ts`) | store a filter that ticks every option it was given as narrowing, or holds one outside them (each caller passes the options of its list) |
 
 - Reading stays free: a brand is a subtype.
 - `eslint.config.js` forbids `currentScreenModelOfMove` outside the navigation and tests.
