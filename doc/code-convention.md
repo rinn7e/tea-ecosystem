@@ -81,7 +81,17 @@ Every fact lives in one place in the model, and the types allow only the states 
 
 - The destination is never stored. The screen model says which screen is shown (its tag, read by `currentScreenOf`), and a screen with params keeps them as fields of its own: the catalog `filter`, the framework of a framework page, the `language` of the guide.
 - A change of a param (a filter, a language) only updates its owner. The URL follows after the step, with no navigation.
-- A filter of the popover is a `Choice` (`src/common/type/destination/choice.ts`), never a plain array: `Any` narrows nothing (no box ticked, or every one, with `allSelected` for the popover), and `Only` holds some of the options the list offers, never every one. It is branded (next section): only `choiceOf` and `anyChoice` make one, at the toggle, the URL parser and the carry to the other list, so whether a filter narrows is always `narrowsChoice`, with no count of options. The statuses add `Default` (active and quiet) to it (`StatusChoice`, made only by `statusChoiceOf`, `defaultStatusChoice` and `anyStatusChoice`).
+
+## Make impossible states impossible
+
+A state the app cannot be in must not type check, or, when a type cannot say it, must fail a test. Then no view has to work out again whether a value makes sense, and a new feature cannot read a meaning two ways. A run of review findings in one area (each a case where two values meant the same, or a value meant nothing) is the sign that the type allows too much: fix the type, not the cases.
+
+1. One state per meaning. When two values mean the same (no box ticked and every box ticked both narrow nothing), make them one state, and keep a flag for what only the screen needs (`allSelected`). A filter of the popover is a `Choice` (`src/common/type/destination/choice.ts`), never a plain array: `Any` narrows nothing, and `Only` holds some of the options the list offers, never every one. The statuses add `Default` (active and quiet) to it (`StatusChoice`).
+2. A field that applies to one case lives in that case. Put it inside a variant of a tagged union, never side by side with a field of another case: the model of a screen is in its `ScreenModel` variant, not an optional field of the root.
+3. Values that change together are one union, not several flags. A tooltip is `Option<Tooltip>` with a `phase` (`waiting`, `shown`, `leaving`), and the popover is `closed`, `open` or `closing`, never two booleans that could both be true.
+4. Normalize at the edges. A value from outside (the URL, a toggle, a filter carried to the other list) goes through the one function that builds the state (`choiceOf`, `statusChoiceOf`), so the views only read. A value with an owner is branded (next section), so nothing else can build it.
+5. Derive, do not store. A value that follows from another (the logos in a row from the width, the first recent day from the time) is computed where it is read, or passed as a derived prop, never kept as a second field.
+6. When the type cannot hold it, a test does. The data files are plain JSON, so the rules of an entry (its tier holds the rubric, a public repository has its dates, an entry of `data/adjacent.json` has the tier `adjacent`) are checked by `tests/common/data/catalog.test.ts`. Name the test next to the field it guards.
 
 ## Make impossible updates impossible
 
