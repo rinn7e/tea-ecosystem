@@ -2691,6 +2691,7 @@
     "repo": "https://github.com/thebanri/limoni",
     "website": "https://pkg.go.dev/github.com/thebanri/limoni",
     "summary": "A Go terminal UI engine with an allocation-free renderer, an immediate mode beside an Elm architecture program, and a semantic tree that tests and AI agents drive.",
+    "snippetSource": "https://github.com/thebanri/limoni/blob/main/examples/counter/main.go",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -2723,6 +2724,7 @@
     "repo": "https://github.com/Actomaton/Actomaton",
     "website": "https://actomaton.github.io/Actomaton/documentation/actomaton/",
     "summary": "An actor-based state machine for Swift async/await, inspired by Elm and TCA: reducers return Effect values, with effect queues for cancellation and SwiftUI and UIKit stores.",
+    "snippetSource": "https://github.com/Actomaton/Actomaton/blob/main/README.md",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -2755,6 +2757,7 @@
     "repo": "https://github.com/dotnet-websharper/mvu",
     "website": "https://dotnet-websharper.github.io/mvu/",
     "summary": "Elm-inspired Model-View-Update for WebSharper client apps, where the render function is called once with a reactive View of the model.",
+    "snippetSource": "https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/Client.fs",
     "rubric": {
       "model": "native",
       "msg": "native",
