@@ -133,6 +133,7 @@ A fact with an owner gets a type only its owner makes, so a write that skips the
 - Define a type explicitly and annotate its codec with it (`export const FrameworkJson: t.Type<Framework> = ...`); never `t.TypeOf<typeof ...>`.
 - No type assertions (`as`), enforced by lint, except the makers of an owned type; prefer `satisfies` and type guards.
 - No type synonyms that only rename a type.
+- No default type parameters (`type Model<F extends ListingFilter = ListingFilter>`): every use names its type argument (`Listing.Model<CatalogFilter>`, `Model<ListingFilter>` where any list fits). A default hides which type a value holds, so a caller that meant one list silently gets the wider type.
 - Prefer `fp-ts` with `pipe` over plain array and object methods (`A.map`, `O.fold`), and import modules by name (`fp-ts/Option`, never `fp-ts/lib/Option`).
 - No `let`: use `const`, ternaries and pure helpers.
 - No early returns: write the full `if / else if / else` tree. Use a `switch` on the `_tag` of a union.

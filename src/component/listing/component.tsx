@@ -415,17 +415,15 @@ const lacksChoicesView = ({
 // The targets the entries of the list run on, in the order of `targets`
 // (`targetOptionsOf`)
 const targetChoicesView = ({
-  list,
   entries,
   filter,
   dispatch,
 }: {
-  list: ListId
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const options = targetOptionsOf(list)
+  const options = targetOptionsOf(filter.list)
   return choiceRowView({
     children: options.map((target) =>
       choiceBoxView({
@@ -572,14 +570,12 @@ const panelSectionView = ({
 // The popover fades in rising 4px (`starting:`) and out the same way while
 // the model keeps it `closing`; a press outside it or Escape closes it.
 const searchRowView = ({
-  list,
   entries,
   model,
   dispatch,
 }: {
-  list: ListId
   entries: Framework[]
-  model: Model
+  model: Model<ListingFilter>
   dispatch: Dispatcher<Msg>
 }) => {
   const count = panelFilterCountOf(model.filter)
@@ -641,7 +637,6 @@ const searchRowView = ({
             {panelSectionView({
               title: 'Target',
               children: targetChoicesView({
-                list,
                 entries,
                 filter: model.filter,
                 dispatch,
@@ -1287,7 +1282,7 @@ const ListingComponent = ({
             })}
           </div>
         </div>
-        {searchRowView({ list, entries, model, dispatch })}
+        {searchRowView({ entries, model, dispatch })}
       </div>
       {/* The toolbar sits right on the results it acts on */}
       <div className='flex flex-col gap-[14px]'>

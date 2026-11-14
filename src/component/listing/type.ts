@@ -27,7 +27,7 @@ import {
 // destination's (`CatalogScreen`, `AdjacentScreen`).
 // `F` is the filter of its list (`CatalogFilter`, `AdjacentFilter`), so a
 // list never holds the filter of the other one
-export type Model<F extends ListingFilter = ListingFilter> = {
+export type Model<F extends ListingFilter> = {
   filter: F
   // The popover of the Filters button (tiers or what an entry lacks, and
   // targets): `closing` while it fades out, until `PanelClosed`. Not in the
@@ -38,7 +38,7 @@ export type Model<F extends ListingFilter = ListingFilter> = {
   panelSeq: number
 }
 
-export const ModelEq: EqClass.Eq<Model> = EqClass.struct({
+export const ModelEq: EqClass.Eq<Model<ListingFilter>> = EqClass.struct({
   filter: ListingFilterEq,
   panel: S.Eq,
   panelSeq: N.Eq,
@@ -73,7 +73,7 @@ export type Msg =
   | { _tag: 'PanelClosed'; seq: number }
 
 export type Props = {
-  model: Model
+  model: Model<ListingFilter>
   // How many language logos fit in a row (`logosPerRowOf` the width of the
   // window): a resize draws the list again only when this number changes
   logosPerRow: number

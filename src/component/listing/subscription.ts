@@ -1,6 +1,8 @@
 import { WindowEvents } from 'react-tea-cup'
 import { Sub } from 'tea-cup-fp'
 
+import { type ListingFilter } from '@/common/type/destination'
+
 import { type Model, type Msg } from './type'
 
 const windowEvents = new WindowEvents<Msg>()
@@ -14,7 +16,9 @@ const isInsidePanel = (target: EventTarget | null): boolean =>
 
 // Only while the Filters popover is open: Escape closes it, and so does a
 // press outside it
-export const subscriptions = (model: Model): Sub<Msg> =>
+export const subscriptions = <F extends ListingFilter>(
+  model: Model<F>,
+): Sub<Msg> =>
   model.panel === 'open'
     ? Sub.batch([
         windowEvents.on('keydown', (e): Msg => ({
