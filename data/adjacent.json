@@ -415,16 +415,19 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
+      "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
       "sub": "equivalent",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: event handlers run effects directly instead of returning them, and a LiveView subscribes to outside sources itself (PubSub in mount)."
+      "Misses update, Cmd and Sub: handle_event and handle_info return {:noreply, socket} and run effects directly instead of returning them, and a LiveView subscribes to outside sources itself (Phoenix.PubSub.subscribe or :timer.send_interval in mount).",
+      "Closest to Cmd: start_async and assign_async run a function in a task and deliver the result to handle_async or into the assigns, and push_event, push_navigate and push_patch queue work on the socket.",
+      "The state is the assigns of the socket, immutable data changed with assign and update, and render(assigns) is the view; the server sends a diff of the HTML to the browser.",
+      "JavaScript hooks talk to a LiveView by pushEvent and handleEvent on the client and Phoenix.LiveView.push_event on the server."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-12",
     "updatedAt": "2026-11-11",
@@ -447,16 +450,19 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
+      "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
       "sub": "equivalent",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: update runs effects through the component link, and outside sources send their messages through that link too."
+      "Misses update, Cmd and Sub: update(&mut self, ctx, msg) -> bool only says whether to re-render, so effects run through the component link (ctx.link().send_future, send_stream, callback_future) and outside sources send their messages through that link too.",
+      "Component has Message, update and view; Context::link().callback(|_| Msg::Increment) turns a DOM event into a message. See https://github.com/yewstack/yew/blob/master/packages/yew/src/html/component/mod.rs",
+      "There is no subscriptions function: a stream or an interval (gloo Interval, as in the boids example) is started by hand from create or rendered, and Scope::send_stream feeds its items back as messages.",
+      "Ports are managed: Renderer::render returns an AppHandle, which dereferences to the Scope of the root and its send_message (packages/yew/src/app_handle.rs)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-12-16",
     "updatedAt": "2026-10-30",
@@ -478,16 +484,19 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
-      "view": "native",
+      "update": "equivalent",
+      "view": "equivalent",
       "cmd": "missing",
-      "sub": "equivalent",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
-      "Misses Cmd and Sub: components and messages, without effects as values, and components subscribe to events when they are mounted, not through a function of the model."
+      "Misses update and Cmd: update(&mut self, Option<Msg>) -> Option<Msg> mutates the model and the view in place and returns a follow-up message, never an effect; a Cmd in tui-realm is a command to a component (perform(Cmd) -> CmdResult), not an effect for the runtime.",
+      "Event -> Msg -> Update -> View: an AppComponent turns an Event into a Msg through on(&mut self, &Event) -> Option<Msg>. See https://github.com/veeso/tui-realm/blob/main/crates/tuirealm/docs/en/get-started.md",
+      "Sub is managed: a tui-realm Port is a Poll implementation added to the EventListenerCfg, which the runtime polls on its own thread (or async task) and stops with the application; Application::subscribe attaches a component to events after mounting, so there is no declarative Model -> Sub function.",
+      "The view is a set of mounted components that keep their own state and attributes, which update changes in place (app.attr(&Id::Label, Attribute::Text, ...)), not a pure function of the model."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-04-07",
     "updatedAt": "2026-10-24",
@@ -507,7 +516,7 @@
     "summary": "Immediate mode: the app owns its loop. Its docs describe TEA as a pattern, and several entries of the catalog build it on top.",
     "snippetSource": "https://github.com/ratatui/ratatui/blob/main/README.md",
     "rubric": {
-      "model": "native",
+      "model": "missing",
       "msg": "missing",
       "update": "missing",
       "view": "native",
@@ -516,9 +525,11 @@
       "ports": "missing"
     },
     "notes": [
-      "Misses Msg, update, Cmd and Sub: immediate mode, where the app owns its loop; its docs describe TEA as a pattern to build on top."
+      "Misses Model, Msg, update, Cmd and Sub: immediate mode, where the app owns its loop (terminal.draw(render) in a loop it writes) and its state; the library offers none of the five.",
+      "The docs describe the Elm Architecture as a pattern the app implements (Model struct, Message enum, update and view functions), for pedagogy only, and point to tui-realm for a framework. See https://ratatui.rs/concepts/application-patterns/the-elm-architecture/",
+      "view is the render function handed to Terminal::draw, which paints widgets into a Frame from the state it can see; the repository also has a table-detail-tea example."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2023-02-12",
     "updatedAt": "2026-11-12",
@@ -541,13 +552,15 @@
       "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
-      "sub": "equivalent",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
-      "Misses Msg, update, Cmd and Sub: a reactive view tree over app state, with callbacks that mutate state in place of messages and an update."
+      "Misses Msg, update and Cmd: app_logic(&mut State) -> impl WidgetView<State> rebuilds a view tree, and callbacks like |data: &mut Counter| data.0 += 1 change the state in place and may return an Action (button takes Fn(&mut State) -> Action, passed up with map_action), so there is no closed Msg type and no update function.",
+      "Effects are views: task and worker launch a future that lives while the view is in the tree and reports through a MessageProxy to an on_event handler that mutates the state, instead of a value update returns. The same views make Sub managed: the source starts and stops with its view.",
+      "Its README says it combines ideas from Flutter, SwiftUI and Elm. See https://github.com/linebender/xilem/blob/main/xilem/README.md"
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2022-11-16",
     "updatedAt": "2026-11-03",
@@ -569,16 +582,19 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
+      "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
-      "sub": "managed",
-      "ports": "missing"
+      "sub": "missing",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd: the event handler runs IO directly in EventM instead of returning effects as values."
+      "Misses update, Cmd and Sub: the event handler appHandleEvent :: BrickEvent n e -> EventM n s () is in EventM, which has MonadIO, so effects run directly inside it instead of being returned as values.",
+      "appDraw :: s -> [Widget n] is the view; BrickEvent n e (key, mouse, resize or AppEvent e) is the message type. See https://github.com/jtdaugherty/brick/blob/master/src/Brick/Main.hs",
+      "Custom events reach the loop by writeBChan on a BChan passed to customMain; the CustomEventDemo forks a thread that writes Counter every second, so there is no subscription the runtime starts or stops.",
+      "Ports are managed: customMain takes a BChan that outside threads write custom events to with writeBChan."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-05-09",
     "updatedAt": "2026-11-12",
@@ -599,16 +615,19 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
+      "update": "equivalent",
       "view": "native",
       "cmd": "equivalent",
-      "sub": "equivalent",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
-      "Misses Cmd and Sub: actions schedule effects imperatively instead of returning them as values, and outside sources are started by the app, not by the runtime."
+      "Misses update and Cmd: apply_action : context -> model -> action -> model returns only the model, and the effects it schedules with Bonsai.Apply_action_context.schedule_event run at once inside it (the driver hands them to Ui_effect.Expert.handle), instead of being returned as values.",
+      "Bonsai.state_machine gives each component its own model and action type; the view is an incremental Vdom.Node.t Bonsai.t computed from those values, and handlers get an action as a unit Effect.t from the injector.",
+      "No subscriptions function: Bonsai.Clock.every runs an effect on an interval while the component is active, Bonsai.Edge.on_change reacts to a changing value, and Bonsai.Edge.lifecycle (on_activate, on_deactivate) starts and stops a source.",
+      "Incr_dom, the older library in the name, has the same shape: apply_action returns a new Model.t and gets schedule_actions to schedule more actions (src/app_intf.ml)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-11-18",
     "updatedAt": "2026-11-03",
@@ -631,16 +650,19 @@
     "rubric": {
       "model": "native",
       "msg": "native",
-      "update": "native",
-      "view": "native",
+      "update": "equivalent",
+      "view": "missing",
       "cmd": "equivalent",
       "sub": "equivalent",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: event handlers emit states and run effects inside the bloc, and outside sources are started by the app, not by the runtime."
+      "Misses update, Cmd and Sub: an on<Event> handler (EventHandler = FutureOr<void> Function(Event, Emitter<State>)) runs effects itself and emits states, so nothing is returned as data, and outside sources are started by the app or by emit.forEach and emit.onEach inside a handler.",
+      "Bloc<Event, State> maps events (a user class hierarchy) to states; a Cubit has no events, only methods that call emit. State is one value per bloc, treated as immutable.",
+      "The core package has no view; flutter_bloc adds BlocBuilder, BlocListener and BlocProvider for Flutter widgets (https://pub.dev/packages/flutter_bloc).",
+      "Ports are managed: Bloc.add(event) sends an event into a running bloc from outside (bloc.dart)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-10-07",
     "updatedAt": "2026-11-14",
@@ -664,13 +686,17 @@
       "update": "native",
       "view": "missing",
       "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: a pure reducer with effects in an executor beside it, not returned from it, and outside sources are started by the app, not by the runtime."
+      "Misses Cmd: the Reducer (State.reduce(msg): State) is pure, and effects run in an Executor before it, which handles each Intent, runs effects itself (CoroutineExecutor.scope) and dispatches Messages to the Reducer, as Redux middleware does.",
+      "Store has an Executor (executeIntent, executeAction), a Bootstrapper that produces Actions when the store starts, a Reducer (State.reduce(msg): State) and Labels for one-shot output (https://github.com/arkivanov/MVIKotlin/blob/master/docs/store.md).",
+      "Sub is managed: the Bootstrapper given to StoreFactory.create subscribes to data sources when the store starts, and the store disposes it with itself (docs/store.md).",
+      "Headless: MviView offers render(model) for an imperative view and Compose can observe the Store directly, so view is missing, as for Mobius.",
+      "Ports are managed: Store.accept(intent) sends an intent into a running store from outside (core/store/Store.kt)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-12-10",
     "updatedAt": "2026-11-01",
@@ -690,17 +716,20 @@
     "snippetSource": "https://github.com/orbit-mvi/orbit-mvi/blob/main/README.md",
     "rubric": {
       "model": "native",
-      "msg": "native",
-      "update": "native",
+      "msg": "equivalent",
+      "update": "equivalent",
       "view": "missing",
       "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: intents reduce state and post side effects inside the same block, and outside sources are started by the app, not by the runtime."
+      "Misses Msg, update and Cmd: an intent is a lambda (intent { }), not a message; it reduces state and posts side effects (reduce, postSideEffect) inside the same suspend block, so nothing is returned as a value.",
+      "Sub is managed: the onCreate block given to the container factory, declared in its setup, is the documented place to collect flows, cancelled with the scope of the container (website/docs/Core/index.md); Syntax.repeatOnSubscription runs a block only while the container has subscribers.",
+      "Container exposes stateFlow and sideEffectFlow; the UI collects them (collectAsState, collectSideEffect), so there is no view function in the library.",
+      "Ports are managed: ContainerHost.intent runs an intent on a running container from outside, and sideEffectFlow reads its side effects (Container.kt)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-12-22",
     "updatedAt": "2026-08-31",
@@ -724,12 +753,17 @@
       "view": "native",
       "cmd": "equivalent",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "native"
     },
     "notes": [
-      "Misses Cmd: a workflow renders and handles actions, and its effects run through workers and side effects instead of being returned from an update."
+      "Misses Cmd: an action applies itself to the state and returns no effects; effects are not returned as values but declared in render as workers and side effects that the runtime runs.",
+      "Actions are WorkflowAction values: in Swift an enum (enum Action: WorkflowAction { case nameChanged(String); case login }) whose apply(toState:) switches over the cases (Samples/SampleApp/Sources/WelcomeWorkflow.swift in workflow-swift), in Kotlin a sealed class or action { } closures that change the state through an Updater.",
+      "Effects: RenderContext.runningSideEffect(key) { ... } runs a suspend function and runningWorker(Worker, key) collects a Flow into actions.",
+      "Sub is managed: render declares these by key on every pass (rule 2 of the rubric: a source declared in the view); a key still declared keeps running and one no longer declared is cancelled by the runtime.",
+      "render(props, state, context) returns the rendering, a pure function of state; workflows form a tree through renderChild.",
+      "Ports are native: the host runs a workflow with typed props in and typed output out, renderWorkflowIn(workflow, scope, props: StateFlow, onOutput) in Kotlin (workflow-runtime RenderWorkflow.kt) and WorkflowHost.update(workflow:) with outputPublisher in Swift (Workflow/Sources/WorkflowHost.swift)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-06-02",
     "updatedAt": "2026-11-13",
@@ -751,14 +785,16 @@
       "msg": "native",
       "update": "native",
       "view": "missing",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: Redux for Swift, with the same gaps: the reducer returns only state, and actions are dispatched from anywhere."
+      "Misses Cmd and Sub: Redux for Swift, with the same gaps: the Reducer (Action, State?) -> State returns only state, and actions are dispatched from anywhere.",
+      "Effects run in middleware or ReSwift-Thunk action creators (Store.AsyncActionCreator), outside the reducer; StoreSubscriber.newState(state:) is an imperative callback, not a view function.",
+      "Ports are managed: Store.dispatch(action) sends an action into a running store from outside (Store.swift)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-12-15",
     "updatedAt": "2024-04-22",
@@ -782,13 +818,16 @@
       "update": "native",
       "view": "missing",
       "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Misses Cmd and Sub: mutate returns streams of mutations, close to Cmd, but effects and reduce are split by stream, and outside sources are merged in by the app."
+      "Misses Cmd: mutate(action:) returns Observable<Mutation> and performs the effects (its README says every side effect runs there), while reduce(state:mutation:) -> State only changes state, so there is no single (Model, Cmd) update.",
+      "Sub is managed: transform(mutation:) is declared on the Reactor and called once before the state stream is made, the place the README names to merge a global event stream, and the runtime disposes it with its disposeBag (Sources/ReactorKit/Reactor.swift).",
+      "The View protocol binds the state stream to UI with bind(reactor:), imperatively, so there is no view function.",
+      "Ports are managed: Reactor.action is a public ActionSubject the host sends actions into (Reactor.swift)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-06",
     "updatedAt": "2026-05-07",
@@ -806,18 +845,20 @@
     "summary": "Model-View-Update in name; state is changed in place.",
     "snippetSource": "https://github.com/dotnet/Comet/blob/dev/README.md",
     "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "missing",
+      "model": "equivalent",
+      "msg": "missing",
+      "update": "equivalent",
       "view": "native",
-      "cmd": "missing",
+      "cmd": "equivalent",
       "sub": "missing",
       "ports": "missing"
     },
     "notes": [
-      "Misses update, Cmd and Sub: Model-View-Update in name, but state is changed in place."
+      "Misses Model, Msg, update, Cmd and Sub: it calls itself Model-View-Update, but a View holds State<T> fields (or a BindingObject) that callbacks assign to in place, such as clickCount.Value++, and databinding rebuilds the view.",
+      "Body is a function that builds the view from the state, which is observable fields changed in place, as in MobX: callbacks change the state and run their effects themselves, so update and Cmd are equivalent, as for MobX; there are no messages and no subscriptions in src/Comet. See https://github.com/dotnet/Comet/blob/dev/README.md",
+      "The repository is archived; the last commit is from December 2024."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-06-15",
     "updatedAt": "2024-12-07",
@@ -1201,10 +1242,12 @@
       "ports": "native"
     },
     "notes": [
-      "Misses update, Cmd and Sub: handleAction runs effects directly in the HalogenM monad instead of returning them as data, and subscriptions are started imperatively from an emitter.",
-      "As powerful as TEA, with components, queries and slots, but not shaped like it: a Halogen program ports back to Elm only by pulling every effect out of handleAction into a Cmd."
+      "Misses update, Cmd and Sub: handleAction runs effects directly in the HalogenM monad instead of returning them as data (https://github.com/purescript-halogen/purescript-halogen/blob/master/docs/guide/03-Performing-Effects.md), and subscriptions are started imperatively with H.subscribe from an Emitter.",
+      "As powerful as TEA, with components, queries and slots, but not shaped like it: a Halogen program ports back to Elm only by pulling every effect out of handleAction into a Cmd.",
+      "H.subscribe returns a SubscriptionId, H.unsubscribe stops it, and the runtime stops the rest when the component is disposed.",
+      "runUI returns HalogenIO { query, messages, dispose }, a typed channel for the host to query the root component and read its output messages."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-02-25",
     "updatedAt": "2026-10-11",
