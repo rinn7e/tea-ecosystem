@@ -84,7 +84,7 @@
       "ports": "native"
     },
     "notes": [
-      "The backend has its own Model, update and subscriptions; data sync and migrations are part of the platform."
+      "Superset: server-side TEA. The backend has its own Model, update and subscriptions; data sync and migrations are part of the platform."
     ],
     "verified": false,
     "discoveredAt": "2026-11-13",
@@ -114,7 +114,7 @@
       "ports": "native"
     },
     "notes": [
-      "Components with their own model, update, view and subscriptions since 1.9.",
+      "Superset: components with their own model, update, view and subscriptions (since 1.9), and server-side rendering with hydration.",
       "Subscriptions are user-defined: createSub acquires and releases their resources when a component mounts and unmounts.",
       "update schedules effects with io; it does not run them."
     ],
@@ -239,38 +239,6 @@
     "createdAt": "2019-04-24",
     "updatedAt": "2026-09-09",
     "stars": 70
-  },
-  {
-    "id": "halogen",
-    "name": "Halogen",
-    "language": "PureScript",
-    "elmFamily": false,
-    "targets": ["web"],
-    "tier": "superset",
-    "status": "active",
-    "repo": "https://github.com/purescript-halogen/purescript-halogen",
-    "logo": "halogen.png",
-    "summary": "A component framework for PureScript: as powerful as TEA, with components, queries and slots, but not shaped like it.",
-    "snippetSource": "https://github.com/purescript-halogen/purescript-halogen/blob/master/examples/basic/src/Button.purs",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "equivalent",
-      "view": "native",
-      "cmd": "equivalent",
-      "sub": "equivalent",
-      "ports": "native"
-    },
-    "notes": [
-      "handleAction runs effects directly in the HalogenM monad instead of returning them as data.",
-      "Subscriptions are started imperatively from an emitter.",
-      "Listed as a superset for its power; a strict reading of the rubric would move it to the adjacent page."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13",
-    "createdAt": "2015-02-25",
-    "updatedAt": "2026-10-11",
-    "stars": 1602
   },
   {
     "id": "pux",
@@ -465,7 +433,7 @@
       "ports": "missing"
     },
     "notes": [
-      "The Elmish runtime comes from Avalonia.FuncUI.Elmish; components with local state are offered beside it."
+      "Superset: nested stateful components, with local state, offered beside the Elmish runtime that comes from Avalonia.FuncUI.Elmish."
     ],
     "verified": false,
     "discoveredAt": "2026-11-13",
@@ -611,8 +579,7 @@
       "ports": "native"
     },
     "notes": [
-      "Server components run the update loop on the Erlang target and patch the DOM over a socket; since 5.5 they can join supervision trees.",
-      "Components can be registered as custom elements.",
+      "Superset: server components run the update loop on the Erlang target and patch the DOM over a socket (since 5.5 they can join supervision trees), and components can be registered as custom elements.",
       "There is no subscriptions function: long-running sources are effects that keep dispatching."
     ],
     "verified": true,
@@ -1095,7 +1062,7 @@
     "language": "Rust",
     "elmFamily": false,
     "targets": ["desktop"],
-    "tier": "superset",
+    "tier": "full",
     "status": "active",
     "repo": "https://github.com/pop-os/libcosmic",
     "summary": "The toolkit of the COSMIC desktop, built on iced, with app, applet and theming layers on top.",
@@ -1109,7 +1076,9 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
+    "notes": [
+      "The loop is the one of iced; what libcosmic adds (widgets, theming, the shell of an app or a panel applet) is a toolkit, not a part of the architecture, so it is full TEA."
+    ],
     "verified": false,
     "discoveredAt": "2026-11-13",
     "createdAt": "2021-11-13",
@@ -1138,7 +1107,8 @@
       "ports": "missing"
     },
     "notes": [
-      "Commands run async work and send their result back as a message."
+      "Commands run async work and send their result back as a message.",
+      "Superset: components with their own model, messages, update and view, and workers that run an update loop with no view."
     ],
     "verified": false,
     "discoveredAt": "2026-11-13",
@@ -1400,7 +1370,7 @@
     },
     "notes": [
       "Reducers return Effect values; long-running effects with cancellation stand in for subscriptions.",
-      "TestStore checks every state change and every effect a test causes.",
+      "Superset: child features with their own state, actions and reducer compose into a parent, and TestStore checks every state change and every effect a test causes.",
       "Dependencies are injected and replaced in tests."
     ],
     "verified": false,
@@ -1843,7 +1813,8 @@
     "notes": [
       "update : Msg -> Model -> ( Model, Cmd Msg ), with an extra Db argument first in the server-driven Sky.Live shape; effects are typed Tasks run through Cmd.perform.",
       "subscriptions : Model -> Sub Msg, for example Time.every; on Sky.Live a subscription is pushed to the page over SSE.",
-      "Not Elm and not built on its runtime: the compiler is a Rust binary that emits Go. Any Go package is reachable through typed bindings (sky add), in place of ports."
+      "Not Elm and not built on its runtime: the compiler is a Rust binary that emits Go. Any Go package is reachable through typed bindings (sky add), in place of ports.",
+      "Superset: server-side TEA in the Sky.Live shape, and the same program built as a wasm client, a terminal UI or a native app."
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",
@@ -2321,7 +2292,7 @@
     "notes": [
       "update is curried, (message) => (state) => { state, commands?, events? }, and may return reject to ignore a message; commands are plain data that runCommand turns into an Effect, and subscriptions(state) returns a HashMap of keyed Effect Channels that the runtime starts and stops.",
       "The library ships no renderer: run hands a stream of frames ({ model, dispatch }) to a bridge, with small snabbdom and React bridges in the examples; the model is made from the state by makeModel.",
-      "Superset for the parent and child composition (children, events, external messages) and the testing tools (rehearse, simulate, dispatchViolations)."
+      "Superset: parent and child composition (children, events, external messages) and the testing tools (rehearse, simulate, dispatchViolations)."
     ],
     "verified": true,
     "discoveredAt": "2026-11-13",

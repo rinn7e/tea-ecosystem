@@ -61,9 +61,12 @@ const RubricComponent = (_props: Props) => (
           rule: tierMeaning('superset'),
         })}
       </div>
-      <p className='text-ink-muted text-center text-sm'>
-        A library that fails a hard requirement goes to the TEA-adjacent page,
-        with the reason.
+      <p className='text-ink-muted text-center text-sm text-balance'>
+        The test behind the tiers: a program written with an entry ports back to
+        Elm in the same shape, its model a Model, its messages a Msg, its update
+        an Elm update whose effects go into the Cmd it returns, and its
+        subscriptions Elm subscriptions. A library that fails a hard requirement
+        goes to the TEA-adjacent page, with the reason.
       </p>
     </section>
 

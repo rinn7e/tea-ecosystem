@@ -26,7 +26,7 @@ A catalog of The Elm Architecture across languages: every language and framework
 
 The site has:
 
-- **Catalog**: 91 entries in 27 languages, as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added. A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
+- **Catalog**: 90 entries in 27 languages, as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added. A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
 - **A page per framework**: its grade on each part of TEA, with notes, and the other entries in its languages from both lists.
 - **Rubric**: what counts as TEA, the four grades and the three tiers.
 - **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, re-frame, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.
@@ -70,7 +70,7 @@ pnpm run build
 
 ## Add or fix a framework
 
-Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a hard requirement). Give it the day you add it as `discoveredAt` (`YYYY-MM-DD`; a new entry shows as "Recently added" for 30 days), its `repo` (the full URL of its public repository, on GitHub, GitLab, Codeberg or another Gitea; only when its source is not public, its website instead, with the same URL in `website`), its `website` when it has one apart from the repository, its `source` when it is one package of a monorepo (the full URL of its directory in `repo`), and run `GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs` to fill its stars and its created and updated dates; a logo goes in `public/logo/` and is named in `logo`. Each grade is `native`, `managed`, `equivalent` or `missing`; the [rubric](doc/analysis.md#3-inclusion-rubric) says what each means. `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
+Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a hard requirement). Give it the day you add it as `discoveredAt` (`YYYY-MM-DD`; a new entry shows as "Recently added" for 30 days), its `repo` (the full URL of its public repository, on GitHub, GitLab, Codeberg or another Gitea; only when its source is not public, its website instead, with the same URL in `website`), its `website` when it has one apart from the repository, its `source` when it is one package of a monorepo (the full URL of its directory in `repo`), and run `GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs` to fill its stars and its created and updated dates; a logo goes in `public/logo/` and is named in `logo`. Each grade is `native`, `managed`, `equivalent` or `missing`; the [rubric](doc/analysis.md#3-inclusion-rubric) says what each means (`equivalent` describes a part and never qualifies a tier). A superset names what it adds beyond TEA in a note that starts with `Superset: `; a TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`). `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
 
 ## Deploy
 

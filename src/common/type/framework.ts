@@ -28,7 +28,8 @@ export const ConceptJson: t.Type<Concept> = t.keyof({
 // How a framework has a concept: in the shape of TEA (`native`), as a
 // long-running source the runtime manages (`managed`, for subscriptions
 // and ports), with the same power in another shape (`equivalent`, such as
-// effects run inside update), or not at all
+// effects run inside update, which describes a part and never meets a
+// requirement of a tier: `meetsRequirement`), or not at all
 export type Grade = 'native' | 'managed' | 'equivalent' | 'missing'
 
 export const GradeJson: t.Type<Grade> = t.keyof({
@@ -163,6 +164,12 @@ export type Framework = {
   // "give every example its source, and every source its example").
   snippetSource?: string
   rubric: Rubric
+  // What the grades leave out. A superset names what it adds beyond TEA in
+  // a note that starts with "Superset: ", and a TEA-adjacent library starts
+  // its notes with the requirements it misses ("Misses Cmd and Sub: ...")
+  // (`rubricProblemsOf`, tests "keep every framework within the rules of
+  // its tier" and "keep every adjacent entry failing the rubric, so it is
+  // not TEA")
   notes: string[]
   // Whether every grade was checked against its docs or source. The first
   // list was graded from memory and a light web check.

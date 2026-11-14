@@ -11,6 +11,7 @@ import * as t from 'io-ts'
 import { PathReporter } from 'io-ts/PathReporter'
 
 import {
+  type Concept,
   type Framework,
   FrameworkJson,
   type Grade,
@@ -137,33 +138,138 @@ export const sameLanguageEntriesOf = (
     A.filter(({ entries }) => entries.length > 0),
   )
 
-const isNative = (grade: Grade): boolean => grade === 'native'
+// The hard requirements of the rubric (`doc/analysis.md`, section 3): the
+// parts full TEA needs, in the order of `concepts`. View and Ports are
+// graded but never required, so a headless loop (no view) is allowed.
+export const requirements: readonly Concept[] = [
+  'model',
+  'msg',
+  'update',
+  'cmd',
+  'sub',
+]
 
-const isNativeOrManaged = (grade: Grade): boolean =>
-  grade === 'native' || grade === 'managed'
+// Whether a grade meets the requirement of its part: Model, Msg, update and
+// Cmd native, Sub native or managed. `equivalent` (the same power in
+// another shape) describes a part and never meets a requirement, so a
+// program ports back to Elm in the same shape.
+export const meetsRequirement =
+  (concept: Concept) =>
+  (grade: Grade): boolean =>
+    grade === 'native' || (concept === 'sub' && grade === 'managed')
 
-// What keeps a framework from its tier (`doc/analysis.md`, section 3):
-// full TEA needs Model, Msg, update and Cmd native and a native or managed
-// Sub; a superset may reach Cmd and Sub in another shape (`equivalent`). A
-// headless loop (no view) is allowed. Empty when it holds. An adjacent
-// entry is held to full TEA, which it must fail.
-export const rubricProblemsOf = (framework: Framework): string[] => {
-  const { rubric } = framework
-  const isSuperset = framework.tier === 'superset'
-  const cmdOk = isSuperset ? rubric.cmd !== 'missing' : isNative(rubric.cmd)
-  const subOk = isSuperset
-    ? rubric.sub !== 'missing'
-    : isNativeOrManaged(rubric.sub)
-  return pipe(
-    [
-      O.fromPredicate(() => !isNative(rubric.model))('model is not native'),
-      O.fromPredicate(() => !isNative(rubric.msg))('msg is not native'),
-      O.fromPredicate(() => !isNative(rubric.update) && !isSuperset)(
-        'update is not native',
-      ),
-      O.fromPredicate(() => !cmdOk)('cmd does not qualify'),
-      O.fromPredicate(() => !subOk)('sub does not qualify'),
-    ],
-    A.compact,
+// The requirements of full TEA an entry misses, by its grades alone: none
+// for an entry of the catalog, at least one for a TEA-adjacent library
+export const missedRequirementsOf = (framework: Framework): Concept[] =>
+  pipe(
+    [...requirements],
+    A.filter(
+      (concept) => !meetsRequirement(concept)(framework.rubric[concept]),
+    ),
   )
+
+// A requirement as notes and docs write it: the type names (Model, Msg,
+// Cmd, Sub) capitalized, the function `update` not
+const requirementLabel = (concept: Concept): string =>
+  concept === 'update'
+    ? 'update'
+    : concept === 'msg'
+      ? 'Msg'
+      : `${concept.charAt(0).toUpperCase()}${concept.slice(1)}`
+
+// Labels joined as a sentence: "Cmd", "Cmd and Sub", "update, Cmd and Sub"
+const listText = (labels: string[]): string =>
+  pipe(
+    labels,
+    A.matchRight(
+      () => '',
+      (init, last) =>
+        A.isEmpty(init)
+          ? last
+          : `${pipe(init, A.intercalate(S.Monoid)(', '))} and ${last}`,
+    ),
+  )
+
+// The word every first note of a TEA-adjacent library starts with
+export const MISSES_NOTE_PREFIX = 'Misses '
+
+// How the first note of a TEA-adjacent library starts: the requirements it
+// misses, then why ("Misses Cmd and Sub: ...")
+export const missesNotePrefixOf = (framework: Framework): string =>
+  `${MISSES_NOTE_PREFIX}${pipe(missedRequirementsOf(framework), A.map(requirementLabel), listText)}: `
+
+// How the note of a superset that names what it adds beyond TEA starts
+export const SUPERSET_NOTE_PREFIX = 'Superset: '
+
+const namesBeyondTea = (framework: Framework): boolean =>
+  pipe(
+    framework.notes,
+    A.some((note) => note.startsWith(SUPERSET_NOTE_PREFIX)),
+  )
+
+// Whether a note stops at a prefix and gives no reason after it
+const stopsAt =
+  (prefix: string) =>
+  (note: string): boolean =>
+    note.startsWith(prefix) && note.slice(prefix.length).trim() === ''
+
+// What keeps an entry from the rule of its tier, by its grades and the
+// note that names its tier
+const tierRuleProblemsOf = (framework: Framework): string[] => {
+  const missed = missedRequirementsOf(framework)
+  const missedProblems = pipe(
+    missed,
+    A.map((concept) => `misses ${requirementLabel(concept)}`),
+  )
+  switch (framework.tier) {
+    case 'reference':
+    case 'full':
+      return [
+        ...missedProblems,
+        ...(namesBeyondTea(framework)
+          ? ['names something beyond TEA, so it is a superset']
+          : []),
+      ]
+    case 'superset':
+      return [
+        ...missedProblems,
+        ...(namesBeyondTea(framework)
+          ? []
+          : [`names nothing beyond TEA in a "${SUPERSET_NOTE_PREFIX}" note`]),
+      ]
+    case 'adjacent': {
+      const prefix = missesNotePrefixOf(framework)
+      return missed.length === 0
+        ? ['meets every requirement of full TEA']
+        : pipe(
+            A.head(framework.notes),
+            O.getOrElse(() => ''),
+            (note) =>
+              !note.startsWith(prefix)
+                ? [`its first note does not start "${prefix}"`]
+                : stopsAt(prefix)(note)
+                  ? [`gives no reason after "${note.trim()}"`]
+                  : [],
+          )
+    }
+  }
 }
+
+// What keeps an entry from its tier (`doc/analysis.md`, section 3). Every
+// tier of the catalog needs all the requirements of full TEA: a superset
+// is full TEA plus something beyond it (components with a loop of their
+// own, server-side rendering, a server loop), named in a note that starts
+// with "Superset: ", and an entry with nothing beyond TEA is full TEA. A
+// TEA-adjacent library misses at least one requirement, and its first note
+// says which and why. A "Superset: " note that stops at its prefix gives
+// no reason, a problem on any tier, and so does a first note of a
+// TEA-adjacent library that stops at its "Misses ...: " prefix. Empty when
+// the entry holds the rule of its tier.
+export const rubricProblemsOf = (framework: Framework): string[] => [
+  ...tierRuleProblemsOf(framework),
+  ...pipe(
+    framework.notes,
+    A.filter(stopsAt(SUPERSET_NOTE_PREFIX)),
+    A.map((note) => `gives no reason after "${note.trim()}"`),
+  ),
+]
