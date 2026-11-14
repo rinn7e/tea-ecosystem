@@ -117,10 +117,11 @@ const tileLanguageLogoClass = (size: TileSize): string => {
 const logoUrl = (file: string): string =>
   `${BASE_URL.replace(/\/$/, '')}/logo/${file}`
 
-// One frame for every tile (its own logo, the logo of its language or two
-// letters). A tile with a logo is white in both modes, as the logo files are
-// drawn on white; two letters have no file, so they take the panel and the
-// ink of the mode, and a dark page shows no white square for them.
+// One frame for every tile (its own logo, the logo of its language, a
+// glyph or two letters). A tile with a logo file is white in both modes, as
+// those files are drawn on white; the others have no file (a language mark
+// drawn here, a glyph, two letters), so they take the panel and the ink of
+// the mode, and a dark page shows no white square for them.
 export const frameworkTileView = ({
   framework,
   size,
@@ -144,7 +145,7 @@ export const frameworkTileView = ({
     )
   } else if (framework.logoText !== undefined) {
     return (
-      <span aria-hidden='true' className={cn(frame, 'bg-tile text-tile-ink')}>
+      <span aria-hidden='true' className={cn(frame, 'bg-panel text-ink')}>
         {framework.logoText}
       </span>
     )
@@ -161,7 +162,7 @@ export const frameworkTileView = ({
           </span>
         ),
         (logo) => (
-          <span className={cn(frame, 'bg-tile text-tile-ink')}>
+          <span className={cn(frame, 'bg-panel text-ink')}>
             {languageMarkView({
               logo,
               className: tileLanguageLogoClass(size),
