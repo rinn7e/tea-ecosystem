@@ -9,8 +9,9 @@
 # search, `discover/<day>` or `discover/<day>-<run>`, whose head is the
 # commit it fetches. Its data is the head on top of the commit it shares
 # with `master`; the guard, the format and the tests check that data
-# (`scripts/recheck-discovered.sh`, the checkout left detached at the head)
-# before `scripts/settle-discovered.sh` merges it or comments on it. Needs
+# (`scripts/recheck-discovered.sh`) before `scripts/settle-discovered.sh`
+# merges it or comments on it, from the scripts of `master`: the checkout
+# goes back to it after the checks. Needs
 # `gh` (`GH_TOKEN`, `GH_REPO`), `jq`, and a checkout of `master`.
 #
 # Run: scripts/settle-pull-request.sh <number>
@@ -59,7 +60,12 @@ if ! on="$(git merge-base HEAD "$commit")"; then
   exit 1
 fi
 
+# The checks leave the checkout at the head of the pull request, whose
+# scripts are those of its older base: back to `master` before the scripts
+# here run again
+master="$(git rev-parse HEAD)"
 problem="$("$here/recheck-discovered.sh" "$on" "$commit" "$max" "$day")"
+git switch --quiet --detach "$master"
 if [ -n "$problem" ]; then
   echo "::error::pull request $number is left as it is: $problem"
   exit 1

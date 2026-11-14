@@ -82,9 +82,12 @@ afterEach(() => {
 describe('settle-pull-request.sh', { timeout: 30_000 }, () => {
   it('merges a pull request whose candidates pass every rule, after the checks', () => {
     const head = branchOf(entryOf('good-tea', 120))
+    const master = current().git('rev-parse', 'master').trim()
     const { status, out, log } = settle('16', viewOf(head))
     expect(status).toBe(0)
     expect(log).toContain('pnpm run test token=unset')
+    // Back on `master` after the checks, whose scripts the rules run from
+    expect(current().git('rev-parse', 'HEAD').trim()).toBe(master)
     expect(log).toContain(
       'gh pr merge https://github.com/owner/name/pull/16 --merge --delete-branch',
     )
