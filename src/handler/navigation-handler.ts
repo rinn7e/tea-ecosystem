@@ -3,7 +3,7 @@ import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { Cmd } from 'tea-cup-fp'
 
-import { type ListKind, frameworkById } from '@/common/data/catalog'
+import { type ListId, frameworkById } from '@/common/data/catalog'
 import {
   type Destination,
   DestinationEq,
@@ -113,7 +113,7 @@ export const setTitleCmd = (model: Model): Cmd<Msg> =>
   })
 
 // The list a screen is, if it is one
-const listKindOf = (screen: Screen): O.Option<ListKind> => {
+const listIdOf = (screen: Screen): O.Option<ListId> => {
   switch (screen._tag) {
     case 'CatalogScreen':
       return O.some('catalog')
@@ -151,10 +151,10 @@ export const navigationMsgHandler = (
     const listScrollY: Model['listScrollY'] =
       subMsg._tag === 'Navigate'
         ? pipe(
-            listKindOf(prevDestination.screen),
+            listIdOf(prevDestination.screen),
             O.fold(
               () => model.listScrollY,
-              (kind) => ({ ...model.listScrollY, [kind]: subMsg.scrollY }),
+              (list) => ({ ...model.listScrollY, [list]: subMsg.scrollY }),
             ),
           )
         : model.listScrollY
@@ -175,10 +175,10 @@ export const navigationMsgHandler = (
         ? subMsg.scrollY
         : subMsg.back && isScreenBelow(prevDestination, nextDestination)
           ? pipe(
-              listKindOf(nextDestination.screen),
+              listIdOf(nextDestination.screen),
               O.fold(
                 () => 0,
-                (kind) => listScrollY[kind],
+                (list) => listScrollY[list],
               ),
             )
           : 0

@@ -5,9 +5,9 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import { type ListKind } from '@/common/data/catalog'
+import { type ListId } from '@/common/data/catalog'
 import {
-  type EntryKind,
+  type EntryCategory,
   type ListingFilter,
   ListingFilterEq,
   type ListingLayout,
@@ -51,8 +51,8 @@ export type Msg =
   | { _tag: 'ToggleTarget'; target: Target; options: Target[] }
   | { _tag: 'ToggleStatus'; status: Status }
   | { _tag: 'SetQuery'; query: string }
-  // Narrows to a kind, or back to every entry when it is the one shown
-  | { _tag: 'ToggleShow'; entryKind: EntryKind }
+  // Narrows to a category, or back to every entry when it is the one shown
+  | { _tag: 'ToggleShow'; category: EntryCategory }
   // Narrows to a language, or back to every language when it is the one
   // shown
   | { _tag: 'ToggleLanguage'; language: string }
@@ -72,7 +72,7 @@ export type Msg =
 
 export type Props = {
   // Which list it shows: its entries, words and the select on its left
-  kind: ListKind
+  list: ListId
   model: Model
   // How many language logos fit in a row (`logosPerRowOf` the width of the
   // window): a resize draws the list again only when this number changes
@@ -84,7 +84,7 @@ export type Props = {
 }
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
-  kind: S.Eq,
+  list: S.Eq,
   model: ModelEq,
   logosPerRow: N.Eq,
   recentSince: S.Eq,

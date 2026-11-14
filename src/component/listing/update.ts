@@ -73,10 +73,10 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
         ...model.filter,
         show: pipe(
           model.filter.show,
-          O.exists((shown) => shown === msg.entryKind),
+          O.exists((shown) => shown === msg.category),
         )
           ? O.none
-          : O.some(msg.entryKind),
+          : O.some(msg.category),
       })
     case 'ToggleLanguage':
       return withFilter(model, {

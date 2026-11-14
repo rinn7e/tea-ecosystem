@@ -1,4 +1,4 @@
-import { type ListKind } from '@/common/data/catalog'
+import { type ListId } from '@/common/data/catalog'
 import { type Brand } from '@/common/type/brand-wrapper'
 import {
   type Destination,
@@ -76,7 +76,7 @@ export type Model = {
   backToTop: BackToTop.Model
   // The scroll each list was left at by a link, where the step back down
   // onto it draws it
-  listScrollY: Record<ListKind, number>
+  listScrollY: Record<ListId, number>
   // Where the screen shown is drawn: set by every move, and scrolled to
   // once per `seq`, before the browser paints the screen (`useScrollOf`)
   scroll: { seq: number; top: number }

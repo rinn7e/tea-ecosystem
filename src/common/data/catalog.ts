@@ -85,20 +85,20 @@ export const frameworkById = (id: string): O.Option<Framework> =>
 
 // The two lists of the site: the catalog of TEA frameworks, and the
 // TEA-adjacent libraries
-export type ListKind = 'catalog' | 'adjacent'
+export type ListId = 'catalog' | 'adjacent'
 
-export const entriesOf = (kind: ListKind): Framework[] =>
-  kind === 'catalog' ? frameworks : adjacentEntries
+export const entriesOf = (list: ListId): Framework[] =>
+  list === 'catalog' ? frameworks : adjacentEntries
 
 // The targets the entries of a list run on, in the order of `targets`: the
 // options of its target filter (TEA-adjacent has no game library)
-export const targetOptionsOf = (kind: ListKind): Target[] =>
+export const targetOptionsOf = (list: ListId): Target[] =>
   targets.filter((target) =>
-    entriesOf(kind).some((f) => f.targets.includes(target)),
+    entriesOf(list).some((f) => f.targets.includes(target)),
   )
 
 // The list an entry belongs to: where its page goes back to
-export const listOf = (framework: Framework): ListKind =>
+export const listOf = (framework: Framework): ListId =>
   framework.tier === 'adjacent' ? 'adjacent' : 'catalog'
 
 // The other entries in a language of an entry (any of the two of one that
@@ -109,13 +109,13 @@ export const listOf = (framework: Framework): ListKind =>
 // Haskell libraries that are not TEA, and back.
 export const sameLanguageEntriesOf = (
   framework: Framework,
-): { kind: ListKind; entries: Framework[] }[] =>
+): { list: ListId; entries: Framework[] }[] =>
   pipe(
-    ['catalog', 'adjacent'] satisfies ListKind[],
-    A.map((kind) => ({
-      kind,
+    ['catalog', 'adjacent'] satisfies ListId[],
+    A.map((list) => ({
+      list,
       entries: pipe(
-        entriesOf(kind),
+        entriesOf(list),
         A.filter(
           (f) =>
             f.id !== framework.id &&

@@ -23,7 +23,7 @@ import {
   dateView,
   gradeBadgeView,
   gradeMeaning,
-  kindLineOf,
+  languageLineOf,
   shownGradeOf,
   sourceLinkView,
   statusView,
@@ -131,10 +131,10 @@ const relatedView = ({ framework }: { framework: Framework }) => {
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: `More in ${framework.language}` })}
       <div className='flex flex-col gap-[16px]'>
-        {groups.map(({ kind, entries }) => (
-          <div key={kind} className='flex flex-col items-center gap-[8px]'>
+        {groups.map(({ list, entries }) => (
+          <div key={list} className='flex flex-col items-center gap-[8px]'>
             <span className='text-ink-faint text-xs'>
-              {kind === 'catalog' ? 'Main catalog' : 'TEA-adjacent'}
+              {list === 'catalog' ? 'Main catalog' : 'TEA-adjacent'}
             </span>
             <div className='flex flex-wrap justify-center gap-[8px]'>
               {entries.map((f) => relatedChipView({ framework: f }))}
@@ -178,7 +178,7 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
         {frameworkTileView({ framework, size: 'page' })}
         <span className='text-accent flex items-center gap-[8px] text-base font-normal'>
           {languageLineLogoView({ framework, size: 'large' })}
-          {kindLineOf(framework)}
+          {languageLineOf(framework)}
         </span>
         <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
           {framework.name}

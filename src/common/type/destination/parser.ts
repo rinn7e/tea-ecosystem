@@ -16,7 +16,7 @@ import * as RA from 'fp-ts/ReadonlyArray'
 import { pipe } from 'fp-ts/function'
 import * as t from 'io-ts'
 
-import { type ListKind, targetOptionsOf } from '@/common/data/catalog'
+import { type ListId, targetOptionsOf } from '@/common/data/catalog'
 import { BASE_URL } from '@/common/env'
 import { statuses } from '@/common/type/framework'
 
@@ -31,7 +31,7 @@ import {
 import {
   type BuildLanguage,
   type Destination,
-  type EntryKind,
+  type EntryCategory,
   type ListingFilter,
   type ListingLayout,
   type ListingSort,
@@ -160,7 +160,7 @@ const statusesOf = (params: ListingParams): StatusChoice => {
 const listLanguageOf = (value: string | undefined): O.Option<string> =>
   value === undefined || value === '' ? O.none : O.some(value)
 
-const showOf = (value: string | undefined): O.Option<EntryKind> =>
+const showOf = (value: string | undefined): O.Option<EntryCategory> =>
   value === 'languages' || value === 'frameworks' ? O.some(value) : O.none
 
 // `?sort=stars&order=ascending`: an unknown column is no sort, an unknown
@@ -260,14 +260,14 @@ const statusParamOf = (choice: StatusChoice): string | undefined =>
       : tickedOf(statuses, choice).join(',')
 
 // Defaults are left out of the URL, so the plain catalog is just `/`. The
-// targets of list `kind` are its own options (`targetOptionsOf`).
+// targets of `list` are its own options (`targetOptionsOf`).
 const listingParamsOf = (
-  kind: ListKind,
+  list: ListId,
   filter: ListingFilter,
 ): ListingParams => ({
   tier: listParamOf(tickedOf(catalogTiers, filter.tiers)),
   lacks: listParamOf(tickedOf(lackables, filter.lacks)),
-  target: listParamOf(tickedOf(targetOptionsOf(kind), filter.targets)),
+  target: listParamOf(tickedOf(targetOptionsOf(list), filter.targets)),
   status: statusParamOf(filter.statuses),
   query: filter.query === '' ? undefined : filter.query,
   show: pipe(filter.show, O.toUndefined),

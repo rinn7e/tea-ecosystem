@@ -1,4 +1,4 @@
-import { type ListKind } from '@/common/data/catalog'
+import { type ListId } from '@/common/data/catalog'
 import {
   type Destination,
   adjacentScreen,
@@ -23,8 +23,8 @@ export const catalogDestinationOf = (model: Model): Destination =>
 export const adjacentDestinationOf = (model: Model): Destination =>
   destinationOfScreen(adjacentScreen(model.adjacent.listing.filter))
 
-// The list of `kind` as it was left: where an entry page goes back to
-export const listDestinationOf = (model: Model, kind: ListKind): Destination =>
-  kind === 'catalog'
+// The list `list` as it was left: where an entry page goes back to
+export const listDestinationOf = (model: Model, list: ListId): Destination =>
+  list === 'catalog'
     ? catalogDestinationOf(model)
     : adjacentDestinationOf(model)

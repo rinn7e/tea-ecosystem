@@ -17,8 +17,8 @@ import {
 // How a list (the catalog, TEA-adjacent) shows its entries
 export type ListingLayout = 'cards' | 'table'
 
-// The two kinds of entry the catalog can narrow to
-export type EntryKind = 'languages' | 'frameworks'
+// The two categories of entry the catalog can narrow to
+export type EntryCategory = 'languages' | 'frameworks'
 
 // A column a list can be sorted by, from the headers of its table
 export type SortColumn =
@@ -87,7 +87,7 @@ export type ListingFilter = {
   query: string
   // Only the language entries (Elm, Gren), or only the frameworks; none
   // shows every entry
-  show: Option<EntryKind>
+  show: Option<EntryCategory>
   // Only the entries written in this language (`languagesOf`)
   language: Option<string>
   layout: ListingLayout

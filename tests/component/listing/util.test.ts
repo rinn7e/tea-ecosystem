@@ -8,7 +8,7 @@ import {
   targetOptionsOf,
 } from '@/common/data/catalog'
 import {
-  type EntryKind,
+  type EntryCategory,
   type ListingFilter,
   type ListingSort,
   adjacentScreen,
@@ -96,7 +96,7 @@ describe('filterFrameworks', () => {
   })
 
   it('shows only languages or only frameworks, and all with neither', () => {
-    const shownWith = (show: O.Option<EntryKind>) =>
+    const shownWith = (show: O.Option<EntryCategory>) =>
       filterFrameworks({
         ...defaultListingFilter(),
         show,
@@ -136,10 +136,10 @@ describe('lacks', () => {
 })
 
 describe('ToggleShow', () => {
-  it('chooses a kind, and clears it when chosen again', () => {
-    const toggle = (show: O.Option<EntryKind>, entryKind: EntryKind) =>
+  it('chooses a category, and clears it when chosen again', () => {
+    const toggle = (show: O.Option<EntryCategory>, category: EntryCategory) =>
       update(
-        { _tag: 'ToggleShow', entryKind },
+        { _tag: 'ToggleShow', category },
         init({ ...defaultListingFilter(), show }),
       )[0].filter.show
     expect(toggle(O.none, 'languages')).toEqual(O.some('languages'))
@@ -203,7 +203,7 @@ describe('search', () => {
       statuses: statusChoiceOf([]),
     })(frameworks).map((f) => f.id)
 
-  it('finds entries by the labels they show: status, tier, target, kind', () => {
+  it('finds entries by the labels they show: status, tier, target, language line', () => {
     expect(searched('archived')).toContain('seed')
     expect(searched('superset')).toContain('miso')
     expect(searched('terminal')).toContain('bubbletea')
@@ -382,9 +382,9 @@ describe('otherListMatchesOf', () => {
     ...defaultListingFilter(),
     query,
   })
-  const countOf = (kind: 'catalog' | 'adjacent', filter: ListingFilter) =>
+  const countOf = (list: 'catalog' | 'adjacent', filter: ListingFilter) =>
     pipe(
-      otherListMatchesOf(kind, filter),
+      otherListMatchesOf(list, filter),
       O.map((matches) => matches.count),
     )
 
@@ -585,9 +585,9 @@ describe('otherListMatchesOf', () => {
   })
 
   it('names what the matches match', () => {
-    const subjectOf = (kind: 'catalog' | 'adjacent', filter: ListingFilter) =>
+    const subjectOf = (list: 'catalog' | 'adjacent', filter: ListingFilter) =>
       pipe(
-        otherListMatchesOf(kind, filter),
+        otherListMatchesOf(list, filter),
         O.map((m) => m.subject),
       )
     expect(
@@ -611,7 +611,7 @@ describe('otherListMatchesOf', () => {
         language: O.some('TypeScript'),
       }),
     ).toEqual(O.some('the filters that apply there'))
-    // What a library lacks, or the kind of entry, stays behind too
+    // What a library lacks, or the category of entry, stays behind too
     expect(
       subjectOf('adjacent', {
         ...defaultListingFilter(),
@@ -707,21 +707,21 @@ describe('otherListMatchesOf', () => {
     }
     expect(
       otherListMatchTextOf({
-        kind: 'catalog',
+        list: 'catalog',
         matches: { ...shown, count: 3 },
         isAlso: true,
       }),
     ).toBe('3 TEA-adjacent libraries also match "react".')
     expect(
       otherListMatchTextOf({
-        kind: 'catalog',
+        list: 'catalog',
         matches: { ...shown, count: 2, subject: 'these filters' },
         isAlso: true,
       }),
     ).toBe('2 TEA-adjacent libraries also match these filters.')
     expect(
       otherListMatchTextOf({
-        kind: 'adjacent',
+        list: 'adjacent',
         matches: { ...shown, count: 1, isArchived: true, subject: '"seed"' },
         isAlso: false,
       }),

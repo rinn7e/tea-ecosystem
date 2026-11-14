@@ -6,11 +6,7 @@ import { pipe } from 'fp-ts/function'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 
-import {
-  type ListKind,
-  entriesOf,
-  targetOptionsOf,
-} from '@/common/data/catalog'
+import { type ListId, entriesOf, targetOptionsOf } from '@/common/data/catalog'
 import {
   languagePopularity,
   pinnedLanguages,
@@ -48,14 +44,14 @@ import {
 } from '@/common/type/framework'
 import { breakpoints } from '@/common/util/window-width'
 import {
-  kindLineOf,
+  languageLineOf,
   statusLabel,
   targetLabel,
   tierLabel,
 } from '@/component/framework-view'
 
 // The words the search reads for an entry: its name, language, summary and
-// id, and the labels it shows on screen (status, tier, targets, the kind
+// id, and the labels it shows on screen (status, tier, targets, the language
 // line), so whatever a card says can be searched
 const searchTextsOf = (framework: Framework): string[] => [
   framework.name,
@@ -64,7 +60,7 @@ const searchTextsOf = (framework: Framework): string[] => [
   framework.id,
   statusLabel(framework.status),
   tierLabel(framework.tier),
-  kindLineOf(framework),
+  languageLineOf(framework),
   ...framework.targets.map(targetLabel),
 ]
 
@@ -91,15 +87,15 @@ export const lacks =
 
 // Only the languages or only the frameworks when one is chosen; every
 // entry when none is
-const matchesEntryKind =
+const matchesCategory =
   (filter: ListingFilter) =>
   (framework: Framework): boolean =>
     pipe(
       filter.show,
       O.fold(
         () => true,
-        (entryKind) =>
-          entryKind === 'languages'
+        (category) =>
+          category === 'languages'
             ? isLanguageEntry(framework)
             : !isLanguageEntry(framework),
       ),
@@ -151,7 +147,7 @@ export const filterFrameworks =
             framework.targets.includes(target),
           ) &&
           passesStatus(filter.statuses, framework.status) &&
-          matchesEntryKind(filter)(framework) &&
+          matchesCategory(filter)(framework) &&
           pipe(
             filter.language,
             O.fold(
@@ -164,8 +160,8 @@ export const filterFrameworks =
     )
 
 // The other list: the TEA-adjacent page for the catalog, and back
-export const otherListOf = (kind: ListKind): ListKind =>
-  kind === 'catalog' ? 'adjacent' : 'catalog'
+export const otherListOf = (list: ListId): ListId =>
+  list === 'catalog' ? 'adjacent' : 'catalog'
 
 // The archived entries of a list that match its filter while the archive
 // is hidden (the statuses leave archived out): what "Show the archived"
@@ -182,8 +178,8 @@ export const hiddenArchivedCountOf = (
 
 // An entry of a list in words, one or several: "1 framework" on the
 // catalog, "2 libraries" on the TEA-adjacent page
-export const entryNounOf = (kind: ListKind, count: number): string =>
-  kind === 'catalog'
+export const entryNounOf = (list: ListId, count: number): string =>
+  list === 'catalog'
     ? count === 1
       ? 'framework'
       : 'frameworks'
@@ -205,18 +201,18 @@ const carriedTargetsOf = (
         O.map((kept) => choiceOf(options, kept)),
       )
 
-// The part of a filter of list `kind` that means the same on both lists:
+// The part of a filter of `list` that means the same on both lists:
 // the search, the language, the targets and the statuses, with the layout
-// and the sort. The tiers, what an adjacent library lacks and the kind of
+// and the sort. The tiers, what an adjacent library lacks and the category of
 // entry belong to one list only, and stay behind. The targets become a
 // choice among the ones the other list offers (`targetOptionsOf`); none
 // when it offers none of those chosen, so nothing there can match.
 export const carriedFilterOf = (
-  kind: ListKind,
+  list: ListId,
   filter: ListingFilter,
 ): O.Option<ListingFilter> =>
   pipe(
-    carriedTargetsOf(targetOptionsOf(otherListOf(kind)), filter.targets),
+    carriedTargetsOf(targetOptionsOf(otherListOf(list)), filter.targets),
     O.map((carried) => ({
       ...defaultListingFilter(),
       query: filter.query.trim(),
@@ -231,7 +227,7 @@ export const carriedFilterOf = (
 // Whether a filter narrows the list enough that its archived entries are
 // news: a search with more than spaces, a language, some targets, tiers or
 // concepts an adjacent library lacks (not every one, `narrowsChoice`), or
-// the kind of entry
+// the category of entry
 const narrowsForArchive = (filter: ListingFilter): boolean =>
   filter.query.trim() !== '' ||
   O.isSome(filter.language) ||
@@ -305,12 +301,12 @@ export type OtherListMatches = {
 // there offers to hide them. None when no carried filter narrows the other
 // list (`narrowsOtherList`), or the other list does not match it at all.
 export const otherListMatchesOf = (
-  kind: ListKind,
+  list: ListId,
   filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
-  const entries = entriesOf(otherListOf(kind))
+  const entries = entriesOf(otherListOf(list))
   return pipe(
-    carriedFilterOf(kind, filter),
+    carriedFilterOf(list, filter),
     O.filter(narrowsOtherList),
     O.chain((carried) => {
       const subject =
@@ -359,11 +355,11 @@ export const otherListMatchesOf = (
 // The catalog is the "Main catalog" there, to set it apart from the
 // TEA-adjacent page.
 export const otherListMatchTextOf = ({
-  kind,
+  list,
   matches,
   isAlso,
 }: {
-  kind: ListKind
+  list: ListId
   matches: OtherListMatches
   isAlso: boolean
 }): string => {
@@ -371,7 +367,7 @@ export const otherListMatchTextOf = ({
   const archived = isArchived ? 'archived ' : ''
   const also = isAlso ? 'also ' : ''
   const verb = count === 1 ? 'matches' : 'match'
-  return kind === 'catalog'
+  return list === 'catalog'
     ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} ${subject}.`
     : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the Main catalog ${also}${verb} ${subject}.`
 }
@@ -379,10 +375,10 @@ export const otherListMatchTextOf = ({
 // The link to the matches on the other list, with the filter that shows
 // them, and its words
 export const otherListLinkOf = (
-  kind: ListKind,
+  list: ListId,
   matches: OtherListMatches,
 ): { destination: Destination; label: string } =>
-  kind === 'catalog'
+  list === 'catalog'
     ? {
         destination: destinationOfScreen(adjacentScreen(matches.filter)),
         label: 'Show in TEA-adjacent',

@@ -160,7 +160,7 @@ export const targetTone: Tone = {
 // What an entry is, said in its language line: a language of its own
 // (Elm, Gren), a framework written in one, or (on the adjacent list) a
 // library written in one
-export const kindLineOf = (framework: Framework): string =>
+export const languageLineOf = (framework: Framework): string =>
   isLanguageEntry(framework)
     ? 'Language'
     : framework.tier === 'adjacent'
@@ -476,12 +476,12 @@ export const sourceLinkView = ({ framework }: { framework: Framework }) => (
   </a>
 )
 
-type DateKind = 'created' | 'updated' | 'added'
+type DateField = 'created' | 'updated' | 'added'
 
 // What a date of an entry says: its words, in its tooltip and for screen
 // readers, and how it reads on screen (the month of its repository dates,
 // the day it was added to the catalog, which is recent)
-const dateTextOf = (which: DateKind, day: string) => {
+const dateTextOf = (which: DateField, day: string) => {
   switch (which) {
     case 'created':
       return {
@@ -504,7 +504,7 @@ const dateTextOf = (which: DateKind, day: string) => {
   }
 }
 
-const dateIconView = ({ which }: { which: DateKind }) => {
+const dateIconView = ({ which }: { which: DateField }) => {
   switch (which) {
     case 'created':
       return <IconCalendarPlus size={14} stroke={1.75} aria-hidden />
@@ -525,7 +525,7 @@ export const dateView = ({
   day,
 }: {
   id: string
-  which: DateKind
+  which: DateField
   day: string
 }) => {
   const words = dateTextOf(which, day)

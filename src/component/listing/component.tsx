@@ -17,13 +17,9 @@ import { pipe } from 'fp-ts/function'
 import React, { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import { type ListId, entriesOf, targetOptionsOf } from '@/common/data/catalog'
 import {
-  type ListKind,
-  entriesOf,
-  targetOptionsOf,
-} from '@/common/data/catalog'
-import {
-  type EntryKind,
+  type EntryCategory,
   type ListingFilter,
   type ListingLayout,
   type ListingSort,
@@ -49,7 +45,7 @@ import {
   conceptMeaning,
   dateView,
   gradeTone,
-  kindLineOf,
+  languageLineOf,
   recentEdgeRibbonView,
   rubricStripView,
   sourceLinkView,
@@ -99,34 +95,34 @@ import {
   sortOfCardSort,
 } from './util'
 
-const entryKinds: readonly EntryKind[] = ['languages', 'frameworks']
+const entryCategories: readonly EntryCategory[] = ['languages', 'frameworks']
 
 // Stats
 // ---------------------------------------------
 
 // A count that is also a choice, like a radio button: choosing it narrows
-// the list to that kind of entry, choosing it again shows every entry
-const kindChoiceView = ({
-  entryKind,
+// the list to that category of entry, choosing it again shows every entry
+const categoryChoiceView = ({
+  category,
   count,
   filter,
   dispatch,
 }: {
-  entryKind: EntryKind
+  category: EntryCategory
   count: number
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
   const isChosen = pipe(
     filter.show,
-    O.exists((shown) => shown === entryKind),
+    O.exists((shown) => shown === category),
   )
   return (
     <TooltipTrigger
-      key={entryKind}
-      id={`filter-kind-${entryKind}`}
+      key={category}
+      id={`filter-category-${category}`}
       content={
-        entryKind === 'languages'
+        category === 'languages'
           ? {
               title: 'Languages',
               text: 'Languages built on TEA themselves: Elm, and the languages forked from it.',
@@ -142,7 +138,7 @@ const kindChoiceView = ({
       <button
         type='button'
         aria-pressed={isChosen}
-        onClick={() => dispatch({ _tag: 'ToggleShow', entryKind })}
+        onClick={() => dispatch({ _tag: 'ToggleShow', category })}
         className={cn(
           'bg-panel flex w-full flex-col items-center justify-center gap-[2px] border-2 px-[12px] py-[10px] text-center transition-shadow',
           isChosen
@@ -159,7 +155,7 @@ const kindChoiceView = ({
           {count}
         </span>
         <span className='text-ink-muted text-sm'>
-          {entryKind === 'languages' ? 'Languages' : 'Frameworks'}
+          {category === 'languages' ? 'Languages' : 'Frameworks'}
         </span>
       </button>
     </TooltipTrigger>
@@ -168,9 +164,9 @@ const kindChoiceView = ({
 
 // Languages and frameworks, one on each side of the axis, together as wide
 // as the rows of language logos under them. Each count is what the list
-// shows with that kind chosen, under the other filters. The catalog only:
+// shows with that category chosen, under the other filters. The catalog only:
 // the adjacent list has no language entries.
-const kindChoicesView = ({
+const categoryChoicesView = ({
   entries,
   filter,
   dispatch,
@@ -180,10 +176,10 @@ const kindChoicesView = ({
   dispatch: Dispatcher<Msg>
 }) => (
   <div className='grid grid-cols-2 gap-[16px] lg:gap-[22px]'>
-    {entryKinds.map((entryKind) =>
-      kindChoiceView({
-        entryKind,
-        count: filterFrameworks({ ...filter, show: O.some(entryKind) })(entries)
+    {entryCategories.map((category) =>
+      categoryChoiceView({
+        category,
+        count: filterFrameworks({ ...filter, show: O.some(category) })(entries)
           .length,
         filter,
         dispatch,
@@ -417,17 +413,17 @@ const lacksChoicesView = ({
 // The targets the entries of the list run on, in the order of `targets`
 // (`targetOptionsOf`)
 const targetChoicesView = ({
-  kind,
+  list,
   entries,
   filter,
   dispatch,
 }: {
-  kind: ListKind
+  list: ListId
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const options = targetOptionsOf(kind)
+  const options = targetOptionsOf(list)
   return choiceRowView({
     children: options.map((target) =>
       choiceBoxView({
@@ -573,12 +569,12 @@ const panelSectionView = ({
 // The popover fades in rising 4px (`starting:`) and out the same way while
 // the model keeps it `closing`; a press outside it or Escape closes it.
 const searchRowView = ({
-  kind,
+  list,
   entries,
   model,
   dispatch,
 }: {
-  kind: ListKind
+  list: ListId
   entries: Framework[]
   model: Model
   dispatch: Dispatcher<Msg>
@@ -623,9 +619,9 @@ const searchRowView = ({
             )}
           >
             {panelSectionView({
-              title: kind === 'catalog' ? 'Tier' : 'Lacks',
+              title: list === 'catalog' ? 'Tier' : 'Lacks',
               children:
-                kind === 'catalog'
+                list === 'catalog'
                   ? tierChoicesView({ entries, filter: model.filter, dispatch })
                   : lacksChoicesView({
                       entries,
@@ -636,7 +632,7 @@ const searchRowView = ({
             {panelSectionView({
               title: 'Target',
               children: targetChoicesView({
-                kind,
+                list,
                 entries,
                 filter: model.filter,
                 dispatch,
@@ -831,7 +827,7 @@ const cardView = ({
         </Link>
         <span className='text-ink-muted flex items-center gap-[6px] text-sm'>
           {languageLineLogoView({ framework, size: 'small' })}
-          <span className='truncate'>{kindLineOf(framework)}</span>
+          <span className='truncate'>{languageLineOf(framework)}</span>
         </span>
       </div>
       {tierBadgeView({ tier: framework.tier })}
@@ -1037,7 +1033,7 @@ const tableView = ({
                   </span>
                   <span className='text-ink-muted flex items-center gap-[5px] text-xs'>
                     {languageLineLogoView({ framework, size: 'small' })}
-                    {kindLineOf(framework)}
+                    {languageLineOf(framework)}
                   </span>
                 </span>
               </Link>
@@ -1097,19 +1093,19 @@ const tableView = ({
 // matches the filters that mean the same there (`carriedFilterOf`), it
 // says how many and links to them there.
 const emptyView = ({
-  kind,
+  list,
   entries,
   filter,
   dispatch,
 }: {
-  kind: ListKind
+  list: ListId
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
   const archivedCount = hiddenArchivedCountOf(entries, filter)
-  const noun = entryNounOf(kind, archivedCount)
-  const other = otherListMatchesOf(kind, filter)
+  const noun = entryNounOf(list, archivedCount)
+  const other = otherListMatchesOf(list, filter)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
       <span className='text-ink text-base font-normal'>
@@ -1137,14 +1133,14 @@ const emptyView = ({
           (matches) => (
             <>
               <span className='text-ink-muted text-sm text-balance'>
-                {otherListMatchTextOf({ kind, matches, isAlso: false })}
+                {otherListMatchTextOf({ list, matches, isAlso: false })}
               </span>
               <Link
-                destination={otherListLinkOf(kind, matches).destination}
+                destination={otherListLinkOf(list, matches).destination}
                 className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
               >
                 <IconSearch size={16} stroke={1.75} aria-hidden />
-                {otherListLinkOf(kind, matches).label}
+                {otherListLinkOf(list, matches).label}
               </Link>
             </>
           ),
@@ -1161,12 +1157,12 @@ const emptyView = ({
 // narrows the list (`archivedHintCountOf`). Once the button shows them,
 // the line stays and offers to hide them again (`shownArchivedCountOf`).
 const archivedHintView = ({
-  kind,
+  list,
   entries,
   filter,
   dispatch,
 }: {
-  kind: ListKind
+  list: ListId
   entries: Framework[]
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
@@ -1174,7 +1170,7 @@ const archivedHintView = ({
   const hidden = archivedHintCountOf(entries, filter)
   const shown = shownArchivedCountOf(entries, filter)
   const count = hidden + shown
-  const noun = entryNounOf(kind, count)
+  const noun = entryNounOf(list, count)
   return count === 0 ? null : (
     <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
       <span>
@@ -1202,25 +1198,25 @@ const archivedHintView = ({
 // list (statuses that widen it do not), or the other list does not match
 // it.
 const otherListHintView = ({
-  kind,
+  list,
   filter,
 }: {
-  kind: ListKind
+  list: ListId
   filter: ListingFilter
 }) => {
   return pipe(
-    otherListMatchesOf(kind, filter),
+    otherListMatchesOf(list, filter),
     O.fold(
       () => null,
       (matches) => (
         <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
-          <span>{otherListMatchTextOf({ kind, matches, isAlso: true })}</span>
+          <span>{otherListMatchTextOf({ list, matches, isAlso: true })}</span>
           <Link
-            destination={otherListLinkOf(kind, matches).destination}
+            destination={otherListLinkOf(list, matches).destination}
             className='text-accent inline-flex items-center gap-[4px] hover:underline'
           >
             <IconSearch size={14} stroke={1.75} aria-hidden />
-            {otherListLinkOf(kind, matches).label}
+            {otherListLinkOf(list, matches).label}
           </Link>
         </p>
       ),
@@ -1231,8 +1227,8 @@ const otherListHintView = ({
 // Screen
 // ---------------------------------------------
 
-const headingOf = (kind: ListKind) => {
-  switch (kind) {
+const headingOf = (list: ListId) => {
+  switch (list) {
     case 'catalog':
       return {
         title: 'The Elm Architecture, everywhere',
@@ -1247,22 +1243,22 @@ const headingOf = (kind: ListKind) => {
 }
 
 const ListingComponent = ({
-  kind,
+  list,
   model,
   logosPerRow,
   recentSince,
   dispatch,
 }: Props) => {
-  const entries = entriesOf(kind)
+  const entries = entriesOf(list)
   const shown = pipe(
     entries,
     filterFrameworks(model.filter),
     sortFrameworks(model.filter.sort),
   )
-  const heading = headingOf(kind)
+  const heading = headingOf(list)
   return (
     // Three groups, a wide gap between them and tight gaps inside: the
-    // hero, the filters (kind boxes, logo row, search), the results
+    // hero, the filters (category boxes, logo row, search), the results
     <div className='flex flex-col gap-[44px]'>
       <section className='flex flex-col items-center gap-[12px] text-center'>
         <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
@@ -1273,12 +1269,12 @@ const ListingComponent = ({
         </p>
       </section>
       <div className='flex flex-col gap-[20px]'>
-        {/* One centred column as wide as the widest row of logos: the kind
+        {/* One centred column as wide as the widest row of logos: the category
             boxes stretch to it */}
         <div className='flex justify-center'>
           <div className='flex flex-col gap-[24px]'>
-            {kind === 'catalog' &&
-              kindChoicesView({ entries, filter: model.filter, dispatch })}
+            {list === 'catalog' &&
+              categoryChoicesView({ entries, filter: model.filter, dispatch })}
             {languageChoicesView({
               entries,
               filter: model.filter,
@@ -1287,7 +1283,7 @@ const ListingComponent = ({
             })}
           </div>
         </div>
-        {searchRowView({ kind, entries, model, dispatch })}
+        {searchRowView({ list, entries, model, dispatch })}
       </div>
       {/* The toolbar sits right on the results it acts on */}
       <div className='flex flex-col gap-[14px]'>
@@ -1299,14 +1295,14 @@ const ListingComponent = ({
         })}
         {shown.length > 0 &&
           archivedHintView({
-            kind,
+            list,
             entries,
             filter: model.filter,
             dispatch,
           })}
-        {shown.length > 0 && otherListHintView({ kind, filter: model.filter })}
+        {shown.length > 0 && otherListHintView({ list, filter: model.filter })}
         {shown.length === 0
-          ? emptyView({ kind, entries, filter: model.filter, dispatch })
+          ? emptyView({ list, entries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'
             ? cardsView({ shown, recentSince })
             : tableView({ shown, sort: model.filter.sort, dispatch })}

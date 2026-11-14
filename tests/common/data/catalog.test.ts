@@ -147,8 +147,8 @@ describe('sameLanguageEntriesOf', () => {
       frameworkById(id),
       O.map(sameLanguageEntriesOf),
       O.map(
-        A.map(({ kind, entries }) => ({
-          kind,
+        A.map(({ list, entries }) => ({
+          list,
           ids: entries.map((f) => f.id),
         })),
       ),
@@ -162,15 +162,15 @@ describe('sameLanguageEntriesOf', () => {
         groups,
         O.map(
           A.map((g) => ({
-            kind: g.kind,
-            has: g.ids.includes(g.kind === 'catalog' ? 'miso' : 'hyperbole'),
+            list: g.list,
+            has: g.ids.includes(g.list === 'catalog' ? 'miso' : 'hyperbole'),
           })),
         ),
       ),
     ).toEqual(
       O.some([
-        { kind: 'catalog', has: true },
-        { kind: 'adjacent', has: true },
+        { list: 'catalog', has: true },
+        { list: 'adjacent', has: true },
       ]),
     )
   })
@@ -196,7 +196,7 @@ describe('sameLanguageEntriesOf', () => {
       ),
     ).toEqual(O.some(false))
     // No TEA-adjacent library is in Scala
-    expect(pipe(idsOf('tyrian'), O.map(A.map((g) => g.kind)))).toEqual(
+    expect(pipe(idsOf('tyrian'), O.map(A.map((g) => g.list)))).toEqual(
       O.some(['catalog']),
     )
   })

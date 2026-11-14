@@ -13,7 +13,7 @@ const AdjacentComponent = ({
   dispatch,
 }: Props) => (
   <ListingMemo
-    kind='adjacent'
+    list='adjacent'
     model={model.listing}
     logosPerRow={logosPerRow}
     recentSince={recentSince}
