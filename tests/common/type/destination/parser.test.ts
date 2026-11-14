@@ -11,6 +11,7 @@ import {
   buildScreen,
   catalogScreen,
   choiceOf,
+  defaultAdjacentFilter,
   defaultCatalogFilter,
   defaultStatusChoice,
   destinationOfScreen,
@@ -143,10 +144,20 @@ describe('destination URL', () => {
       _tag: 'Only',
       chosen: ['web'],
     })
-    // Every target it offers is every box ticked
+    // Every target it offers is every box ticked, and writes them back,
+    // with no target the list does not offer
+    const six = targetOptionsOf('adjacent').join(',')
+    expect(targetsOf(`/adjacent?target=${six}`)).toEqual(anyChoice(true))
     expect(
-      targetsOf(`/adjacent?target=${targetOptionsOf('adjacent').join(',')}`),
-    ).toEqual(anyChoice(true))
+      toUrlString(
+        destinationOfScreen(
+          adjacentScreen({
+            ...defaultAdjacentFilter(),
+            targets: anyChoice(true),
+          }),
+        ),
+      ),
+    ).toBe(`/adjacent?target=${six}`)
   })
 
   it('reads every screen back', () => {

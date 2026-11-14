@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
       // Local tools may keep extra worktrees under `.claude/`: their copy of
       // the tests is not this checkout's
       exclude: [...configDefaults.exclude, '.claude/**'],
+      // A thousand random values per property (`tests/setup.ts`)
+      setupFiles: ['tests/setup.ts'],
       // The prelude imports fp-ts by path without an extension, which only a
       // bundler resolves
       server: {

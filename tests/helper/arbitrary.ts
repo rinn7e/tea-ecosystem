@@ -43,11 +43,18 @@ const orDefault = <A>(fallback: A, arb: fc.Arbitrary<A>): fc.Arbitrary<A> =>
     { arbitrary: arb, weight: 1 },
   )
 
-// A choice among `options`: any part of them, none or every one too
+// A choice among `options`: no box ticked and every box ticked come out as
+// often as a part of them
 export const choiceArb = <A extends string>(
   options: readonly A[],
 ): fc.Arbitrary<Choice<A>> =>
-  fc.subarray([...options]).map((chosen) => choiceOf(options, chosen))
+  fc
+    .oneof(
+      fc.constant<A[]>([]),
+      fc.constant([...options]),
+      fc.subarray([...options]),
+    )
+    .map((chosen) => choiceOf(options, chosen))
 
 export const statusChoiceArb: fc.Arbitrary<StatusChoice> = fc
   .subarray([...statuses])
@@ -137,3 +144,19 @@ export const listingFilterArb: fc.Arbitrary<ListingFilter> = fc.oneof(
   catalogFilterArb,
   adjacentFilterArb,
 )
+
+// Two values for a law of equality: the same value, the value with one
+// field taken from another (a difference in one field), or two values drawn
+// apart
+export const pairArb = <A extends object>(
+  arb: fc.Arbitrary<A>,
+): fc.Arbitrary<[A, A]> =>
+  fc.tuple(arb, arb, fc.nat(), fc.nat(2)).map(([x, y, pick, kind]): [A, A] => {
+    const keys = Object.keys(x).filter((key) => key in y)
+    const key = keys[pick % keys.length]
+    return kind === 0
+      ? [x, { ...x }]
+      : kind === 1 && key !== undefined
+        ? [x, { ...x, [key]: Reflect.get(y, key) }]
+        : [x, y]
+  })

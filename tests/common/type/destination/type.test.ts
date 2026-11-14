@@ -1,18 +1,26 @@
-import { test } from '@fast-check/vitest'
+import { fc, test } from '@fast-check/vitest'
 import { isDeepStrictEqual } from 'node:util'
 import { describe, expect } from 'vitest'
 
 import { ListingFilterEq } from '@/common/type/destination'
 
-import { listingFilterArb } from '../../../helper/arbitrary'
+import {
+  adjacentFilterArb,
+  catalogFilterArb,
+  listingFilterArb,
+  pairArb,
+} from '../../../helper/arbitrary'
 
 describe('the equality of filters', () => {
-  // Two filters of different lists are never equal, and a field left out
-  // of the `Eq` of a list shows here
-  test.prop([listingFilterArb, listingFilterArb])(
-    'agrees with deep equality, across both lists',
-    (x, y) => {
-      expect(ListingFilterEq.equals(x, y)).toBe(isDeepStrictEqual(x, y))
-    },
-  )
+  // Equal filters, filters one field apart on the same list, and filters
+  // drawn apart (of two lists too): a wrong `Eq` of a field shows here
+  test.prop([
+    fc.oneof(
+      pairArb(catalogFilterArb),
+      pairArb(adjacentFilterArb),
+      fc.tuple(listingFilterArb, listingFilterArb),
+    ),
+  ])('agrees with deep equality, across both lists', ([x, y]) => {
+    expect(ListingFilterEq.equals(x, y)).toBe(isDeepStrictEqual(x, y))
+  })
 })

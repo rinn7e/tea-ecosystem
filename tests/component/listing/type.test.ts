@@ -5,7 +5,7 @@ import { describe, expect } from 'vitest'
 import { ListingFilterEq } from '@/common/type/destination'
 import { type Model, mkModelEq } from '@/component/listing'
 
-import { listingFilterArb } from '../../helper/arbitrary'
+import { listingFilterArb, pairArb } from '../../helper/arbitrary'
 
 const modelArb = fc.record(
   {
@@ -17,9 +17,9 @@ const modelArb = fc.record(
 )
 
 describe('mkModelEq', () => {
-  test.prop([modelArb, modelArb])(
+  test.prop([pairArb(modelArb)])(
     'agrees with deep equality, from the Eq of the filter',
-    (x, y) => {
+    ([x, y]) => {
       expect(mkModelEq(ListingFilterEq).equals(x, y)).toBe(
         isDeepStrictEqual(x, y),
       )

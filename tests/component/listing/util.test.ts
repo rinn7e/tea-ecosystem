@@ -212,6 +212,20 @@ describe('the lines of a list', () => {
       expect(panelFilterCountOf(filter) === 0).toBe(
         isDeepStrictEqual(popover, defaultOf(filter)),
       )
+      // The number on the button: one for each of those filters off its
+      // default
+      const offDefault = (field: string) =>
+        !isDeepStrictEqual(
+          Reflect.get(filter, field),
+          Reflect.get(defaultOf(filter), field),
+        )
+      expect(panelFilterCountOf(filter)).toBe(
+        [
+          filter.list === 'catalog' ? 'tiers' : 'lacks',
+          'targets',
+          'statuses',
+        ].filter(offDefault).length,
+      )
     },
   )
 })

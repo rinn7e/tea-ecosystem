@@ -8,6 +8,7 @@ import {
   choiceOf,
   defaultStatusChoice,
   getChoiceEq,
+  isStatusTicked,
   isTicked,
   narrowsChoice,
   passesStatus,
@@ -60,6 +61,11 @@ describe('the statuses', () => {
         isDeepStrictEqual(chosen, ['active', 'quiet']),
       )
       const once = toggleStatus(choice, status)
+      statuses.forEach((other) =>
+        expect(isStatusTicked(once, other)).toBe(
+          (other === status) !== isStatusTicked(choice, other),
+        ),
+      )
       expect(toggleStatus(once, status)).toEqual(choice)
     },
   )
@@ -77,12 +83,17 @@ describe('the statuses', () => {
 })
 
 describe('the equality of choices', () => {
-  test.prop([choiceArb(options), choiceArb(options)])(
-    'agrees with deep equality',
-    (x, y) => {
-      expect(getChoiceEq(S.Eq).equals(x, y)).toBe(isDeepStrictEqual(x, y))
-    },
-  )
+  test.prop([
+    fc.oneof(
+      choiceArb(options).map((x) => [
+        x,
+        choiceOf(options, tickedOf(options, x)),
+      ]),
+      fc.tuple(choiceArb(options), choiceArb(options)),
+    ),
+  ])('agrees with deep equality', ([x, y]) => {
+    expect(getChoiceEq(S.Eq).equals(x, y)).toBe(isDeepStrictEqual(x, y))
+  })
 
   test.prop([statusChoiceArb, statusChoiceArb])(
     'of statuses agrees with deep equality',
