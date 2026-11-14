@@ -26,6 +26,9 @@ import {
 } from '@/common/type/destination'
 import {
   type Concept,
+  type Framework,
+  type Grade,
+  type Rubric,
   type Target,
   type Tier,
   languagesOf,
@@ -171,3 +174,78 @@ export const pairArb = <A extends object>(
       ]),
     fc.tuple(arb, arb),
   )
+
+// Random entries for the property tests of the rubric. A grade is `native`
+// three times in four, so a rubric that meets every requirement of full
+// TEA comes out about one time in four, and one that misses a single part
+// often too.
+export const gradeArb: fc.Arbitrary<Grade> = fc.oneof(
+  { arbitrary: fc.constant<Grade>('native'), weight: 3 },
+  {
+    arbitrary: fc.constantFrom<Grade>('managed', 'equivalent', 'missing'),
+    weight: 1,
+  },
+)
+
+export const rubricArb: fc.Arbitrary<Rubric> = fc.record(
+  {
+    model: gradeArb,
+    msg: gradeArb,
+    update: gradeArb,
+    view: gradeArb,
+    cmd: gradeArb,
+    sub: gradeArb,
+    ports: gradeArb,
+  },
+  { noNullPrototype: true },
+)
+
+export const tierArb: fc.Arbitrary<Tier> = fc.constantFrom<Tier>(
+  'reference',
+  'full',
+  'superset',
+  'adjacent',
+)
+
+// The tiers of the catalog, each held to every requirement of full TEA
+export const catalogTierArb: fc.Arbitrary<Tier> = fc.constantFrom(
+  ...catalogTiers,
+)
+
+// A rubric that meets every requirement: the required parts native, Sub
+// native or managed, View and Ports anything
+export const passingRubricArb: fc.Arbitrary<Rubric> = fc
+  .tuple(rubricArb, fc.constantFrom<Grade>('native', 'managed'))
+  .map(([rubric, sub]) => ({
+    ...rubric,
+    model: 'native',
+    msg: 'native',
+    update: 'native',
+    cmd: 'native',
+    sub,
+  }))
+
+// An entry of the data with its tier and grades drawn apart, so every
+// pair of tier and rubric comes out, with its own notes kept
+export const entryArb: fc.Arbitrary<Framework> = fc
+  .tuple(fc.constantFrom(...frameworks, ...adjacentEntries), tierArb, rubricArb)
+  .map(([entry, tier, rubric]) => ({ ...entry, tier, rubric }))
+
+// What a note says after its prefix: a reason, or nothing at all (empty,
+// or only spaces), which names nothing
+export const noteReasonArb: fc.Arbitrary<string> = fc.constantFrom(
+  'components with a loop of their own.',
+  'why.',
+  '',
+  ' ',
+)
+
+// Notes of no tier, some of which start like one but miss the ": " (a
+// colon and a space) that ends the prefix of a tier ("Misses the ...",
+// "Misses Cmd:", "Superset in ..."), in any number
+export const plainNotesArb: fc.Arbitrary<string[]> = fc.subarray([
+  'Misses the time-travel debugger of Elm, but the loop is the same.',
+  'Misses Cmd:',
+  'Superset in spirit, with nothing beyond TEA yet.',
+  'Components can be registered as custom elements.',
+])

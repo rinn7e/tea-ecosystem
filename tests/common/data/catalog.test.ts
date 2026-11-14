@@ -1,13 +1,21 @@
+import { fc, test } from '@fast-check/vitest'
 import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { existsSync } from 'node:fs'
+import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it } from 'vitest'
 
 import {
+  MISSES_NOTE_PREFIX,
+  SUPERSET_NOTE_PREFIX,
   adjacentEntries,
   frameworkById,
   frameworks,
+  meetsRequirement,
+  missedRequirementsOf,
+  missesNotePrefixOf,
+  requirements,
   rubricProblemsOf,
   sameLanguageEntriesOf,
 } from '@/common/data/catalog'
@@ -16,6 +24,16 @@ import {
   hasPublicRepo,
   isLanguageEntry,
 } from '@/common/type/framework'
+
+import {
+  catalogTierArb,
+  entryArb,
+  gradeArb,
+  noteReasonArb,
+  passingRubricArb,
+  plainNotesArb,
+  rubricArb,
+} from '../../helper/arbitrary'
 
 describe('data files', () => {
   it('decode, with frameworks in both files', () => {
@@ -53,11 +71,31 @@ describe('data files', () => {
   })
 
   it('keep every adjacent entry failing the rubric, so it is not TEA', () => {
+    // Not even as full TEA, the lowest tier of the catalog
     const passing = adjacentEntries.filter(
-      (e) => rubricProblemsOf(e).length === 0,
+      (e) => rubricProblemsOf({ ...e, tier: 'full' }).length === 0,
     )
     expect(passing.map((e) => e.id)).toEqual([])
     expect(adjacentEntries.every((e) => e.tier === 'adjacent')).toBe(true)
+    // And each says first which requirements it misses
+    expect(
+      pipe(
+        adjacentEntries,
+        A.filter((e) => rubricProblemsOf(e).length > 0),
+        A.map((e) => e.id),
+      ),
+    ).toEqual([])
+  })
+
+  it('spell the requirements an adjacent entry misses as its note starts', () => {
+    const prefixOf = (id: string) =>
+      pipe(frameworkById(id), O.map(missesNotePrefixOf))
+    expect(prefixOf('brick')).toEqual(O.some('Misses Cmd: '))
+    expect(prefixOf('phoenix-liveview')).toEqual(O.some('Misses Cmd and Sub: '))
+    expect(prefixOf('halogen')).toEqual(O.some('Misses update, Cmd and Sub: '))
+    expect(prefixOf('pinia')).toEqual(
+      O.some('Misses Model, Msg, update, Cmd and Sub: '),
+    )
   })
 
   it('find an entry of either list by its id', () => {
@@ -149,6 +187,146 @@ describe('data files', () => {
       'sky',
     ])
   })
+})
+
+const withoutTierNotes = (notes: string[]): string[] =>
+  pipe(
+    notes,
+    A.filter(
+      (note) =>
+        !note.startsWith(SUPERSET_NOTE_PREFIX) &&
+        !note.startsWith(MISSES_NOTE_PREFIX),
+    ),
+  )
+
+describe('the rule of the tiers', () => {
+  test.prop([fc.constantFrom(...requirements), gradeArb])(
+    'lets a native grade meet every requirement, and a managed one only Sub',
+    (concept, grade) => {
+      expect(meetsRequirement(concept)(grade)).toBe(
+        grade === 'native' || (grade === 'managed' && concept === 'sub'),
+      )
+    },
+  )
+
+  test.prop([entryArb, fc.constantFrom(...requirements)])(
+    'never lets an equivalent grade meet a requirement',
+    (entry, concept) => {
+      const graded = {
+        ...entry,
+        rubric: { ...entry.rubric, [concept]: 'equivalent' },
+      }
+      expect(missedRequirementsOf(graded)).toContain(concept)
+    },
+  )
+
+  test.prop([entryArb, passingRubricArb])(
+    'meets every requirement with native grades and a native or managed Sub',
+    (entry, rubric) => {
+      expect(missedRequirementsOf({ ...entry, rubric })).toEqual([])
+    },
+  )
+
+  test.prop([entryArb, gradeArb, gradeArb])(
+    'never asks for a view or ports, so a headless loop counts',
+    (entry, view, ports) => {
+      expect(
+        missedRequirementsOf({
+          ...entry,
+          rubric: { ...entry.rubric, view, ports },
+        }),
+      ).toEqual(missedRequirementsOf(entry))
+    },
+  )
+
+  test.prop([entryArb, catalogTierArb, plainNotesArb])(
+    'holds every tier of the catalog to every requirement of full TEA',
+    (entry, tier, plainNotes) => {
+      // The notes its tier asks for, and notes of no tier that only look
+      // like one, so only the grades can fail it
+      const notes = [
+        ...withoutTierNotes(entry.notes),
+        ...plainNotes,
+        ...(tier === 'superset' ? [`${SUPERSET_NOTE_PREFIX}components.`] : []),
+      ]
+      expect(rubricProblemsOf({ ...entry, tier, notes }).length === 0).toBe(
+        missedRequirementsOf(entry).length === 0,
+      )
+    },
+  )
+
+  test.prop([
+    entryArb,
+    passingRubricArb,
+    catalogTierArb,
+    fc.option(noteReasonArb, { nil: undefined }),
+  ])(
+    'asks a superset, and only a superset, to name what it adds beyond TEA',
+    (entry, rubric, tier, reason) => {
+      const notes = [
+        ...withoutTierNotes(entry.notes),
+        ...(reason === undefined ? [] : [`${SUPERSET_NOTE_PREFIX}${reason}`]),
+      ]
+      // A note that stops at its prefix still names the tier, and is one
+      // more problem on any tier
+      const namesBeyond = reason !== undefined
+      const isBlank = reason !== undefined && reason.trim() === ''
+      expect(rubricProblemsOf({ ...entry, rubric, tier, notes })).toHaveLength(
+        ((tier === 'superset') === namesBeyond ? 0 : 1) + (isBlank ? 1 : 0),
+      )
+    },
+  )
+
+  test.prop([
+    entryArb,
+    fc.boolean(),
+    noteReasonArb,
+    plainNotesArb,
+    fc.option(noteReasonArb, { nil: undefined }),
+  ])(
+    'keeps a library out of the catalog only while it misses a requirement and says which and why first',
+    (drawn, saysFirst, reason, plainNotes, supersetReason) => {
+      const entry = { ...drawn, tier: 'adjacent' as const }
+      // A "Superset: " note says nothing for the tier here, but one that
+      // stops at its prefix is a problem on this tier too
+      const notes = [
+        ...withoutTierNotes(entry.notes),
+        ...plainNotes,
+        ...(supersetReason === undefined
+          ? []
+          : [`${SUPERSET_NOTE_PREFIX}${supersetReason}`]),
+      ]
+      const missesNote = `${missesNotePrefixOf(entry)}${reason}`
+      const said = saysFirst ? [missesNote, ...notes] : [...notes, missesNote]
+      expect(rubricProblemsOf({ ...entry, notes: said }).length === 0).toBe(
+        missedRequirementsOf(entry).length > 0 &&
+          reason.trim() !== '' &&
+          (saysFirst || notes.length === 0) &&
+          (supersetReason === undefined || supersetReason.trim() !== ''),
+      )
+    },
+  )
+
+  test.prop([entryArb, rubricArb])(
+    'asks the first note of a TEA-adjacent library for the exact requirements it misses',
+    (drawn, otherRubric) => {
+      const entry = { ...drawn, tier: 'adjacent' as const }
+      const other = { ...entry, rubric: otherRubric }
+      // The note another rubric would write: right only when it misses
+      // the same requirements
+      const notes = [
+        `${missesNotePrefixOf(other)}why.`,
+        ...withoutTierNotes(entry.notes),
+      ]
+      expect(rubricProblemsOf({ ...entry, notes }).length === 0).toBe(
+        missedRequirementsOf(entry).length > 0 &&
+          isDeepStrictEqual(
+            missedRequirementsOf(entry),
+            missedRequirementsOf(other),
+          ),
+      )
+    },
+  )
 })
 
 describe('sameLanguageEntriesOf', () => {
