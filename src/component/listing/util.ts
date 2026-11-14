@@ -165,48 +165,77 @@ export const searchFilterOf = (query: string): ListingFilter => ({
   query,
 })
 
-// How many entries of the other list match a search (as `searchFilterOf`
-// opens it there): where a search that finds nothing in one list can point
-// to. None for an empty search.
-export const otherListMatchesOf = (kind: ListKind, query: string): number =>
-  query.trim() === ''
-    ? 0
-    : filterFrameworks(searchFilterOf(query))(entriesOf(otherListOf(kind)))
-        .length
+// The matches of a search in the other list, and the filter that shows
+// them there: the entries it shows by default (active and quiet), or, when
+// none of those match, its archived ones (`isArchived`), shown with every
+// status. None for an empty search, or one the other list does not match
+// at all.
+export type OtherListMatches = {
+  count: number
+  isArchived: boolean
+  filter: ListingFilter
+}
+
+export const otherListMatchesOf = (
+  kind: ListKind,
+  query: string,
+): O.Option<OtherListMatches> => {
+  const entries = entriesOf(otherListOf(kind))
+  const shown = searchFilterOf(query)
+  return query.trim() === ''
+    ? O.none
+    : pipe(
+        [
+          { filter: shown, isArchived: false },
+          { filter: { ...shown, statuses: [] }, isArchived: true },
+        ],
+        A.findFirstMap(({ filter, isArchived }) =>
+          pipe(
+            filterFrameworks(filter)(entries).length,
+            O.fromPredicate((count) => count > 0),
+            O.map((count): OtherListMatches => ({ count, isArchived, filter })),
+          ),
+        ),
+      )
+}
 
 // What a list says about the matches of a search in the other list, under
 // its results (`isAlso`) or in place of them when it has none: "3
-// TEA-adjacent libraries also match "react"."
+// TEA-adjacent libraries also match "react"", "1 archived framework in the
+// catalog matches "seed"".
 export const otherListMatchTextOf = ({
   kind,
-  count,
+  matches,
   query,
   isAlso,
 }: {
   kind: ListKind
-  count: number
+  matches: OtherListMatches
   query: string
   isAlso: boolean
 }): string => {
+  const { count, isArchived } = matches
+  const archived = isArchived ? 'archived ' : ''
   const also = isAlso ? 'also ' : ''
   const verb = count === 1 ? 'matches' : 'match'
   return kind === 'catalog'
-    ? `${count} TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} "${query}".`
-    : `${count} ${count === 1 ? 'framework' : 'frameworks'} in the catalog ${also}${verb} "${query}".`
+    ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} "${query}".`
+    : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the catalog ${also}${verb} "${query}".`
 }
 
-// The link to the same search on the other list, and its words
+// The link to the matches on the other list, with the filter that shows
+// them, and its words
 export const otherListLinkOf = (
   kind: ListKind,
-  query: string,
+  matches: OtherListMatches,
 ): { destination: Destination; label: string } =>
   kind === 'catalog'
     ? {
-        destination: destinationOfScreen(adjacentScreen(searchFilterOf(query))),
+        destination: destinationOfScreen(adjacentScreen(matches.filter)),
         label: 'Show in TEA-adjacent',
       }
     : {
-        destination: destinationOfScreen(catalogScreen(searchFilterOf(query))),
+        destination: destinationOfScreen(catalogScreen(matches.filter)),
         label: 'Show in the catalog',
       }
 

@@ -1,4 +1,5 @@
 import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
 import { describe, expect, it } from 'vitest'
 
 import { adjacentEntries, frameworks } from '@/common/data/catalog'
@@ -374,32 +375,61 @@ describe('toggleChoice', () => {
 })
 
 describe('otherListMatchesOf', () => {
+  const countOf = (kind: 'catalog' | 'adjacent', query: string) =>
+    pipe(
+      otherListMatchesOf(kind, query),
+      O.map((matches) => matches.count),
+    )
+
   it('points each list to the other one', () => {
     expect(otherListOf('catalog')).toBe('adjacent')
     expect(otherListOf('adjacent')).toBe('catalog')
   })
 
-  it('counts the matches of a search in the other list', () => {
-    expect(otherListMatchesOf('catalog', 'XState')).toBe(
-      filterFrameworks(searchFilterOf('XState'))(adjacentEntries).length,
+  it('counts the matches of a search in the other list, as it shows them', () => {
+    expect(countOf('catalog', 'XState')).toEqual(
+      O.some(
+        filterFrameworks(searchFilterOf('XState'))(adjacentEntries).length,
+      ),
     )
-    expect(otherListMatchesOf('catalog', 'XState')).toBeGreaterThan(0)
-    expect(otherListMatchesOf('adjacent', 'Bubble Tea')).toBe(
-      filterFrameworks(searchFilterOf('Bubble Tea'))(frameworks).length,
+    expect(countOf('adjacent', 'Bubble Tea')).toEqual(
+      O.some(filterFrameworks(searchFilterOf('Bubble Tea'))(frameworks).length),
     )
-    expect(otherListMatchesOf('adjacent', 'Bubble Tea')).toBeGreaterThan(0)
   })
 
-  it('counts nothing for an empty search or one that matches nothing', () => {
-    expect(otherListMatchesOf('catalog', '  ')).toBe(0)
-    expect(otherListMatchesOf('adjacent', 'no such framework')).toBe(0)
+  it('falls back to the archived entries, shown with every status', () => {
+    const seed = otherListMatchesOf('adjacent', 'seed')
+    expect(
+      pipe(
+        seed,
+        O.map((m) => m.isArchived),
+      ),
+    ).toEqual(O.some(true))
+    expect(
+      pipe(
+        seed,
+        O.map((m) => m.filter.statuses),
+      ),
+    ).toEqual(O.some([]))
+    expect(
+      pipe(
+        otherListMatchesOf('catalog', 'XState'),
+        O.map((m) => m.isArchived),
+      ),
+    ).toEqual(O.some(false))
+  })
+
+  it('finds nothing for an empty search or one that matches nothing', () => {
+    expect(otherListMatchesOf('catalog', '  ')).toEqual(O.none)
+    expect(otherListMatchesOf('adjacent', 'no such framework')).toEqual(O.none)
   })
 
   it('says how many match there, with "also" under results', () => {
+    const shown = { isArchived: false, filter: searchFilterOf('react') }
     expect(
       otherListMatchTextOf({
         kind: 'catalog',
-        count: 3,
+        matches: { ...shown, count: 3 },
         query: 'react',
         isAlso: true,
       }),
@@ -407,7 +437,7 @@ describe('otherListMatchesOf', () => {
     expect(
       otherListMatchTextOf({
         kind: 'catalog',
-        count: 1,
+        matches: { ...shown, count: 1 },
         query: 'xstate',
         isAlso: false,
       }),
@@ -415,22 +445,21 @@ describe('otherListMatchesOf', () => {
     expect(
       otherListMatchTextOf({
         kind: 'adjacent',
-        count: 2,
-        query: 'elm',
-        isAlso: true,
+        matches: { ...shown, count: 1, isArchived: true },
+        query: 'seed',
+        isAlso: false,
       }),
-    ).toBe('2 frameworks in the catalog also match "elm".')
+    ).toBe('1 archived framework in the catalog matches "seed".')
   })
 
-  it('links to the same search on the other list', () => {
-    expect(otherListLinkOf('catalog', 'react').label).toBe(
-      'Show in TEA-adjacent',
-    )
-    expect(otherListLinkOf('adjacent', 'react').label).toBe(
+  it('links to the matches with the filter that shows them', () => {
+    const matches = { count: 1, isArchived: true, filter: searchFilterOf('x') }
+    expect(otherListLinkOf('catalog', matches)).toEqual({
+      destination: destinationOfScreen(adjacentScreen(searchFilterOf('x'))),
+      label: 'Show in TEA-adjacent',
+    })
+    expect(otherListLinkOf('adjacent', matches).label).toBe(
       'Show in the catalog',
-    )
-    expect(otherListLinkOf('catalog', 'react').destination).toEqual(
-      destinationOfScreen(adjacentScreen(searchFilterOf('react'))),
     )
   })
 

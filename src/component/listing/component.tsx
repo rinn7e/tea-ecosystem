@@ -1096,7 +1096,7 @@ const emptyView = ({
         ? 'library'
         : 'libraries'
   const query = filter.query.trim()
-  const otherCount = otherListMatchesOf(kind, query)
+  const other = otherListMatchesOf(kind, query)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
       <span className='text-ink text-base font-normal'>
@@ -1116,24 +1116,30 @@ const emptyView = ({
       )}
       {/* The other list has what this search names: the TEA-adjacent page
           for a library that is not TEA, the catalog for one that is */}
-      {otherCount > 0 && (
-        <>
-          <span className='text-ink-muted text-sm text-balance'>
-            {otherListMatchTextOf({
-              kind,
-              count: otherCount,
-              query,
-              isAlso: false,
-            })}
-          </span>
-          <Link
-            destination={otherListLinkOf(kind, query).destination}
-            className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
-          >
-            <IconSearch size={16} stroke={1.75} aria-hidden />
-            {otherListLinkOf(kind, query).label}
-          </Link>
-        </>
+      {pipe(
+        other,
+        O.fold(
+          () => null,
+          (matches) => (
+            <>
+              <span className='text-ink-muted text-sm text-balance'>
+                {otherListMatchTextOf({
+                  kind,
+                  matches,
+                  query,
+                  isAlso: false,
+                })}
+              </span>
+              <Link
+                destination={otherListLinkOf(kind, matches).destination}
+                className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
+              >
+                <IconSearch size={16} stroke={1.75} aria-hidden />
+                {otherListLinkOf(kind, matches).label}
+              </Link>
+            </>
+          ),
+        ),
       )}
     </div>
   )
@@ -1151,18 +1157,25 @@ const otherListHintView = ({
   filter: ListingFilter
 }) => {
   const query = filter.query.trim()
-  const count = otherListMatchesOf(kind, query)
-  return count === 0 ? null : (
-    <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
-      <span>{otherListMatchTextOf({ kind, count, query, isAlso: true })}</span>
-      <Link
-        destination={otherListLinkOf(kind, query).destination}
-        className='text-accent inline-flex items-center gap-[4px] hover:underline'
-      >
-        <IconSearch size={14} stroke={1.75} aria-hidden />
-        {otherListLinkOf(kind, query).label}
-      </Link>
-    </p>
+  return pipe(
+    otherListMatchesOf(kind, query),
+    O.fold(
+      () => null,
+      (matches) => (
+        <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
+          <span>
+            {otherListMatchTextOf({ kind, matches, query, isAlso: true })}
+          </span>
+          <Link
+            destination={otherListLinkOf(kind, matches).destination}
+            className='text-accent inline-flex items-center gap-[4px] hover:underline'
+          >
+            <IconSearch size={14} stroke={1.75} aria-hidden />
+            {otherListLinkOf(kind, matches).label}
+          </Link>
+        </p>
+      ),
+    ),
   )
 }
 
