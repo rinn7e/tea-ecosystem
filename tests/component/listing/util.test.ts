@@ -505,6 +505,45 @@ describe('otherListMatchesOf', () => {
         language: O.some('TypeScript'),
       }),
     ).toEqual(O.some('the filters that apply there'))
+    // What a library lacks, or the kind of entry, stays behind too
+    expect(
+      subjectOf('adjacent', {
+        ...defaultListingFilter(),
+        lacks: ['cmd'],
+        language: O.some('TypeScript'),
+      }),
+    ).toEqual(O.some('the filters that apply there'))
+    expect(
+      subjectOf('catalog', {
+        ...defaultListingFilter(),
+        show: O.some('frameworks'),
+        language: O.some('TypeScript'),
+      }),
+    ).toEqual(O.some('the filters that apply there'))
+  })
+
+  it('quotes a search beside statuses that widen the list or a one-list filter', () => {
+    const subjectOf = (filter: ListingFilter) =>
+      pipe(
+        otherListMatchesOf('catalog', filter),
+        O.map((m) => m.subject),
+      )
+    expect(
+      subjectOf({
+        ...searchOf('react'),
+        statuses: ['active', 'quiet', 'archived'],
+      }),
+    ).toEqual(O.some('"react"'))
+    expect(subjectOf({ ...searchOf('react'), statuses: [] })).toEqual(
+      O.some('"react"'),
+    )
+    expect(subjectOf({ ...searchOf('react'), tiers: ['full'] })).toEqual(
+      O.some('"react"'),
+    )
+    // Statuses that leave some out are a filter of their own
+    expect(subjectOf({ ...searchOf('react'), statuses: ['active'] })).toEqual(
+      O.some('these filters'),
+    )
   })
 
   it('names a search alone in quotes', () => {

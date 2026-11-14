@@ -1146,8 +1146,9 @@ const emptyView = ({
 // (`carriedFilterOf`: the search, the language, the targets, the statuses):
 // one quiet line above the results, so a search for "react", or the
 // TypeScript logo, on the catalog also points to the matching libraries
-// of the TEA-adjacent page. Nothing when no such filter is on, or the other list
-// does not match it.
+// of the TEA-adjacent page. Nothing when no such filter narrows the other
+// list (statuses that widen it do not), or the other list does not match
+// it.
 const otherListHintView = ({
   kind,
   filter,

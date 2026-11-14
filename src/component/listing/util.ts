@@ -203,8 +203,9 @@ const hasOneListFilter = (filter: ListingFilter): boolean =>
 // when every filter on is carried, else "the filters that apply there". The
 // entries the other list shows by default come first; when none of them
 // match and the statuses are the default ones, its archived entries
-// (`isArchived`), shown with every status. None when the filter carries
-// nothing to the other list, or the other list does not match it at all.
+// (`isArchived`), shown with every status. None when no carried filter
+// narrows the other list (`narrowsOtherList`: statuses that widen it do
+// not), or the other list does not match it at all.
 export type OtherListMatches = {
   count: number
   isArchived: boolean
