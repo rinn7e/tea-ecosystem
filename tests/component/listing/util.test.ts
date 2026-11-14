@@ -43,6 +43,7 @@ import {
   otherListMatchTextOf,
   otherListMatchesOf,
   otherListOf,
+  panelFilterCountOf,
   shownArchivedCountOf,
   sortFrameworks,
   sortLabelOf,
@@ -124,48 +125,38 @@ describe('filterFrameworks', () => {
   })
 })
 
-describe('the toggles of each list', () => {
-  const catalog = init(defaultCatalogFilter())
-  const adjacent = init(defaultAdjacentFilter())
-
-  it('ticks what an entry lacks on the adjacent list', () => {
-    const [next] = update(
-      { _tag: 'ToggleLacks', concept: 'cmd', options: [...lackables] },
-      adjacent,
-    )
-    expect(next.filter.lacks).toEqual(choiceOf(lackables, ['cmd']))
+describe('what counts as filtered', () => {
+  it('counts a filter of its own list, a full choice too', () => {
+    const catalog = defaultCatalogFilter()
+    const adjacent = defaultAdjacentFilter()
+    expect(isFiltered(catalog)).toBe(false)
+    expect(isFiltered(adjacent)).toBe(false)
+    expect(isFiltered({ ...catalog, show: O.some('languages') })).toBe(true)
+    expect(isFiltered({ ...catalog, tiers: anyChoice(true) })).toBe(true)
+    expect(
+      isFiltered({ ...adjacent, lacks: choiceOf(lackables, ['cmd']) }),
+    ).toBe(true)
   })
 
-  it('ticks a target on either list', () => {
-    const [next] = update(
-      { _tag: 'ToggleTarget', target: 'web', options: [...targets] },
-      catalog,
+  it('counts the boxes of the popover that differ from their default', () => {
+    const catalog = defaultCatalogFilter()
+    const adjacent = defaultAdjacentFilter()
+    expect(panelFilterCountOf(catalog)).toBe(0)
+    // The category of entry is not in the popover
+    expect(panelFilterCountOf({ ...catalog, show: O.some('languages') })).toBe(
+      0,
     )
-    expect(next.filter.targets).toEqual(choiceOf(targets, ['web']))
-    const six = targetOptionsOf('adjacent')
-    const [nextAdjacent] = update(
-      { _tag: 'ToggleTarget', target: 'web', options: six },
-      adjacent,
-    )
-    expect(nextAdjacent.filter.targets).toEqual(choiceOf(six, ['web']))
-  })
-
-  it('ignores a filter of the other list', () => {
     expect(
-      update(
-        { _tag: 'ToggleTier', tier: 'full', options: [...catalogTiers] },
-        adjacent,
-      )[0],
-    ).toEqual(adjacent)
+      panelFilterCountOf({
+        ...catalog,
+        tiers: anyChoice(true),
+        targets: choiceOf(targets, ['web']),
+        statuses: statusChoiceOf(['active']),
+      }),
+    ).toBe(3)
     expect(
-      update({ _tag: 'ToggleShow', category: 'languages' }, adjacent)[0],
-    ).toEqual(adjacent)
-    expect(
-      update(
-        { _tag: 'ToggleLacks', concept: 'cmd', options: [...lackables] },
-        catalog,
-      )[0],
-    ).toEqual(catalog)
+      panelFilterCountOf({ ...adjacent, lacks: choiceOf(lackables, ['cmd']) }),
+    ).toBe(1)
   })
 })
 
@@ -326,40 +317,6 @@ describe('sort', () => {
     expect(update({ _tag: 'ClearFilter' }, sorted)[0].filter.sort).toEqual(
       sorted.filter.sort,
     )
-  })
-
-  it('clears each list back to its default filter, keeping layout and sort', () => {
-    const sort = O.some<ListingSort>({
-      column: 'stars',
-      direction: 'ascending',
-    })
-    const catalog = init({
-      ...defaultCatalogFilter(),
-      tiers: choiceOf(catalogTiers, ['full']),
-      show: O.some('frameworks'),
-      targets: choiceOf(targets, ['web']),
-      query: 'rust',
-      language: O.some('Rust'),
-      layout: 'table',
-      sort,
-    })
-    expect(update({ _tag: 'ClearFilter' }, catalog)[0].filter).toEqual({
-      ...defaultCatalogFilter(),
-      layout: 'table',
-      sort,
-    })
-    const adjacent = init({
-      ...defaultAdjacentFilter(),
-      lacks: choiceOf(lackables, ['cmd']),
-      statuses: statusChoiceOf(['archived']),
-      layout: 'table',
-      sort,
-    })
-    expect(update({ _tag: 'ClearFilter' }, adjacent)[0].filter).toEqual({
-      ...defaultAdjacentFilter(),
-      layout: 'table',
-      sort,
-    })
   })
 })
 

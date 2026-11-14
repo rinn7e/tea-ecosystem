@@ -30,7 +30,6 @@ import {
   choiceOf,
   destinationOfScreen,
   frameworkScreen,
-  isAnyTicked,
   isStatusTicked,
   isTicked,
   lackables,
@@ -91,6 +90,7 @@ import {
   otherListLinkOf,
   otherListMatchTextOf,
   otherListMatchesOf,
+  panelFilterCountOf,
   shownArchivedCountOf,
   sortFrameworks,
   sortLabelOf,
@@ -534,18 +534,6 @@ const searchView = ({
     />
   </label>
 )
-
-// How many of the filters in the popover differ from their default: the
-// tier (or what an entry lacks), the target and the status. A choice with
-// every box ticked counts, as it stays ticked on screen.
-const panelFilterCountOf = (filter: ListingFilter): number =>
-  [
-    filter.list === 'catalog'
-      ? isAnyTicked(filter.tiers)
-      : isAnyTicked(filter.lacks),
-    isAnyTicked(filter.targets),
-    filter.statuses._tag !== 'Default',
-  ].filter((isOn) => isOn).length
 
 // A row of the popover: its name, then its boxes
 const panelSectionView = ({
@@ -1130,19 +1118,20 @@ const emptyView = ({
           not TEA, the Main catalog for one that is */}
       {pipe(
         other,
+        O.map((matches) => ({ matches, link: otherListLinkOf(matches) })),
         O.fold(
           () => null,
-          (matches) => (
+          ({ matches, link }) => (
             <>
               <span className='text-ink-muted text-sm text-balance'>
                 {otherListMatchTextOf({ matches, isAlso: false })}
               </span>
               <Link
-                destination={otherListLinkOf(matches).destination}
+                destination={link.destination}
                 className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
               >
                 <IconSearch size={16} stroke={1.75} aria-hidden />
-                {otherListLinkOf(matches).label}
+                {link.label}
               </Link>
             </>
           ),
@@ -1200,17 +1189,18 @@ const archivedHintView = ({
 const otherListHintView = ({ filter }: { filter: ListingFilter }) => {
   return pipe(
     otherListMatchesOf(filter),
+    O.map((matches) => ({ matches, link: otherListLinkOf(matches) })),
     O.fold(
       () => null,
-      (matches) => (
+      ({ matches, link }) => (
         <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
           <span>{otherListMatchTextOf({ matches, isAlso: true })}</span>
           <Link
-            destination={otherListLinkOf(matches).destination}
+            destination={link.destination}
             className='text-accent inline-flex items-center gap-[4px] hover:underline'
           >
             <IconSearch size={14} stroke={1.75} aria-hidden />
-            {otherListLinkOf(matches).label}
+            {link.label}
           </Link>
         </p>
       ),

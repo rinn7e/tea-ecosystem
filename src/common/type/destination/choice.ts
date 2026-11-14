@@ -49,7 +49,9 @@ export const choiceOf = <A extends string>(
   chosen: readonly A[],
 ): Choice<A> =>
   pipe(
-    NEA.fromArray(options.filter((option) => chosen.includes(option))),
+    [...options],
+    A.filter((option) => A.elem(S.Eq)(option)([...chosen])),
+    NEA.fromArray,
     O.fold(
       () => anyChoice<A>(false),
       (kept): Choice<A> =>
@@ -64,8 +66,13 @@ export const narrowsChoice = <A>(choice: ChoiceShape<A>): boolean =>
   choice._tag === 'Only'
 
 // Whether the box of `option` is ticked
-export const isTicked = <A>(choice: ChoiceShape<A>, option: A): boolean =>
-  choice._tag === 'Any' ? choice.allSelected : choice.chosen.includes(option)
+export const isTicked = <A extends string>(
+  choice: ChoiceShape<A>,
+  option: A,
+): boolean =>
+  choice._tag === 'Any'
+    ? choice.allSelected
+    : A.elem(S.Eq)(option)(choice.chosen)
 
 // Whether any box is ticked: the choice counts on the Filters button, and
 // Clear filters shows, also when every box is
@@ -73,10 +80,14 @@ export const isAnyTicked = <A>(choice: ChoiceShape<A>): boolean =>
   choice._tag === 'Only' || choice.allSelected
 
 // The options ticked, in their order
-export const tickedOf = <A>(
+export const tickedOf = <A extends string>(
   options: readonly A[],
   choice: ChoiceShape<A>,
-): A[] => options.filter((option) => isTicked(choice, option))
+): A[] =>
+  pipe(
+    [...options],
+    A.filter((option) => isTicked(choice, option)),
+  )
 
 // Ticks `value`, or unticks it when ticked: ticking the last box left
 // gives `Any` with every box ticked, unticking the last one `Any` with none
@@ -87,14 +98,17 @@ export const toggleChoice = <A extends string>(
 ): Choice<A> =>
   choiceOf(
     options,
-    options.filter((option) => (option === value) !== isTicked(choice, option)),
+    pipe(
+      [...options],
+      A.filter((option) => (option === value) !== isTicked(choice, option)),
+    ),
   )
 
 // Whether an entry passes: `has` tells whether it matches an option
 export const passesChoice = <A>(
   choice: ChoiceShape<A>,
   has: (option: A) => boolean,
-): boolean => choice._tag === 'Any' || choice.chosen.some(has)
+): boolean => choice._tag === 'Any' || pipe(choice.chosen, A.some(has))
 
 export const getChoiceEq = <A>(
   eq: EqClass.Eq<A>,
@@ -151,7 +165,7 @@ export const isStatusTicked = (
   status: Status,
 ): boolean =>
   choice._tag === 'Default'
-    ? defaultStatuses.includes(status)
+    ? A.elem(S.Eq)(status)([...defaultStatuses])
     : isTicked(choice, status)
 
 export const toggleStatus = (
@@ -159,8 +173,11 @@ export const toggleStatus = (
   status: Status,
 ): StatusChoice =>
   statusChoiceOf(
-    statuses.filter(
-      (option) => (option === status) !== isStatusTicked(choice, option),
+    pipe(
+      [...statuses],
+      A.filter(
+        (option) => (option === status) !== isStatusTicked(choice, option),
+      ),
     ),
   )
 

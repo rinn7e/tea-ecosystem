@@ -11,6 +11,7 @@ import {
   str,
   zero,
 } from '@rinn7e/fp-ts-routing'
+import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import * as RA from 'fp-ts/ReadonlyArray'
 import { pipe } from 'fp-ts/function'
@@ -131,6 +132,15 @@ const anyStrings = new Match<object>(
 )
 
 // The values a list names: `?tier=full,superset`
+// Whether a named value is one of `options`, as that option
+const isOptionOf =
+  <A extends string>(options: readonly A[]) =>
+  (named: string): named is A =>
+    pipe(
+      options,
+      RA.some((option) => option === named),
+    )
+
 const namedOf = (value: string | undefined): string[] =>
   (value ?? '').split(',')
 
@@ -139,17 +149,13 @@ const namedOf = (value: string | undefined): string[] =>
 const choiceOfParam = <A extends string>(
   options: readonly A[],
   value: string | undefined,
-) =>
-  choiceOf(
-    options,
-    options.filter((o) => namedOf(value).includes(o)),
-  )
+) => choiceOf(options, pipe(namedOf(value), A.filter(isOptionOf(options))))
 
 // `status` names the statuses shown, `all` for no box ticked (every status
 // shown); none known, or no `status`, is the default, unless an old link
 // asks for the archive (`includeArchived`)
 const statusesOf = (params: ListingParams): StatusChoice => {
-  const named = statuses.filter((s) => namedOf(params.status).includes(s))
+  const named = pipe(namedOf(params.status), A.filter(isOptionOf(statuses)))
   return params.status === 'all'
     ? anyStatusChoice(false)
     : named.length > 0

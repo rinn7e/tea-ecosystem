@@ -217,9 +217,10 @@ const carriedTargetsOf = (
   choice._tag === 'Any'
     ? O.some(anyChoice<Target>(false))
     : pipe(
-        options.filter((option) => choice.chosen.includes(option)),
-        O.fromPredicate((kept) => kept.length > 0),
-        O.map((kept) => choiceOf(options, kept)),
+        choiceOf(options, choice.chosen),
+        O.fromPredicate(
+          (carried) => carried._tag === 'Only' || carried.allSelected,
+        ),
       )
 
 // A filter as the other list reads it: the parts that mean the same on
@@ -394,6 +395,18 @@ export const otherListLinkOf = (
       ? 'Show in TEA-adjacent'
       : 'Show in Main catalog',
 })
+
+// How many of the filters in the popover differ from their default: the
+// tier (or what an entry lacks), the target and the status. A choice with
+// every box ticked counts, as it stays ticked on screen.
+export const panelFilterCountOf = (filter: ListingFilter): number =>
+  [
+    filter.list === 'catalog'
+      ? isAnyTicked(filter.tiers)
+      : isAnyTicked(filter.lacks),
+    isAnyTicked(filter.targets),
+    filter.statuses._tag !== 'Default',
+  ].filter((isOn) => isOn).length
 
 // Whether anything is ticked or typed: Clear filters shows, also for a
 // choice with every box ticked, which stays ticked on screen
