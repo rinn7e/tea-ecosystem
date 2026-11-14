@@ -118,7 +118,9 @@ const logoUrl = (file: string): string =>
   `${BASE_URL.replace(/\/$/, '')}/logo/${file}`
 
 // One frame for every tile (its own logo, the logo of its language or two
-// letters), white in both modes like the logo files, so the list stays even.
+// letters). A tile with a logo is white in both modes, as the logo files are
+// drawn on white; two letters have no file, so they take the panel and the
+// ink of the mode, and a dark page shows no white square for them.
 export const frameworkTileView = ({
   framework,
   size,
@@ -153,7 +155,7 @@ export const frameworkTileView = ({
         () => (
           <span
             aria-hidden='true'
-            className={cn(frame, 'bg-tile text-tile-ink font-semibold')}
+            className={cn(frame, 'bg-panel text-ink font-semibold')}
           >
             {monogramOf(framework.name)}
           </span>
