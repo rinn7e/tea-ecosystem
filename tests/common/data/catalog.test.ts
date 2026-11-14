@@ -1,5 +1,6 @@
 import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
 import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
@@ -8,6 +9,7 @@ import {
   frameworkById,
   frameworks,
   rubricProblemsOf,
+  sameLanguageEntriesOf,
 } from '@/common/data/catalog'
 import {
   FIRST_LIST_DAY,
@@ -134,5 +136,46 @@ describe('data files', () => {
       'gren',
       'sky',
     ])
+  })
+})
+
+describe('sameLanguageEntriesOf', () => {
+  const idsOf = (id: string) =>
+    pipe(
+      frameworkById(id),
+      O.map(sameLanguageEntriesOf),
+      O.map(
+        A.map(({ kind, entries }) => ({
+          kind,
+          ids: entries.map((f) => f.id),
+        })),
+      ),
+    )
+
+  it('gathers the entries of the language from both lists, catalog first', () => {
+    const groups = idsOf('brick')
+    expect(pipe(groups, O.map(A.map((g) => g.kind)))).toEqual(
+      O.some(['catalog', 'adjacent']),
+    )
+    expect(
+      pipe(
+        groups,
+        O.map((gs) => gs.flatMap((g) => g.ids)),
+        O.map((ids) => ids.includes('miso') && ids.includes('hyperbole')),
+      ),
+    ).toEqual(O.some(true))
+  })
+
+  it('leaves out the entry itself and a list with none', () => {
+    expect(
+      pipe(
+        idsOf('hyperbole'),
+        O.map((gs) => gs.flatMap((g) => g.ids).includes('hyperbole')),
+      ),
+    ).toEqual(O.some(false))
+    // No TEA-adjacent library is in Scala
+    expect(pipe(idsOf('tyrian'), O.map(A.map((g) => g.kind)))).toEqual(
+      O.some(['catalog']),
+    )
   })
 })

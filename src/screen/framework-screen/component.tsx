@@ -1,10 +1,9 @@
 import { IconArrowLeft, IconExternalLink, IconWorld } from '@tabler/icons-react'
-import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { memo } from 'react'
 
-import { entriesOf, listOf } from '@/common/data/catalog'
+import { listOf, sameLanguageEntriesOf } from '@/common/data/catalog'
 import { snippetOf } from '@/common/data/snippet'
 import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
 import {
@@ -111,25 +110,36 @@ const rubricView = ({ framework }: { framework: Framework }) => (
   </div>
 )
 
+// One entry of "More in <language>": its tile, its name and its language
+const relatedChipView = ({ framework }: { framework: Framework }) => (
+  <Link
+    key={framework.id}
+    destination={destinationOfScreen(frameworkScreen(framework.id))}
+    className='border-line bg-panel text-ink hover:border-edge hover:text-accent flex items-center gap-[8px] rounded-[2px] border py-[5px] pr-[12px] pl-[5px] text-sm transition-colors'
+  >
+    {frameworkTileView({ framework, size: 'chip' })}
+    {framework.name}
+    {languageLineLogoView({ framework, size: 'small' })}
+  </Link>
+)
+
+// The other entries in its language, from both lists: the Main catalog,
+// then the TEA-adjacent page, each under its name (`sameLanguageEntriesOf`)
 const relatedView = ({ framework }: { framework: Framework }) => {
-  const related = pipe(
-    entriesOf(listOf(framework)),
-    A.filter((f) => f.language === framework.language && f.id !== framework.id),
-  )
-  return related.length === 0 ? null : (
+  const groups = sameLanguageEntriesOf(framework)
+  return groups.length === 0 ? null : (
     <section className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: `More in ${framework.language}` })}
-      <div className='flex flex-wrap justify-center gap-[8px]'>
-        {related.map((f) => (
-          <Link
-            key={f.id}
-            destination={destinationOfScreen(frameworkScreen(f.id))}
-            className='border-line bg-panel text-ink hover:border-edge hover:text-accent flex items-center gap-[8px] rounded-[2px] border py-[5px] pr-[12px] pl-[5px] text-sm transition-colors'
-          >
-            {frameworkTileView({ framework: f, size: 'chip' })}
-            {f.name}
-            {languageLineLogoView({ framework: f, size: 'small' })}
-          </Link>
+      <div className='flex flex-col gap-[16px]'>
+        {groups.map(({ kind, entries }) => (
+          <div key={kind} className='flex flex-col items-center gap-[8px]'>
+            <span className='text-ink-faint text-xs'>
+              {kind === 'catalog' ? 'Main catalog' : 'TEA-adjacent'}
+            </span>
+            <div className='flex flex-wrap justify-center gap-[8px]'>
+              {entries.map((f) => relatedChipView({ framework: f }))}
+            </div>
+          </div>
         ))}
       </div>
     </section>
