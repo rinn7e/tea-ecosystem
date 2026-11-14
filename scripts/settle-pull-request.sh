@@ -54,7 +54,10 @@ if [ "$commit" != "$head" ]; then
   echo "::error::$branch moved while it was read: start again"
   exit 1
 fi
-on="$(git merge-base HEAD "$commit")"
+if ! on="$(git merge-base HEAD "$commit")"; then
+  echo "::error::$branch shares no commit with master here (a shallow checkout, or another history)"
+  exit 1
+fi
 
 problem="$("$here/recheck-discovered.sh" "$on" "$commit" "$max" "$day")"
 if [ -n "$problem" ]; then

@@ -111,6 +111,20 @@ describe('settle-pull-request.sh', { timeout: 30_000 }, () => {
     expect(log).not.toContain('pr comment')
   })
 
+  it('says so when the branch shares no commit with master', () => {
+    const at = current()
+    at.git('switch', '-q', '--orphan', runBranch)
+    writeFileSync(path.join(at.dir, 'data/frameworks.json'), json([elm]))
+    at.git('add', '-A')
+    at.git('commit', '-q', '-m', 'Another history')
+    at.remoteGit('fetch', '-q', at.dir, `${runBranch}:${runBranch}`)
+    const head = at.git('rev-parse', 'HEAD').trim()
+    at.git('switch', '-q', '-f', 'master')
+    const { status, out } = settle('16', viewOf(head))
+    expect(status).toBe(1)
+    expect(out).toContain('shares no commit with master')
+  })
+
   it.each<[string, string, Record<string, unknown>, string]>([
     [
       'a number that is not one',
