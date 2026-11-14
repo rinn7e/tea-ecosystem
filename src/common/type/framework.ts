@@ -202,12 +202,15 @@ export const isLanguageEntry = (framework: Framework): boolean =>
 export const hostOf = (url: string): string =>
   new URL(url).host.replace(/^www\./, '')
 
+// Two URLs that name the same page, with or without a slash at the end
+const isSameUrl = (a: string, b: string | undefined): boolean =>
+  b !== undefined && a.replace(/\/$/, '') === b.replace(/\/$/, '')
+
 // Whether its source is public: its `repo` is a repository, not the
 // website it falls back to, which the data marks by giving `website` the
 // same URL. Only then does it have stars and dates.
 export const hasPublicRepo = (framework: Framework): boolean =>
-  framework.website === undefined ||
-  framework.repo.replace(/\/$/, '') !== framework.website.replace(/\/$/, '')
+  !isSameUrl(framework.repo, framework.website)
 
 // Where its source lives: its directory in a monorepo or its reference
 // page (`source`), else its repository (the website of an entry whose
@@ -242,15 +245,12 @@ export const sourceLabelOf = (framework: Framework): string => {
 // page links to it under its summary. None when `website` is absent, or is
 // the address its source link already opens (an entry with no public
 // source, or useReducer, whose source is its reference page).
-export const websiteOf = (framework: Framework): string | undefined => {
-  const same = (a: string, b: string | undefined): boolean =>
-    b !== undefined && a.replace(/\/$/, '') === b.replace(/\/$/, '')
-  return framework.website === undefined ||
-    same(framework.website, framework.repo) ||
-    same(framework.website, framework.source)
+export const websiteOf = (framework: Framework): string | undefined =>
+  framework.website === undefined ||
+  isSameUrl(framework.website, framework.repo) ||
+  isSameUrl(framework.website, framework.source)
     ? undefined
     : framework.website
-}
 
 export const websiteLabelOf = (url: string): string => hostOf(url)
 

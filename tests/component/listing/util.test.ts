@@ -7,6 +7,7 @@ import {
   type EntryKind,
   type ListingSort,
   adjacentScreen,
+  catalogScreen,
   defaultListingFilter,
   destinationOfScreen,
   toggleChoice,
@@ -453,13 +454,34 @@ describe('otherListMatchesOf', () => {
   })
 
   it('links to the matches with the filter that shows them', () => {
-    const matches = { count: 1, isArchived: true, filter: searchFilterOf('x') }
-    expect(otherListLinkOf('catalog', matches)).toEqual({
-      destination: destinationOfScreen(adjacentScreen(searchFilterOf('x'))),
-      label: 'Show in TEA-adjacent',
-    })
-    expect(otherListLinkOf('adjacent', matches).label).toBe(
-      'Show in Main catalog',
+    const xstate = otherListMatchesOf('catalog', 'xstate')
+    expect(
+      pipe(
+        xstate,
+        O.map((matches) => otherListLinkOf('catalog', matches)),
+      ),
+    ).toEqual(
+      O.some({
+        destination: destinationOfScreen(
+          adjacentScreen(searchFilterOf('xstate')),
+        ),
+        label: 'Show in TEA-adjacent',
+      }),
+    )
+    // An archived match opens the other list with every status shown
+    const seed = otherListMatchesOf('adjacent', 'seed')
+    expect(
+      pipe(
+        seed,
+        O.map((matches) => otherListLinkOf('adjacent', matches)),
+      ),
+    ).toEqual(
+      O.some({
+        destination: destinationOfScreen(
+          catalogScreen({ ...searchFilterOf('seed'), statuses: [] }),
+        ),
+        label: 'Show in Main catalog',
+      }),
     )
   })
 
