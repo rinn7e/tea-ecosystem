@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { adjacentEntries, frameworks } from '@/common/data/catalog'
 import {
   type EntryKind,
+  type ListingFilter,
   type ListingSort,
   adjacentScreen,
   catalogScreen,
@@ -16,6 +17,7 @@ import {
   balancedRows,
   cardSortOf,
   cardSorts,
+  carriedFilterOf,
   filterFrameworks,
   init,
   isFiltered,
@@ -25,7 +27,6 @@ import {
   otherListMatchTextOf,
   otherListMatchesOf,
   otherListOf,
-  searchFilterOf,
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
@@ -376,9 +377,13 @@ describe('toggleChoice', () => {
 })
 
 describe('otherListMatchesOf', () => {
-  const countOf = (kind: 'catalog' | 'adjacent', query: string) =>
+  const searchOf = (query: string): ListingFilter => ({
+    ...defaultListingFilter(),
+    query,
+  })
+  const countOf = (kind: 'catalog' | 'adjacent', filter: ListingFilter) =>
     pipe(
-      otherListMatchesOf(kind, query),
+      otherListMatchesOf(kind, filter),
       O.map((matches) => matches.count),
     )
 
@@ -388,18 +393,52 @@ describe('otherListMatchesOf', () => {
   })
 
   it('counts the matches of a search in the other list, as it shows them', () => {
-    expect(countOf('catalog', 'XState')).toEqual(
-      O.some(
-        filterFrameworks(searchFilterOf('XState'))(adjacentEntries).length,
-      ),
+    expect(countOf('catalog', searchOf('XState'))).toEqual(
+      O.some(filterFrameworks(searchOf('XState'))(adjacentEntries).length),
     )
-    expect(countOf('adjacent', 'Bubble Tea')).toEqual(
-      O.some(filterFrameworks(searchFilterOf('Bubble Tea'))(frameworks).length),
+    expect(countOf('adjacent', searchOf('Bubble Tea'))).toEqual(
+      O.some(filterFrameworks(searchOf('Bubble Tea'))(frameworks).length),
     )
   })
 
+  it('carries the language, targets and statuses, and leaves the tiers', () => {
+    const scala: ListingFilter = {
+      ...defaultListingFilter(),
+      language: O.some('Scala'),
+      tiers: ['full'],
+    }
+    expect(carriedFilterOf(scala)).toEqual({
+      ...defaultListingFilter(),
+      language: O.some('Scala'),
+    })
+    const adjacentScala = filterFrameworks(carriedFilterOf(scala))(
+      adjacentEntries,
+    ).length
+    expect(countOf('catalog', scala)).toEqual(
+      adjacentScala === 0 ? O.none : O.some(adjacentScala),
+    )
+    expect(
+      pipe(
+        otherListMatchesOf('adjacent', {
+          ...defaultListingFilter(),
+          language: O.some('TypeScript'),
+        }),
+        O.map((m) => m.subject),
+      ),
+    ).toEqual(O.some('these filters'))
+  })
+
+  it('names a search alone in quotes', () => {
+    expect(
+      pipe(
+        otherListMatchesOf('catalog', searchOf('xstate')),
+        O.map((m) => m.subject),
+      ),
+    ).toEqual(O.some('"xstate"'))
+  })
+
   it('falls back to the archived entries, shown with every status', () => {
-    const seed = otherListMatchesOf('adjacent', 'seed')
+    const seed = otherListMatchesOf('adjacent', searchOf('seed'))
     expect(
       pipe(
         seed,
@@ -414,82 +453,80 @@ describe('otherListMatchesOf', () => {
     ).toEqual(O.some([]))
     expect(
       pipe(
-        otherListMatchesOf('catalog', 'XState'),
+        otherListMatchesOf('catalog', searchOf('XState')),
         O.map((m) => m.isArchived),
       ),
     ).toEqual(O.some(false))
   })
 
-  it('finds nothing for an empty search or one that matches nothing', () => {
-    expect(otherListMatchesOf('catalog', '  ')).toEqual(O.none)
-    expect(otherListMatchesOf('adjacent', 'no such framework')).toEqual(O.none)
+  it('finds nothing when no filter carries over, or nothing matches', () => {
+    expect(otherListMatchesOf('catalog', searchOf('  '))).toEqual(O.none)
+    expect(
+      otherListMatchesOf('catalog', {
+        ...defaultListingFilter(),
+        tiers: ['full'],
+      }),
+    ).toEqual(O.none)
+    expect(
+      otherListMatchesOf('adjacent', searchOf('no such framework')),
+    ).toEqual(O.none)
   })
 
   it('says how many match there, with "also" under results', () => {
-    const shown = { isArchived: false, filter: searchFilterOf('react') }
+    const shown = {
+      isArchived: false,
+      filter: searchOf('react'),
+      subject: '"react"',
+    }
     expect(
       otherListMatchTextOf({
         kind: 'catalog',
         matches: { ...shown, count: 3 },
-        query: 'react',
         isAlso: true,
       }),
     ).toBe('3 TEA-adjacent libraries also match "react".')
     expect(
       otherListMatchTextOf({
         kind: 'catalog',
-        matches: { ...shown, count: 1 },
-        query: 'xstate',
-        isAlso: false,
+        matches: { ...shown, count: 2, subject: 'these filters' },
+        isAlso: true,
       }),
-    ).toBe('1 TEA-adjacent library matches "xstate".')
+    ).toBe('2 TEA-adjacent libraries also match these filters.')
     expect(
       otherListMatchTextOf({
         kind: 'adjacent',
-        matches: { ...shown, count: 1, isArchived: true },
-        query: 'seed',
+        matches: { ...shown, count: 1, isArchived: true, subject: '"seed"' },
         isAlso: false,
       }),
     ).toBe('1 archived framework in the Main catalog matches "seed".')
   })
 
   it('links to the matches with the filter that shows them', () => {
-    const xstate = otherListMatchesOf('catalog', 'xstate')
     expect(
       pipe(
-        xstate,
+        otherListMatchesOf('catalog', searchOf('xstate')),
         O.map((matches) => otherListLinkOf('catalog', matches)),
       ),
     ).toEqual(
       O.some({
-        destination: destinationOfScreen(
-          adjacentScreen(searchFilterOf('xstate')),
-        ),
+        destination: destinationOfScreen(adjacentScreen(searchOf('xstate'))),
         label: 'Show in TEA-adjacent',
       }),
     )
     // An archived match opens the other list with every status shown
-    const seed = otherListMatchesOf('adjacent', 'seed')
     expect(
       pipe(
-        seed,
+        otherListMatchesOf('adjacent', searchOf('seed')),
         O.map((matches) => otherListLinkOf('adjacent', matches)),
       ),
     ).toEqual(
       O.some({
         destination: destinationOfScreen(
-          catalogScreen({ ...searchFilterOf('seed'), statuses: [] }),
+          catalogScreen({ ...searchOf('seed'), statuses: [] }),
         ),
         label: 'Show in Main catalog',
       }),
     )
-  })
-
-  it('opens the other list on the search alone', () => {
-    expect(searchFilterOf('XState')).toEqual({
-      ...defaultListingFilter(),
-      query: 'XState',
-    })
   })
 })
 

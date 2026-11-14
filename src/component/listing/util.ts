@@ -159,69 +159,104 @@ export const filterFrameworks =
 export const otherListOf = (kind: ListKind): ListKind =>
   kind === 'catalog' ? 'adjacent' : 'catalog'
 
-// The filter that opens a list on a search and nothing else
-export const searchFilterOf = (query: string): ListingFilter => ({
+// The part of a filter that means the same on both lists: the search, the
+// language, the targets and the statuses, with the layout and the sort.
+// The tiers, what an adjacent library lacks and the kind of entry belong
+// to one list only, and stay behind.
+export const carriedFilterOf = (filter: ListingFilter): ListingFilter => ({
   ...defaultListingFilter(),
-  query,
+  query: filter.query.trim(),
+  language: filter.language,
+  targets: filter.targets,
+  statuses: filter.statuses,
+  layout: filter.layout,
+  sort: filter.sort,
 })
 
-// The matches of a search in the other list, and the filter that shows
-// them there: the entries it shows by default (active and quiet), or, when
-// none of those match, its archived ones (`isArchived`), shown with every
-// status. None for an empty search, or one the other list does not match
-// at all.
+const isDefaultStatuses = (statuses: Status[]): boolean =>
+  A.getEq(S.Eq).equals(statuses, defaultStatuses())
+
+// Whether a carried filter narrows the other list at all
+const narrowsOtherList = (carried: ListingFilter): boolean =>
+  carried.query !== '' ||
+  O.isSome(carried.language) ||
+  carried.targets.length > 0 ||
+  !isDefaultStatuses(carried.statuses)
+
+// The matches in the other list of the filter a list is under, the filter
+// that shows them there, and how the pointer names what they match (the
+// search in quotes when it is the only filter, else "these filters"). The
+// entries the other list shows by default come first; when none of them
+// match and the statuses are the default ones, its archived entries
+// (`isArchived`), shown with every status. None when the filter carries
+// nothing to the other list, or the other list does not match it at all.
 export type OtherListMatches = {
   count: number
   isArchived: boolean
   filter: ListingFilter
+  subject: string
 }
 
 export const otherListMatchesOf = (
   kind: ListKind,
-  query: string,
+  filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
   const entries = entriesOf(otherListOf(kind))
-  const shown = searchFilterOf(query)
-  return query.trim() === ''
-    ? O.none
-    : pipe(
-        [
-          { filter: shown, isArchived: false },
-          { filter: { ...shown, statuses: [] }, isArchived: true },
-        ],
-        A.findFirstMap(({ filter, isArchived }) =>
+  const carried = carriedFilterOf(filter)
+  const subject =
+    carried.query !== '' &&
+    O.isNone(carried.language) &&
+    carried.targets.length === 0 &&
+    isDefaultStatuses(carried.statuses)
+      ? `"${carried.query}"`
+      : 'these filters'
+  const tries = [
+    { filter: carried, isArchived: false },
+    ...(isDefaultStatuses(carried.statuses)
+      ? [{ filter: { ...carried, statuses: [] }, isArchived: true }]
+      : []),
+  ]
+  return narrowsOtherList(carried)
+    ? pipe(
+        tries,
+        A.findFirstMap(({ filter: shown, isArchived }) =>
           pipe(
-            filterFrameworks(filter)(entries).length,
+            filterFrameworks(shown)(entries).length,
             O.fromPredicate((count) => count > 0),
-            O.map((count): OtherListMatches => ({ count, isArchived, filter })),
+            O.map((count): OtherListMatches => ({
+              count,
+              isArchived,
+              filter: shown,
+              subject,
+            })),
           ),
         ),
       )
+    : O.none
 }
 
-// What a list says about the matches of a search in the other list, under
-// its results (`isAlso`) or in place of them when it has none: "3
-// TEA-adjacent libraries also match "react"", "1 archived framework in the
-// Main catalog matches "seed"". The catalog is the "Main catalog" there, to
-// set it apart from the TEA-adjacent page.
+// What a list says about the matches in the other list, under its
+// results (`isAlso`) or in place of them when it has none: "3 TEA-adjacent
+// libraries also match "react"", "1 archived framework in the Main catalog
+// matches "seed"", "2 TEA-adjacent libraries also match these filters".
+// The catalog is the "Main catalog" there, to set it apart from the
+// TEA-adjacent page.
 export const otherListMatchTextOf = ({
   kind,
   matches,
-  query,
   isAlso,
 }: {
   kind: ListKind
   matches: OtherListMatches
-  query: string
   isAlso: boolean
 }): string => {
-  const { count, isArchived } = matches
+  const { count, isArchived, subject } = matches
   const archived = isArchived ? 'archived ' : ''
   const also = isAlso ? 'also ' : ''
   const verb = count === 1 ? 'matches' : 'match'
   return kind === 'catalog'
-    ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} "${query}".`
-    : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the Main catalog ${also}${verb} "${query}".`
+    ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} ${subject}.`
+    : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the Main catalog ${also}${verb} ${subject}.`
 }
 
 // The link to the matches on the other list, with the filter that shows

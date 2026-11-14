@@ -1072,7 +1072,8 @@ const tableView = ({
 // Nothing to show: only ever under a filter, so the toolbar above it
 // already offers to clear them. When the archive holds matches the list
 // hides, it says how many and offers to show them; when the other list
-// matches the search, it says how many and links to that search there.
+// matches the filters that mean the same there (`carriedFilterOf`), it
+// says how many and links to them there.
 const emptyView = ({
   kind,
   entries,
@@ -1096,8 +1097,7 @@ const emptyView = ({
       : archivedCount === 1
         ? 'library'
         : 'libraries'
-  const query = filter.query.trim()
-  const other = otherListMatchesOf(kind, query)
+  const other = otherListMatchesOf(kind, filter)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
       <span className='text-ink text-base font-normal'>
@@ -1124,12 +1124,7 @@ const emptyView = ({
           (matches) => (
             <>
               <span className='text-ink-muted text-sm text-balance'>
-                {otherListMatchTextOf({
-                  kind,
-                  matches,
-                  query,
-                  isAlso: false,
-                })}
+                {otherListMatchTextOf({ kind, matches, isAlso: false })}
               </span>
               <Link
                 destination={otherListLinkOf(kind, matches).destination}
@@ -1146,10 +1141,12 @@ const emptyView = ({
   )
 }
 
-// Results found, and the other list matches the search too: one quiet line
-// above the results, so a search for "react" on the catalog also points to
-// the React libraries of the TEA-adjacent page. Nothing for an empty search
-// or one the other list does not match.
+// Results found, and the other list matches the same filters too
+// (`carriedFilterOf`: the search, the language, the targets, the statuses):
+// one quiet line above the results, so a search for "react", or the Scala
+// logo, on the catalog also points to the matching libraries of the
+// TEA-adjacent page. Nothing when no such filter is on, or the other list
+// does not match it.
 const otherListHintView = ({
   kind,
   filter,
@@ -1157,16 +1154,13 @@ const otherListHintView = ({
   kind: ListKind
   filter: ListingFilter
 }) => {
-  const query = filter.query.trim()
   return pipe(
-    otherListMatchesOf(kind, query),
+    otherListMatchesOf(kind, filter),
     O.fold(
       () => null,
       (matches) => (
         <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
-          <span>
-            {otherListMatchTextOf({ kind, matches, query, isAlso: true })}
-          </span>
+          <span>{otherListMatchTextOf({ kind, matches, isAlso: true })}</span>
           <Link
             destination={otherListLinkOf(kind, matches).destination}
             className='text-accent inline-flex items-center gap-[4px] hover:underline'
