@@ -124,14 +124,18 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
-  it('give every repository both dates, as days', () => {
+  it('give every repository its stars and both dates, as days', () => {
     const day = /^\d{4}-\d{2}-\d{2}$/
     // Both lists: a fallback entry that forgets its `website` reads as a
     // public repository with no dates
     const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) =>
         hasPublicRepo(f) &&
-        !(day.test(f.createdAt ?? '') && day.test(f.updatedAt ?? '')),
+        !(
+          f.stars !== undefined &&
+          day.test(f.createdAt ?? '') &&
+          day.test(f.updatedAt ?? '')
+        ),
     )
     expect(wrong.map((f) => f.id)).toEqual([])
   })

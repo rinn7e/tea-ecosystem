@@ -104,7 +104,8 @@ export const StatusJson: t.Type<Status> = t.keyof({
 })
 
 export type Framework = {
-  // Its URL segment: `/framework/<id>`
+  // Its URL segment: `/framework/<id>` (tests "give every entry a unique
+  // id, across both files" and "use ids that are readable URL segments")
   id: string
   name: string
   language: string
@@ -120,7 +121,8 @@ export type Framework = {
   // GitLab, Codeberg or another Gitea): where its source links go, and
   // where its stars and dates come from. When its source is not public,
   // it falls back to its website, and `website` holds the same URL, which
-  // is how `hasPublicRepo` tells the two apart (test "fall back to the
+  // is how `hasPublicRepo` tells the two apart (tests "give every
+  // repository as a full URL of owner and name" and "fall back to the
   // website as repo only for the entries with no public source").
   repo: string
   // Its own website or docs, apart from its repository (sky-lang.org for
@@ -131,22 +133,25 @@ export type Framework = {
   // of its directory inside `repo`, for an entry that is one package of a
   // monorepo (Oak in the repository of the Monad language, @xstate/store
   // beside XState), or its own reference page (`website`), for one that is
-  // a single function of a bigger library (useReducer in React)
+  // a single function of a bigger library (useReducer in React) (test
+  // "give the source of an entry inside its repository, or as its own
+  // page")
   source?: string
   // Where the project lived before it moved (Tyrian and Indigo moved into
   // one monorepo in 2025, teatui to Codeberg): its `createdAt` comes from
-  // here
+  // here (test "give every repository as a full URL of owner and name")
   originRepo?: string
   // Its own logo, a file in `public/logo/`. Absent when it has none: a
-  // monogram stands in.
+  // monogram stands in (test "name a logo file that exists in
+  // public/logo").
   logo?: string
   // A logo made of text, for a project whose mark is an emoji or a glyph
   // in its title (react-tea-cup: a cup of tea), used when it has no `logo`
   logoText?: string
   // The star count of `repo`, and the day its repository was created and
   // last pushed to (`YYYY-MM-DD`), filled by `scripts/fetch-repo-stats.mjs`;
-  // present for every public repository (test "give every repository both
-  // dates, as days")
+  // present for every public repository (test "give every repository its
+  // stars and both dates, as days")
   stars?: number
   createdAt?: string
   updatedAt?: string

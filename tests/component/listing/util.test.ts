@@ -142,6 +142,12 @@ describe('the toggles of each list', () => {
       catalog,
     )
     expect(next.filter.targets).toEqual(choiceOf(targets, ['web']))
+    const six = targetOptionsOf('adjacent')
+    const [nextAdjacent] = update(
+      { _tag: 'ToggleTarget', target: 'web', options: six },
+      adjacent,
+    )
+    expect(nextAdjacent.filter.targets).toEqual(choiceOf(six, ['web']))
   })
 
   it('ignores a filter of the other list', () => {

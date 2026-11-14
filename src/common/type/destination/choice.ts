@@ -16,7 +16,8 @@ import { type Status, statuses } from '@/common/type/framework'
 // - `Any` narrows nothing: no box ticked, or every one (`allSelected`:
 //   the popover draws every box ticked, the URL names every option, and
 //   for the statuses it is where "Show the archived" leads, so the
-//   archived line there offers Hide)
+//   archived line there offers Hide; it counts on the Filters button and
+//   shows Clear filters, `isAnyTicked`)
 // - `Only` narrows: a non-empty part of the options it was given, never
 //   every one, and never one outside them (each caller passes the options
 //   of its list: `targetOptionsOf` for the targets)
