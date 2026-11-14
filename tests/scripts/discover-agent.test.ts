@@ -339,6 +339,12 @@ describe('the end of a run of the discovery agent', () => {
     expect(endOf(limit, undefined)).toEqual([
       'The agent ended: error_max_budget_usd, 90 turns, 5.01 dollars, 0 denied: Reached maximum budget ($5).',
     ])
+    // An empty `result` says nothing: the reason is in `errors`
+    expect(
+      endOf({ ...limit, result: '', errors: ['Stopped'] }, undefined),
+    ).toEqual([
+      'The agent ended: error_max_budget_usd, 90 turns, 5.01 dollars, 0 denied: Stopped.',
+    ])
     expect(
       [undefined, []].flatMap((errors) =>
         endOf({ ...limit, errors }, undefined),
@@ -579,7 +585,7 @@ describe('a run of the discovery agent', () => {
   it('stop the run, and fail, when the transcript cannot be written', async () => {
     const printed: string[] = []
     const code = await run({
-      stream: streamOf([text('Searching.'), text('Never shown.')], undefined),
+      stream: streamOf([text('Searching.'), text('Never read.')], undefined),
       write: () => {
         throw new Error('ENOSPC: no space left on device')
       },
@@ -593,6 +599,7 @@ describe('a run of the discovery agent', () => {
     expect(code).toBe(1)
     expect(printed).toEqual([
       '::stop-commands::marker',
+      'Text: Searching.',
       'The agent ended with no result.',
       'The run stopped: ENOSPC: no space left on device',
       '::marker::',

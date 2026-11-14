@@ -208,7 +208,7 @@ const gitEnv = {
 }
 
 const git = (...args: string[]): void => {
-  spawnSync('git', args, {
+  const done = spawnSync('git', args, {
     cwd: repo,
     env: {
       ...gitEnv,
@@ -218,6 +218,9 @@ const git = (...args: string[]): void => {
       GIT_COMMITTER_EMAIL: 'test@example.invalid',
     },
   })
+  if (done.status !== 0) {
+    throw new Error(`git ${args.join(' ')}: ${String(done.stderr)}`)
+  }
 }
 
 describe('the permission rules of the discovery agent, in Claude Code', () => {

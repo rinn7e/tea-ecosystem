@@ -130,14 +130,15 @@ jobs:
       # what it said last (`scripts/discover-report.mjs`)
       - name: Keep the report of the agent
         if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
-        # A crash of the report script fails the step, never an empty report
+        # The report is read first, so a crash of its script fails the step
+        # before anything reaches the summary
         run: |
-          set -o pipefail
+          report="$(node scripts/discover-report.mjs "$EXECUTION_FILE")"
           {
             echo '## Report of the agent'
             echo
             echo '```text'
-            node scripts/discover-report.mjs "$EXECUTION_FILE" | sed 's/```/` ` `/g'
+            sed 's/```/` ` `/g' <<<"$report"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
         env:

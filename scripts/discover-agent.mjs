@@ -319,11 +319,12 @@ export const isWorthWritingOf = (message) =>
   )
 
 /**
- * One run of the agent over the messages of `stream`: the transcript goes
- * to `write`, redacted, after each message that `isWorthWritingOf` keeps, and the lines of each message
- * to `print`, between the two markers of `::stop-commands::`. The lines
- * are safe already (`oneLineOf`); the markers also stop a workflow command
- * in any other output of the process. Returns the exit code.
+ * One run of the agent over the messages of `stream`: the lines of each
+ * message go to `print`, between the two markers of `::stop-commands::`,
+ * then the transcript to `write`, redacted, after each message that
+ * `isWorthWritingOf` keeps. The lines are safe already (`oneLineOf`); the
+ * markers also stop a workflow command in any other output of the
+ * process. Returns the exit code.
  * @type {(context: { stream: () => AsyncIterable<any>, write: (text: string) => void, print: (line: string) => void, cwd: string, redact: (text: string) => string, marker: string }) => Promise<number>}
  */
 export const run = async ({ stream, write, print, cwd, redact, marker }) => {
@@ -335,10 +336,10 @@ export const run = async ({ stream, write, print, cwd, redact, marker }) => {
       for await (const message of stream()) {
         const lines = linesOf({ cwd, before: kept })(message)
         kept.push(message)
+        show(lines)
         if (isWorthWritingOf(message)) {
           write(redact(JSON.stringify(kept, null, 2)))
         }
-        show(lines)
       }
       return undefined
     } catch (error) {
