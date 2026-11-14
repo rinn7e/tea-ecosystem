@@ -162,7 +162,21 @@ const FooterComponent = () => (
           <p className='inline-flex flex-wrap items-center justify-center gap-[4px]'>
             Crafted with
             <IconHeartFilled size={12} className='text-missing' aria-hidden />
-            by rinn7e, built with
+            by
+            {/* The comma sits on the link, not a gap after it */}
+            <span className='inline-flex items-center'>
+              <a
+                href='https://github.com/rinn7e'
+                target='_blank'
+                rel='noreferrer'
+                className='hover:text-accent inline-flex items-center gap-[2px] underline underline-offset-2 transition-colors'
+              >
+                rinn7e
+                <IconExternalLink size={12} stroke={1.75} aria-hidden />
+              </a>
+              ,
+            </span>
+            built with
             <a
               href='https://github.com/vankeisb/react-tea-cup'
               target='_blank'
