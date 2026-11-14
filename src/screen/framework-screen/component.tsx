@@ -146,7 +146,7 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
         <Link
           destination={listDestination}
           back
-          className='text-ink-muted hover:text-accent inline-flex items-center gap-[6px] text-sm'
+          className='text-ink-muted hover:text-accent inline-flex shrink-0 items-center gap-[6px] text-sm whitespace-nowrap'
         >
           <IconArrowLeft size={16} stroke={1.75} />
           {listOf(framework) === 'catalog'

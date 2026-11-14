@@ -66,6 +66,24 @@ describe('urlWriteOf', () => {
     )
   })
 
+  it('replaces while the order is changed, so Back leaves the list', () => {
+    const prev = bootOn('/')
+    const msg: Msg = {
+      _tag: 'CatalogScreenMsg',
+      subMsg: {
+        _tag: 'ListingMsg',
+        subMsg: {
+          _tag: 'SetSort',
+          sort: O.some({ column: 'stars', direction: 'descending' }),
+        },
+      },
+    }
+    const next = step(prev, msg)
+    expect(urlWriteOf(msg, prev, next)).toEqual(
+      O.some({ _tag: 'ReplaceUrl', url: '/?sort=stars&order=descending' }),
+    )
+  })
+
   it('pushes a change of tier', () => {
     const prev = bootOn('/')
     const msg: Msg = {

@@ -672,7 +672,7 @@ const sortMenuView = ({
             ),
           )
         }
-        className='h-full cursor-pointer appearance-none bg-transparent pr-[34px] pl-[34px] outline-none'
+        className='h-full cursor-pointer appearance-none bg-transparent pr-[34px] pl-[34px] outline-hidden'
       >
         {O.isNone(chosen) &&
           pipe(

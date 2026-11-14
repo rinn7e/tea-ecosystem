@@ -47,9 +47,11 @@ const listFilterOf = (destination: Destination): O.Option<ListingFilter> => {
   }
 }
 
-// Only the search text of a list changed: typing refines the same place,
-// so it replaces the entry instead of pushing one per key
-const isQueryEdit = (prev: Destination, next: Destination): boolean =>
+// Only the search text, or only the order, of a list changed: typing, or
+// stepping through the sort menu with the arrow keys (each step is a
+// change), refines the same place, so it replaces the entry instead of
+// pushing one per key
+const isRefinement = (prev: Destination, next: Destination): boolean =>
   prev.screen._tag === next.screen._tag &&
   pipe(
     O.Do,
@@ -57,10 +59,13 @@ const isQueryEdit = (prev: Destination, next: Destination): boolean =>
     O.apS('after', listFilterOf(next)),
     O.exists(
       ({ before, after }) =>
-        before.query !== after.query &&
         ListingFilterEq.equals(
           { ...before, query: '' },
           { ...after, query: '' },
+        ) ||
+        ListingFilterEq.equals(
+          { ...before, sort: O.none },
+          { ...after, sort: O.none },
         ),
     ),
   )
@@ -71,7 +76,8 @@ const isQueryEdit = (prev: Destination, next: Destination): boolean =>
 //    entry: it writes nothing, unless the app shows another destination
 //    than the one its URL opens (then it replaces).
 // 2. The same destination writes nothing.
-// 3. Typing in the catalog search replaces (`isQueryEdit`).
+// 3. Typing in the search of a list, or changing only its order, replaces
+//    (`isRefinement`).
 // 4. A step onto a screen below the one shown (`isScreenBelow`: a framework
 //    page closed onto the catalog, whatever message made it) goes back in
 //    the browser's history when the entry under the current one holds the
@@ -92,7 +98,7 @@ export const urlWriteOf = (
       : O.some({ _tag: 'ReplaceUrl', url })
   } else if (url === toUrlString(prev)) {
     return O.none
-  } else if (isQueryEdit(prev, next)) {
+  } else if (isRefinement(prev, next)) {
     return O.some({ _tag: 'ReplaceUrl', url })
   } else if (isScreenBelow(prev, next)) {
     return O.some({ _tag: 'BackOrPushUrl', url })

@@ -73,7 +73,10 @@ describe('websiteOf', () => {
 })
 
 describe('isRecentlyAdded', () => {
-  const day = Date.parse('2026-11-20T12:00:00Z')
+  // Noon of a local day, as the reader sees it
+  const noonOf = (month: number, date: number) =>
+    new Date(2026, month - 1, date, 12).getTime()
+  const day = noonOf(11, 20)
 
   it('counts back 30 days from now', () => {
     expect(recentSinceOf(day)).toBe('2026-10-21')
@@ -81,10 +84,20 @@ describe('isRecentlyAdded', () => {
 
   it('marks an entry found after the first list, for 30 days', () => {
     expect(isRecentlyAdded(entry('monad-oak'), recentSinceOf(day))).toBe(true)
-    const later = Date.parse('2026-12-15T12:00:00Z')
+    const later = noonOf(12, 15)
     expect(isRecentlyAdded(entry('monad-oak'), recentSinceOf(later))).toBe(
       false,
     )
+  })
+
+  it('keeps the ribbon on the 30th day, and drops it the next', () => {
+    expect(entry('monad-oak').discoveredAt).toBe('2026-11-14')
+    expect(
+      isRecentlyAdded(entry('monad-oak'), recentSinceOf(noonOf(12, 14))),
+    ).toBe(true)
+    expect(
+      isRecentlyAdded(entry('monad-oak'), recentSinceOf(noonOf(12, 15))),
+    ).toBe(false)
   })
 
   it('never marks the first list', () => {

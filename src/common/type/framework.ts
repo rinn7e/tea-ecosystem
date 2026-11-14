@@ -261,11 +261,20 @@ export const FIRST_LIST_DAY = '2026-11-13'
 // How long an entry found after the first list shows as recently added
 export const RECENT_DAYS = 30
 
-// The first day that still counts as recent at `now` (ms since 1970). A
-// day, not a time, so a view that takes it is drawn again once a day, not
-// every minute.
-export const recentSinceOf = (now: number): string =>
-  new Date(now - RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+// The first day that still counts as recent at `now` (ms since 1970), in
+// the local days of the reader, as `discoveredAt` is a local day. A day, not
+// a time, so a view that takes it is drawn again once a day, not every
+// minute.
+export const recentSinceOf = (now: number): string => {
+  const today = new Date(now)
+  const since = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - RECENT_DAYS,
+  )
+  const pad = (n: number): string => String(n).padStart(2, '0')
+  return `${since.getFullYear()}-${pad(since.getMonth() + 1)}-${pad(since.getDate())}`
+}
 
 // Found after the first list, and not longer ago than `RECENT_DAYS`: its
 // card and its page show the ribbon "Recently added" (the table shows the
