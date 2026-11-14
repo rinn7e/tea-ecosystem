@@ -37,6 +37,7 @@ import {
 } from '@/common/type/destination'
 import {
   type Framework,
+  addedDayOf,
   isRecentlyAdded,
   statuses,
 } from '@/common/type/framework'
@@ -1076,7 +1077,7 @@ const tableView = ({
               {dateView({
                 id: `${framework.id}-row`,
                 which: 'added',
-                day: framework.discoveredAt,
+                day: addedDayOf(framework),
               })}
             </td>
           </tr>

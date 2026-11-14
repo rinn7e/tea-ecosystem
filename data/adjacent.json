@@ -1088,7 +1088,7 @@
       "JavaScript interop: a DomNode carries boot and shutdown code and channels to the browser."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T10:00:55Z",
     "stars": 50,
     "createdAt": "2017-01-10",
     "updatedAt": "2026-11-14"

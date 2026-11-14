@@ -2708,7 +2708,7 @@
       "The same library also has an immediate mode (limoni.Run) with no messages, and compat/bubbletea runs Bubble Tea models on it."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T08:40:21Z",
     "stars": 194,
     "createdAt": "2026-08-06",
     "updatedAt": "2026-11-12"
@@ -2741,7 +2741,7 @@
       "Superset: reducers of child features compose into a parent with Reducer.combine and contramap over CasePath and KeyPath, EffectQueue policies (runNewest, runOldest with suspendNew or discardNew, delays) cancel or suspend effects, and TestActomaton checks every state change and received action."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T08:40:21Z",
     "stars": 265,
     "createdAt": "2021-09-05",
     "updatedAt": "2026-10-24"
@@ -2774,7 +2774,7 @@
       "Paging (App.CreatePaged), routing bound to the model (App.WithRouting), local storage of the model and RemoteDev time travel debugging; WebSharper JavaScript interop is called from inside commands."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T08:40:21Z",
     "stars": 28,
     "createdAt": "2018-04-11",
     "updatedAt": "2026-11-08"
@@ -2808,7 +2808,7 @@
       "Superset: the same module renders to four surfaces (a termbox2 terminal, Phoenix LiveView, Erlang SSH and MCP tools), with OTP crash isolation per component, hot code reload and agent packages beside it."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T10:00:55Z",
     "stars": 81,
     "createdAt": "2025-03-16",
     "updatedAt": "2026-11-14"
@@ -2839,7 +2839,7 @@
       "Updated in 2025 to Elmish 5 and MonoGame 3.8.4."
     ],
     "verified": true,
-    "discoveredAt": "2026-11-14",
+    "discoveredAt": "2026-11-14T10:00:55Z",
     "stars": 171,
     "createdAt": "2019-03-14",
     "updatedAt": "2025-10-05"

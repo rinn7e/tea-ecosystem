@@ -90,6 +90,12 @@ describe('check-discovered.sh', () => {
     expect(problem()).toBe('')
   })
 
+  it('passes a new entry dated with a time in UTC of the day of the run', () => {
+    setEntries({ ...newTea, discoveredAt: `${day}T06:02:11Z` })
+    commit()
+    expect(problem()).toBe('')
+  })
+
   it('passes as many entries as a run may propose, and no more', () => {
     setEntries(...['one', 'two', 'three'].map(entryOf))
     commit()
@@ -159,6 +165,12 @@ describe('check-discovered.sh', () => {
     ['the id a--b', { id: 'a--b' }],
     ['an id with a line break at its end', { id: 'a\n' }],
     ['another discoveredAt', { discoveredAt: '2026-11-15' }],
+    ['a time of another day', { discoveredAt: '2026-11-15T06:00:00Z' }],
+    ['a time with no zone', { discoveredAt: `${day}T06:00:00` }],
+    [
+      'a time after the day and a line break',
+      { discoveredAt: `${day}\nT06:00:00Z` },
+    ],
     ['a repo that is not https', { repo: 'http://github.com/o/new-tea' }],
     ['a repo of two lines', { repo: 'https://github.com/o/a\n::warning::x' }],
   ])('refuses a new entry with %s', (_, change) => {

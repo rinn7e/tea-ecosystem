@@ -81,13 +81,14 @@ describe('the options of the discovery agent', () => {
     expect(
       promptOf({
         day: '2026-11-16',
+        addedAt: '2026-11-16T06:02:11Z',
         branch: 'discover/2026-11-16-7',
         maxCandidates: '3',
       }),
     ).toBe(
       [
         'Follow the instructions in `.github/discover-prompt.md`.',
-        'Today is 2026-11-16.',
+        'Today is 2026-11-16, and the time of the run is 2026-11-16T06:02:11Z.',
         'The branch of the run is `discover/2026-11-16-7`.',
         'Propose at most 3 candidates.',
       ].join('\n'),

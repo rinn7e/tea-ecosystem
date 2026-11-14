@@ -59,7 +59,7 @@ Before the first candidate, start the branch of the run from the base: `git swit
    - `tier`: `full` or `superset` in `data/frameworks.json` (the rules of `rubricProblemsOf` decide), `adjacent` in `data/adjacent.json`;
    - `notes`: the evidence of each grade (the function, type or API that shows it, with its name as the source spells it, in plain ASCII: a name with an apostrophe, such as `update'` in Haskell, is written `update` prime); a superset names what it adds in a note that starts with `Superset: `, and a TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`), as the README says;
    - `verified: true` only when you checked every grade against its docs or source, else `false`;
-   - `discoveredAt`: the day of the run;
+   - `discoveredAt`: the time of the run that the workflow prompt names (`2026-11-16T06:00:00Z`), the same for every candidate;
    - `stars`, `createdAt` and `updatedAt` from its host, for this entry only: on GitHub `gh repo view <owner>/<name> --json stargazerCount,createdAt,pushedAt` (`updatedAt` is the day of `pushedAt`, and `createdAt` comes from `originRepo` when it moved); on GitLab and Gitea their API, with `WebFetch`. Do not run `scripts/fetch-repo-stats.mjs`: it refreshes every entry, and this branch changes only its own;
    - no `logo`: a person adds one from its own logo;
    - its example in `data/snippet/<id>.<extension>`, copied from its own README, docs or official examples as the code convention says, with an extension that `src/common/data/snippet.ts` knows, and its `snippetSource`. No example in its docs: no file and no `snippetSource`.

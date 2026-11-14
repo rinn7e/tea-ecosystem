@@ -21,6 +21,7 @@ import {
   type Status,
   type Target,
   type Tier,
+  addedDayOf,
   concepts,
   isLanguageEntry,
   isRecentlyAdded,
@@ -521,7 +522,7 @@ export const addedView = ({
   framework: Framework
   recentSince: string
 }) => {
-  const words = dateTextOf('added', framework.discoveredAt)
+  const words = dateTextOf('added', addedDayOf(framework))
   return isRecentlyAdded(framework, recentSince) ? (
     <TooltipTrigger
       id={`${framework.id}-added`}
@@ -532,6 +533,6 @@ export const addedView = ({
       Recently added · {words.shown}
     </TooltipTrigger>
   ) : (
-    dateView({ id: framework.id, which: 'added', day: framework.discoveredAt })
+    dateView({ id: framework.id, which: 'added', day: addedDayOf(framework) })
   )
 }

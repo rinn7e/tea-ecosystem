@@ -68,11 +68,11 @@ export const ALLOWED_TOOLS = [
   'Bash(gh search repos *)',
 ]
 
-/** @type {(env: { day: string, branch: string, maxCandidates: string }) => string} */
-export const promptOf = ({ day, branch, maxCandidates }) =>
+/** @type {(env: { day: string, addedAt: string, branch: string, maxCandidates: string }) => string} */
+export const promptOf = ({ day, addedAt, branch, maxCandidates }) =>
   [
     'Follow the instructions in `.github/discover-prompt.md`.',
-    `Today is ${day}.`,
+    `Today is ${day}, and the time of the run is ${addedAt}.`,
     `The branch of the run is \`${branch}\`.`,
     `Propose at most ${maxCandidates} candidates.`,
   ].join('\n')
@@ -376,6 +376,7 @@ const main = async () => {
           const day = process.env.DAY ?? new Date().toISOString().slice(0, 10)
           return promptOf({
             day,
+            addedAt: process.env.ADDED_AT ?? `${day}T00:00:00Z`,
             branch: process.env.BRANCH ?? `discover/${day}`,
             maxCandidates: process.env.MAX_CANDIDATES ?? '3',
           })
