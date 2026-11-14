@@ -2845,6 +2845,104 @@
     "updatedAt": "2025-10-05"
   },
   {
+    "id": "tview-ayn2op",
+    "name": "tview (ayn2op)",
+    "language": "Go",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/ayn2op/tview",
+    "website": "https://pkg.go.dev/github.com/ayn2op/tview",
+    "summary": "A declarative Go terminal UI framework inspired by Elm, where a value model returns itself and a command from Update and builds a widget tree in View; used by the Discord client discordo.",
+    "snippetSource": "https://github.com/ayn2op/tview/blob/master/example_test.go",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "The interface Model[M] has Init() Cmd, Update(Msg) (M, Cmd) and View() Widget; the docs ask for value receivers and an immutable model, which only Update changes by returning it.",
+      "Msg is any (a type switch in Update); key, mouse, resize, paste and clipboard events arrive as KeyMsg, MouseMsg, ResizeMsg and the like, and Widget.Handle turns input in its area into a message (button OnClick, Map like Html.map).",
+      "Cmd is a closed set of values the Application runs (Task, Batch, Quit, Suspend, SetTitle, Notify, SetClipboard, GetClipboard, RequestTerminalInfo, WriteRaw); a Task (func() Msg) runs on its own goroutine and its message is queued back to Update.",
+      "No subscription function: a timer or a stream is a Task that Update issues again, and terminal events come in as messages."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14T10:20:25Z",
+    "stars": 6,
+    "createdAt": "2025-11-01",
+    "updatedAt": "2026-11-13"
+  },
+  {
+    "id": "swiftea",
+    "name": "Swiftea",
+    "language": "Swift",
+    "elmFamily": false,
+    "targets": ["mobile"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/cooler333/Swiftea",
+    "summary": "A small TEA loop for Swift on Combine, under 200 lines: a reducer returns the next state and commands, a command handler turns each command into a publisher of events, and outdated commands can be cancelled.",
+    "snippetSource": "https://github.com/cooler333/Swiftea/blob/main/Examples/InfiniteScroll/InfiniteScroll/Components/InfiniteScroll/InfiniteScroll/InfiniteScrollFeature.swift",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "missing",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Reducer<State, Event, Command> wraps a closure (State, Event) -> Next<State, Command>; Next is empty, next(State), dispatch([Command]), nextAndDispatch, or the Cancellable forms that also list the commands that cancel this one.",
+      "Commands are values of an Equatable enum; CommandHandler<Command, Event, Environment> maps each to an AnyPublisher<Event, Never>, and the Store feeds every event the publisher emits back to the reducer.",
+      "No subscription function: a long-running source is a command whose publisher keeps emitting events, stopped when a later command in its cancellable list arrives.",
+      "Headless: there is no view function; a ViewStore maps the state to a UI state through stateMapper and view events to events through eventMapper, and UIKit subscribes to its statePublisher.",
+      "No ports: the Environment of the command handler holds the repositories and the module output that talk to the rest of the app."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14T10:20:25Z",
+    "stars": 13,
+    "createdAt": "2022-04-27",
+    "updatedAt": "2026-07-03"
+  },
+  {
+    "id": "fsharp-windows-dsl",
+    "name": "FSharp.Windows.Dsl",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/excpt/dotnet-fsharp-wpf-elmish",
+    "website": "https://www.nuget.org/packages/FSharp.Windows.Dsl.Elmish",
+    "summary": "A native F# DSL for WPF on Elmish: view returns a virtual tree that a reconciler diffs into the live WPF elements, with no XAML, no MVVM and no INotifyPropertyChanged.",
+    "snippetSource": "https://github.com/excpt/dotnet-fsharp-wpf-elmish/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Program.runWindow takes a standard Elmish Program<unit, 'model, 'msg, VirtualNode> (Elmish.Program.mkProgram init update view), adds Program.withSetState for the reconciler and runs it with Program.runWithDispatch, which marshals each dispatch to the WPF UI thread; the Elmish 5 runtime runs Cmd and the keyed subscriptions of Program.withSubscription.",
+      "view model dispatch returns a VirtualNode tree of generated control wrappers (window, stackPanel, button with Button.onClick); Dsl.update diffs it into the live element tree.",
+      "Program.runChildWindow and runDialogWindow open windows with loops of their own; FSharp.Windows.Dsl.Elmish adds keyed cancellable task commands (Cmd.OfTask.runKeyed, Cmd.cancel) scoped to a window, and an AppBus for publish and subscribe between windows."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14T10:20:25Z",
+    "stars": 5,
+    "createdAt": "2026-04-06",
+    "updatedAt": "2026-10-27"
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",
