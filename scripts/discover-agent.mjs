@@ -70,6 +70,54 @@ export const ALLOWED_TOOLS = [
   'Bash(gh search repos *)',
 ]
 
+/**
+ * The calls that `ALLOWED_TOOLS` names but the agent must not make: a deny
+ * rule wins over an allow rule. A commit message must never come from a
+ * file: the agent can read its environment and write the key into a file
+ * of `data/snippet/` (`/proc/self/environ` itself holds NUL bytes, which
+ * git refuses in a message), and `git commit -F <that file>` would then
+ * put the key into the branch of the run, which leaves the job as an
+ * artifact, its messages included. Claude Code matches a rule on the text
+ * of the command as it is written, and a `*` before an option must hold at
+ * least one character, so each rule comes in the spellings below:
+ * - `-F` and `-t` (`--template`) at the start or after another option,
+ *   with the file apart or attached (`-F../file`);
+ * - a cluster of short options that ends in `F` (`-qF /file`, `-qF/file`);
+ * - `--file` and `--template`, and the short forms git takes for them
+ *   (`--fil=`, `--te=`); an unedited template becomes the message only
+ *   with `--cleanup=verbatim` (or `--c=`) or `--allow-empty-message`, so
+ *   both are denied too, which also covers a cluster (`-qt /file`);
+ * - an option behind a quote (`"-F"`, `-'F'`), and any backslash (`-\F`).
+ *
+ * A cluster that ends in `F` with the file attached and no `/` right after
+ * the `F` (`-qFdata/snippet/x.rs`, `-qF../file`, `-qF~/file`) gets through
+ * here: a rule that caught it would also deny a message such as
+ * `'Add Fable'`. The check of the branch before it is bundled
+ * (`scripts/bundle-discovered.sh`) keeps what it copies out of the
+ * artifact.
+ * `tests/scripts/discover-agent-rules.test.ts` proves each rule on the
+ * Claude Code of the SDK: a commit that only that rule turns back.
+ */
+export const DENIED_TOOLS = [
+  'Bash(git commit -F*)',
+  'Bash(git commit * -F*)',
+  'Bash(git commit -t*)',
+  'Bash(git commit * -t*)',
+  'Bash(git commit *-*F *)',
+  'Bash(git commit *-*F/*)',
+  'Bash(git commit *--fil*)',
+  'Bash(git commit *--te*)',
+  'Bash(git commit *--c*)',
+  // `--allow-empty-message` and its short forms, never `--allow-empty`
+  'Bash(git commit *--allow-empty-*)',
+  'Bash(git commit *"-*)',
+  'Bash(git commit *-"*)',
+  "Bash(git commit *'-*)",
+  "Bash(git commit *-'*)",
+  // A backslash, escaped once for the rule and once for its pattern
+  'Bash(git commit *\\\\\\\\*)',
+]
+
 /** @type {(env: { day: string, addedAt: string, branch: string, maxCandidates: string }) => string} */
 export const promptOf = ({ day, addedAt, branch, maxCandidates }) =>
   [
@@ -87,6 +135,7 @@ export const options = {
   maxBudgetUsd: 5,
   tools: TOOLS,
   allowedTools: ALLOWED_TOOLS,
+  disallowedTools: DENIED_TOOLS,
   permissionMode: 'dontAsk',
   settingSources: [],
   systemPrompt: { type: 'preset', preset: 'claude_code' },
