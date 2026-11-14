@@ -21,7 +21,7 @@
 // read what the agent did even after a timeout. The workflow uploads that
 // file as an artifact, which any signed-in GitHub user can download from a
 // public repository, so the file and the log carry the values of
-// `SECRET_NAMES` as `***`.
+// `SECRET_NAMES` (`scripts/check-secrets.mjs`) as `***`.
 //
 // Run: ANTHROPIC_API_KEY=<key> DAY=<YYYY-MM-DD> MAX_CANDIDATES=3 \
 //   EXECUTION_FILE=<file> node scripts/discover-agent.mjs
@@ -30,6 +30,8 @@ import { randomUUID } from 'node:crypto'
 import { mkdirSync, realpathSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
+
+import { secretsOf } from './check-secrets.mjs'
 
 export const TOOLS = [
   'Read',
@@ -94,18 +96,6 @@ export const options = {
       'tea-ecosystem-discover (+https://github.com/rinn7e/tea-ecosystem)',
   },
 }
-
-export const SECRET_NAMES = ['ANTHROPIC_API_KEY', 'GH_TOKEN', 'GITHUB_TOKEN']
-
-/**
- * The secrets of `env` that the log and the transcript hide. A value under
- * 8 characters is no real key, and hiding it would garble the text.
- * @type {(env: Record<string, string | undefined>) => string[]}
- */
-export const secretsOf = (env) =>
-  SECRET_NAMES.map((name) => env[name] ?? '').filter(
-    (value) => value.length >= 8,
-  )
 
 /** @type {(secrets: string[]) => (text: string) => string} */
 export const redactOf = (secrets) => (text) =>

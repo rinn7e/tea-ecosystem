@@ -11,7 +11,6 @@ import {
   promptOf,
   redactOf,
   run,
-  secretsOf,
   shownOf,
 } from '../../scripts/discover-agent.mjs'
 
@@ -279,17 +278,6 @@ describe('the live log of the discovery agent', () => {
       )
     },
   )
-
-  it('hide the key and the tokens, not a value too short to be one', () => {
-    expect(
-      secretsOf({
-        ANTHROPIC_API_KEY: key,
-        GH_TOKEN: '12345678',
-        GITHUB_TOKEN: '1234567',
-        HOME: '/home/runner',
-      }),
-    ).toEqual([key, '12345678'])
-  })
 
   test.prop([fc.anything()])(
     'never throw on a message of an unknown shape',
