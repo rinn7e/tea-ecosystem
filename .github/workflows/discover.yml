@@ -126,7 +126,8 @@ jobs:
 
       # The report of the agent (what it proposed, what it skipped and
       # why), as plain text, so the skipped projects can go to
-      # `data/rejected.json`
+      # `data/rejected.json`; for an agent that did not finish, why, and
+      # what it said last (`scripts/discover-report.mjs`)
       - name: Keep the report of the agent
         if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
         run: |
@@ -134,13 +135,7 @@ jobs:
             echo '## Report of the agent'
             echo
             echo '```text'
-            if [ -f "$EXECUTION_FILE" ]; then
-              jq -r '([.[] | select(.type == "result") | .result | strings] | last)
-                // ([.[] | select(.type == "assistant") | .message.content[]? | select(.type == "text") | .text] | last)
-                // "No report."' "$EXECUTION_FILE" | sed 's/```/` ` `/g'
-            else
-              echo 'No report: the agent did not finish (it failed or timed out).'
-            fi
+            node scripts/discover-report.mjs "$EXECUTION_FILE" | sed 's/```/` ` `/g'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
         env:
