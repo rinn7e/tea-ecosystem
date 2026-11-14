@@ -215,11 +215,14 @@ const isDefaultStatuses = (statuses: Status[]): boolean =>
   A.getEq(S.Eq).equals(statuses, defaultStatuses())
 
 // Whether a choice of a filter of the popover leaves some options out:
-// none chosen, or every one, shows every entry (`toggleChoice`)
+// none chosen, or every one, shows every entry (`toggleChoice`). Judged by
+// the options left out, not by how many are chosen: a choice can hold one
+// the list does not offer (`game` carried to TEA-adjacent).
 const narrowsChoice = <A>(
   chosen: readonly A[],
   options: readonly A[],
-): boolean => chosen.length > 0 && chosen.length < options.length
+): boolean =>
+  chosen.length > 0 && options.some((option) => !chosen.includes(option))
 
 // Whether a filter narrows the list enough that its archived entries are
 // news: a search with more than spaces, a language, some targets, tiers or
@@ -304,7 +307,6 @@ export type OtherListMatches = {
 // (`isArchived`), shown with every status. None when no carried filter
 // narrows the other list (`narrowsOtherList`: statuses that widen it do
 // not), or the other list does not match it at all.
-
 export const otherListMatchesOf = (
   kind: ListKind,
   filter: ListingFilter,

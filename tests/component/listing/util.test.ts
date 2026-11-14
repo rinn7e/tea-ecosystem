@@ -510,6 +510,26 @@ describe('otherListMatchesOf', () => {
     ).toBe(0)
   })
 
+  it('reads six targets with one TEA-adjacent offers left out as narrowing', () => {
+    // Carried from the catalog: everything but TUI, game included. It is
+    // six long, as the choices of TEA-adjacent, but hides its TUI libraries
+    const noTui = targets.filter((target) => target !== 'tui')
+    expect(
+      archivedHintCountOf(adjacentEntries, {
+        ...defaultListingFilter(),
+        targets: noTui,
+      }),
+    ).toBe(2)
+    expect(
+      O.isSome(
+        otherListMatchesOf('adjacent', {
+          ...defaultListingFilter(),
+          targets: noTui,
+        }),
+      ),
+    ).toBe(true)
+  })
+
   it('names the search alone under every tier chosen', () => {
     // Every tier chosen narrows nothing, so no filter stays behind
     expect(
