@@ -48,8 +48,8 @@ Note on the examples named at the start: Miso passes cleanly (update schedules e
 
 The list lives in the data files of the site, not in this document:
 
-- `data/frameworks.json`: 93 entries in 27 languages, each with its rubric grades, tier, targets, status and notes.
-- `data/adjacent.json`: 36 TEA-adjacent libraries, each with the hard requirement it misses and why.
+- `data/frameworks.json`: 95 entries in 27 languages, each with its rubric grades, tier, targets, status and notes.
+- `data/adjacent.json`: 37 TEA-adjacent libraries, each with the hard requirement it misses and why.
 
 The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every entry holds the rules of its tier (`rubricProblemsOf`): no entry of the catalog misses a requirement of full TEA, and every entry of the adjacent list misses one and says which.
 

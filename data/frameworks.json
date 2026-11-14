@@ -2780,6 +2780,71 @@
     "updatedAt": "2026-11-08"
   },
   {
+    "id": "raxol",
+    "name": "Raxol",
+    "language": "Elixir",
+    "elmFamily": false,
+    "targets": ["tui", "web", "server"],
+    "tier": "superset",
+    "status": "active",
+    "repo": "https://github.com/DROOdotFOO/raxol",
+    "website": "https://raxol.io",
+    "summary": "An Elixir runtime where one Elm architecture module, run as an OTP GenServer, renders to a terminal, a Phoenix LiveView page, an SSH session and MCP tools for agents.",
+    "snippetSource": "https://github.com/DROOdotFOO/raxol/blob/master/docs/getting-started/QUICKSTART.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "The behaviour Raxol.Core.Runtime.Application has init(context), update(message, model) returning {model, [command]} and view(model); the docs say commands are executed by the runtime, keeping update pure.",
+      "Commands are Raxol.Core.Runtime.Directive values (stop, schedule, spawn_task), run by Directive.Executor; a scheduled payload or the result of a task comes back to update as a message.",
+      "subscribe(model) returns a list of Subscription values (interval, events, file_watch, custom); after each update the Dispatcher calls it again (sync_subscriptions) and stops the removed ones and starts the new ones.",
+      "No ports: an optional handle_message(message, model) callback turns other BEAM process messages into a model and commands.",
+      "Superset: the same module renders to four surfaces (a termbox2 terminal, Phoenix LiveView, Erlang SSH and MCP tools), with OTP crash isolation per component, hot code reload and agent packages beside it."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14",
+    "stars": 81,
+    "createdAt": "2025-03-16",
+    "updatedAt": "2026-11-14"
+  },
+  {
+    "id": "xelmish",
+    "name": "Xelmish",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["game", "desktop"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/ChrisPritchard/Xelmish",
+    "summary": "Elmish for 2D games: an XNA game loop on MonoGame, where view returns a list of viewables that draw to a SpriteBatch and read input each frame.",
+    "snippetSource": "https://github.com/ChrisPritchard/Xelmish/blob/master/samples/xelmish-first/Program.fs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "Xelmish.Program.runGameLoop takes a standard Elmish Program<_, _, _, Viewable list>, swaps in its own setState with Program.withSetState and calls Program.run, so the Elmish runtime runs Cmd and the keyed subscriptions of Program.withSubscription (the sub-model sample uses one for a timer).",
+      "view model dispatch returns Viewable values (colour, image, text, and the OnUpdate helpers whilekeydown, onkeydown, onclick) that the MonoGame loop runs each frame; input dispatches messages from them.",
+      "Updated in 2025 to Elmish 5 and MonoGame 3.8.4."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14",
+    "stars": 171,
+    "createdAt": "2019-03-14",
+    "updatedAt": "2025-10-05"
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",

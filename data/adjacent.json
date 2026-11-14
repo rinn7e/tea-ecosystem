@@ -1061,6 +1061,39 @@
     "stars": 30461
   },
   {
+    "id": "aardvark-media",
+    "name": "Aardvark.Media",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["web", "desktop", "server"],
+    "tier": "adjacent",
+    "status": "active",
+    "repo": "https://github.com/aardvark-platform/aardvark.media",
+    "website": "https://aardvarkians.com",
+    "summary": "Elm-style apps for the Aardvark visual computing platform, served from .NET: an adaptive view of the model updates HTML and 3D scenes incrementally, and threads declared from the model carry the effects.",
+    "snippetSource": "https://github.com/aardvark-platform/aardvark.media/wiki/Guided-Aardvark.Media-Walkthrough",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "equivalent",
+      "cmd": "equivalent",
+      "sub": "native",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "Misses Cmd: update is model -> msg -> model and returns no effects; an effect runs as a thread the model asks for in threads, and in the BackgroundOperation sample update feeds a running thread by putting a value into an MVar of the model.",
+      "The App record has initial, update, view, threads : model -> ThreadPool<msg> and unpersist; after each message MutableApp calls Threads on the new model and adjustThreads stops the removed keys and starts the new ones, whose proclist yields messages back to update.",
+      "view takes the AdaptiveModel, generated from the Model with every field an AVal, and returns a DomNode<msg> whose Incremental tags and scene graph follow the changes, rather than a new tree each update.",
+      "JavaScript interop: a DomNode carries boot and shutdown code and channels to the browser."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-14",
+    "stars": 50,
+    "createdAt": "2017-01-10",
+    "updatedAt": "2026-11-14"
+  },
+  {
     "id": "halogen",
     "name": "Halogen",
     "language": "PureScript",
