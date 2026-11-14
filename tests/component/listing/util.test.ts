@@ -14,6 +14,7 @@ import {
   toggleChoice,
 } from '@/common/type/destination'
 import {
+  archivedHintCountOf,
   balancedRows,
   cardSortOf,
   cardSorts,
@@ -702,11 +703,8 @@ describe('hiddenArchivedCountOf', () => {
   }
 
   it('counts the archived entries a filter matches while they are hidden', () => {
-    expect(hiddenArchivedCountOf(frameworks, purescript)).toBe(
-      filterFrameworks({ ...purescript, statuses: ['archived'] })(frameworks)
-        .length,
-    )
-    expect(hiddenArchivedCountOf(frameworks, purescript)).toBeGreaterThan(0)
+    // Spork and Pux, archived PureScript frameworks
+    expect(hiddenArchivedCountOf(frameworks, purescript)).toBe(2)
   })
 
   it('counts none while the archive is shown', () => {
@@ -719,6 +717,24 @@ describe('hiddenArchivedCountOf', () => {
         statuses: ['active', 'archived'],
       }),
     ).toBe(0)
+  })
+
+  it('names the archived ones above the results only under a narrowing filter', () => {
+    expect(archivedHintCountOf(frameworks, purescript)).toBe(2)
+    // Statuses the reader chose, or no narrowing filter: no line
+    expect(
+      archivedHintCountOf(frameworks, {
+        ...defaultListingFilter(),
+        statuses: ['active'],
+      }),
+    ).toBe(0)
+    expect(
+      archivedHintCountOf(frameworks, {
+        ...defaultListingFilter(),
+        query: ' ',
+      }),
+    ).toBe(0)
+    expect(archivedHintCountOf(frameworks, defaultListingFilter())).toBe(0)
   })
 
   it('names one entry or several of each list', () => {

@@ -74,6 +74,7 @@ import { PANEL_ATTRIBUTE } from './subscription'
 import { type Model, type Msg, type Props, PropsEq } from './type'
 import {
   type CardSort,
+  archivedHintCountOf,
   balancedRows,
   cardSortLabel,
   cardSortOf,
@@ -1137,8 +1138,8 @@ const emptyView = ({
 // Results found, and archived entries of this list match the filters too
 // while the archive is hidden: one quiet line above the results, with the
 // same button as the empty view, so a filter does not hide that the
-// archive holds more. Only under a filter: with none, the archive is not
-// news.
+// archive holds more. Only under the default statuses and a filter that
+// narrows the list (`archivedHintCountOf`).
 const archivedHintView = ({
   kind,
   entries,
@@ -1150,7 +1151,7 @@ const archivedHintView = ({
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const count = isFiltered(filter) ? hiddenArchivedCountOf(entries, filter) : 0
+  const count = archivedHintCountOf(entries, filter)
   const noun = entryNounOf(kind, count)
   return count === 0 ? null : (
     <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>

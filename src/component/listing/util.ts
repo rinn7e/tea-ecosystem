@@ -199,6 +199,26 @@ export const carriedFilterOf = (filter: ListingFilter): ListingFilter => ({
 const isDefaultStatuses = (statuses: Status[]): boolean =>
   A.getEq(S.Eq).equals(statuses, defaultStatuses())
 
+// How many archived entries the line above the results of a list names:
+// the hidden archived ones (`hiddenArchivedCountOf`), only under the
+// default statuses (the reader did not choose which to show) and a filter
+// that narrows the list (a search with more than spaces, a language, a
+// target, a tier, what a library lacks or the kind of entry). None with
+// no such filter: the archive is not news then.
+export const archivedHintCountOf = (
+  entries: Framework[],
+  filter: ListingFilter,
+): number =>
+  isDefaultStatuses(filter.statuses) &&
+  (filter.query.trim() !== '' ||
+    O.isSome(filter.language) ||
+    filter.targets.length > 0 ||
+    filter.tiers.length > 0 ||
+    filter.lacks.length > 0 ||
+    O.isSome(filter.show))
+    ? hiddenArchivedCountOf(entries, filter)
+    : 0
+
 // Whether statuses leave out some of what a list shows by default: not
 // the default ones, and not every status (none chosen, or all three), which
 // widens a list instead
@@ -567,7 +587,7 @@ const sortWordsOf = (
 }
 
 // The words of a sort of the table, for the sort menu of the cards when
-// it is none of its choices ("Name, A to Z", "Stars, fewest first")
+// it is none of its choices ("Framework, A to Z", "Stars, fewest first")
 export const sortLabelOf = (sort: ListingSort): string => {
   const words = sortWordsOf(sort.column)
   return `${words.name}, ${sort.direction === 'ascending' ? words.ascending : words.descending}`
