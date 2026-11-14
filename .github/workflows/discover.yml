@@ -103,12 +103,13 @@ jobs:
       # The agent may read the web and the repository, edit the files of a
       # new entry, run the checks and commit on local branches, with the
       # tools and limits of `scripts/discover-agent.mjs` (the Claude Agent
-      # SDK). The agent can still read its own environment, the API key
-      # included: the job holds nothing that can write, and the owner caps
-      # the spend of the key. Its commits need a name, which never leaves
-      # the run (the propose job makes a commit of its own). The timeout
-      # is below the one of the job, so what the agent committed before it
-      # still reaches the next job.
+      # SDK), which prints one line per step, so the run can be followed
+      # live in this log. The agent can still read its own environment, the
+      # API key included: the job holds nothing that can write, and the
+      # owner caps the spend of the key. Its commits need a name, which
+      # never leaves the run (the propose job makes a commit of its own).
+      # The timeout is below the one of the job, so what the agent committed
+      # before it still reaches the next job.
       - id: agent
         if: steps.context.outputs.gate == 'go'
         timeout-minutes: 45
@@ -144,6 +145,18 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
         env:
           EXECUTION_FILE: ${{ runner.temp }}/discover-execution.json
+
+      # The full transcript of the agent (every message, call and result),
+      # also after a failure or a timeout. Any signed-in GitHub user can
+      # download the artifacts of a public repository: the script writes
+      # the key and the tokens into it as `***`
+      - if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: discover-transcript
+          path: ${{ runner.temp }}/discover-execution.json
+          retention-days: 7
+          if-no-files-found: ignore
 
       # The branch of the run goes to the next job as a bundle, when it has
       # a commit (`scripts/bundle-discovered.sh`)
