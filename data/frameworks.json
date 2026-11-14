@@ -538,12 +538,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
     "notes": [
-      "The original repository is no longer active; forks under the rescript-tea name continue it."
+      "The program record is init: flags -> model * msg Tea_cmd.t, update: model -> msg -> model * msg Tea_cmd.t (model first, not second as in Elm), view: model -> msg Vdom.t and subscriptions: model -> msg Tea_sub.t (src-ocaml/tea_app.ml).",
+      "Cmd and Sub are values the runtime runs: Tea.Cmd.batch, Tea.Cmd.msg, Tea.Task.perform, and Tea.Sub.registration, whose enable and disable calls run when a subscription appears in or leaves the result of subscriptions (Tea.Time.every is built on it).",
+      "No typed ports: JavaScript can push messages into a running program through the programInterface (pushMsg), and Tea.Cmd.call runs a callback; other interop is direct BuckleScript externals.",
+      "The last commit is from November 2023; the README points to the philip2 tool for porting between Elm and OCaml, and darklang/rescript-tea is a ReScript fork."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-24",
     "updatedAt": "2024-06-11",
@@ -567,44 +570,19 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "An app is { init : model * msg Cmd.t; update : model -> msg -> model * msg Cmd.t; view : model -> msg vdom } (Vdom.app); Vdom.simple_app is the form with no commands.",
+      "Cmd is an extensible type: Vdom.Cmd has echo, batch, map and bind, and anything else (HTTP, timers) is a constructor you add and a Vdom_blit.Cmd.handler you register, which reports the outcome with Vdom_blit.Cmd.send_msg (see examples/demo/demo.ml).",
+      "There is no subscriptions function in the app record: a long-running source is a command handler that keeps calling send_msg, for example from a Window.set_timeout.",
+      "Ports are managed: Vdom_blit.process app msg sends a message into a running app from outside (lib/vdom_blit.mli); interop with JavaScript otherwise goes through command handlers and Vdom_blit.Custom controllers (custom elements), not typed ports."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-11-22",
     "updatedAt": "2026-10-27",
     "stars": 210
-  },
-  {
-    "id": "minttea",
-    "name": "Mint Tea",
-    "language": "OCaml",
-    "elmFamily": false,
-    "targets": ["tui"],
-    "tier": "full",
-    "status": "quiet",
-    "repo": "https://github.com/leostera/minttea",
-    "logo": "minttea.png",
-    "summary": "A terminal UI framework for OCaml on the Riot runtime, inspired by Bubble Tea.",
-    "snippetSource": "https://github.com/leostera/minttea/blob/main/examples/counter/main.ml",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
-    },
-    "notes": [
-      "Leaves is its set of reusable components, and Spices its styling library."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2023-12-13",
-    "updatedAt": "2026-03-18",
-    "stars": 474
   },
   {
     "id": "lustre",
@@ -656,10 +634,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": ["Needs Erlang/OTP 28 or later."],
-    "verified": false,
+    "notes": [
+      "update returns #(Model, List(fn() -> Msg)); each fn is an effect the runtime spawns in an unlinked process and sends back to update as a message (task_handler in src/shore/internal.gleam).",
+      "There is no subscriptions function: a long-running source is an effect that returns a message and is scheduled again by update, or a process that sends to the Subject given by spec_with_subject.",
+      "start returns a Subject, so outside code can send messages into the program (spec_with_subject, shore.send).",
+      "Needs Erlang/OTP 28 or later (https://github.com/bgwdotdev/shore/blob/main/README.md)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-05-25",
     "updatedAt": "2026-06-18",
@@ -683,10 +666,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update returns #(Model, Command(Msg)); Command is a data type (set_timer, quit, execute_process, sequence, and command.from for a custom effect that gets a dispatch function) run by the JavaScript runtime.",
+      "There is no subscriptions function: a repeating source is command.set_timer rescheduled from update, or a command.from effect that keeps calling dispatch.",
+      "The messages of the app arrive wrapped in event.Custom(msg) next to event.Key and event.Resize; teashop.send(dispatch, msg) sends one from outside.",
+      "JavaScript target only; last commit February 2024."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2024-01-01",
     "updatedAt": "2024-02-25",
@@ -713,8 +701,13 @@
       "sub": "managed",
       "ports": "missing"
     },
-    "notes": ["beamtea itself can be used from Erlang directly."],
-    "verified": false,
+    "notes": [
+      "update(msg, model) returns #(Model, Cmd(msg)); Cmd is a data type (Quit, Msg, Tick, Every, Task, Batch, Seq) run by the beamtea runtime (https://github.com/tsirysndr/gleamtea/blob/main/src/gleamtea.gleam).",
+      "There is no subscriptions function: Every(ms, msg) is a repeating timer the runtime runs until the program quits, and Task(fn) runs a function and delivers its result.",
+      "The messages of the app arrive wrapped in User(msg) next to Key and Resize.",
+      "Typed bindings to beamtea (https://github.com/tsirysndr/beamtea), which can be used from Erlang directly."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-07-29",
     "updatedAt": "2026-07-29",
@@ -737,13 +730,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
-      "Its app behaviour has init, update, render and subscribe(model)."
+      "The app behaviour has init(context), update(model, msg) returning a model or {model, Command.t}, render(model) and an optional subscribe(model).",
+      "Effects are Ratatouille.Runtime.Command values: Command.new(fun, message) runs the function in a Task and the result comes back to update as {message, result}; Command.batch groups them.",
+      "subscribe returns Subscription.interval(ms, message) or Subscription.batch, but the runtime reads it once at startup, so the subscriptions are fixed for the life of the program.",
+      "The last commit is from October 2021."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-01-13",
     "updatedAt": "2023-03-20",
@@ -770,15 +766,17 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "missing"
     },
     "notes": [
-      "Began as a fork of Scalm.",
-      "A bridge lets a Tyrian app and an Indigo game talk through their messages.",
-      "Its docs have a page on how it differs from Elm.",
-      "Moved in 2025 to the indigoengine monorepo with Indigo; the old repository is archived."
+      "update returns (Model, Cmd[F, Msg]); Cmd is data (Cmd.Run, Cmd.SideEffect, Cmd.Emit, Cmd.Batch) over a Cats Effect F that the runtime runs (https://github.com/PurpleKingdomGames/indigoengine/blob/main/tyrian-platform/src/tyrian/platform/Cmd.scala).",
+      "subscriptions(model): Sub[F, Msg] is a function of the model; Sub.make, Sub.fromEvent and Sub.fromStream carry an id and a release, and the runtime starts and stops them (https://github.com/PurpleKingdomGames/indigoengine/blob/main/tyrian-platform/src/tyrian/platform/Sub.scala).",
+      "No ports: interop goes through Sub.make, Sub.fromEvent, Cmd.Run and Scala.js facades, and TyrianApp.launch returns Unit, so the host has no handle to send messages in.",
+      "Began as a fork of Scalm; a bridge lets a Tyrian app and an Indigo game talk through their messages.",
+      "Moved in 2025 to the indigoengine monorepo with Indigo; the old repository is archived.",
+      "These grades are of the released API (TyrianIOApp, Cmd and Sub); the 0.30 milestones on main add tyrian.App, whose update returns a Result, with watchers and extensions (mini apps composed into their parent)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-06-04",
     "updatedAt": "2026-11-11",
@@ -790,7 +788,7 @@
     "language": "Scala",
     "elmFamily": false,
     "targets": ["game", "web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/PurpleKingdomGames/indigoengine",
     "source": "https://github.com/PurpleKingdomGames/indigoengine/tree/main/indigo",
@@ -804,14 +802,19 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Frame driven: updateModel returns an Outcome that carries the next model and the events to send; the view is a scene.",
+      "Superset: SubSystems are mini games with their own state, update and present, kept by the engine and talking to the game only through events (indigo/shared/subsystems/SubSystem.scala); scenes split a game the same way.",
+      "Frame driven: updateModel(context, model) returns GlobalEvent => Outcome[Model], and a FrameTick event arrives every frame; the view is present, which returns a SceneUpdateFragment.",
+      "Outcome carries the next model and the events to emit; the engine performs the effect events among them (PlaySound, AssetEvent.LoadAssets, ScreenCaptureEvent) and sends results back as events (AssetEvent.AssetBatchLoaded), a closed set as in Elm. Arbitrary I/O is meant to go through an embedding Tyrian app (https://github.com/PurpleKingdomGames/indigo-docs/blob/main/website/documentation/misc/indigo-vs-elm.md).",
+      "Messages are GlobalEvent, an extendable trait, so they are open as tea.Msg is in Bubble Tea.",
+      "No subscriptions function: input, frame and viewport events are built into the engine and arrive on their own, and a SubSystem is the sanctioned place for a long-running source such as the network.",
+      "Game.events.push sends events in and Game.events.eventCallback reads events out, from outside the game.",
       "Moved in 2025 to the indigoengine monorepo with Tyrian; the old repository is archived."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-30",
     "updatedAt": "2026-11-11",
@@ -837,8 +840,13 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update(msg, model) returns (Model, Cmd[Msg]) in the App trait (in the plain Scalm.start form update returns only a Model); a Cmd is Cmd.RunTask over a Task that the runtime executes (src/main/scala/scalm/Effects.scala).",
+      "subscriptions(model): Sub[Msg] is a function of the model; Sub.every, Sub.timeout and Sub.fromEvent carry an id and a cancel, and the runtime starts and stops them when the ids change.",
+      "No ports: host callbacks are wrapped as an Observable inside effects (Sub.ofTotalObservable, Task.RunObservable), and Scalm.start gives no handle to send messages in.",
+      "Scala 2.12 and Scala.js 0.6 only; last commit February 2018 (repository pushed to in 2021)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-01-08",
     "updatedAt": "2021-05-12",
@@ -882,7 +890,7 @@
     "language": "TypeScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/foldkit/foldkit",
     "website": "https://foldkit.dev",
@@ -899,10 +907,13 @@
       "ports": "native"
     },
     "notes": [
-      "All or nothing by design: no React interop and no way around Effect.",
-      "Purity is kept by convention; the compiler cannot stop an effect inside update the way Elm does."
+      "Superset: server rendering with hydration is built in, and Mounts and ManagedResources manage element lifecycles and stateful handles; Submodel composes child models with OutMessages, as nested modules do in Elm.",
+      "update returns { model, commands? }; a Command is a named Effect value (Command.define) that the runtime forks and whose result comes back as a Message (https://github.com/foldkit/foldkit/blob/main/packages/foldkit/src/update/update.ts).",
+      "Subscription.make takes modelToDependencies and dependenciesToStream; the runtime diffs the dependencies after each Model change and restarts the Effect Stream only when they change.",
+      "Port.inbound and Port.outbound are Schema-typed channels to the host, reached through the EmbedHandle of Runtime.embed.",
+      "All in on Effect by design; purity inside update is kept by convention and an oxlint plugin, not by the compiler."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-06-21",
     "updatedAt": "2026-11-08",
@@ -926,10 +937,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": ["tea-effect presents itself as its spiritual successor."],
-    "verified": false,
+    "notes": [
+      "update returns [Model, Cmd<Msg>]; a Cmd is an Observable of fp-ts Tasks that the runtime runs (src/Cmd.ts).",
+      "program takes subscriptions: (model) => Sub<Msg>, and the runtime switchMaps over the model stream so subscriptions restart when the model changes (src/Platform.ts); Sub is an RxJS Observable (src/Time.ts every).",
+      "No ports (the README lists \"no ports\" among the differences from Elm), but program returns dispatch, so outside code can send messages in (src/Platform.ts).",
+      "tea-effect presents itself as its spiritual successor."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-03-22",
     "updatedAt": "2022-10-08",
@@ -941,7 +957,7 @@
     "language": "TypeScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/savkelita/tea-effect",
     "summary": "The Elm Architecture on Effect, with React hooks; started in 2026 as a successor to elm-ts.",
@@ -953,10 +969,16 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: the useProgram hook (React.makeUseProgram) runs a program inside a React component, so each feature mounted through it keeps its own loop and state in React.",
+      "update is (msg, model) => [Model, Cmd<Msg>]; a Cmd is an Effect Stream of messages that the runtime runs (src/Cmd.ts, src/Platform.ts).",
+      "Platform.program takes subscriptions: (model) => Sub<Msg>; subscriptions are keyed Effect Streams, and the runtime diffs the keys after each model change so only the delta starts or stops.",
+      "No ports: there is no Port module, but the program returns dispatch, so outside code can send messages in (src/Platform.ts).",
+      "Platform.program is a headless runtime."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-01-06",
     "updatedAt": "2026-10-31",
@@ -981,10 +1003,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "equivalent"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update returns readonly [State, Cmd<Action>?]; a Cmd is a plain value { home, type } that the runtime hands to the EffectManager matching its home (src/cmd.ts, src/program.ts).",
+      "Program has an optional subscriptions: (state) => Sub<Action>; after each update the runtime gathers the Subs and calls every EffectManager, which starts and stops its sources.",
+      "No ports: the host plugs in through an EffectManager of your own (setup, onEffects, onSelfAction), passed as the last argument of Program.run, in the way of the effect managers of Elm; run returns only a function that ends the program.",
+      "Msg is called Action and Model is called State; there is no built-in view library, and view is a pure function of state and dispatch that a library such as React renders."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-01-26",
     "updatedAt": "2025-02-05",
@@ -996,7 +1023,7 @@
     "language": "TypeScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/atheck/react-elmish",
     "summary": "The Elmish pattern for React, with commands and subscriptions.",
@@ -1007,11 +1034,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: each React component runs its own loop with its own model, messages and update (useElmish), whose state React keeps; the view is the component.",
+      "update returns [Model, Cmd?] (an UpdateMap or an update function); a Cmd is an array of functions of dispatch, and useElmish runs them with execCmd after the update (src/cmd.ts, src/useElmish.ts).",
+      "Sub is managed: the subscription function runs once on mount, returns functions of dispatch, and the destructor each one returns runs on unmount; it does not follow the model (https://github.com/atheck/react-elmish#subscriptions).",
+      "No ports: parent and host communication goes through callback props, called by a Cmd."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-03-07",
     "updatedAt": "2026-10-31",
@@ -1036,12 +1068,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
     "notes": [
-      "Untyped: messages are action functions rather than a closed union."
+      "Untyped: messages are action functions rather than a closed union; an action (State, Payload) -> [NextState, ...Effects] is the update step for its own message, and the docs call actions messages.",
+      "update returns the next state, or an array of the next state and effects; effects are [effecter, payload] values the runtime runs after the state change (docs/architecture/effects.md).",
+      "subscriptions: (state) => [...] is a function of the state; the runtime diffs the list after every state change and starts and stops each subscriber (patchSubs in index.js).",
+      "app() returns the dispatch function, which controls the app from outside; calling it with no arguments stops every subscription."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-20",
     "updatedAt": "2025-03-20",
@@ -1063,13 +1098,18 @@
       "model": "native",
       "msg": "native",
       "update": "native",
-      "view": "native",
+      "view": "missing",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Headless: no view; app takes init, subscribe and observe, and observe is a callback that sees each state so any presentation layer can render it.",
+      "Untyped: an action is a function (state) => [state, effect], as in Hyperapp; effects are values built by effects.none, batch, defer, thunk and act, which the runtime runs in effectStage.",
+      "subscribe(state) returns a list of sub(fn, ...params) values; subscribeStage diffs the list after every action by function and parameters, starts new ones and calls cancel on the removed ones.",
+      "app() returns dispatch, which feeds actions from outside."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-08-21",
     "updatedAt": "2023-03-04",
@@ -1097,9 +1137,12 @@
       "ports": "missing"
     },
     "notes": [
-      "update returns a Task; subscription(&self) is a function of the state."
+      "update(&mut self, message) returns a Task<Message>, a set of actions the iced runtime runs; Task::perform turns a future into a message (runtime/src/task.rs).",
+      "subscription(&self) -> Subscription<Message> is a function of the state; Subscription::run and run_with start a stream that the runtime keeps alive while it stays in the returned value, and time::every is built on it (futures/src/subscription.rs).",
+      "No ports: there is no typed boundary to the host; a program calls Rust directly.",
+      "Not a superset: the stateful widget::Component, whose state the runtime keeps, is deprecated in the 0.14 release behind the lazy feature, and apps compose screens in the nested pattern of Elm."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-07-15",
     "updatedAt": "2026-11-13",
@@ -1126,45 +1169,14 @@
       "ports": "missing"
     },
     "notes": [
-      "The loop is the one of iced; what libcosmic adds (widgets, theming, the shell of an app or a panel applet) is a toolkit, not a part of the architecture, so it is full TEA."
+      "The loop is the one of iced: cosmic::Application has update(&mut self, message) -> Task<Self::Message> (a type alias of iced::Task) and subscription(&self) -> Subscription<Self::Message>, with Task::none and Subscription::none as defaults (src/app/mod.rs).",
+      "What libcosmic adds (widgets, theming, the shell of an app or a panel applet, optional D-Bus activation hooks such as dbus_activation) is a toolkit, not a part of the architecture, so it is full TEA."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-11-13",
     "updatedAt": "2026-11-13",
     "stars": 968
-  },
-  {
-    "id": "relm4",
-    "name": "Relm4",
-    "language": "Rust",
-    "elmFamily": false,
-    "targets": ["desktop"],
-    "tier": "superset",
-    "status": "active",
-    "repo": "https://github.com/Relm4/Relm4",
-    "logo": "relm4.png",
-    "logoOnLight": true,
-    "summary": "An idiomatic GUI library for Rust on GTK4, inspired by Elm, with components and workers.",
-    "snippetSource": "https://github.com/Relm4/Relm4/blob/main/examples/simple.rs",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
-    },
-    "notes": [
-      "Commands run async work and send their result back as a message.",
-      "Superset: components with their own model, messages, update and view, and workers that run an update loop with no view."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2021-06-06",
-    "updatedAt": "2026-11-12",
-    "stars": 1999
   },
   {
     "id": "sauron",
@@ -1172,7 +1184,7 @@
     "language": "Rust",
     "elmFamily": false,
     "targets": ["web", "ssr"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://github.com/ivanceras/sauron",
     "logo": "sauron.png",
@@ -1185,72 +1197,19 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: nested components with their own message type, update and view (Component, StatefulComponent, usable as custom elements; update returns Effects with follow-ups and messages for the parent), and server-side rendering with render_to_string (examples/ssr-forms).",
+      "Application::update(&mut self, msg) -> Cmd<Msg>; Cmd::once and Cmd::new take a future that resolves to a message, and the runtime polls it (crates/core/src/dom/cmd.rs).",
+      "No subscriptions function: a long-running source is a Cmd::recurring built over a channel, as Window::on_resize and Window::on_mousemove do, kept by the runtime.",
+      "Ports are managed: Program::mount_to_body returns the Program, whose dispatch sends a message from outside (crates/core/src/dom/program.rs); JS interop otherwise goes through wasm_bindgen and web_sys directly."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-15",
     "updatedAt": "2025-01-27",
     "stars": 2065
-  },
-  {
-    "id": "seed",
-    "name": "Seed",
-    "language": "Rust",
-    "elmFamily": false,
-    "targets": ["web"],
-    "tier": "full",
-    "status": "archived",
-    "unmaintainedNotice": "https://github.com/seed-rs/seed#whats-next-for-seed",
-    "repo": "https://github.com/seed-rs/seed",
-    "logo": "seed.png",
-    "summary": "A Rust frontend framework whose apps mimic the structure of The Elm Architecture.",
-    "snippetSource": "https://github.com/seed-rs/seed/blob/master/examples/counter/src/lib.rs",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "native"
-    },
-    "notes": [
-      "Commands go through an orders object passed to update; streams stand in for subscriptions."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2018-12-01",
-    "updatedAt": "2026-11-01",
-    "stars": 3830
-  },
-  {
-    "id": "draco",
-    "name": "Draco",
-    "language": "Rust",
-    "elmFamily": false,
-    "targets": ["web"],
-    "tier": "full",
-    "status": "quiet",
-    "repo": "https://github.com/utkarshkukreti/draco",
-    "summary": "An early Rust and WebAssembly library for Elm-style web apps.",
-    "snippetSource": "https://github.com/utkarshkukreti/draco/blob/master/README.md",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
-    },
-    "notes": [],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2018-10-26",
-    "updatedAt": "2023-04-03",
-    "stars": 304
   },
   {
     "id": "tears",
@@ -1258,7 +1217,7 @@
     "language": "Rust",
     "elmFamily": false,
     "targets": ["tui"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/akiomik/tears",
     "website": "https://docs.rs/crate/tears/latest",
@@ -1273,8 +1232,13 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: tears::testing::TestStore drives update and the effects of commands in virtual time and fails a test on any unchecked output, and reducers compose like TCA (scope, for_each over a Keyed collection, presented over an optional Slot) with the effects of a removed child torn down (https://github.com/akiomik/tears/blob/main/README.md).",
+      "update(&mut self, msg) returns a Command<Message> (none, perform, future, stream, batch, map, cancel, retry, timeout, quit); async work is a Command the runtime runs, and the result returns as a message.",
+      "subscriptions(&self) returns a Vec<Subscription<Message>> from the model; each has an identity from its source key, and the runtime reconciles after every update, starting new ones and stopping removed ones. Sources: Timer, TerminalEvents, Signal, and WebSocket and HTTP behind features.",
+      "view(&self, frame: &mut Frame) draws into a ratatui Frame."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-12-27",
     "updatedAt": "2026-11-09",
@@ -1299,13 +1263,16 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
+      "update(&mut self, event: Event<Message>) returns a Cmd<Message>, a data type (NoOp, Function, Async, Tick, Every, Batch, Sequence, Quit, ExecProcess) that the runtime runs; view(&self) returns a String.",
+      "No subscription function: commands::every is a repeating timer Cmd, and Program::subscribe(stream) (also subscribe_interval) returns a Subscription handle that forwards stream items as messages until it is cancelled or dropped.",
+      "Ports are managed: Program has sender(), send_message(msg) and init_async_bridge(), which returns a SyncSender for messages from outside (hojicha-runtime src/program.rs).",
       "GPL-3.0 licensed.",
-      "Its repository is on a Gitea host that needs a sign-in to view, so the site links its docs instead."
+      "Its repository (https://jgok76.gitea.cloud/femtomc/hojicha) redirects to a sign-in page, so the site links the docs; the source was read from the published crates hojicha-core and hojicha-runtime 0.2.2."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z"
   },
   {
@@ -1326,11 +1293,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "managed",
+      "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update(&mut self, msg) returns a Cmd<Msg> holding an Action (None, Quit, Task for a future, Batch) and a dirty flag; the runtime or your own loop runs the Action and feeds the result back as a message.",
+      "subscriptions(&self) returns Vec<Sub<Msg>>, each an id plus a Stream; the built-in runner starts, keeps and cancels streams by id (https://github.com/os-tack/osteak/blob/main/src/sub.rs). With your own event loop you manage the streams yourself.",
+      "view(&mut self, frame: &mut Frame) draws into a ratatui Frame; it takes &mut self for ratatui stateful widgets.",
+      "Cmd::map lets a parent compose a child model (see the multi_pane example)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-04-05",
     "updatedAt": "2026-04-23",
@@ -1359,9 +1331,12 @@
       "ports": "missing"
     },
     "notes": [
+      "update is fn(Model, Msg) -> Update<Model, Effect>, with Update::Next(model, Option<Effect>) or Update::Exit; an Effect is your own enum, and the effects function you pass to teatui::start runs it (async with the tokio feature) and returns an Option<Msg>.",
+      "No subscription function: terminal events are the only source, read by the runtime and converted through Msg: From<crossterm::event::Event>; any other long-running source is an Effect that update re-issues.",
+      "view is fn(Model) -> Widget, a ratatui widget.",
       "Moved from GitHub to Codeberg in 2026; the GitHub repository is archived."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "stars": 1,
     "createdAt": "2025-08-18",
@@ -1420,11 +1395,12 @@
       "ports": "managed"
     },
     "notes": [
-      "Reducers return Effect values; long-running effects with cancellation stand in for subscriptions.",
-      "Superset: child features with their own state, actions and reducer compose into a parent, and TestStore checks every state change and every effect a test causes.",
-      "Dependencies are injected and replaced in tests."
+      "Superset: TestStore checks every state change and every effect a test causes, and dependencies are injected and replaced in tests; child features compose into a parent (Scope, ifLet, forEach) as nested modules do in Elm.",
+      "Reducer.reduce(into: inout State, action: Action) -> Effect<Action> changes the state and returns an Effect (none, run, send, merge, concatenate) that the Store runs; results return as actions.",
+      "No subscription function: a long-running source is Effect.run { send in for await ... { send(...) } }, stopped with Effect.cancellable(id:) and Effect.cancel(id:).",
+      "Ports are managed: Store.send sends an action into a running store from outside; the outside world is otherwise reached through injected dependencies (DependencyKey clients) inside run effects."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-03",
     "updatedAt": "2026-11-05",
@@ -1451,9 +1427,11 @@
       "ports": "managed"
     },
     "notes": [
-      "Headless: there is no view function; the loop drives UIKit or SwiftUI through a connection."
+      "update(model:event:) returns Next<Model, Effect>; effects are values of an Effect enum (Next.dispatchEffects) that an effect handler runs and turns into events.",
+      "Headless: there is no view function; the loop drives UIKit or SwiftUI through a Connectable and MobiusController.",
+      "No subscription function: outside events enter through an EventSource (subscribe(consumer:) returns a Disposable) added with Builder.withEventSource, or MobiusLoop.dispatchEvent."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-03-04",
     "updatedAt": "2026-08-05",
@@ -1510,8 +1488,12 @@
       "sub": "managed",
       "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update is an Update<Model, Event, Effect> that returns next(model) or next(model, effects); effects are values that the Connectable effect handler given to Mobius.loop runs, and results return as events.",
+      "Sub is managed: EventSource.subscribe(consumer) returns a Disposable, is added with MobiusLoop.Builder.eventSource, and the loop disposes it with the loop; there is no function of the model (https://drewcarlson.github.io/mobius.kt/latest/reference/event-source/).",
+      "Headless: the view is any UI connected to the loop with loop.observer or a Controller; mobiuskt-compose adds rememberMobiusLoop. Ports are managed the same way as in Mobius for Java: events enter through an EventSource or dispatchEvent."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-08",
     "updatedAt": "2026-11-13",
@@ -1532,15 +1514,20 @@
       "model": "native",
       "msg": "native",
       "update": "native",
-      "view": "native",
+      "view": "missing",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
-      "Modular: core, Android lifecycle, RxJava and Jetpack Compose artifacts."
+      "StateReducer.reduce(event) builds a Result of the new state, UI effects and commands with state { }, effects { } and commands { }; reducer does not run anything, ElmStore does.",
+      "Cmd: a Command is data handed to Actor.execute(command), which returns a Flow<Event> that ElmStore collects and feeds back to the store (https://github.com/vivid-money/elmslie/blob/master/elmslie-core/src/commonMain/kotlin/money/vivid/elmslie/core/store/Actor.kt).",
+      "Sub is managed: there is no subscriptions function; a command can return a long-running Flow, which the store cancels on stop and which Actor.switch(key) and cancelSwitchFlows replace or cancel.",
+      "Headless: there is no view in the core; the Android module drives views imperatively through render(state) of ElmRendererDelegate, so view is missing, as for Mobius.",
+      "Modular: a multiplatform core (Android, JVM, iOS, JS and more), an Android lifecycle module and a BOM.",
+      "Ports are managed: Store.accept(event) sends an event into a running ElmStore from outside (elmslie-core Store.kt)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-01-12",
     "updatedAt": "2026-09-10",
@@ -1562,13 +1549,19 @@
       "model": "native",
       "msg": "native",
       "update": "native",
-      "view": "native",
+      "view": "missing",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Updater is (message, state) -> Pair<state, Set<command>>, built with infix command and noCommand; it runs no effects (https://github.com/Xlopec/Tea-bag/blob/master/tea-core/src/commonMain/kotlin/io/github/xlopec/tea/core/Updater.kt).",
+      "Cmd: commands are plain values; the Resolver reads the Flow<Snapshot> and runs them in a CoroutineScope with effect, effects and sideEffect, sending results back through the Sink.",
+      "Sub is managed: Component.subscribeIn(input: Flow<M>, scope) (ExperimentalTeaApi) feeds an external message flow into the component and returns a Job; there is no function of the model.",
+      "Headless: a Component is a function from a Flow of messages to a Flow of snapshots, so the UI is any collector.",
+      "Ports are managed: a Component takes a Flow of messages that the host owns and feeds (tea-core Component.kt)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-24",
     "updatedAt": "2026-10-22",
@@ -1580,7 +1573,7 @@
     "language": "Dart",
     "elmFamily": false,
     "targets": ["mobile"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://github.com/p69/dartea",
     "summary": "An MVU engine for Flutter inspired by TEA and Elmish.",
@@ -1591,11 +1584,17 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: each Program (or ProgramWidget) is a self-contained component with its own model, update, view and subscription, and a DarteaMessagesBus (msgsToBus, UpdChild toParent) lets components message each other.",
+      "update is (msg, model) -> Upd(model, effects: Cmd); a Cmd is a list of Effect callbacks (Cmd.ofAsyncFunc, Cmd.ofMsg, Cmd.batch, Cmd.fmap) that the widget state runs after each update.",
+      "Subscribe is TSubHolder Function(currentSub, dispatch, model), called by the engine after every model update and once more on dispose: it is a function of the model, but creating and cancelling the source (a Timer, a StreamSubscription) is hand-written with the holder, so Sub is graded managed.",
+      "Msg is an abstract Message class that user messages implement, matched with is checks.",
+      "Ports are managed: DarteaMessagesBus.dispatchOf(context) returns a function that sends a message into a program from outside it (messages_bus.dart)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-04-08",
     "updatedAt": "2022-12-15",
@@ -1607,7 +1606,7 @@
     "language": "Dart",
     "elmFamily": false,
     "targets": ["mobile"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/Nhowka/FlutterMVU",
     "website": "https://pub.dev/packages/mvu_layer",
@@ -1619,11 +1618,18 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
+      "sub": "native",
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: MVUBuilder is a StatefulWidget that keeps its own loop, and MVUWidget and MVUProvider put several loops in one widget tree for descendants to dispatch to (lib/src/mvu/mvu_builder.dart, mvu_widgets.dart).",
+      "Import package:mvu_layer/mvu.dart for the Elm shape: update is (Msg, Model) -> (Model, Cmd<Msg>) as a record, and a Cmd is a list of Effect functions that receive a Dispatch (Cmd.none, Cmd.ofMsg, Cmd.batch, Cmd.map).",
+      "Subscriptions: Subs<Model, Msg> subscriptions(Model model) returns (SubscriptionId, Subscribe) pairs; a new id starts one and a missing id cancels it by calling the function it returned (Sub.fromStream, Sub.fromFuture; SubHandler.model gives the live model since 0.4).",
+      "Msg is a user-chosen type, recommended as a sealed class so the switch in update is exhaustive; MVUBuilder or MVUWidget glue init, update and view together.",
+      "The older mvu_layer.dart API (Messenger, Update class) is still shipped beside the new one.",
+      "Ports are managed: Messenger exposes a public dispatcher that sends a message into the running model (msg_provider.dart)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-07-20",
     "updatedAt": "2026-03-19",
@@ -1635,11 +1641,12 @@
     "language": "Dart",
     "elmFamily": false,
     "targets": ["mobile"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://pub.dev/packages/mvu_flutter",
     "website": "https://pub.dev/packages/mvu_flutter",
-    "summary": "A fuller Elm-style implementation for Flutter, with detailed docs.",
+    "summary": "An Elm-style MVU package for Flutter (Program, Update, View) from 2021, since discontinued on pub.dev.",
+    "snippetSource": "https://pub.dev/packages/mvu_flutter/versions/3.1.0",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -1647,10 +1654,17 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: a Program is a widget with its own loop, an app is split into several Programs, and dispatchGlobal sends a message to another Program (README of 3.1.0, lib/src/runtime/dispatch_global.dart).",
+      "Last real release is 3.1.0 (June 2021): Program takes a model, a view, an Update object, optional commands and an optional subscriptions function; update returns a ProducedState of a new model and a list of Cmd, and the README says update must be pure and effects go in commands.",
+      "A Cmd is a function (Dispatch) -> dynamic that the manager runs in order after each update (also the initial commands); messages are Msg subclasses, usually Freezed unions.",
+      "Subscriptions is List<StreamSubscription> Function(Dispatch), called once when the Program starts; the manager cancels the returned subscriptions on dispose. It is not a function of the model, so Sub is managed, and dispatchGlobal can also send a message from anywhere.",
+      "Discontinued on pub.dev: versions 5.0.0 and 6.0.0 are empty stubs saying the package is deprecated and unavailable, and the GitHub repo is gone. The grades come from the 3.1.0 archive.",
+      "Ports are managed: the global dispatchGlobal and View.dispatch send a message into a running Program from anywhere."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z"
   },
   {
@@ -1664,7 +1678,7 @@
     "repo": "https://github.com/lbliii/milo-cli",
     "website": "https://lbliii.github.io/milo-cli/",
     "logoText": "ᗣᗣ",
-    "summary": "The Elm Architecture for terminal apps in Python, with commands, sagas and subscriptions (ticks, terminal resize).",
+    "summary": "The Elm Architecture for terminal apps in Python: pure reducers that return commands and sagas, Kida templates as views, and ticks and resize events as messages.",
     "snippetSource": "https://github.com/lbliii/milo-cli/blob/main/examples/counter/app.py",
     "rubric": {
       "model": "native",
@@ -1672,13 +1686,18 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "missing"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "To check: whether commands are returned from the reducer or started beside it (a saga runner would make it TEA-adjacent)."
+      "A reducer (state, action) returns the new state or a ReducerResult(state, cmds=..., sagas=..., view=...); the Store runs the Cmd, Batch, Sequence and TickCmd values after the reducer returns, so effects are returned as data (https://github.com/lbliii/milo-cli/blob/main/src/milo/_types.py).",
+      "A Cmd is a thunk returning an Action; sagas are generators yielding Call, Put, Delay, TakeEvery and the like, also returned from the reducer in ReducerResult.sagas and run by the Store on a thread pool, not started beside it, so the loop still ports to Elm commands.",
+      "No subscriptions function: App(tick_rate) dispatches @@TICK, terminal resize arrives as @@RESIZE and keys as @@KEY, and TickCmd(interval) reschedules itself from the reducer.",
+      "A Flow combines FlowScreens, each with its own reducer and template, into one reducer over a FlowState that the store holds, routing each action to the current screen by hand (Flow.build_reducer in src/milo/flow.py), the nested pattern of Elm, so the entry is full TEA.",
+      "Messages are Action(type, payload) values matched by type, and the view is a Kida template of the state; it also has forms and CLI plus MCP command generation.",
+      "Ports are managed: Store.dispatch(action) sends an action into a running store from outside (src/milo/state.py)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-03-26",
     "updatedAt": "2026-08-05",
@@ -2992,6 +3011,106 @@
     "stars": 5,
     "createdAt": "2026-04-06",
     "updatedAt": "2026-10-27"
+  },
+  {
+    "id": "redux-loop",
+    "name": "redux-loop",
+    "language": "JavaScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "quiet",
+    "repo": "https://github.com/redux-loop/redux-loop",
+    "logo": "redux-loop.png",
+    "logoOnLight": true,
+    "summary": "Brings Cmd to Redux: the reducer returns a loop of state and command, and Cmd.setInterval gives a cancellable timer; the view comes from React-Redux.",
+    "snippetSource": "https://github.com/redux-loop/redux-loop/blob/master/docs/tutorial/Tutorial.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "missing",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "update is the reducer: it returns loop(model, cmd), a state and a Cmd value; Cmd.run, Cmd.action, Cmd.list and Cmd.map are data that the store enhancer install() runs after the reducer, and results come back as actions (https://github.com/redux-loop/redux-loop/blob/master/docs/api-docs/cmds.md).",
+      "No subscriptions function: Cmd.setInterval repeats a nested Cmd and Cmd.clearInterval(timerId) cancels it, so a timer is managed; other outside events reach the store by dispatch.",
+      "Cmd.run(func, { successActionCreator, failActionCreator, args }) calls any function, including a Promise one, and dispatches the action it maps the result to.",
+      "A store enhancer for Redux, so it has no view: the view comes from React-Redux or another library."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2016-01-05",
+    "updatedAt": "2024-03-19",
+    "stars": 1948
+  },
+  {
+    "id": "re-frame",
+    "name": "re-frame",
+    "language": "ClojureScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/day8/re-frame",
+    "logo": "re-frame.png",
+    "logoOnLight": true,
+    "summary": "Events, pure handlers and effects as data in ClojureScript, designed in 2014 before the Elm Architecture; its subscriptions are derived queries over app-db.",
+    "snippetSource": "https://github.com/day8/re-frame/blob/master/examples/simple/src/simple/core.cljs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "update returns effects as data: reg-event-fx takes coeffects and an event vector and returns an effects map such as {:db ... :fx [[:dispatch [...]]]}, and reg-fx handlers run it (https://github.com/day8/re-frame/blob/master/docs/Effects.md).",
+      "Events are vectors like [:timer now] (a tagged union by convention); app-db is one atom holding one map, and views are Reagent components that read it through subscribe.",
+      "Sub is managed, not declarative: re-frame subscriptions (reg-sub) are derived queries for the view, not sources of outside events. Outside events come from a handler returning :dispatch-later again, or a reg-fx effect that starts and cancels a timer by id (https://github.com/day8/re-frame/blob/master/docs/FAQs/PollADatabaseEvery60.md); the bundled example just calls dispatch from setInterval.",
+      "Ports are managed: re-frame.core/dispatch sends an event from any code outside the app; reg-fx and reg-cofx are also the sanctioned way to talk to the host (HTTP, local storage, time). The docs say it slightly predates the Elm Architecture (https://github.com/day8/re-frame/blob/master/docs/re-frame.md)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2014-12-05",
+    "updatedAt": "2026-05-05",
+    "stars": 5545
+  },
+  {
+    "id": "raj",
+    "name": "Raj",
+    "language": "JavaScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "quiet",
+    "repo": "https://github.com/andrejewski/raj",
+    "logo": "raj.svg",
+    "summary": "A minimal runtime where update returns state and an effect, with declarative subscriptions from its companion package raj-subscription.",
+    "snippetSource": "https://github.com/andrejewski/raj/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "update(message, state) returns [state, effect]; an effect is a function (dispatch) => void that the runtime calls, so effects are values handed to the runtime (index.js).",
+      "Subscriptions come from raj-subscription, the package of its author that the Raj homepage lists: withSubscriptions takes subscriptions: model => ({ key: ... }) and starts or cancels each subscription as its key appears in or leaves the result (https://github.com/andrejewski/raj-subscription).",
+      "Untyped: a message can be any value, a tagged union by convention; the view is (state, dispatch), and raj-react renders the React elements it returns; runtime(program) returns only an end function, with no way to dispatch from outside."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2017-06-12",
+    "updatedAt": "2020-05-11",
+    "stars": 196
   },
   {
     "id": "monad-oak",

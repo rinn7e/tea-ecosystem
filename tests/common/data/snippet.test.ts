@@ -38,6 +38,15 @@ describe('snippets', () => {
     expect(wrong.map((e) => e.id)).toEqual([])
   })
 
+  it('give the source of every example as a full URL', () => {
+    const wrong = entries.filter(
+      (e) =>
+        e.snippetSource !== undefined &&
+        !/^https:\/\/\S+$/.test(e.snippetSource),
+    )
+    expect(wrong.map((e) => e.id)).toEqual([])
+  })
+
   it('highlight the code', () => {
     const elm = snippetOf('elm')
     expect(O.isSome(elm)).toBe(true)

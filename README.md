@@ -31,7 +31,7 @@ The site has:
 - **Catalog**: every entry, in many languages (the site shows how many), as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added, with a New button that shows the newest entries first, and turns solid while it is on (a second press leads back). A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
 - **A page per framework**: its grade on each part of TEA, with notes, and the other entries in its languages from both lists.
 - **Rubric**: what counts as TEA, the four grades and the three tiers.
-- **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, re-frame, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.
+- **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, XState, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.
 - **Build your own TEA**: a runtime in eight steps, in Swift, TypeScript and Kotlin.
 
 The thinking behind it is in [doc/analysis.md](doc/analysis.md).

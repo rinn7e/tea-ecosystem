@@ -60,8 +60,9 @@ import { listingFilterArb, sortRecordArb } from '../../helper/arbitrary'
 
 describe('filterFrameworks', () => {
   it('shows everything but the archived entries with no filter', () => {
-    expect(filterFrameworks(defaultCatalogFilter())(frameworks)).toEqual(
-      frameworks.filter((f) => f.status !== 'archived'),
+    // The archived entries are all TEA-adjacent (Seed, ts-elmish, Comet)
+    expect(filterFrameworks(defaultAdjacentFilter())(adjacentEntries)).toEqual(
+      adjacentEntries.filter((f) => f.status !== 'archived'),
     )
     expect(isFiltered(defaultCatalogFilter())).toBe(false)
   })
@@ -73,8 +74,9 @@ describe('filterFrameworks', () => {
   })
 
   it('hides the archived entries by default', () => {
+    expect(adjacentEntries.some((f) => f.status === 'archived')).toBe(true)
     expect(
-      filterFrameworks(defaultCatalogFilter())(frameworks).every(
+      filterFrameworks(defaultAdjacentFilter())(adjacentEntries).every(
         (f) => f.status !== 'archived',
       ),
     ).toBe(true)
@@ -228,9 +230,9 @@ describe('lacks', () => {
       lacks: choiceOf(lackables, ['sub']),
       statuses: statusChoiceOf([]),
     })(adjacentEntries)
-    // Missing (redux-loop) and another shape (yew) both lack it; a
-    // managed Sub (workflow) does not
-    expect(shown.map((e) => e.id)).toContain('redux-loop')
+    // Missing (fasttea) and another shape (yew) both lack it; a Sub that
+    // meets the requirement (workflow) does not
+    expect(shown.map((e) => e.id)).toContain('fasttea')
     expect(shown.map((e) => e.id)).toContain('yew')
     expect(shown.map((e) => e.id)).not.toContain('workflow')
   })
@@ -278,7 +280,13 @@ describe('search', () => {
     })(frameworks).map((f) => f.id)
 
   it('finds entries by the labels they show: status, tier, target, language line', () => {
-    expect(searched('archived')).toContain('seed')
+    expect(
+      filterFrameworks({
+        ...defaultAdjacentFilter(),
+        query: 'archived',
+        statuses: statusChoiceOf([]),
+      })(adjacentEntries).map((f) => f.id),
+    ).toContain('seed')
     expect(searched('superset')).toContain('miso')
     expect(searched('terminal')).toContain('bubbletea')
     expect(searched('rust framework')).toContain('iced')
@@ -286,9 +294,9 @@ describe('search', () => {
 
   it('still needs the Archived status for an archived entry', () => {
     const shown = filterFrameworks({
-      ...defaultCatalogFilter(),
+      ...defaultAdjacentFilter(),
       query: 'archived',
-    })(frameworks)
+    })(adjacentEntries)
     expect(shown.every((f) => f.status !== 'archived')).toBe(true)
   })
 })
@@ -492,7 +500,7 @@ describe('otherListMatchesOf', () => {
         ...defaultAdjacentFilter(),
         targets: noTui,
       }),
-    ).toBe(2)
+    ).toBe(3)
     expect(
       O.isSome(
         otherListMatchesOf({
@@ -517,7 +525,7 @@ describe('otherListMatchesOf', () => {
     // to it, under Active only it does not
     expect(
       otherListMatchesOf({
-        ...adjacentSearchOf('seed'),
+        ...searchOf('seed'),
         statuses: statusChoiceOf(['active']),
       }),
     ).toEqual(O.none)
@@ -604,7 +612,7 @@ describe('otherListMatchesOf', () => {
   })
 
   it('falls back to the archived entries, shown with every status', () => {
-    const seed = otherListMatchesOf(adjacentSearchOf('seed'))
+    const seed = otherListMatchesOf(searchOf('seed'))
     expect(
       pipe(
         seed,
@@ -661,6 +669,18 @@ describe('otherListMatchesOf', () => {
       otherListMatchTextOf({
         matches: {
           ...shown,
+          filter: adjacentSearchOf('seed'),
+          count: 1,
+          isArchived: true,
+          subject: '"seed"',
+        },
+        isAlso: false,
+      }),
+    ).toBe('1 archived TEA-adjacent library matches "seed".')
+    expect(
+      otherListMatchTextOf({
+        matches: {
+          ...shown,
           filter: searchOf('seed'),
           count: 1,
           isArchived: true,
@@ -688,20 +708,32 @@ describe('otherListMatchesOf', () => {
     // An archived match opens the other list with every status shown
     expect(
       pipe(
-        otherListMatchesOf(adjacentSearchOf('seed')),
+        otherListMatchesOf(searchOf('seed')),
         O.map((matches) => otherListLinkOf(matches)),
       ),
     ).toEqual(
       O.some({
         destination: destinationOfScreen(
-          catalogScreen({
-            ...searchOf('seed'),
+          adjacentScreen({
+            ...adjacentSearchOf('seed'),
             statuses: anyStatusChoice(true),
           }),
         ),
-        label: 'Show in Main catalog',
+        label: 'Show in TEA-adjacent',
       }),
     )
+    // Matches of the catalog, pointed to from TEA-adjacent
+    expect(
+      otherListLinkOf({
+        isArchived: false,
+        filter: searchOf('lustre'),
+        subject: '"lustre"',
+        count: 1,
+      }),
+    ).toEqual({
+      destination: destinationOfScreen(catalogScreen(searchOf('lustre'))),
+      label: 'Show in Main catalog',
+    })
   })
 })
 
@@ -761,25 +793,27 @@ describe('sort menu of the cards', () => {
 })
 
 describe('hiddenArchivedCountOf', () => {
-  const rust: ListingFilter = {
-    ...defaultCatalogFilter(),
+  // The archived entries are all TEA-adjacent: Seed (Rust, web), ts-elmish
+  // (TypeScript, web) and Comet (C#, mobile and desktop)
+  const rust: AdjacentFilter = {
+    ...defaultAdjacentFilter(),
     language: O.some('Rust'),
   }
 
   it('counts the archived entries a filter matches while they are hidden', () => {
-    // Seed, the archived Rust framework
-    expect(hiddenArchivedCountOf(frameworks, rust)).toBe(1)
+    // Seed, the archived Rust library
+    expect(hiddenArchivedCountOf(adjacentEntries, rust)).toBe(1)
   })
 
   it('counts none while the archive is shown', () => {
     expect(
-      hiddenArchivedCountOf(frameworks, {
+      hiddenArchivedCountOf(adjacentEntries, {
         ...rust,
         statuses: statusChoiceOf([]),
       }),
     ).toBe(0)
     expect(
-      hiddenArchivedCountOf(frameworks, {
+      hiddenArchivedCountOf(adjacentEntries, {
         ...rust,
         statuses: statusChoiceOf(['active', 'archived']),
       }),
@@ -787,39 +821,40 @@ describe('hiddenArchivedCountOf', () => {
   })
 
   it('names the archived ones above the results under each narrowing filter', () => {
-    const count = (filter: Partial<CatalogFilter>) =>
-      archivedHintCountOf(frameworks, { ...defaultCatalogFilter(), ...filter })
-    const adjacentCount = (filter: Partial<AdjacentFilter>) =>
+    const count = (filter: Partial<AdjacentFilter>) =>
       archivedHintCountOf(adjacentEntries, {
         ...defaultAdjacentFilter(),
         ...filter,
       })
     expect(count({ language: O.some('Rust') })).toBe(1)
-    // Seed, the one archived framework, is a full TEA web framework, and
-    // no mobile framework is archived; ts-elmish and Comet lack Sub
     expect(count({ query: 'seed' })).toBe(1)
-    expect(count({ targets: choiceOf(targets, ['web']) })).toBe(1)
-    expect(count({ targets: choiceOf(targets, ['mobile']) })).toBe(0)
-    expect(count({ tiers: choiceOf(catalogTiers, ['full']) })).toBe(1)
-    expect(count({ show: O.some('frameworks') })).toBe(1)
-    expect(adjacentCount({ lacks: choiceOf(lackables, ['sub']) })).toBe(2)
+    // Seed and ts-elmish are web libraries, Comet the one mobile one, and
+    // none is a terminal library
+    expect(count({ targets: choiceOf(targets, ['web']) })).toBe(2)
+    expect(count({ targets: choiceOf(targets, ['mobile']) })).toBe(1)
+    expect(count({ targets: choiceOf(targets, ['tui']) })).toBe(0)
+    // All three lack Sub; Seed (it runs its effects) and Comet (it has
+    // none) lack update, ts-elmish does not
+    expect(count({ lacks: choiceOf(lackables, ['sub']) })).toBe(3)
+    expect(count({ lacks: choiceOf(lackables, ['update']) })).toBe(2)
   })
 
   it('names none under statuses the reader chose', () => {
     expect(
-      archivedHintCountOf(frameworks, {
-        ...defaultCatalogFilter(),
-        language: O.some('Rust'),
+      archivedHintCountOf(adjacentEntries, {
+        ...rust,
         statuses: statusChoiceOf(['active']),
       }),
     ).toBe(0)
   })
 
   it('names none when no filter narrows the list', () => {
-    expect(archivedHintCountOf(frameworks, defaultCatalogFilter())).toBe(0)
+    expect(archivedHintCountOf(adjacentEntries, defaultAdjacentFilter())).toBe(
+      0,
+    )
     expect(
-      archivedHintCountOf(frameworks, {
-        ...defaultCatalogFilter(),
+      archivedHintCountOf(adjacentEntries, {
+        ...defaultAdjacentFilter(),
         query: ' ',
       }),
     ).toBe(0)
@@ -828,23 +863,23 @@ describe('hiddenArchivedCountOf', () => {
 
   it('keeps naming the archived ones once they are shown', () => {
     // "Show the archived" leads from the default statuses to these
-    const shownOf = (filter: Partial<CatalogFilter>) =>
-      shownArchivedCountOf(frameworks, {
-        ...defaultCatalogFilter(),
+    const shownOf = (filter: Partial<AdjacentFilter>) =>
+      shownArchivedCountOf(adjacentEntries, {
+        ...defaultAdjacentFilter(),
         statuses: statusChoiceOf(['active', 'quiet', 'archived']),
         ...filter,
       })
-    expect(shownOf({ query: 'see' })).toBe(1)
+    expect(shownOf({ query: 'seed' })).toBe(1)
     expect(shownOf({ language: O.some('Rust') })).toBe(1)
     // No filter that narrows the list, or statuses chosen in the popover
     expect(shownOf({})).toBe(0)
     expect(
-      shownOf({ query: 'see', statuses: statusChoiceOf(['archived']) }),
+      shownOf({ query: 'seed', statuses: statusChoiceOf(['archived']) }),
     ).toBe(0)
     expect(
-      shownArchivedCountOf(frameworks, {
-        ...defaultCatalogFilter(),
-        query: 'see',
+      shownArchivedCountOf(adjacentEntries, {
+        ...defaultAdjacentFilter(),
+        query: 'seed',
       }),
     ).toBe(0)
   })

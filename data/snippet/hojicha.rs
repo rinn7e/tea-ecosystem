@@ -19,6 +19,20 @@ impl Model for Counter {
         }
         Cmd::noop()
     }
+
+    fn view(&self) -> String {
+        format!(
+            "╭─────────────────────╮\n\
+             │      Counter        │\n\
+             ├─────────────────────┤\n\
+             │  Value: {:^11} │\n\
+             ├─────────────────────┤\n\
+             │  Up/Down: change    │\n\
+             │  q: quit            │\n\
+             ╰─────────────────────╯",
+            self.value
+        )
+    }
 }
 
 fn main() -> Result<()> {
