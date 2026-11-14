@@ -20,9 +20,11 @@ import {
   type SortDirection,
   adjacentScreen,
   catalogScreen,
+  catalogTiers,
   defaultListingFilter,
   defaultStatuses,
   destinationOfScreen,
+  lackables,
 } from '@/common/type/destination'
 import {
   type Concept,
@@ -34,6 +36,7 @@ import {
   isLanguageEntry,
   languagesOf,
   statuses,
+  targets,
 } from '@/common/type/framework'
 import { breakpoints } from '@/common/util/window-width'
 import {
@@ -199,12 +202,20 @@ export const carriedFilterOf = (filter: ListingFilter): ListingFilter => ({
 const isDefaultStatuses = (statuses: Status[]): boolean =>
   A.getEq(S.Eq).equals(statuses, defaultStatuses())
 
+// Whether a choice of a filter of the popover leaves some options out:
+// none chosen, or every one, shows every entry (`toggleChoice`)
+const narrowsChoice = <A>(
+  chosen: readonly A[],
+  options: readonly A[],
+): boolean => chosen.length > 0 && chosen.length < options.length
+
 // How many archived entries the line above the results of a list names:
 // the hidden archived ones (`hiddenArchivedCountOf`), only under the
 // default statuses (the reader did not choose which to show) and a filter
-// that narrows the list (a search with more than spaces, a language, a
-// target, a tier, what a library lacks or the kind of entry). None with
-// no such filter: the archive is not news then.
+// that narrows the list (a search with more than spaces, a language, some
+// targets, tiers or concepts an adjacent library lacks, or the kind of
+// entry; choosing every option of one narrows nothing). None with no such
+// filter: the archive is not news then.
 export const archivedHintCountOf = (
   entries: Framework[],
   filter: ListingFilter,
@@ -212,9 +223,9 @@ export const archivedHintCountOf = (
   isDefaultStatuses(filter.statuses) &&
   (filter.query.trim() !== '' ||
     O.isSome(filter.language) ||
-    filter.targets.length > 0 ||
-    filter.tiers.length > 0 ||
-    filter.lacks.length > 0 ||
+    narrowsChoice(filter.targets, targets) ||
+    narrowsChoice(filter.tiers, catalogTiers) ||
+    narrowsChoice(filter.lacks, lackables) ||
     O.isSome(filter.show))
     ? hiddenArchivedCountOf(entries, filter)
     : 0

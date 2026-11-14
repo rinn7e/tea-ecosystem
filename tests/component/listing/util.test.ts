@@ -719,22 +719,46 @@ describe('hiddenArchivedCountOf', () => {
     ).toBe(0)
   })
 
-  it('names the archived ones above the results only under a narrowing filter', () => {
-    expect(archivedHintCountOf(frameworks, purescript)).toBe(2)
-    // Statuses the reader chose, or no narrowing filter: no line
+  it('names the archived ones above the results under each narrowing filter', () => {
+    const count = (
+      entries: typeof frameworks,
+      filter: Partial<ListingFilter>,
+    ) => archivedHintCountOf(entries, { ...defaultListingFilter(), ...filter })
+    expect(count(frameworks, { language: O.some('PureScript') })).toBe(2)
+    // Seed is archived; Dartea is an archived mobile framework; every
+    // archived framework is full TEA; ts-elmish and Comet lack Sub
+    expect(count(frameworks, { query: 'seed' })).toBe(1)
+    expect(count(frameworks, { targets: ['mobile'] })).toBe(1)
+    expect(count(frameworks, { tiers: ['full'] })).toBe(6)
+    expect(count(frameworks, { show: O.some('frameworks') })).toBe(6)
+    expect(count(adjacentEntries, { lacks: ['sub'] })).toBe(2)
+  })
+
+  it('names none under statuses the reader chose', () => {
     expect(
       archivedHintCountOf(frameworks, {
         ...defaultListingFilter(),
+        language: O.some('PureScript'),
         statuses: ['active'],
       }),
     ).toBe(0)
+  })
+
+  it('names none when no filter narrows the list', () => {
+    expect(archivedHintCountOf(frameworks, defaultListingFilter())).toBe(0)
     expect(
       archivedHintCountOf(frameworks, {
         ...defaultListingFilter(),
         query: ' ',
       }),
     ).toBe(0)
-    expect(archivedHintCountOf(frameworks, defaultListingFilter())).toBe(0)
+    // Every tier chosen shows every entry, as no choice does
+    expect(
+      archivedHintCountOf(frameworks, {
+        ...defaultListingFilter(),
+        tiers: ['reference', 'full', 'superset'],
+      }),
+    ).toBe(0)
   })
 
   it('names one entry or several of each list', () => {
