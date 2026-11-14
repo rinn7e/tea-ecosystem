@@ -1134,6 +1134,108 @@
     "stars": 474
   },
   {
+    "id": "relm4",
+    "name": "Relm4",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "adjacent",
+    "status": "active",
+    "repo": "https://github.com/Relm4/Relm4",
+    "logo": "relm4.png",
+    "logoOnLight": true,
+    "summary": "An idiomatic GUI library for Rust on GTK4, inspired by Elm, with components and workers; update starts its commands itself instead of returning them.",
+    "snippetSource": "https://github.com/Relm4/Relm4/blob/main/examples/simple.rs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "equivalent",
+      "cmd": "equivalent",
+      "sub": "equivalent",
+      "ports": "managed"
+    },
+    "notes": [
+      "Misses update, Cmd and Sub: update(&mut self, msg, sender) returns nothing, and effects start by calling sender.command, oneshot_command or spawn_command inside it, which spawn the future at once; the result returns as CommandOutput to update_cmd.",
+      "No subscriptions function: a long-running source is sender.command(|out, shutdown| ...) started inside update, whose ShutdownReceiver ends it when the component is dropped, so Sub is equivalent, as for Yew.",
+      "view! generates update_view, which sets properties on retained GTK4 widgets (#[watch]) rather than returning a view tree.",
+      "Also has components with their own model, messages, update and view, factories, and workers (Worker) that run an update loop with no view.",
+      "Ports are managed: the Controller of a launched component has sender() and emit, a handle to send input messages from outside (relm4/src/component/sync/controller.rs)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2021-06-06",
+    "updatedAt": "2026-11-12",
+    "stars": 1999
+  },
+  {
+    "id": "seed",
+    "name": "Seed",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "adjacent",
+    "status": "archived",
+    "unmaintainedNotice": "https://github.com/seed-rs/seed#whats-next-for-seed",
+    "repo": "https://github.com/seed-rs/seed",
+    "logo": "seed.png",
+    "summary": "A Rust frontend framework whose apps mimic the structure of The Elm Architecture, but whose update starts its effects through orders instead of returning them.",
+    "snippetSource": "https://github.com/seed-rs/seed/blob/master/examples/counter/src/lib.rs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "equivalent",
+      "ports": "managed"
+    },
+    "notes": [
+      "Misses update, Cmd and Sub: update takes an orders: &mut impl Orders<Msg> and returns nothing; orders.perform_cmd(future) and orders.stream(stream) start the work inside update (CmdManager spawns the future with spawn_local), and the message comes back through the mailbox.",
+      "No subscriptions function: update starts a stream itself with orders.stream or orders.stream_with_handle (streams::interval, window_event), cancelled by dropping the StreamHandle, so Sub is equivalent, as for Yew; orders.subscribe and orders.notify are pub/sub between modules.",
+      "Archived and unmaintained: see https://github.com/seed-rs/seed#whats-next-for-seed.",
+      "Ports are managed: App::start returns the App, whose update(msg) sends a message from outside (src/app/mod.rs)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2018-12-01",
+    "updatedAt": "2026-11-01",
+    "stars": 3830
+  },
+  {
+    "id": "draco",
+    "name": "Draco",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "adjacent",
+    "status": "quiet",
+    "repo": "https://github.com/utkarshkukreti/draco",
+    "summary": "A Rust and WebAssembly library for Elm-style web apps with a virtual DOM; effects and subscriptions run through a mailbox handed to update.",
+    "snippetSource": "https://github.com/utkarshkukreti/draco/blob/master/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "equivalent",
+      "ports": "managed"
+    },
+    "notes": [
+      "Misses update, Cmd and Sub: update returns nothing and performs effects itself through the Mailbox it receives (send_after, spawn for a future), and subscriptions are started imperatively with Mailbox::subscribe.",
+      "Application has update(&mut self, message, &Mailbox<Message>) and view(&self) -> VNode<Message>; the model is the struct that implements it, changed in place.",
+      "Subscription is a trait (OnWindow, AnimationFrame, Router); Mailbox::subscribe returns an Unsubscribe guard that cancels on drop, and subscribe_forever keeps it for the life of the app (https://github.com/utkarshkukreti/draco/blob/master/src/mailbox.rs).",
+      "Last commit in April 2023.",
+      "Ports are managed: draco::start returns the Mailbox of the app, so outside code can send messages in (src/application.rs)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2018-10-26",
+    "updatedAt": "2023-04-03",
+    "stars": 304
+  },
+  {
     "id": "halogen",
     "name": "Halogen",
     "language": "PureScript",

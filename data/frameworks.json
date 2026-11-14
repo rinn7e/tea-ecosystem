@@ -1137,9 +1137,12 @@
       "ports": "missing"
     },
     "notes": [
-      "update returns a Task; subscription(&self) is a function of the state."
+      "update(&mut self, message) returns a Task<Message>, a set of actions the iced runtime runs; Task::perform turns a future into a message (runtime/src/task.rs).",
+      "subscription(&self) -> Subscription<Message> is a function of the state; Subscription::run and run_with start a stream that the runtime keeps alive while it stays in the returned value, and time::every is built on it (futures/src/subscription.rs).",
+      "No ports: there is no typed boundary to the host; a program calls Rust directly.",
+      "Not a superset: the stateful widget::Component, whose state the runtime keeps, is deprecated in the 0.14 release behind the lazy feature, and apps compose screens in the nested pattern of Elm."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-07-15",
     "updatedAt": "2026-11-13",
@@ -1166,45 +1169,14 @@
       "ports": "missing"
     },
     "notes": [
-      "The loop is the one of iced; what libcosmic adds (widgets, theming, the shell of an app or a panel applet) is a toolkit, not a part of the architecture, so it is full TEA."
+      "The loop is the one of iced: cosmic::Application has update(&mut self, message) -> Task<Self::Message> (a type alias of iced::Task) and subscription(&self) -> Subscription<Self::Message>, with Task::none and Subscription::none as defaults (src/app/mod.rs).",
+      "What libcosmic adds (widgets, theming, the shell of an app or a panel applet, optional D-Bus activation hooks such as dbus_activation) is a toolkit, not a part of the architecture, so it is full TEA."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-11-13",
     "updatedAt": "2026-11-13",
     "stars": 968
-  },
-  {
-    "id": "relm4",
-    "name": "Relm4",
-    "language": "Rust",
-    "elmFamily": false,
-    "targets": ["desktop"],
-    "tier": "superset",
-    "status": "active",
-    "repo": "https://github.com/Relm4/Relm4",
-    "logo": "relm4.png",
-    "logoOnLight": true,
-    "summary": "An idiomatic GUI library for Rust on GTK4, inspired by Elm, with components and workers.",
-    "snippetSource": "https://github.com/Relm4/Relm4/blob/main/examples/simple.rs",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
-    },
-    "notes": [
-      "Commands run async work and send their result back as a message.",
-      "Superset: components with their own model, messages, update and view, and workers that run an update loop with no view."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2021-06-06",
-    "updatedAt": "2026-11-12",
-    "stars": 1999
   },
   {
     "id": "sauron",
@@ -1212,7 +1184,7 @@
     "language": "Rust",
     "elmFamily": false,
     "targets": ["web", "ssr"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://github.com/ivanceras/sauron",
     "logo": "sauron.png",
@@ -1225,72 +1197,19 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: nested components with their own message type, update and view (Component, StatefulComponent, usable as custom elements; update returns Effects with follow-ups and messages for the parent), and server-side rendering with render_to_string (examples/ssr-forms).",
+      "Application::update(&mut self, msg) -> Cmd<Msg>; Cmd::once and Cmd::new take a future that resolves to a message, and the runtime polls it (crates/core/src/dom/cmd.rs).",
+      "No subscriptions function: a long-running source is a Cmd::recurring built over a channel, as Window::on_resize and Window::on_mousemove do, kept by the runtime.",
+      "Ports are managed: Program::mount_to_body returns the Program, whose dispatch sends a message from outside (crates/core/src/dom/program.rs); JS interop otherwise goes through wasm_bindgen and web_sys directly."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-15",
     "updatedAt": "2025-01-27",
     "stars": 2065
-  },
-  {
-    "id": "seed",
-    "name": "Seed",
-    "language": "Rust",
-    "elmFamily": false,
-    "targets": ["web"],
-    "tier": "full",
-    "status": "archived",
-    "unmaintainedNotice": "https://github.com/seed-rs/seed#whats-next-for-seed",
-    "repo": "https://github.com/seed-rs/seed",
-    "logo": "seed.png",
-    "summary": "A Rust frontend framework whose apps mimic the structure of The Elm Architecture.",
-    "snippetSource": "https://github.com/seed-rs/seed/blob/master/examples/counter/src/lib.rs",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "native"
-    },
-    "notes": [
-      "Commands go through an orders object passed to update; streams stand in for subscriptions."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2018-12-01",
-    "updatedAt": "2026-11-01",
-    "stars": 3830
-  },
-  {
-    "id": "draco",
-    "name": "Draco",
-    "language": "Rust",
-    "elmFamily": false,
-    "targets": ["web"],
-    "tier": "full",
-    "status": "quiet",
-    "repo": "https://github.com/utkarshkukreti/draco",
-    "summary": "An early Rust and WebAssembly library for Elm-style web apps.",
-    "snippetSource": "https://github.com/utkarshkukreti/draco/blob/master/README.md",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
-    },
-    "notes": [],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2018-10-26",
-    "updatedAt": "2023-04-03",
-    "stars": 304
   },
   {
     "id": "tears",
@@ -1298,7 +1217,7 @@
     "language": "Rust",
     "elmFamily": false,
     "targets": ["tui"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/akiomik/tears",
     "website": "https://docs.rs/crate/tears/latest",
@@ -1313,8 +1232,13 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: tears::testing::TestStore drives update and the effects of commands in virtual time and fails a test on any unchecked output, and reducers compose like TCA (scope, for_each over a Keyed collection, presented over an optional Slot) with the effects of a removed child torn down (https://github.com/akiomik/tears/blob/main/README.md).",
+      "update(&mut self, msg) returns a Command<Message> (none, perform, future, stream, batch, map, cancel, retry, timeout, quit); async work is a Command the runtime runs, and the result returns as a message.",
+      "subscriptions(&self) returns a Vec<Subscription<Message>> from the model; each has an identity from its source key, and the runtime reconciles after every update, starting new ones and stopping removed ones. Sources: Timer, TerminalEvents, Signal, and WebSocket and HTTP behind features.",
+      "view(&self, frame: &mut Frame) draws into a ratatui Frame."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-12-27",
     "updatedAt": "2026-11-09",
@@ -1339,13 +1263,16 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
     "notes": [
+      "update(&mut self, event: Event<Message>) returns a Cmd<Message>, a data type (NoOp, Function, Async, Tick, Every, Batch, Sequence, Quit, ExecProcess) that the runtime runs; view(&self) returns a String.",
+      "No subscription function: commands::every is a repeating timer Cmd, and Program::subscribe(stream) (also subscribe_interval) returns a Subscription handle that forwards stream items as messages until it is cancelled or dropped.",
+      "Ports are managed: Program has sender(), send_message(msg) and init_async_bridge(), which returns a SyncSender for messages from outside (hojicha-runtime src/program.rs).",
       "GPL-3.0 licensed.",
-      "Its repository is on a Gitea host that needs a sign-in to view, so the site links its docs instead."
+      "Its repository (https://jgok76.gitea.cloud/femtomc/hojicha) redirects to a sign-in page, so the site links the docs; the source was read from the published crates hojicha-core and hojicha-runtime 0.2.2."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z"
   },
   {
@@ -1366,11 +1293,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "managed",
+      "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update(&mut self, msg) returns a Cmd<Msg> holding an Action (None, Quit, Task for a future, Batch) and a dirty flag; the runtime or your own loop runs the Action and feeds the result back as a message.",
+      "subscriptions(&self) returns Vec<Sub<Msg>>, each an id plus a Stream; the built-in runner starts, keeps and cancels streams by id (https://github.com/os-tack/osteak/blob/main/src/sub.rs). With your own event loop you manage the streams yourself.",
+      "view(&mut self, frame: &mut Frame) draws into a ratatui Frame; it takes &mut self for ratatui stateful widgets.",
+      "Cmd::map lets a parent compose a child model (see the multi_pane example)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-04-05",
     "updatedAt": "2026-04-23",
@@ -1399,9 +1331,12 @@
       "ports": "missing"
     },
     "notes": [
+      "update is fn(Model, Msg) -> Update<Model, Effect>, with Update::Next(model, Option<Effect>) or Update::Exit; an Effect is your own enum, and the effects function you pass to teatui::start runs it (async with the tokio feature) and returns an Option<Msg>.",
+      "No subscription function: terminal events are the only source, read by the runtime and converted through Msg: From<crossterm::event::Event>; any other long-running source is an Effect that update re-issues.",
+      "view is fn(Model) -> Widget, a ratatui widget.",
       "Moved from GitHub to Codeberg in 2026; the GitHub repository is archived."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "stars": 1,
     "createdAt": "2025-08-18",
