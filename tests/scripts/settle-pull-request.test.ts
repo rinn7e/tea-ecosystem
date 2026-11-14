@@ -96,10 +96,10 @@ describe('settle-pull-request.sh', { timeout: 30_000 }, () => {
   })
 
   it('comments on a pull request whose candidates break a rule, and merges nothing', () => {
-    const head = branchOf(entryOf('small-tea', 6))
+    const head = branchOf(entryOf('small-tea', 2))
     const { status, log } = settle('16', viewOf(head))
     expect(status).toBe(0)
-    expect(log).toContain('small-tea: 6 stars (at least 50)')
+    expect(log).toContain('small-tea: 2 stars (at least 5)')
     expect(log).not.toContain('pr merge')
   })
 

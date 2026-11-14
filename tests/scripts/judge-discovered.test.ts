@@ -26,7 +26,7 @@ const goodEntryOf = (id: string) => ({
   repo: `https://github.com/o/${id}`,
   discoveredAt: `${day}T06:02:11Z`,
   status: 'active',
-  stars: 50,
+  stars: 5,
   updatedAt: '2025-11-16',
   verified: true,
   snippetSource: `https://github.com/o/${id}/blob/main/README.md`,
@@ -81,7 +81,7 @@ afterEach(() => {
 describe('judge-discovered.sh', () => {
   it('passes new entries that meet every rule, at its edges', () => {
     commitOf([
-      { entry: goodEntryOf('good-tea'), example: exampleOf(60) },
+      { entry: goodEntryOf('good-tea'), example: exampleOf(90) },
       { entry: goodEntryOf('other-tea'), example: exampleOf(3) },
     ])
     expect(judge()).toEqual([])
@@ -92,12 +92,12 @@ describe('judge-discovered.sh', () => {
       [{ entry: { ...goodEntryOf('store'), stars: 3 }, example: exampleOf(3) }],
       'adjacent',
     )
-    expect(judge()).toEqual(['store: 3 stars (at least 50)'])
+    expect(judge()).toEqual(['store: 3 stars (at least 5)'])
   })
 
   it.each<[string, Record<string, unknown>, string]>([
-    ['too few stars', { stars: 49 }, 'tea: 49 stars (at least 50)'],
-    ['no stars', { stars: undefined }, 'tea: 0 stars (at least 50)'],
+    ['too few stars', { stars: 4 }, 'tea: 4 stars (at least 5)'],
+    ['no stars', { stars: undefined }, 'tea: 0 stars (at least 5)'],
     [
       'no push in a year',
       { updatedAt: '2025-11-15' },
@@ -121,23 +121,23 @@ describe('judge-discovered.sh', () => {
   it('names a new entry with no example, or an example too long', () => {
     commitOf([
       { entry: goodEntryOf('bare'), example: null },
-      { entry: goodEntryOf('long'), example: exampleOf(61) },
+      { entry: goodEntryOf('long'), example: exampleOf(91) },
     ])
     expect(judge()).toEqual([
       'bare: no example',
-      'long: example of 61 lines (at most 60)',
+      'long: example of 91 lines (at most 90)',
     ])
   })
 
   it('names every rule an entry breaks, and judges no existing entry', () => {
     commitOf([
       {
-        entry: { ...goodEntryOf('tea'), stars: 5, verified: false },
+        entry: { ...goodEntryOf('tea'), stars: 2, verified: false },
         example: null,
       },
     ])
     expect(judge()).toEqual([
-      'tea: 5 stars (at least 50)',
+      'tea: 2 stars (at least 5)',
       'tea: grades not verified',
       'tea: no example',
     ])

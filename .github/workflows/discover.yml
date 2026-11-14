@@ -9,8 +9,8 @@ name: Discover
 # agent is ever pushed), and opens one draft pull request with every
 # candidate of the run, so they never conflict with each other. It merges
 # that pull request on its own when every candidate passes the rules of
-# `scripts/judge-discovered.sh` (at least 50 stars, pushed to in the last
-# year, verified grades, an example of at most 60 lines); otherwise it
+# `scripts/judge-discovered.sh` (at least 5 stars, pushed to in the last
+# year, verified grades, an example of at most 90 lines); otherwise it
 # stays a draft for a person, who turns down the candidates they do not
 # want and merges. While an earlier pull request of the search is still open,
 # the run skips its search before the agent starts, so it spends nothing

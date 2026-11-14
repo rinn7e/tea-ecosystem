@@ -110,7 +110,7 @@ describe('propose-discovered.sh', { timeout: 30_000 }, () => {
     expect(log).toContain(
       'pr comment https://github.com/owner/name/pull/17 --body-file -',
     )
-    expect(log).toContain('good-tea: 0 stars (at least 50)')
+    expect(log).toContain('good-tea: 0 stars (at least 5)')
     expect(log).toContain('good-tea: no example')
     expect(log).not.toContain('gh pr ready')
     expect(log).not.toContain('gh pr merge')
