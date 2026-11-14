@@ -7,6 +7,7 @@ import {
   FIRST_LIST_DAY,
   type Framework,
   isRecentlyAdded,
+  isRepoUrl,
   recentSinceOf,
   sourceLabelOf,
   sourceUrlOf,
@@ -33,7 +34,7 @@ describe('sourceUrlOf', () => {
   })
 
   it('falls back to the page of an entry whose source is not public', () => {
-    expect(sourceUrlOf(entry('hojicha'))).toBe(entry('hojicha').url)
+    expect(sourceUrlOf(entry('hojicha'))).toBe('https://docs.rs/crate/hojicha')
   })
 })
 
@@ -64,8 +65,10 @@ describe('websiteOf', () => {
     expect(websiteOf(entry('elm'))).toBe('https://elm-lang.org')
   })
 
-  it('gives nothing when its page is its repository', () => {
+  it('gives nothing when it has none, or it is what the source opens', () => {
     expect(websiteOf(entry('lustre'))).toBeUndefined()
+    expect(websiteOf(entry('hojicha'))).toBeUndefined()
+    expect(websiteOf(entry('use-reducer'))).toBeUndefined()
   })
 })
 
@@ -87,5 +90,21 @@ describe('isRecentlyAdded', () => {
   it('never marks the first list', () => {
     expect(entry('lustre').discoveredAt).toBe(FIRST_LIST_DAY)
     expect(isRecentlyAdded(entry('lustre'), recentSinceOf(day))).toBe(false)
+  })
+})
+
+describe('isRepoUrl', () => {
+  it('reads a repository on a code host by its owner and name', () => {
+    expect(isRepoUrl('https://github.com/lustre-labs/lustre')).toBe(true)
+    expect(isRepoUrl('https://codeberg.org/JasterV/teatui')).toBe(true)
+    expect(isRepoUrl('https://gitlab.com/owner/name')).toBe(true)
+  })
+
+  it('reads a website, a registry page or a folder as no repository', () => {
+    expect(isRepoUrl('https://docs.rs/crate/hojicha')).toBe(false)
+    expect(isRepoUrl('https://sky-lang.org')).toBe(false)
+    expect(
+      isRepoUrl('https://github.com/monad-lang/monad/tree/main/motes/oak'),
+    ).toBe(false)
   })
 })

@@ -70,7 +70,7 @@ pnpm run build
 
 ## Add or fix a framework
 
-Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a hard requirement). Give it the day you add it as `discoveredAt` (`YYYY-MM-DD`; a new entry shows as "Recently added" for 30 days) and its `repo` (the full URL of its public repository, on GitHub, GitLab, Codeberg or another Gitea) and run `GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs` to fill its stars and its created and updated dates; a logo goes in `public/logo/` and is named in `logo`. Each grade is `native`, `managed`, `equivalent` or `missing`; the [rubric](doc/analysis.md#3-inclusion-rubric) says what each means. `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
+Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a hard requirement). Give it the day you add it as `discoveredAt` (`YYYY-MM-DD`; a new entry shows as "Recently added" for 30 days) its `repo` (the full URL of its public repository, on GitHub, GitLab, Codeberg or another Gitea; only when its source is not public, its website instead), its `website` when it has one apart from the repository, and run `GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs` to fill its stars and its created and updated dates; a logo goes in `public/logo/` and is named in `logo`. Each grade is `native`, `managed`, `equivalent` or `missing`; the [rubric](doc/analysis.md#3-inclusion-rubric) says what each means. `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
 
 ## Deploy
 

@@ -113,16 +113,21 @@ export type Framework = {
   targets: Target[]
   tier: Tier
   status: Status
-  url: string
-  // Its public repository, as a full URL on any host (GitHub, GitLab,
-  // Codeberg or another Gitea): where its stars and dates come from. Absent
-  // when its source is not public.
-  repo?: string
+  // Its repository, as a full URL of owner and name on any host (GitHub,
+  // GitLab, Codeberg or another Gitea): where its source links go, and
+  // where its stars and dates come from. When its source is not public,
+  // it falls back to its website, and `website` holds the same URL
+  // (`hasPublicRepo` tells the two apart by the host).
+  repo: string
+  // Its own website or docs, apart from its repository (sky-lang.org for
+  // Sky), shown under the summary of its page when it is not its source.
+  // Absent when the repository is all it has.
+  website?: string
   // Where its source links go instead of the root of `repo`: the full URL
   // of its directory inside `repo`, for an entry that is one package of a
   // monorepo (Oak in the repository of the Monad language, @xstate/store
-  // beside XState), or its own reference page (`url`), for one that is a
-  // single function of a bigger library (useReducer in React)
+  // beside XState), or its own reference page (`website`), for one that is
+  // a single function of a bigger library (useReducer in React)
   source?: string
   // Where the project lived before it moved (Tyrian and Indigo moved into
   // one monorepo in 2025, teatui to Codeberg): its `createdAt` comes from
@@ -162,7 +167,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     targets: t.array(TargetJson),
     tier: TierJson,
     status: StatusJson,
-    url: t.string,
+    repo: t.string,
     summary: t.string,
     rubric: RubricJson,
     notes: t.array(t.string),
@@ -170,7 +175,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     discoveredAt: t.string,
   }),
   t.partial({
-    repo: t.string,
+    website: t.string,
     source: t.string,
     originRepo: t.string,
     logo: t.string,
@@ -193,14 +198,35 @@ export const languagesOf = (framework: Framework): string[] =>
 export const isLanguageEntry = (framework: Framework): boolean =>
   framework.name === framework.language
 
-// Where its source lives: its directory in a monorepo (`source`), else its
-// repository, else its own page (a package registry for the few whose
+const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
+
+// A repository on a code host: GitHub, a GitLab, Codeberg or another
+// Gitea, at the address of its owner and name. Anything else in `repo` is
+// the website an entry with no public source falls back to (a package
+// registry such as docs.rs).
+export const isRepoUrl = (url: string): boolean => {
+  const host = hostOf(url)
+  return (
+    (host === 'github.com' ||
+      host === 'gitlab.com' ||
+      host.startsWith('gitlab.') ||
+      host === 'codeberg.org' ||
+      host.startsWith('gitea.')) &&
+    /^\/[^/\s]+\/[^/\s]+\/?$/.test(new URL(url).pathname)
+  )
+}
+
+// Whether its source is public: its `repo` is a repository, not the
+// website it falls back to. Only then does it have stars and dates.
+export const hasPublicRepo = (framework: Framework): boolean =>
+  isRepoUrl(framework.repo)
+
+// Where its source lives: its directory in a monorepo or its reference
+// page (`source`), else its repository (the website of an entry whose
 // source is not public). The star button and the source link of its page
 // both open it.
 export const sourceUrlOf = (framework: Framework): string =>
-  framework.source ?? framework.repo ?? framework.url
-
-const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
+  framework.source ?? framework.repo
 
 // The source as its link reads: the host and the repository
 // (`github.com/lustre-labs/lustre`), then the directory of a monorepo
@@ -216,8 +242,8 @@ export const sourceLabelOf = (framework: Framework): string => {
       .replace(/\/$/, '')
   const pageLabel = (url: string): string =>
     `${hostOf(url)}${new URL(url).pathname.replace(/\/$/, '')}`
-  return framework.repo === undefined
-    ? hostOf(framework.url)
+  return !hasPublicRepo(framework)
+    ? hostOf(framework.repo)
     : framework.source === undefined
       ? repoLabel(framework.repo)
       : framework.source.startsWith(`${framework.repo}/`)
@@ -225,15 +251,18 @@ export const sourceLabelOf = (framework: Framework): string => {
         : pageLabel(framework.source)
 }
 
-// Its own website or docs, when they are not its source: the page links
-// to them under its summary
+// Its own website or docs, when it has one that is not its source: the
+// page links to it under its summary. None when `website` is absent, or is
+// the address its source link already opens (an entry with no public
+// source, or useReducer, whose source is its reference page).
 export const websiteOf = (framework: Framework): string | undefined => {
   const same = (a: string, b: string | undefined): boolean =>
     b !== undefined && a.replace(/\/$/, '') === b.replace(/\/$/, '')
-  return same(framework.url, framework.repo) ||
-    same(framework.url, framework.source)
+  return framework.website === undefined ||
+    same(framework.website, framework.repo) ||
+    same(framework.website, framework.source)
     ? undefined
-    : framework.url
+    : framework.website
 }
 
 export const websiteLabelOf = (url: string): string => hostOf(url)

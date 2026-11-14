@@ -9,7 +9,11 @@ import {
   frameworks,
   rubricProblemsOf,
 } from '@/common/data/catalog'
-import { isLanguageEntry } from '@/common/type/framework'
+import {
+  hasPublicRepo,
+  isLanguageEntry,
+  isRepoUrl,
+} from '@/common/type/framework'
 
 describe('data files', () => {
   it('decode, with frameworks in both files', () => {
@@ -79,19 +83,33 @@ describe('data files', () => {
   it('give every repository as a full URL of owner and name', () => {
     const repoUrl = /^https:\/\/[a-z0-9.-]+\/[^/\s]+\/[^/\s]+$/
     const wrong = [...frameworks, ...adjacentEntries].filter((f) =>
-      [f.repo, f.originRepo].some(
+      [hasPublicRepo(f) ? f.repo : undefined, f.originRepo].some(
         (repo) => repo !== undefined && !repoUrl.test(repo),
       ),
     )
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
+  it('fall back to the website as repo only for an entry with no public source', () => {
+    const wrong = [...frameworks, ...adjacentEntries].filter(
+      (f) => !isRepoUrl(f.repo) && f.website !== f.repo,
+    )
+    expect(wrong.map((f) => f.id)).toEqual([])
+    expect(
+      [...frameworks, ...adjacentEntries]
+        .filter((f) => !hasPublicRepo(f))
+        .map((f) => f.id),
+    ).toEqual(['hojicha', 'mvu-flutter', 'cauldron'])
+  })
+
   it('give the source of an entry inside its repository, or as its own page', () => {
     const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) =>
         f.source !== undefined &&
-        (f.repo === undefined ||
-          !(f.source.startsWith(`${f.repo}/`) || f.source === f.url)),
+        !(
+          hasPublicRepo(f) &&
+          (f.source.startsWith(`${f.repo}/`) || f.source === f.website)
+        ),
     )
     expect(wrong.map((f) => f.id)).toEqual([])
   })
@@ -108,7 +126,7 @@ describe('data files', () => {
     const day = /^\d{4}-\d{2}-\d{2}$/
     const wrong = frameworks.filter(
       (f) =>
-        f.repo !== undefined &&
+        hasPublicRepo(f) &&
         !(day.test(f.createdAt ?? '') && day.test(f.updatedAt ?? '')),
     )
     expect(wrong.map((f) => f.id)).toEqual([])
