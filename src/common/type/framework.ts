@@ -25,9 +25,10 @@ export const ConceptJson: t.Type<Concept> = t.keyof({
   ports: null,
 })
 
-// How a framework has a concept: in the shape of TEA (`native`), as a
-// long-running source the runtime manages (`managed`, for subscriptions
-// and ports), with the same power in another shape (`equivalent`, such as
+// How a framework has a concept: in the shape of TEA (`native`), run by
+// the runtime in another shape (`managed`: for subscriptions a long-running
+// source it starts and stops, for ports a handle the host sends messages
+// in with; `doc/analysis.md` section 3), with the same power in another shape (`equivalent`, such as
 // effects run inside update, which describes a part and never meets a
 // requirement of a tier: `meetsRequirement`), or not at all
 export type Grade = 'native' | 'managed' | 'equivalent' | 'missing'

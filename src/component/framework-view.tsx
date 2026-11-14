@@ -108,7 +108,7 @@ export const gradeMeaning = (grade: ShownGrade): string => {
     case 'native':
       return 'In the shape of TEA, as in Elm.'
     case 'managed':
-      return 'A long-running source the runtime manages, without a declarative function of the model.'
+      return 'Run by the runtime in another shape: for Sub, a long-running source it starts and stops with no function of the model; for Ports, a handle the host sends messages in with.'
     case 'equivalent':
       return 'The same power in another shape, such as effects run inside update. It describes a part and never qualifies an entry for a tier.'
     case 'missing':
