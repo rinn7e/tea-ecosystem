@@ -1,7 +1,7 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
 import {
-  IconBrandGithub,
   IconCirclesRelation,
+  IconCode,
   IconHammer,
   IconInfoCircle,
   IconListCheck,
@@ -135,9 +135,9 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
               target='_blank'
               rel='noreferrer'
               aria-label={`The source code of TEA Ecosystem on GitHub, updated ${relativeTimeOf(LAST_UPDATED, now)}`}
-              className='text-bar-ink flex cursor-pointer flex-col items-center gap-[3px] px-[4px] py-[2px] opacity-80 transition-opacity hover:opacity-100'
+              className='text-bar-ink flex cursor-pointer flex-col items-center gap-[2px] px-[4px] py-[2px] opacity-60 transition-opacity hover:opacity-100'
             >
-              <IconBrandGithub size={22} stroke={1.75} aria-hidden />
+              <IconCode size={18} stroke={1.75} aria-hidden />
               {/* The compact form on a phone, where the emblem leaves
                   little room on its right; the words from a tablet up */}
               <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
