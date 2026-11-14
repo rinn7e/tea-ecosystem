@@ -1,135 +1,75 @@
 // Fills `stars`, `createdAt` and `updatedAt` of every entry whose `repo`
 // is a repository in `data/frameworks.json` and `data/adjacent.json`, from
-// the API of the host in the URL of its `repo`. An entry with no public
+// the API of the host in the URL of its `repo` (`fetchRepo` in
+// `repo-stats.mjs` says what each host gives). An entry with no public
 // source has its website in `repo` instead, with the same URL in `website`
 // (`hasPublicRepo` in `src/common/type/framework.ts`), and is left as it
-// is:
-//
-// - GitHub (`github.com`): `updatedAt` is the last push (`pushed_at`, not
-//   `updated_at`, which a star also changes).
-// - GitLab (`gitlab.com`, or a host named `gitlab.*`): `updatedAt` is the
-//   last activity.
-// - Any other host is read as a Gitea or Forgejo (Codeberg, a self-hosted
-//   Gitea): `updatedAt` is its `updated_at`.
+// is.
 //
 // `stars` is the star count of `repo`, `createdAt` the day the repository
-// was created (of `originRepo` when the project moved). It also prints the
-// entries whose `status` disagrees with the archived flag of their host,
-// and leaves them for a person to decide. An entry its host does not answer
-// for keeps its values, and the run says so (SKIPPED).
+// was created (of `originRepo` when the project moved). A repository that
+// moved to another owner or name has its `repo`, and every `website`,
+// `source` and `snippetSource` under its old address, rewritten to the new
+// one (MOVED). It also prints the entries whose `status` disagrees with the
+// archived flag of their host (STATUS?), and leaves them for a person to
+// decide. An entry its host does not answer for keeps its values, and the
+// run says so (SKIPPED). Every link of every entry is fetched (`networkOf`
+// in `repo-stats.mjs` says how), and one that does not answer 200 after its
+// redirects (BROKEN), or answers at another address (REDIRECTS), is printed
+// and left as it is. A slow run stops in time (NOT CHECKED, SKIPPED).
+//
+// In GitHub Actions (`.github/workflows/refresh-stats.yml`) the same report
+// goes to the job summary (`GITHUB_STEP_SUMMARY`); elsewhere it is printed
+// at the end.
 //
 // Run: GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs
-// The token is optional and only sent to GitHub: without it the GitHub API
-// allows 60 requests an hour, fewer than one run needs. Then format the
-// files: pnpm run format
-import { readFile, writeFile } from 'node:fs/promises'
+// The token is optional and only sent to the GitHub API: without it the
+// GitHub API allows 60 requests an hour, fewer than one run needs. Then
+// format the files: pnpm run format
+import { appendFile, readFile, writeFile } from 'node:fs/promises'
+import { setTimeout as sleep } from 'node:timers/promises'
+
+import { linesOf, networkOf, refreshEntries, summaryOf } from './repo-stats.mjs'
 
 const FILES = ['../data/frameworks.json', '../data/adjacent.json'].map(
   (path) => new URL(path, import.meta.url),
 )
 
-const USER_AGENT = 'tea-ecosystem (+https://github.com/rinn7e/tea-ecosystem)'
+// How long, from the start of the run, the links may take to check, and
+// the stats to fetch: what is still left then is reported as not checked
+// or skipped, so the run ends well within the 30 minutes of its job
+// (`refresh-stats.yml`), its data written and its summary out. The links
+// stop first, so they never cost the stats.
+const LINK_CHECK_MS = 15 * 60_000
+const STATS_MS = 22 * 60_000
 
-const dayOf = (timestamp) => timestamp.slice(0, 10)
+const start = Date.now()
+const network = networkOf({
+  fetch,
+  sleep,
+  now: Date.now,
+  token: process.env.GITHUB_TOKEN,
+  deadlines: { stats: start + STATS_MS, links: start + LINK_CHECK_MS },
+})
 
-// Whether the source of an entry is public: the same rule as
-// `hasPublicRepo` in `src/common/type/framework.ts`, an entry with no public
-// source giving `website` the URL of its `repo`
-const hasPublicRepo = (entry) =>
-  entry.website === undefined ||
-  entry.repo.replace(/\/$/, '') !== entry.website.replace(/\/$/, '')
-
-const getJson = async (url, extraHeaders) => {
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      'User-Agent': USER_AGENT,
-      ...extraHeaders,
-    },
-  })
-  if (!response.ok) {
-    throw new Error(`${url}: ${response.status} ${response.statusText}`)
-  } else {
-    return response.json()
-  }
-}
-
-const fromGitHub = async (owner, name) => {
-  const body = await getJson(`https://api.github.com/repos/${owner}/${name}`, {
-    Accept: 'application/vnd.github+json',
-    ...(process.env.GITHUB_TOKEN
-      ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-      : {}),
-  })
-  return {
-    stars: body.stargazers_count,
-    createdAt: dayOf(body.created_at),
-    updatedAt: dayOf(body.pushed_at),
-    archived: body.archived,
-  }
-}
-
-const fromGitLab = async (host, owner, name) => {
-  const path = encodeURIComponent(`${owner}/${name}`)
-  const body = await getJson(`https://${host}/api/v4/projects/${path}`)
-  return {
-    stars: body.star_count,
-    createdAt: dayOf(body.created_at),
-    updatedAt: dayOf(body.last_activity_at),
-    archived: body.archived,
-  }
-}
-
-const fromGitea = async (host, owner, name) => {
-  const body = await getJson(`https://${host}/api/v1/repos/${owner}/${name}`)
-  return {
-    stars: body.stars_count,
-    createdAt: dayOf(body.created_at),
-    updatedAt: dayOf(body.updated_at),
-    archived: body.archived,
-  }
-}
-
-// `repo` is a full URL: `https://<host>/<owner>/<name>`
-const fetchRepo = async (repo) => {
-  const { host, pathname } = new URL(repo)
-  const [owner, name] = pathname.split('/').filter((part) => part !== '')
-  if (host === 'github.com') {
-    return fromGitHub(owner, name)
-  } else if (host === 'gitlab.com' || host.startsWith('gitlab.')) {
-    return fromGitLab(host, owner, name)
-  } else {
-    return fromGitea(host, owner, name)
-  }
-}
-
-const statsOf = async (entry) => {
-  const { stars, updatedAt, archived, ...current } = await fetchRepo(entry.repo)
-  const { createdAt } =
-    entry.originRepo === undefined ? current : await fetchRepo(entry.originRepo)
-  return { stars, createdAt, updatedAt, archived }
-}
-
+const reports = []
 for (const file of FILES) {
-  const entries = JSON.parse(await readFile(file, 'utf8'))
-  const updated = []
-  for (const entry of entries) {
-    if (!hasPublicRepo(entry)) {
-      updated.push(entry)
-    } else {
-      try {
-        const { stars, createdAt, updatedAt, archived } = await statsOf(entry)
-        updated.push({ ...entry, stars, createdAt, updatedAt })
-        const flag =
-          archived !== (entry.status === 'archived') ? '  STATUS?' : ''
-        console.log(
-          `${entry.id}: ${stars} stars, ${createdAt} .. ${updatedAt}${archived ? ' archived' : ''}${flag}`,
-        )
-      } catch (error) {
-        updated.push(entry)
-        console.log(`${entry.id}: SKIPPED, ${error.message}`)
+  const { entries, reports: fileReports } = await refreshEntries(
+    network,
+    JSON.parse(await readFile(file, 'utf8')),
+    (report) => {
+      for (const line of linesOf(report)) {
+        console.log(line)
       }
-    }
-  }
-  await writeFile(file, `${JSON.stringify(updated, null, 2)}\n`)
+    },
+  )
+  reports.push(...fileReports)
+  await writeFile(file, `${JSON.stringify(entries, null, 2)}\n`)
+}
+
+const summary = `${summaryOf(reports)}\n`
+if (process.env.GITHUB_STEP_SUMMARY) {
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, summary)
+} else {
+  console.log(`\n${summary}`)
 }

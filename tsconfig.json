@@ -12,6 +12,7 @@
     "noFallthroughCasesInSwitch": true,
     "noEmit": true,
     "resolveJsonModule": true,
+    "allowJs": true,
     "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
