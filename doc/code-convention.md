@@ -138,6 +138,7 @@ A fact with an owner gets a type only its owner makes, so a write that skips the
 - No `let`: use `const`, ternaries and pure helpers.
 - No early returns: write the full `if / else if / else` tree. Use a `switch` on the `_tag` of a union.
 - An `Eq` of a union checks each variant explicitly.
+- The `Eq` of a generic type is a builder that takes the `Eq` of its type argument (`mkModelEq(filterEq)`), never one `Eq` fixed at the widest type: the catalog compares its model with `mkModelEq(CatalogFilterEq)`.
 - Imports in three groups (libraries, `@/` paths, relative paths), sorted by Prettier.
 - Re-export only from `index.ts` files.
 

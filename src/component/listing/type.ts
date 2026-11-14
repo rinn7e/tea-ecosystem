@@ -38,11 +38,15 @@ export type Model<F extends ListingFilter> = {
   panelSeq: number
 }
 
-export const ModelEq: EqClass.Eq<Model<ListingFilter>> = EqClass.struct({
-  filter: ListingFilterEq,
-  panel: S.Eq,
-  panelSeq: N.Eq,
-})
+// The `Eq` of a model, from the `Eq` of the filter of its list
+export const mkModelEq = <F extends ListingFilter>(
+  filterEq: EqClass.Eq<F>,
+): EqClass.Eq<Model<F>> =>
+  EqClass.struct<Model<F>>({
+    filter: filterEq,
+    panel: S.Eq,
+    panelSeq: N.Eq,
+  })
 
 export type Msg =
   // Ticks an option of a filter of the popover, or unticks it when ticked
@@ -84,7 +88,7 @@ export type Props = {
 }
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
-  model: ModelEq,
+  model: mkModelEq(ListingFilterEq),
   logosPerRow: N.Eq,
   recentSince: S.Eq,
   dispatch: EqAlways,

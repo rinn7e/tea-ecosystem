@@ -4,7 +4,10 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import { type AdjacentFilter } from '@/common/type/destination'
+import {
+  type AdjacentFilter,
+  AdjacentFilterEq,
+} from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
 // The TEA-adjacent libraries: the same listing as the catalog, over
@@ -16,7 +19,7 @@ export type Model = {
 }
 
 export const ModelEq: EqClass.Eq<Model> = EqClass.struct({
-  listing: Listing.ModelEq,
+  listing: Listing.mkModelEq(AdjacentFilterEq),
 })
 
 export type Msg = { _tag: 'ListingMsg'; subMsg: Listing.Msg }

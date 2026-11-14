@@ -157,21 +157,32 @@ const SharedFilterEq: EqClass.Eq<SharedFilter> = EqClass.struct({
   sort: O.getEq(ListingSortEq),
 })
 
-export const ListingFilterEq: EqClass.Eq<ListingFilter> = {
+export const CatalogFilterEq: EqClass.Eq<CatalogFilter> = {
   equals: (x, y) =>
     SharedFilterEq.equals(x, y) &&
-    (x.list === 'catalog' && y.list === 'catalog'
-      ? getChoiceEq(S.Eq).equals(x.tiers, y.tiers) &&
-        O.getEq(S.Eq).equals(x.show, y.show)
+    getChoiceEq(S.Eq).equals(x.tiers, y.tiers) &&
+    O.getEq(S.Eq).equals(x.show, y.show),
+}
+
+export const AdjacentFilterEq: EqClass.Eq<AdjacentFilter> = {
+  equals: (x, y) =>
+    SharedFilterEq.equals(x, y) && getChoiceEq(S.Eq).equals(x.lacks, y.lacks),
+}
+
+// Two filters of different lists are never equal
+export const ListingFilterEq: EqClass.Eq<ListingFilter> = {
+  equals: (x, y) =>
+    x.list === 'catalog' && y.list === 'catalog'
+      ? CatalogFilterEq.equals(x, y)
       : x.list === 'adjacent' && y.list === 'adjacent'
-        ? getChoiceEq(S.Eq).equals(x.lacks, y.lacks)
-        : false),
+        ? AdjacentFilterEq.equals(x, y)
+        : false,
 }
 
 export const ScreenEq: EqClass.Eq<Screen> = {
   equals: (x, y) => {
     if (x._tag === 'CatalogScreen' && y._tag === 'CatalogScreen') {
-      return ListingFilterEq.equals(x.filter, y.filter)
+      return CatalogFilterEq.equals(x.filter, y.filter)
     } else if (x._tag === 'FrameworkScreen' && y._tag === 'FrameworkScreen') {
       return x.frameworkId === y.frameworkId
     } else if (x._tag === 'RubricScreen' && y._tag === 'RubricScreen') {
@@ -179,7 +190,7 @@ export const ScreenEq: EqClass.Eq<Screen> = {
     } else if (x._tag === 'AboutScreen' && y._tag === 'AboutScreen') {
       return true
     } else if (x._tag === 'AdjacentScreen' && y._tag === 'AdjacentScreen') {
-      return ListingFilterEq.equals(x.filter, y.filter)
+      return AdjacentFilterEq.equals(x.filter, y.filter)
     } else if (x._tag === 'BuildScreen' && y._tag === 'BuildScreen') {
       return x.language === y.language
     } else if (x._tag === 'NotFoundScreen' && y._tag === 'NotFoundScreen') {

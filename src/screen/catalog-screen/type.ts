@@ -4,7 +4,7 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import { type CatalogFilter } from '@/common/type/destination'
+import { type CatalogFilter, CatalogFilterEq } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
 // The catalog of TEA frameworks: the shared listing over
@@ -16,7 +16,7 @@ export type Model = {
 }
 
 export const ModelEq: EqClass.Eq<Model> = EqClass.struct({
-  listing: Listing.ModelEq,
+  listing: Listing.mkModelEq(CatalogFilterEq),
 })
 
 export type Msg = { _tag: 'ListingMsg'; subMsg: Listing.Msg }
