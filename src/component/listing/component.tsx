@@ -95,6 +95,8 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
+  sortShortcutLabel,
+  sortShortcutOf,
 } from './util'
 
 const entryCategories: readonly EntryCategory[] = ['languages', 'frameworks']
@@ -693,6 +695,37 @@ const sortMenuView = ({
   )
 }
 
+const sortShortcutView = ({
+  filter,
+  dispatch,
+}: {
+  filter: ListingFilter
+  dispatch: Dispatcher<Msg>
+}) => {
+  const shortcut = sortShortcutOf(filter.sort)
+  return (
+    <button
+      type='button'
+      onClick={() =>
+        dispatch({ _tag: 'SetSort', sort: sortOfCardSort(shortcut) })
+      }
+      aria-label={
+        shortcut === 'added'
+          ? 'Sort by the newly added first'
+          : 'Back to the default order'
+      }
+      className={cn(
+        'flex h-[38px] items-center border-2 px-[14px] text-[0.9375rem] transition-shadow',
+        shortcut === 'added'
+          ? 'shine border-star bg-star/15 text-star-ink hover:offset-shadow-star'
+          : 'border-ink-faint bg-panel text-ink-muted hover:offset-shadow',
+      )}
+    >
+      {sortShortcutLabel(shortcut)}
+    </button>
+  )
+}
+
 const filterBarView = ({
   filter,
   shown,
@@ -719,6 +752,7 @@ const filterBarView = ({
         })}
       </div>
       {filter.layout === 'cards' && sortMenuView({ filter, dispatch })}
+      {filter.layout === 'cards' && sortShortcutView({ filter, dispatch })}
     </div>
     <div className='flex items-center gap-[12px]'>
       <span className='text-ink-muted text-sm whitespace-nowrap tabular-nums'>

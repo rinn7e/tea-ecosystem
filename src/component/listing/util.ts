@@ -551,6 +551,21 @@ export const cardSortOf = (sort: O.Option<ListingSort>): O.Option<CardSort> =>
     ),
   )
 
+// The shortcut beside the sort leads to the newest entries first, and back
+// to the order of the list once they are
+export type SortShortcut = 'added' | 'default'
+
+export const sortShortcutOf = (sort: O.Option<ListingSort>): SortShortcut =>
+  pipe(
+    cardSortOf(sort),
+    O.exists((choice) => choice === 'added'),
+  )
+    ? 'default'
+    : 'added'
+
+export const sortShortcutLabel = (shortcut: SortShortcut): string =>
+  shortcut === 'added' ? 'New' : 'Default'
+
 const sortWordsOf = (
   column: SortColumn,
 ): { name: string; ascending: string; descending: string } => {

@@ -146,6 +146,11 @@
   box-shadow: 5px 5px 0 1px var(--edge);
 }
 
+/* The hard shadow in the gold of the stars, for the New button */
+@utility offset-shadow-star {
+  box-shadow: 5px 5px 0 1px var(--color-star);
+}
+
 html {
   font-family: var(--font-sans);
   font-weight: 400;
@@ -316,8 +321,46 @@ body {
   color: var(--hl-bullet);
 }
 
+/* A streak of light crosses the New button twice when the list appears,
+   and once more on each hover: never in a loop, so the GPU rests once it
+   is done, and only a transform, so each pass stays cheap */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+.shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.65) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+  animation: shine 1s ease-in-out 0.4s 2;
+}
+.shine:hover::after {
+  animation: shine-again 0.8s ease-in-out;
+}
+@keyframes shine {
+  to {
+    transform: translateX(120%);
+  }
+}
+@keyframes shine-again {
+  to {
+    transform: translateX(120%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+  .shine::after {
+    animation: none !important;
   }
 }

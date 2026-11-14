@@ -1,4 +1,4 @@
-import { test } from '@fast-check/vitest'
+import { fc, test } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { isDeepStrictEqual } from 'node:util'
@@ -52,10 +52,12 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
+  sortShortcutLabel,
+  sortShortcutOf,
   update,
 } from '@/component/listing'
 
-import { listingFilterArb } from '../../helper/arbitrary'
+import { listingFilterArb, sortRecordArb } from '../../helper/arbitrary'
 
 describe('filterFrameworks', () => {
   it('shows everything but the archived entries with no filter', () => {
@@ -726,6 +728,21 @@ describe('sort menu of the cards', () => {
       expect(cardSortOf(sortOfCardSort(choice))).toEqual(O.some(choice)),
     )
   })
+
+  test.prop([fc.option(sortRecordArb, { nil: undefined })])(
+    'leads the shortcut to the newly added first, and back to the default from there',
+    (drawn) => {
+      const sort = O.fromNullable(drawn)
+      const isAdded = isDeepStrictEqual(cardSortOf(sort), O.some('added'))
+      expect(sortShortcutOf(sort)).toBe(isAdded ? 'default' : 'added')
+      // Twice from any sort lands on the default order, once on the newest
+      const once = sortOfCardSort(sortShortcutOf(sort))
+      expect(sortShortcutOf(once)).toBe(isAdded ? 'added' : 'default')
+      expect(sortShortcutLabel(sortShortcutOf(sort))).toBe(
+        isAdded ? 'Default' : 'New',
+      )
+    },
+  )
 
   it('names a sort only the table makes', () => {
     const byName: ListingSort = { column: 'name', direction: 'ascending' }
