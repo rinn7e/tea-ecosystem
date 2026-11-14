@@ -1,6 +1,3 @@
-For example, given the following simple Elmish counter program:
-
-```fsharp
 type Model = { value: int }
 let initModel = { value = 0 }
 

@@ -53,9 +53,11 @@
       "ports": "native"
     },
     "notes": [
-      "Programs on Node use the same Model, update and subscriptions without a view."
+      "update returns { model, command } with command a Cmd msg the runtime runs, and Browser.element takes subscriptions : model -> Sub msg (https://github.com/gren-lang/browser/blob/main/src/Browser.gren).",
+      "Programs on Node use the same Model, update and subscriptions without a view: Node.defineProgram takes init, update and subscriptions (https://github.com/gren-lang/node/blob/main/src/Node.gren).",
+      "Ports are typed: a port module declares port toJs : String -> Cmd msg and port fromJs : (String -> msg) -> Sub msg, and compiler 0.6.0 added task ports (https://gren-lang.org/book/applications/ports/)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-12-20",
     "updatedAt": "2026-10-29",
@@ -84,9 +86,11 @@
       "ports": "native"
     },
     "notes": [
-      "Superset: server-side TEA. The backend has its own Model, update and subscriptions; data sync and migrations are part of the platform."
+      "Superset: server-side TEA. The backend has its own Model, update and subscriptions (Lamdera.backend takes init, update, updateFromFrontend and subscriptions); data sync and migrations are part of the platform.",
+      "Lamdera.frontend is Browser.application plus updateFromBackend; sendToBackend, sendToFrontend and broadcast are Cmd values, and Lamdera.onConnect is a Sub (https://github.com/lamdera/example-apps/tree/master/counter/src).",
+      "Ports work on the frontend only (the elm-pkg-js folder is injected by the compiler); the backend has no ports or JavaScript (https://dashboard.lamdera.app/shouldnt-use)."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-12-10",
     "updatedAt": "2026-11-13",
@@ -147,9 +151,11 @@
       "ports": "missing"
     },
     "notes": [
-      "handleEvent returns responses: model updates, Task (one result) and Producer (a stream of events)."
+      "handleEvent returns [AppEventResponse s e]: Model replaces the model, Event raises another event, and Task (one IO result) and Producer (many events) are effects handed to the runtime (https://github.com/fjvallarino/monomer/blob/main/src/Monomer/Widgets/Composite.hs).",
+      "No subscriptions function: a Producer is started by returning it from handleEvent (for example on AppInit), and the runtime keeps its async thread and feeds its events back (docs/tutorials/05-producers.md).",
+      "Composite widgets nest a child with its own handleEvent and buildUI over a lens into the model of the parent (composite takes an ALens into it, Monomer.Widgets.Composite), the nested pattern of Elm, so the entry is full TEA."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-09-23",
     "updatedAt": "2026-01-04",
@@ -176,9 +182,11 @@
       "ports": "missing"
     },
     "notes": [
-      "update returns a transition with an IO action that may produce the next event; input streams feed events from outside."
+      "update : state -> event -> Transition state event, and Transition state (IO (Maybe event)) returns the IO action as a value that the runtime runs and feeds back (gi-gtk-declarative-app-simple, GI.Gtk.Declarative.App.Simple).",
+      "No subscriptions function: App has a fixed inputs :: [Producer event IO ()] list, run by the loop for its whole life and cancelled when it ends; GTK signals are routed to events by the library (subscribe, cancel).",
+      "The core gi-gtk-declarative package is only the declarative widget layer; the Elm-style loop lives in the app-simple package."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-05-31",
     "updatedAt": "2024-01-11",
@@ -190,7 +198,7 @@
     "language": "PureScript",
     "elmFamily": false,
     "targets": ["web", "ssr"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/easafe/purescript-flame",
     "summary": "A fast and simple PureScript framework inspired by The Elm Architecture.",
@@ -201,14 +209,17 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "managed"
     },
     "notes": [
-      "Often called the most Elm-like PureScript option.",
+      "Superset: server-side rendering with Flame.Renderer.String.render and hydration with resumeMount, which takes over a page rendered on the server and restores its serialized model (https://github.com/easafe/purescript-flame/blob/master/docs/rendering.md).",
+      "update returns Tuple Model (Array (Aff (Maybe Message))); the effects are Aff values the runtime runs, and each one may raise another message (https://github.com/easafe/purescript-flame/blob/master/docs/events.md). noMessages is the shorthand for no effects.",
+      "No subscriptions function: subscribe is a fixed Array (Subscription Message) given at mount (Flame.Subscription.Window, Document and onCustomEvent), and Flame.Subscription.send raises a message from anywhere.",
+      "Interop with JavaScript goes through CustomEvent subscriptions: onCustomEvent prime decodes a JSON payload (UnserializeState) into a message.",
       "Mostly maintained by one developer."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-07",
     "updatedAt": "2026-09-13",
@@ -220,7 +231,7 @@
     "language": "PureScript",
     "elmFamily": false,
     "targets": ["web"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/collegevine/purescript-elmish",
     "summary": "The Elm Architecture in PureScript, rendering through React.",
@@ -231,11 +242,17 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "missing"
     },
-    "notes": ["Maintained by CollegeVine and used in production there."],
-    "verified": false,
+    "notes": [
+      "Superset: wrapWithLocalState turns a component into a React component with its own message, update and transition loop, independent of its parent, which keeps its state (https://github.com/collegevine/purescript-elmish/blob/master/docs/composition.md).",
+      "update returns Transition msg state, a state plus an Array of Command values (Elmish.Component.transition, fork); the runtime runs them in Aff after update returns and dispatches the messages they produce (https://github.com/collegevine/purescript-elmish/blob/master/docs/transition.md).",
+      "No subscriptions function: Elmish.Subscription.subscribe starts a Subscription from a Transition, usually init, and the runtime stops it when the component unmounts.",
+      "No ports: JavaScript is reached through the React FFI (ReactComponent, Elmish.Foreign) from inside effects, since it is a thin layer on top of React.",
+      "Maintained by CollegeVine and used in production there."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-24",
     "updatedAt": "2026-09-09",
@@ -247,7 +264,7 @@
     "language": "PureScript",
     "elmFamily": false,
     "targets": ["web", "ssr"],
-    "tier": "full",
+    "tier": "superset",
     "status": "quiet",
     "repo": "https://github.com/alexmingoia/purescript-pux",
     "summary": "An early Elm-style framework for PureScript, kept for its history.",
@@ -258,11 +275,17 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
-      "ports": "native"
+      "sub": "managed",
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: isomorphic rendering, with renderToString and waitState to render on the server once data has loaded (https://github.com/alexmingoia/purescript-pux/blob/master/docs/rendering.md).",
+      "foldp :: Event -> State -> EffModel State Event returns { state, effects :: Array (Aff (Maybe Event)) }; the effects are Aff values that start runs and whose events are fed back to foldp.",
+      "No subscriptions function: inputs is a fixed Array (Signal Event) given to start (for example the URL signal for routing), and app.input is a channel to send events from anywhere.",
+      "The last commit to master is from 2018 and it is built on purescript-signal and smolder.",
+      "Ports are managed: start returns the app with input, a Channel that it creates, so outside code can send events into the running app (src/Pux.purs)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-01-24",
     "updatedAt": "2023-01-12",
@@ -286,10 +309,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update returns Transition effects model action, a record { model, effects :: Batch effects action }; the effects are data (a functor you choose) that an Interpreter runs and turns back into actions (src/Spork/Transition.purs, src/Spork/Interpreter.purs).",
+      "subs :: model -> Batch subs action is a function of the model that picks the active subscriptions, and the runtime starts and stops them as the set changes (src/Spork/App.purs).",
+      "PureApp is the simple form with update :: Model -> Action -> Model and no effects or subscriptions; BasicApp has effects but no subs.",
+      "Ports are managed: the AppInstance that App.make and makeWithSelector return has push, which buffers an action from outside for the next tick (src/Spork/App.purs)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-02-26",
     "updatedAt": "2021-08-12",
@@ -314,13 +342,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "missing"
     },
     "notes": [
-      "Keyed, model-dependent subscriptions since v4 (Program.withSubscription), which users can define themselves.",
-      "The runtime is renderer-agnostic: the entries below reuse it for WebAssembly, desktop, mobile and terminal."
+      "update is 'msg -> 'model -> 'model * Cmd<'msg>; Cmd<'msg> is a list of effects (Dispatch<'msg> -> unit) that the runtime runs (Cmd.OfAsync.perform, Cmd.OfPromise.either, Cmd.ofEffect).",
+      "Program.withSubscription takes 'model -> Sub<'msg>, a list of (SubId, Dispatch -> IDisposable); the runtime diffs it after each update, starting new ids and disposing removed ones (since v4; the timer sample in docs/docs/subscription.fsx uses it).",
+      "No ports: JavaScript is reached with Fable imports from inside effects and subscriptions, and the program gives the host no handle to send messages in.",
+      "view is 'model -> Dispatch<'msg> -> 'view and the runtime is renderer-agnostic: Bolero, Elmish.WPF, Avalonia.FuncUI, ReactiveElmish.Avalonia and Xelmish run on the Elmish package for WebAssembly, desktop and games."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-09-07",
     "updatedAt": "2026-10-13",
@@ -332,7 +362,7 @@
     "language": "F#",
     "elmFamily": false,
     "targets": ["web", "ssr"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/fsbolero/Bolero",
     "logo": "bolero.png",
@@ -345,10 +375,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": ["Can render on the server and stream updates, through Blazor."],
-    "verified": false,
+    "notes": [
+      "Superset: server-side rendering through Blazor render modes (BoleroRenderMode Server, WebAssembly, Auto, with prerender) and stream rendering (Program.mkStreamRendering loads the model after the first render).",
+      "Runs the standard Elmish 4 loop in ProgramComponent: update returns Model * Cmd<Msg> (Elmish.Cmd.OfAsync.perform), and Program.withSubscription subscriptions are started in OnAfterRenderAsync (ProgramRun.fs).",
+      "Ports are managed: ProgramComponent has a public Dispatch, the dispatch method of the component, so Blazor code holding it can send messages in (src/Bolero/Components.fs); JavaScript is also reached through the effect types Cmd.OfJS and Cmd.OfAuthorized.",
+      "ElmishComponent only re-renders when its sub-model changes; it has no model of its own."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-25",
     "updatedAt": "2026-09-06",
@@ -376,9 +411,11 @@
       "ports": "missing"
     },
     "notes": [
-      "The view is static XAML with bindings, not a function that returns a view tree."
+      "WpfProgram.mkProgram takes init and update returning 'model * Cmd<'msg> (Elmish.Cmd), and mkProgramWithCmdMsg lets update return plain command data that a toCmd function turns into Cmd.",
+      "WpfProgram.withSubscription takes 'model -> Sub<'msg> and passes it to Elmish 4, whose keyed subscriptions are started and stopped automatically (src/Elmish.WPF/WpfProgram.fs).",
+      "The view is a list of bindings (Binding.oneWay (fun m -> m.Count), Binding.cmd Increment) over static XAML, a function of the model but not one that returns a view tree; graded the same as ReactiveElmish.Avalonia."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-06-12",
     "updatedAt": "2024-10-01",
@@ -390,7 +427,7 @@
     "language": "F#",
     "elmFamily": false,
     "targets": ["mobile", "desktop"],
-    "tier": "full",
+    "tier": "superset",
     "status": "active",
     "repo": "https://github.com/fabulous-dev/Fabulous",
     "logo": "fabulous.png",
@@ -405,8 +442,13 @@
       "sub": "native",
       "ports": "missing"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "Superset: components that own local state and can embed an independent MVU program (Context.Mvu), beside the root program.",
+      "Program.statefulWithCmd takes init and update returning 'model * Cmd<'msg>; Cmd is a list of effects run by the runtime (Cmd.OfAsync.perform, Cmd.OfTask.either), and statefulWithCmdMsg lets update return command data mapped by mapCmd.",
+      "Program.withSubscription takes 'model -> Sub<'msg>, a list of (SubId, Dispatch -> IDisposable) that the runtime starts and stops by id as the model changes (Sub.fs).",
+      "view is 'model -> WidgetBuilder<'msg, 'marker>, reconciled with the native UI of MAUI or Avalonia; there are no ports, the host is .NET."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-02-05",
     "updatedAt": "2026-11-13",
@@ -434,9 +476,12 @@
       "ports": "missing"
     },
     "notes": [
-      "Superset: nested stateful components, with local state, offered beside the Elmish runtime that comes from Avalonia.FuncUI.Elmish."
+      "Superset: Component (fun ctx -> ...) with hooks (ctx.useState, useEffect) gives nested stateful components with local state, beside the Elmish integration.",
+      "TEA comes from Avalonia.FuncUI.Elmish over Elmish 5: Program.withHost and Program.runWithAvaloniaSyncDispatch run a standard Elmish program, so update returns Model * Cmd and Program.withSubscription takes a keyed function of the model (ClockApp example); ctx.useElmish runs the same loop inside one component.",
+      "The README Elmish counter shows an update that returns only the state; the loop itself is the Elmish runtime, so Cmd and Sub work as in Elmish.",
+      "view is 'state -> dispatch -> IView, a tree of component descriptions that the host diffs; there are no ports."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-09",
     "updatedAt": "2026-08-23",
@@ -460,13 +505,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
+      "update is 'msg -> 'model -> 'model * Cmd<'msg>; Cmd<'msg> is a list of Sub (Dispatch -> unit) effects that the runtime runs (Cmd.ofSub, Cmd.OfAsync.perform, Cmd.ofMsg).",
+      "Sub is managed: the package carries its own copy of the Elmish 3 loop, so Program.withSubscription takes 'model -> Cmd<'msg>, runs once at start and is never restarted or stopped; a source that lives on is a Cmd that dispatches again (the Spinned message in the counter, timerSubscription in App.fs).",
+      "view is 'model -> Dispatch<'msg> -> TerminalElement built with the Feliz-style View.label and View.button DSL; the runtime diffs the tree (TreeDiff.fs). There are no ports.",
       "A port to Terminal.Gui v2 is published as OnurGumus.Terminal.Gui.Elmish."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-27",
     "updatedAt": "2024-09-21",
