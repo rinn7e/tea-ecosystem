@@ -198,7 +198,9 @@ export const languagesOf = (framework: Framework): string[] =>
 export const isLanguageEntry = (framework: Framework): boolean =>
   framework.name === framework.language
 
-const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
+// The site of a URL, without `www.`: `sky-lang.org`
+export const hostOf = (url: string): string =>
+  new URL(url).host.replace(/^www\./, '')
 
 // Whether its source is public: its `repo` is a repository, not the
 // website it falls back to, which the data marks by giving `website` the
@@ -219,22 +221,21 @@ export const sourceUrlOf = (framework: Framework): string =>
 // entry after a dot (`github.com/monad-lang/monad · motes/oak`); the host
 // alone for an entry whose source is not public
 export const sourceLabelOf = (framework: Framework): string => {
-  const repoLabel = (repo: string): string =>
-    `${hostOf(repo)}${new URL(repo).pathname.replace(/\/$/, '')}`
+  // The host and the path of a URL: `github.com/lustre-labs/lustre`
+  const addressOf = (url: string): string =>
+    `${hostOf(url)}${new URL(url).pathname.replace(/\/$/, '')}`
   const directoryOf = (repo: string, source: string): string =>
     source
       .slice(repo.length)
       .replace(/^\/(-\/)?(tree|blob|src\/branch)\/[^/]+\//, '')
       .replace(/\/$/, '')
-  const pageLabel = (url: string): string =>
-    `${hostOf(url)}${new URL(url).pathname.replace(/\/$/, '')}`
   return !hasPublicRepo(framework)
     ? hostOf(framework.repo)
     : framework.source === undefined
-      ? repoLabel(framework.repo)
+      ? addressOf(framework.repo)
       : framework.source.startsWith(`${framework.repo}/`)
-        ? `${repoLabel(framework.repo)} · ${directoryOf(framework.repo, framework.source)}`
-        : pageLabel(framework.source)
+        ? `${addressOf(framework.repo)} · ${directoryOf(framework.repo, framework.source)}`
+        : addressOf(framework.source)
 }
 
 // Its own website or docs, when it has one that is not its source: the
@@ -267,7 +268,8 @@ export const recentSinceOf = (now: number): string =>
   new Date(now - RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 
 // Found after the first list, and not longer ago than `RECENT_DAYS`: its
-// card, its row and its page show the ribbon "Recently added"
+// card and its page show the ribbon "Recently added" (the table shows the
+// day in its Added column instead)
 export const isRecentlyAdded = (
   framework: Framework,
   recentSince: string,

@@ -648,7 +648,7 @@ const sortMenuView = ({
 }) => {
   const chosen = cardSortOf(filter.sort)
   return (
-    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge relative flex h-[38px] items-center border-2 text-[0.9375rem] transition-shadow'>
+    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge focus-within:offset-shadow-edge relative flex h-[38px] items-center border-2 text-[0.9375rem] transition-shadow'>
       <IconArrowsSort
         size={16}
         stroke={1.75}
@@ -702,8 +702,9 @@ const sortMenuView = ({
   )
 }
 
-// The toolbar right above the results: the layout on the left, the count
-// and (while a filter is on) Clear filters on the right
+// The toolbar right above the results: the layout and, in the card view,
+// the sort menu on the left, the count and (while a filter is on) Clear
+// filters on the right
 const filterBarView = ({
   filter,
   shown,

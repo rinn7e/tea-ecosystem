@@ -10,6 +10,7 @@ import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
 import {
   type Framework,
   concepts,
+  hostOf,
   isRecentlyAdded,
   sourceLabelOf,
   sourceUrlOf,
@@ -36,8 +37,6 @@ import { frameworkTileView, languageLineLogoView } from '@/component/logo'
 import { sectionTitleView } from '@/component/section-title'
 
 import { type Props, PropsEq } from './type'
-
-const hostOf = (url: string): string => new URL(url).host.replace(/^www\./, '')
 
 // Where an example comes from, short: the site and the project (the first
 // two parts of the path), then the file (`github.com/lustre-labs/lustre ·

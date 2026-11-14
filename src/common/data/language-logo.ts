@@ -36,10 +36,11 @@ import { skyLogoPaths } from './sky-logo'
 // box they are drawn in, each shape with its color) or a picture in
 // `public/logo/` (`Image`), for a language whose logo exists only as a
 // picture (Gren: the bird of gren-lang.org; Monad: the standing stone of
-// monad-lang.org, without the words over it, in the dark of its site
-// made readable on both panels: `readableColorOf('0d1117')`, #67696d). A logo of Simple Icons (CC0)
-// is one shape in a 24 x 24 box; the languages it does not carry have
-// their own files (Java, PowerShell, Roc, Lean, Sky: `<language>-logo.ts`).
+// monad-lang.org, without the words over it, in the dark of its site made
+// readable on both panels: `readableColorOf('0d1117')`, #67696d). A logo
+// of Simple Icons (CC0) is one shape in a 24 x 24 box; the languages it
+// does not carry have their own files (Java, PowerShell, Roc, Lean, Sky:
+// `<language>-logo.ts`).
 export type LanguageLogo =
   | { _tag: 'Shapes'; title: string; viewBox: string; paths: LogoPath[] }
   | { _tag: 'Image'; title: string; file: string }
