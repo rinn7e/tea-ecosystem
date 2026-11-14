@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import {
   existsSync,
   mkdirSync,
@@ -6,6 +6,7 @@ import {
   readFileSync,
   realpathSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -146,18 +147,77 @@ const deniedIdsOf = (messages: unknown): string[] =>
       : [],
   )
 
+// Whether each call that came back failed, by its id: a call that never
+// ran has no result at all
+const failedByIdOf = (messages: unknown): Map<string, boolean> =>
+  new Map(
+    (Array.isArray(messages) ? messages : []).flatMap((message: unknown) =>
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'user' &&
+      'message' in message &&
+      typeof message.message === 'object' &&
+      message.message !== null &&
+      'content' in message.message &&
+      Array.isArray(message.message.content)
+        ? message.message.content.flatMap((block: unknown) =>
+            typeof block === 'object' &&
+            block !== null &&
+            'tool_use_id' in block &&
+            typeof block.tool_use_id === 'string'
+              ? [
+                  [
+                    block.tool_use_id,
+                    'is_error' in block && block.is_error === true,
+                  ] satisfies [string, boolean],
+                ]
+              : [],
+          )
+        : [],
+    ),
+  )
+
+// Through a link, as a checkout under `/tmp` on macOS is: the script must
+// still run
+const link = outside('discover-agent.mjs')
+
 const runAgent = (env: Record<string, string>): Promise<number | null> =>
   new Promise((resolve) =>
-    spawn(process.execPath, [scriptOf('discover-agent.mjs')], {
+    spawn(process.execPath, [link], {
       cwd: repo,
       env,
       stdio: 'ignore',
     }).on('close', resolve),
   )
 
-const run: { status: number | null; denied: string[] } = {
+const run: {
+  status: number | null
+  denied: string[]
+  failed: Map<string, boolean>
+} = {
   status: null,
   denied: [],
+  failed: new Map(),
+}
+
+const gitEnv = {
+  PATH: process.env.PATH ?? '/usr/bin:/bin',
+  GIT_CONFIG_NOSYSTEM: '1',
+  GIT_CONFIG_GLOBAL: '/dev/null',
+}
+
+const git = (...args: string[]): void => {
+  spawnSync('git', args, {
+    cwd: repo,
+    env: {
+      ...gitEnv,
+      GIT_AUTHOR_NAME: 'Test',
+      GIT_AUTHOR_EMAIL: 'test@example.invalid',
+      GIT_COMMITTER_NAME: 'Test',
+      GIT_COMMITTER_EMAIL: 'test@example.invalid',
+    },
+  })
 }
 
 describe('the permission rules of the discovery agent, in Claude Code', () => {
@@ -169,13 +229,16 @@ describe('the permission rules of the discovery agent, in Claude Code', () => {
     )
     writeFileSync(inRepo('data/frameworks.json'), '[]\n')
     writeFileSync(inRepo('src/main.ts'), 'main\n')
+    // A repository with a commit, so each git read that is allowed works
+    git('init', '-q')
+    git('add', '-A')
+    git('commit', '-q', '-m', 'Base')
+    symlinkSync(scriptOf('discover-agent.mjs'), link)
     const api = await messagesApi(cases.map(({ call }) => call))
     const execution = outside('execution.json')
     run.status = await runAgent({
-      PATH: process.env.PATH ?? '/usr/bin:/bin',
+      ...gitEnv,
       HOME: outside('home'),
-      GIT_CONFIG_NOSYSTEM: '1',
-      GIT_CONFIG_GLOBAL: '/dev/null',
       ANTHROPIC_API_KEY: 'sk-ant-test-not-a-key',
       ANTHROPIC_BASE_URL: api.url,
       CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1',
@@ -183,7 +246,9 @@ describe('the permission rules of the discovery agent, in Claude Code', () => {
       EXECUTION_FILE: execution,
     })
     await api.close()
-    run.denied = deniedIdsOf(JSON.parse(readFileSync(execution, 'utf8')))
+    const messages: unknown = JSON.parse(readFileSync(execution, 'utf8'))
+    run.denied = deniedIdsOf(messages)
+    run.failed = failedByIdOf(messages)
   }, 120_000)
 
   afterAll(() => rmSync(root, { recursive: true, force: true }))
@@ -199,6 +264,16 @@ describe('the permission rules of the discovery agent, in Claude Code', () => {
         allowed: !run.denied.includes(toolUseIdOf(step)),
       })),
     ).toEqual(cases.map(({ call, allowed }) => ({ call, allowed })))
+  })
+
+  it('run each allowed call, and turn each denied one back', () => {
+    expect(
+      cases.map(({ call }, step) => ({
+        call,
+        failed: run.failed.get(toolUseIdOf(step)),
+      })),
+    ).toEqual(cases.map(({ call, allowed }) => ({ call, failed: !allowed })))
+    expect(readFileSync(inRepo('data/frameworks.json'), 'utf8')).toBe('[ ]\n')
   })
 
   it('write a file only through a call that is allowed', () => {

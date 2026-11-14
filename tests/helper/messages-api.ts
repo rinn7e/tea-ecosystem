@@ -84,15 +84,21 @@ export const messagesApi = (calls: Call[]): Promise<MessagesApi> => {
     request.on('data', (chunk: Buffer) => chunks.push(chunk))
     request.on('end', () => {
       const body: unknown = JSON.parse(Buffer.concat(chunks).toString() || '{}')
-      const fields =
-        typeof body === 'object' && body !== null ? Object(body) : {}
-      const inLoop = Array.isArray(fields.tools) && fields.tools.length > 0
+      const tools =
+        typeof body === 'object' && body !== null && 'tools' in body
+          ? body.tools
+          : undefined
+      const model =
+        typeof body === 'object' && body !== null && 'model' in body
+          ? String(body.model)
+          : 'claude'
+      const inLoop = Array.isArray(tools) && tools.length > 0
       const block: Block = inLoop
         ? blockOf(calls, state.step++)
         : { type: 'text', text: 'ok' }
       response.writeHead(200, { 'content-type': 'text/event-stream' })
       response.end(
-        eventsOf(String(fields.model ?? 'claude'), block)
+        eventsOf(model, block)
           .map(
             (event) =>
               `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`,

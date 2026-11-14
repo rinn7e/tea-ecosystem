@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -49,6 +49,12 @@ describe('the report of the discovery agent', () => {
     )
   })
 
+  it('never takes a result that does not say it had no error for a report', () => {
+    expect(
+      reportOf([{ type: 'result', subtype: 'success', result: 'Report' }]),
+    ).toBe(`No report: the agent did not finish (success: Report). ${stopped}`)
+  })
+
   it('says why a run that ended with an error did not finish', () => {
     expect(
       reportOf([
@@ -78,11 +84,14 @@ describe('the report of the discovery agent', () => {
     )
   })
 
-  it('says that the agent never started when there is no file', () => {
+  it('says that the agent never started when there is no file, also when run through a link', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'discover-report-'))
     const file = path.join(dir, 'execution.json')
+    // A path through a link, as `/tmp` is on macOS, must still run it
+    const link = path.join(dir, 'report.mjs')
+    symlinkSync(scriptOf('discover-report.mjs'), link)
     const reportFrom = () =>
-      spawnSync(process.execPath, [scriptOf('discover-report.mjs'), file], {
+      spawnSync(process.execPath, [link, file], {
         encoding: 'utf8',
       }).stdout
     expect(reportFrom()).toBe('No report: the agent never started.\n')

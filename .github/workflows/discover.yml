@@ -130,7 +130,9 @@ jobs:
       # what it said last (`scripts/discover-report.mjs`)
       - name: Keep the report of the agent
         if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
+        # A crash of the report script fails the step, never an empty report
         run: |
+          set -o pipefail
           {
             echo '## Report of the agent'
             echo

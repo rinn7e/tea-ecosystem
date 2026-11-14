@@ -8,6 +8,8 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
+import { endedWellOf, reasonOf } from './discover-agent.mjs'
+
 /** @type {(message: any) => string[]} */
 const textsOf = (message) =>
   message?.type === 'assistant' && Array.isArray(message.message?.content)
@@ -22,7 +24,7 @@ const textsOf = (message) =>
 const whyOf = (result) =>
   result === undefined
     ? 'it has no result: it failed or timed out'
-    : `${String(result.subtype)}: ${String(result.result ?? result.errors?.join('; ') ?? 'no reason')}`
+    : `${String(result.subtype)}: ${reasonOf(result)}`
 
 /**
  * The report of a run, from its messages (`undefined` when it wrote none,
@@ -35,9 +37,7 @@ export const reportOf = (messages) => {
   } else {
     const result = messages.findLast((message) => message?.type === 'result')
     const last = messages.flatMap(textsOf).at(-1)
-    return result !== undefined &&
-      result.is_error === false &&
-      typeof result.result === 'string'
+    return endedWellOf(result) && typeof result.result === 'string'
       ? result.result
       : [
           `No report: the agent did not finish (${whyOf(result)}). Its full transcript is the artifact \`discover-transcript\` of this run.`,

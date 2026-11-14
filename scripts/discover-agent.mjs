@@ -225,7 +225,10 @@ export const linesOf =
       message?.type === 'system' &&
       message.subtype === 'permission_denied'
     ) {
-      return [call(`Denied: ${callOf(cwd, before)(message.tool_use_id)}`)]
+      const denied = callOf(cwd, before)(message.tool_use_id)
+      return [
+        call(`Denied: ${denied === '' ? stringOf(message.tool_name) : denied}`),
+      ]
     } else if (message?.type === 'system' && message.subtype === 'api_retry') {
       return [
         said(
@@ -260,6 +263,25 @@ export const linesOf =
   }
 
 /**
+ * Whether the agent ended with a result and no error: a result that does
+ * not say `is_error: false` counts as an error, so a doubt fails the run.
+ * The report (`scripts/discover-report.mjs`) reads it the same way.
+ * @type {(result: any) => boolean}
+ */
+export const endedWellOf = (result) => result?.is_error === false
+
+/**
+ * Why a result is an error, in the words of the agent or of the SDK.
+ * @type {(result: any) => string}
+ */
+export const reasonOf = (result) =>
+  typeof result?.result === 'string' && result.result !== ''
+    ? result.result
+    : Array.isArray(result?.errors) && result.errors.length > 0
+      ? result.errors.map(stringOf).join('; ')
+      : 'no reason'
+
+/**
  * The last lines of the log: how the agent ended, and why the run stopped,
  * when something threw (the SDK throws after an error result too).
  * @type {(result: any, thrown: string | undefined) => Line[]}
@@ -269,9 +291,7 @@ export const endLinesOf = (result, thrown) => {
   const denied = Array.isArray(result?.permission_denials)
     ? result.permission_denials.length
     : 0
-  const reason = result?.is_error
-    ? stringOf(result.result ?? result.errors?.join('; ') ?? 'no reason')
-    : 'ok'
+  const reason = endedWellOf(result) ? 'ok' : reasonOf(result)
   return [
     end(
       result === undefined
@@ -284,7 +304,7 @@ export const endLinesOf = (result, thrown) => {
 
 /** @type {(result: any, thrown: string | undefined) => number} */
 export const exitCodeOf = (result, thrown) =>
-  thrown !== undefined || result === undefined || result.is_error ? 1 : 0
+  thrown === undefined && endedWellOf(result) ? 0 : 1
 
 /**
  * Whether a message changes the transcript enough to write it again:
@@ -294,14 +314,13 @@ export const exitCodeOf = (result, thrown) =>
  */
 export const isWorthWritingOf = (message) =>
   !(
-    message?.type === 'stream_event' ||
     message?.type === 'tool_progress' ||
     (message?.type === 'system' && message.subtype === 'thinking_tokens')
   )
 
 /**
  * One run of the agent over the messages of `stream`: the transcript goes
- * to `write` after each message, redacted, and the lines of each message
+ * to `write`, redacted, after each message that `isWorthWritingOf` keeps, and the lines of each message
  * to `print`, between the two markers of `::stop-commands::`. The lines
  * are safe already (`oneLineOf`); the markers also stop a workflow command
  * in any other output of the process. Returns the exit code.
