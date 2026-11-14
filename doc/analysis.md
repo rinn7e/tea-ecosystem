@@ -63,7 +63,7 @@ The list lives in the data files of the site, not in this document:
 
 The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every entry holds the rules of its tier (`rubricProblemsOf`): no entry of the catalog misses a requirement of full TEA, and every entry of the adjacent list misses one and says which.
 
-Grades come from memory plus a light web check on 2026-11-13. An entry is `verified: true` only once every grade was checked against its docs or source (40 frameworks and 6 TEA-adjacent libraries by 2026-11-14, starting with Elm, Miso, Lustre, react-tea-cup, Bubble Tea and Mobius); the page of every other entry says it is not yet checked. Checking every entry against its docs, with an evidence link per grade, is the next data task.
+The grades of the first list came from memory plus a light web check on 2026-11-13. An entry is `verified: true` only once every grade was checked against its docs or source, with the evidence of each grade in its `notes`; the page of an entry with `verified: false` says it is not yet checked. A one-time check of every entry listed by 2026-11-14 (issue #5, by language and by list) brought the entries with `verified: false` to 0, of 97 frameworks and 38 TEA-adjacent libraries: it changed 119 grades and the tier of 21 entries: Relm4, Seed, Draco and Mint Tea went to the adjacent page, redux-loop, re-frame and Raj came from it, and 14 entries of full TEA became supersets. The weekly search merges a candidate on its own only when every grade of it is verified (`scripts/judge-discovered.sh`); otherwise a person reviews it.
 
 Added after the first draft, on review: Foldkit and tea-effect (TypeScript, on Effect), react-elmish, `@typescript-tea/core`, Ferp, Indigo, Scalm, Avalonia.FuncUI, Terminal.Gui.Elmish, gi-gtk-declarative, Pux, Spork, libcosmic, Draco, and the terminal frameworks: tears, hojicha, osteak and teatui (Rust on ratatui), Mint Tea (OCaml), Shore, Teashop and gleamtea (Gleam), Milo (Python). fastTEA, ts-elmish and Raj went to the adjacent page for lack of subscriptions; Raj came back with the check of issue #5 (2026-11-14), which found the declarative subscriptions of raj-subscription, the companion package of its author.
 
@@ -164,7 +164,7 @@ Decided on 2026-11-14:
 ## 11. Phases
 
 1. Done: the site with the rubric, the catalog of frameworks (cards and table), a page per framework, the adjacent page and the guide.
-2. Next: verify every entry against its docs, with an evidence link per grade in the data.
+2. Done (2026-11-14, issue #5): every entry verified against its docs, with the evidence of each grade in its notes.
 3. Capability taxonomy, and library mapping for Elm plus the largest others (Elmish, Miso, Lustre, iced, Bubble Tea, TCA). Matrix and Elm gap view.
 4. Crawler for freshness (stars, last commit, archived), the contribution guide, and an `awesome-tea` README generated from the same data with `awesome-generator`.
 5. "Bring back to Elm" write-ups, one page per proposal.
