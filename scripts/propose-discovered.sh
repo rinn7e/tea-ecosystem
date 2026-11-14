@@ -14,11 +14,13 @@
 #
 # Once it opened the pull request, it merges it when every candidate
 # passes the rules of `scripts/judge-discovered.sh`, and otherwise leaves
-# it a draft with a comment that names the rules that failed.
+# it a draft with a comment that names the rules that failed
+# (`scripts/settle-discovered.sh`).
 #
 # Before anything, `scripts/gate-discovered.sh` decides whether the run
-# may propose at all. Then `pnpm run format:check` and `pnpm run test` run
-# on the fresh commit, without the token. The text of the pull request is
+# may propose at all. Then the guard, `pnpm run format:check` and
+# `pnpm run test` run on the fresh commit, without the token
+# (`scripts/recheck-discovered.sh`). The text of the pull request is
 # built from the data: one heading per new id, its entry as code, where
 # GitHub turns no `@name`, `#12` or link into a mention or a reference.
 # Needs `gh` (`GH_TOKEN`, `GH_REPO`) and `jq`.
@@ -71,33 +73,6 @@ new_ids_of() {
     --slurpfile new <(git show "$2:data/frameworks.json" "$2:data/adjacent.json") \
     '([$old[0][].id, $old[1][].id]) as $oldIds
      | $new[0][], $new[1][] | select(.id as $i | any($oldIds[]; . == $i) | not) | .id'
-}
-
-# Why the commit `$2` on top of `$1` cannot be proposed, or nothing when it
-# can
-problem_of() {
-  local on="$1" commit="$2" problem marker
-  # A check that fails to run counts as a problem, never as a pass
-  if ! problem="$("$here/check-discovered.sh" "$on" "$commit" "$max" "$day")"; then
-    echo "its checks failed to run"
-  elif [ -n "$problem" ]; then
-    echo "$problem"
-  else
-    # Only the data differs from the base, so these run the code of the
-    # base. Their output goes to the log, not into the problem, with the
-    # workflow commands of GitHub turned off, so a line of the data in it
-    # is never read as one
-    marker="stop-$(date +%s)-$RANDOM$RANDOM"
-    echo "::stop-commands::$marker" >&2
-    if ! git switch --quiet --detach "$commit"; then
-      echo "it cannot be checked out"
-    elif ! env -u GH_TOKEN pnpm run format:check >&2; then
-      echo "pnpm run format:check fails"
-    elif ! env -u GH_TOKEN pnpm run test >&2; then
-      echo "pnpm run test fails"
-    fi
-    echo "::$marker::" >&2
-  fi
 }
 
 # The text of the pull request of the commit `$2` on top of `$1`: each new
@@ -166,7 +141,7 @@ else
   commit="$(fresh_commit_of "$base" "$has_branch")"
 fi
 
-problem="$(problem_of "$on" "$commit")"
+problem="$("$here/recheck-discovered.sh" "$on" "$commit" "$max" "$day")"
 if [ -n "$problem" ]; then
   echo "::error::$branch is left out: $problem"
   exit 1
@@ -184,26 +159,6 @@ url="$(gh pr create --draft --base master --head "$branch" \
   --title "Add the entries the weekly search found on $day" --body-file - <<<"$body")"
 echo "Proposed $count candidates in one pull request: $url"
 
-# The pull request merges on its own when every new entry passes the rules
-# of `scripts/judge-discovered.sh`; otherwise it stays a draft for a person,
-# with a comment that names the rules that failed. A merge made with the
-# token of the workflow starts no other workflow, so the deploy is started
-# here. Rules that fail to run count as failed, never as passed.
-if ! broken="$("$here/judge-discovered.sh" "$on" "$commit")"; then
-  broken="the rules failed to run"
-fi
-if [ -z "$broken" ]; then
-  gh pr ready "$url"
-  gh pr merge "$url" --merge --delete-branch
-  gh workflow run pages.yml --ref master
-  echo "Merged it: every candidate passed the rules."
-else
-  {
-    echo 'Left for a person to review: not every candidate passed the rules that let the weekly search merge on its own (`scripts/judge-discovered.sh`).'
-    echo
-    echo '```text'
-    echo "$broken"
-    echo '```'
-  } | gh pr comment "$url" --body-file -
-  echo "Left it as a draft: $(wc -l <<<"$broken" | tr -d ' ') rules failed."
-fi
+# It merges on its own when every candidate passes the rules, otherwise it
+# stays a draft with a comment (`scripts/settle-discovered.sh`)
+"$here/settle-discovered.sh" "$url" "$on" "$commit"

@@ -1,0 +1,61 @@
+name: Settle discovered
+
+# Settles an open pull request of the weekly search by hand, with the same
+# checks and the same rules a run applies right after it opens its pull
+# request (`scripts/settle-pull-request.sh`): it merges the pull request
+# when every candidate passes the rules of `scripts/judge-discovered.sh`,
+# and otherwise comments with the rules that failed. For a pull request
+# opened before those rules, or one a person edited since. No agent runs
+# here: the data of the pull request is checked, then only data merges.
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Number of the pull request of the search
+        required: true
+        type: number
+
+permissions: {}
+
+# Never at the same time as the weekly search, which may open or merge one
+concurrency:
+  group: discover
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      # Fetch the branch of the pull request, and merge it
+      contents: write
+      # Read the pull request, mark it ready, or comment on it
+      pull-requests: write
+      # Start the Pages workflow after a merge: a merge made with this
+      # token starts none
+      actions: write
+      # The @rinn7e packages come from GitHub Packages (`.npmrc`)
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          pnpm install --frozen-lockfile
+          rm ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Settle the pull request
+        # The number goes through the environment, never into the script
+        run: scripts/settle-pull-request.sh "$PULL_REQUEST"
+        env:
+          PULL_REQUEST: ${{ inputs.pull_request }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

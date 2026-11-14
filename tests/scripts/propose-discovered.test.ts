@@ -114,7 +114,7 @@ describe('propose-discovered.sh', { timeout: 30_000 }, () => {
     expect(log).toContain('good-tea: no example')
     expect(log).not.toContain('gh pr ready')
     expect(log).not.toContain('gh pr merge')
-    expect(out).toMatch(/Left it as a draft: \d+ rules failed\./)
+    expect(out).toMatch(/Left it for a person: \d+ rules failed\./)
   })
 
   it('merges a run whose candidates pass every rule, then starts the deploy', () => {

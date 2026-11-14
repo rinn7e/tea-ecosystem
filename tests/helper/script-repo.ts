@@ -80,6 +80,8 @@ export type Answers = {
   failLsRemote?: boolean
   // Make `jq` crash on the call whose program holds this text
   crashJqOn?: string
+  // What `gh pr view` says of the pull request asked for
+  pullRequestView?: Record<string, unknown>
 }
 
 export type ScriptRepo = {
@@ -198,6 +200,9 @@ export const scriptRepo = (
       '  echo "body:" >> "$LOG"; cat >> "$LOG"',
       '  [ -z "$FAIL_CREATE" ] || { echo "GraphQL: Actions may not create pull requests" >&2; exit 1; }',
       '  echo "https://github.com/owner/name/pull/17"',
+      'elif [ "$1 $2" = "pr view" ]; then',
+      '  echo "pr view $*" >> "$LOG"',
+      '  cat "$PULL_REQUEST_VIEW"',
       'elif [ "$1 $2" = "pr comment" ]; then',
       '  echo "pr comment $*" >> "$LOG"',
       '  echo "comment:" >> "$LOG"; cat >> "$LOG"',
@@ -235,6 +240,8 @@ export const scriptRepo = (
     const pullRequests = path.join(answersDir, 'pull-requests.json')
     const onGitHub = path.join(answersDir, 'on-github')
     writeFileSync(pullRequests, json(answers.pullRequests ?? []))
+    const pullRequestView = path.join(answersDir, 'pull-request-view.json')
+    writeFileSync(pullRequestView, json(answers.pullRequestView ?? {}))
     writeFileSync(
       onGitHub,
       Object.entries(answers.onGitHub ?? {})
@@ -265,6 +272,7 @@ export const scriptRepo = (
         LOG: log,
         REMOTE: remote,
         PULL_REQUESTS: pullRequests,
+        PULL_REQUEST_VIEW: pullRequestView,
         ON_GITHUB: onGitHub,
         FAIL_PR_LIST: answers.failPullRequests === true ? '1' : '',
         FAIL_CREATE: answers.failCreate === true ? '1' : '',
