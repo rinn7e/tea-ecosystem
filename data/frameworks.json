@@ -538,12 +538,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "native",
-      "ports": "native"
+      "ports": "managed"
     },
     "notes": [
-      "The original repository is no longer active; forks under the rescript-tea name continue it."
+      "The program record is init: flags -> model * msg Tea_cmd.t, update: model -> msg -> model * msg Tea_cmd.t (model first, not second as in Elm), view: model -> msg Vdom.t and subscriptions: model -> msg Tea_sub.t (src-ocaml/tea_app.ml).",
+      "Cmd and Sub are values the runtime runs: Tea.Cmd.batch, Tea.Cmd.msg, Tea.Task.perform, and Tea.Sub.registration, whose enable and disable calls run when a subscription appears in or leaves the result of subscriptions (Tea.Time.every is built on it).",
+      "No typed ports: JavaScript can push messages into a running program through the programInterface (pushMsg), and Tea.Cmd.call runs a callback; other interop is direct BuckleScript externals.",
+      "The last commit is from November 2023; the README points to the philip2 tool for porting between Elm and OCaml, and darklang/rescript-tea is a ReScript fork."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-24",
     "updatedAt": "2024-06-11",
@@ -567,44 +570,19 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "native"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "An app is { init : model * msg Cmd.t; update : model -> msg -> model * msg Cmd.t; view : model -> msg vdom } (Vdom.app); Vdom.simple_app is the form with no commands.",
+      "Cmd is an extensible type: Vdom.Cmd has echo, batch, map and bind, and anything else (HTTP, timers) is a constructor you add and a Vdom_blit.Cmd.handler you register, which reports the outcome with Vdom_blit.Cmd.send_msg (see examples/demo/demo.ml).",
+      "There is no subscriptions function in the app record: a long-running source is a command handler that keeps calling send_msg, for example from a Window.set_timeout.",
+      "Ports are managed: Vdom_blit.process app msg sends a message into a running app from outside (lib/vdom_blit.mli); interop with JavaScript otherwise goes through command handlers and Vdom_blit.Custom controllers (custom elements), not typed ports."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-11-22",
     "updatedAt": "2026-10-27",
     "stars": 210
-  },
-  {
-    "id": "minttea",
-    "name": "Mint Tea",
-    "language": "OCaml",
-    "elmFamily": false,
-    "targets": ["tui"],
-    "tier": "full",
-    "status": "quiet",
-    "repo": "https://github.com/leostera/minttea",
-    "logo": "minttea.png",
-    "summary": "A terminal UI framework for OCaml on the Riot runtime, inspired by Bubble Tea.",
-    "snippetSource": "https://github.com/leostera/minttea/blob/main/examples/counter/main.ml",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "missing"
-    },
-    "notes": [
-      "Leaves is its set of reusable components, and Spices its styling library."
-    ],
-    "verified": false,
-    "discoveredAt": "2026-11-13T07:24:58Z",
-    "createdAt": "2023-12-13",
-    "updatedAt": "2026-03-18",
-    "stars": 474
   },
   {
     "id": "lustre",
@@ -656,10 +634,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": ["Needs Erlang/OTP 28 or later."],
-    "verified": false,
+    "notes": [
+      "update returns #(Model, List(fn() -> Msg)); each fn is an effect the runtime spawns in an unlinked process and sends back to update as a message (task_handler in src/shore/internal.gleam).",
+      "There is no subscriptions function: a long-running source is an effect that returns a message and is scheduled again by update, or a process that sends to the Subject given by spec_with_subject.",
+      "start returns a Subject, so outside code can send messages into the program (spec_with_subject, shore.send).",
+      "Needs Erlang/OTP 28 or later (https://github.com/bgwdotdev/shore/blob/main/README.md)."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-05-25",
     "updatedAt": "2026-06-18",
@@ -683,10 +666,15 @@
       "view": "native",
       "cmd": "native",
       "sub": "managed",
-      "ports": "missing"
+      "ports": "managed"
     },
-    "notes": [],
-    "verified": false,
+    "notes": [
+      "update returns #(Model, Command(Msg)); Command is a data type (set_timer, quit, execute_process, sequence, and command.from for a custom effect that gets a dispatch function) run by the JavaScript runtime.",
+      "There is no subscriptions function: a repeating source is command.set_timer rescheduled from update, or a command.from effect that keeps calling dispatch.",
+      "The messages of the app arrive wrapped in event.Custom(msg) next to event.Key and event.Resize; teashop.send(dispatch, msg) sends one from outside.",
+      "JavaScript target only; last commit February 2024."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2024-01-01",
     "updatedAt": "2024-02-25",
@@ -713,8 +701,13 @@
       "sub": "managed",
       "ports": "missing"
     },
-    "notes": ["beamtea itself can be used from Erlang directly."],
-    "verified": false,
+    "notes": [
+      "update(msg, model) returns #(Model, Cmd(msg)); Cmd is a data type (Quit, Msg, Tick, Every, Task, Batch, Seq) run by the beamtea runtime (https://github.com/tsirysndr/gleamtea/blob/main/src/gleamtea.gleam).",
+      "There is no subscriptions function: Every(ms, msg) is a repeating timer the runtime runs until the program quits, and Task(fn) runs a function and delivers its result.",
+      "The messages of the app arrive wrapped in User(msg) next to Key and Resize.",
+      "Typed bindings to beamtea (https://github.com/tsirysndr/beamtea), which can be used from Erlang directly."
+    ],
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-07-29",
     "updatedAt": "2026-07-29",
@@ -737,13 +730,16 @@
       "update": "native",
       "view": "native",
       "cmd": "native",
-      "sub": "native",
+      "sub": "managed",
       "ports": "missing"
     },
     "notes": [
-      "Its app behaviour has init, update, render and subscribe(model)."
+      "The app behaviour has init(context), update(model, msg) returning a model or {model, Command.t}, render(model) and an optional subscribe(model).",
+      "Effects are Ratatouille.Runtime.Command values: Command.new(fun, message) runs the function in a Task and the result comes back to update as {message, result}; Command.batch groups them.",
+      "subscribe returns Subscription.interval(ms, message) or Subscription.batch, but the runtime reads it once at startup, so the subscriptions are fixed for the life of the program.",
+      "The last commit is from October 2021."
     ],
-    "verified": false,
+    "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-01-13",
     "updatedAt": "2023-03-20",

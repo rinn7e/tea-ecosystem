@@ -1101,6 +1101,39 @@
     "updatedAt": "2026-11-14"
   },
   {
+    "id": "minttea",
+    "name": "Mint Tea",
+    "language": "OCaml",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "adjacent",
+    "status": "quiet",
+    "repo": "https://github.com/leostera/minttea",
+    "logo": "minttea.png",
+    "summary": "A terminal UI framework for OCaml on the Riot runtime, inspired by Bubble Tea, whose commands only drive the terminal and a timer.",
+    "snippetSource": "https://github.com/leostera/minttea/blob/main/examples/counter/main.ml",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Misses update and Cmd: update : Event.t -> model -> model * Command.t returns commands as data, but Command.t is a closed set with no way to start work (Noop, Quit, cursor and alt-screen control, Seq and Set_timer), so any I/O is a Riot process that update spawns itself, whose result arrives as Event.Custom.",
+      "Event.t is the library type (KeyDown, Timer, Frame) plus Custom of an extensible Riot Message.t, as tea.Msg is open in Bubble Tea.",
+      "No subscriptions function: Command.Set_timer is a one-shot timer that update re-issues on every Event.Timer (the stopwatch example), and key and frame events arrive on their own.",
+      "Leaves is its set of reusable components, and Spices its styling library."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2023-12-13",
+    "updatedAt": "2026-03-18",
+    "stars": 474
+  },
+  {
     "id": "halogen",
     "name": "Halogen",
     "language": "PureScript",
