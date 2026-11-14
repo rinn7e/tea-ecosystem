@@ -14,13 +14,10 @@ import {
   getChoiceEq,
 } from './choice'
 
-// How a list (the catalog, TEA-adjacent) shows its entries
 export type ListingLayout = 'cards' | 'table'
 
-// The two categories of entry the catalog can narrow to
 export type EntryCategory = 'languages' | 'frameworks'
 
-// A column a list can be sorted by, from the headers of its table
 export type SortColumn =
   | 'name'
   | 'tier'
@@ -54,9 +51,8 @@ export const ListingSortEq: EqClass.Eq<ListingSort> = EqClass.struct({
   direction: S.Eq,
 })
 
-// The direction a column sorts in on its first click: names A to Z, the
-// order of tiers and statuses as the rubric lists them, and every number
-// or date the largest or newest first
+// A first click sorts names A to Z, tiers and statuses in the order the
+// rubric lists them, and every number or date the largest or newest first
 export const firstDirectionOf = (column: SortColumn): SortDirection =>
   column === 'name' || column === 'tier' || column === 'status'
     ? 'ascending'
@@ -71,7 +67,6 @@ export const buildLanguages: readonly BuildLanguage[] = [
   'kotlin',
 ]
 
-// The filters both lists have
 type SharedFilter = {
   targets: Choice<Target>
   // Active and quiet by default: archived entries are hidden until chosen
@@ -95,17 +90,11 @@ export type CatalogFilter = SharedFilter & {
 
 export type AdjacentFilter = SharedFilter & {
   readonly list: 'adjacent'
-  // What an entry of the adjacent list lacks
   lacks: Choice<Concept>
 }
 
-// The filters of a list, which a link can share: the ones both lists have,
-// and the ones of its own list, which the other list has no field for
-// (`list` says which). The catalog filters by tier and by the category of
-// entry, the adjacent list by the part an entry lacks.
-// Each filter of the popover is a `Choice` among the options the list
-// offers: an entry passes when it matches any option chosen, and `Any`
-// (no box ticked, or every one) passes every entry
+// A link can share the filters of a list. `list` says which list, as each
+// has filters the other has no field for.
 export type ListingFilter = CatalogFilter | AdjacentFilter
 
 export type CatalogScreen = {
@@ -177,7 +166,6 @@ export const AdjacentFilterEq: EqClass.Eq<AdjacentFilter> =
     lacks: getChoiceEq(S.Eq),
   })
 
-// Two filters of different lists are never equal
 export const ListingFilterEq: EqClass.Eq<ListingFilter> = {
   equals: (x, y) =>
     x.list === 'catalog' && y.list === 'catalog'
@@ -270,7 +258,6 @@ export const adjacentScreen = (
   filter: AdjacentFilter = defaultAdjacentFilter(),
 ): Screen => ({ _tag: 'AdjacentScreen', filter })
 
-// The screen of the list a filter belongs to
 export const listScreenOf = (filter: ListingFilter): Screen =>
   filter.list === 'catalog' ? catalogScreen(filter) : adjacentScreen(filter)
 export const buildScreen = (

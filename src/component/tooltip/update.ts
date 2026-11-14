@@ -22,7 +22,7 @@ const isShown = (model: Model): boolean =>
     O.exists((t) => t.phase === 'shown'),
   )
 
-// The tooltip of `id`, on its way or open (not one already leaving)
+// Not one already leaving
 const isOpenFor = (model: Model, id: string): boolean =>
   pipe(
     model.tooltip,
@@ -75,7 +75,6 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return isOpenFor(model, msg.id)
         ? closed(model, true)
         : [model, Cmd.none()]
-    // A tap shows the tooltip at once, or hides it when it is the one shown
     case 'Tap':
       return isOpenFor(model, msg.id) && isShown(model)
         ? closed(model, true)
@@ -125,8 +124,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return msg.key === 'Escape' && O.isSome(model.tooltip)
         ? closed(model, false)
         : [model, Cmd.none()]
-    // A scroll, a resize, a press or a move: the tooltip goes at once, as
-    // the page under it moved
+    // The tooltip goes at once, with no fade: the page under it moved, or a
+    // press went elsewhere
     case 'Dismiss':
       return O.isNone(model.tooltip)
         ? [model, Cmd.none()]

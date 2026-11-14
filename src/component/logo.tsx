@@ -12,7 +12,6 @@ import { type Framework, isLanguageEntry } from '@/common/type/framework'
 
 export type LogoSize = 'small' | 'large'
 
-// The mark of a language logo: its shapes, or its picture (`LanguageLogo`)
 const languageMarkView = ({
   logo,
   className,
@@ -53,8 +52,6 @@ const languageMarkView = ({
   }
 }
 
-// The logo of a language, in its brand color made readable on both themes
-// (`readableColorOf`), or its monogram, in ink, when it has none
 export const languageLogoView = ({
   language,
   size,
@@ -120,10 +117,8 @@ const tileLanguageLogoClass = (size: TileSize): string => {
 const logoUrl = (file: string): string =>
   `${BASE_URL.replace(/\/$/, '')}/logo/${file}`
 
-// The square tile of an entry: its own logo when it has one (a file, else
-// a mark made of text), the logo of its language when it is a language
-// (Elm), else the two letters of its name. The same frame for all three,
-// white in both modes like the logo files, so the list stays even.
+// One frame for every tile (its own logo, the logo of its language or two
+// letters), white in both modes like the logo files, so the list stays even.
 export const frameworkTileView = ({
   framework,
   size,
@@ -176,7 +171,6 @@ export const frameworkTileView = ({
   }
 }
 
-// The language line of an entry: the logo of its language, then the text.
 // A language entry (Elm) shows its logo in its tile already, not here.
 export const languageLineLogoView = ({
   framework,

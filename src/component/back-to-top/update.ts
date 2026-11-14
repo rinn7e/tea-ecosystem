@@ -8,7 +8,6 @@ export const SHOWN_FROM = 480
 
 export const init = (): Model => ({ isShown: false })
 
-// A smooth scroll, or a jump for those who ask for less motion
 const scrollToTopCmd = (): Cmd<Msg> =>
   cmdSucceed(() => {
     window.scrollTo({

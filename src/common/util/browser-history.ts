@@ -17,8 +17,6 @@ const hasNavigation = (
 const navigationOf = (): NavigationLike | undefined =>
   hasNavigation(window) ? window.navigation : undefined
 
-// The URL of the history entry right under the current one, when the
-// browser can tell it
 const entryBelowUrl = (): string | undefined => {
   const navigation = navigationOf()
   const index = navigation?.currentEntry?.index
@@ -55,15 +53,13 @@ const isScrollState = (state: unknown): state is ScrollState =>
   'scrollY' in state &&
   typeof state.scrollY === 'number'
 
-// Saves the scroll of the history entry shown, before the app leaves it.
-// Called by `Link` at the click, before the move is dispatched.
+// Called by `Link` at the click, before the move is dispatched
 export const saveScrollOfEntry = (): void => {
   const state: ScrollState = { scrollY: window.scrollY }
   window.history.replaceState(state, '')
 }
 
-// The scroll saved in the history entry shown, 0 when it has none (an entry
-// the app pushed and never left by a link)
+// 0 for an entry the app pushed and never left by a link
 export const savedScrollOfEntry = (): number => {
   const state: unknown = window.history.state
   return isScrollState(state) ? state.scrollY : 0
@@ -78,14 +74,13 @@ export const manualScrollRestorationCmd = (): Cmd<{ _tag: 'NoOp' }> =>
 // URL writes
 // ---------------------------------------------
 
-// Adds `url` to the history as a new entry (no `popstate` fires for it)
+// No `popstate` fires for it
 export const pushUrlCmd = (url: string): Cmd<{ _tag: 'NoOp' }> =>
   cmdSucceed(() => {
     window.history.pushState(null, '', url)
   })
 
-// Changes the history entry shown to `url` (no `popstate` fires for it),
-// keeping its saved scroll
+// No `popstate` fires for it, and the entry keeps its saved scroll
 export const replaceUrlCmd = (url: string): Cmd<{ _tag: 'NoOp' }> =>
   cmdSucceed(() => {
     const state: unknown = window.history.state

@@ -26,7 +26,6 @@ const purposeCardView = ({ title, text }: { title: string; text: string }) => (
   </div>
 )
 
-// A page of the site, as a cell of the box of pages that opens it
 const pageCardView = ({
   title,
   text,
@@ -45,14 +44,12 @@ const pageCardView = ({
   </Link>
 )
 
-// A paragraph of the page: left-aligned in a centred column
 const proseView = ({ children }: { children: React.ReactNode }) => (
   <div className='flex justify-center'>
     <p className='text-ink-muted max-w-[640px] text-base'>{children}</p>
   </div>
 )
 
-// Static for now: the model and the messages are empty
 const AboutComponent = (_props: Props) => (
   <div className='flex flex-col gap-[36px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>

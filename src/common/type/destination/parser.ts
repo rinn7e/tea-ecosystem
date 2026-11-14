@@ -74,7 +74,6 @@ export const addBaseUrl = (path: string): string => {
 // Parser
 // ------------------------------------------------------------------
 
-// The query of a list: the catalog reads `tier`, the adjacent list `lacks`.
 // A choice of several is a list: `?tier=full,superset`. `includeArchived`
 // is read only, from links made before `status`.
 type ListingParams = {
@@ -131,11 +130,9 @@ const anyStrings = new Match<object>(
   new Formatter((r) => r),
 )
 
-// The values a list names: `?tier=full,superset`
 const namedOf = (value: string | undefined): string[] =>
   (value ?? '').split(',')
 
-// Whether a named value is one of `options`, as that option
 const isOptionOf =
   <A extends string>(options: readonly A[]) =>
   (named: string): named is A =>
@@ -144,16 +141,14 @@ const isOptionOf =
       RA.some((option) => option === named),
     )
 
-// The choice of the options a list names (`choiceOf`): an option the list
-// does not offer is left out, so an old or mistyped link still opens
+// An option the list does not offer is left out, so an old or mistyped link
+// still opens
 const choiceOfParam = <A extends string>(
   options: readonly A[],
   value: string | undefined,
 ) => choiceOf(options, pipe(namedOf(value), A.filter(isOptionOf(options))))
 
-// `status` names the statuses shown, `all` for no box ticked (every status
-// shown); none known, or no `status`, is the default, unless an old link
-// asks for the archive (`includeArchived`)
+// `all` stands for no box ticked (every status shown)
 const statusesOf = (params: ListingParams): StatusChoice => {
   const named = pipe(namedOf(params.status), A.filter(isOptionOf(statuses)))
   return params.status === 'all'
@@ -171,8 +166,6 @@ const listLanguageOf = (value: string | undefined): O.Option<string> =>
 const showOf = (value: string | undefined): O.Option<EntryCategory> =>
   value === 'languages' || value === 'frameworks' ? O.some(value) : O.none
 
-// `?sort=stars&order=ascending`: an unknown column is no sort, an unknown
-// order the first direction of the column
 const sortOf = (params: ListingParams): O.Option<ListingSort> =>
   pipe(
     O.fromNullable(params.sort),
@@ -197,7 +190,6 @@ const layoutOf = (value: string | undefined): ListingLayout =>
 const languageOf = (value: string | undefined): BuildLanguage =>
   value === 'swift' || value === 'kotlin' ? value : 'typescript'
 
-// The filters both lists read, the targets among the ones `list` offers
 const sharedFilterOf = (list: ListId, params: ListingParams) => ({
   targets: choiceOfParam(targetOptionsOf(list), params.target),
   statuses: statusesOf(params),
@@ -207,7 +199,6 @@ const sharedFilterOf = (list: ListId, params: ListingParams) => ({
   sort: sortOf(params),
 })
 
-// The catalog reads `tier` and `show`; `lacks` belongs to the adjacent list
 const catalogFilterOf = (params: ListingParams): CatalogFilter => ({
   ...sharedFilterOf('catalog', params),
   list: 'catalog',
@@ -215,7 +206,6 @@ const catalogFilterOf = (params: ListingParams): CatalogFilter => ({
   show: showOf(params.show),
 })
 
-// The adjacent list reads `lacks`; `tier` and `show` belong to the catalog
 const adjacentFilterOf = (params: ListingParams): AdjacentFilter => ({
   ...sharedFilterOf('adjacent', params),
   list: 'adjacent',
@@ -255,8 +245,8 @@ export const parseDestination = (href: string): Destination => ({
 // Formatter
 // ------------------------------------------------------------------
 
-// The boxes ticked, or nothing for none: every box ticked names every
-// option, which parses back to the same choice
+// Every box ticked names every option, which parses back to the same
+// choice
 const listParamOf = (chosen: readonly string[]): string | undefined =>
   chosen.length === 0 ? undefined : chosen.join(',')
 
@@ -268,9 +258,7 @@ const statusParamOf = (choice: StatusChoice): string | undefined =>
       ? 'all'
       : tickedOf(statuses, choice).join(',')
 
-// Defaults are left out of the URL, so the plain catalog is just `/`. The
-// targets of a list are its own options (`targetOptionsOf`), and each list
-// writes the filters of its own list only.
+// Defaults are left out of the URL, so the plain catalog is just `/`
 const listingParamsOf = (filter: ListingFilter): ListingParams => ({
   tier:
     filter.list === 'catalog'

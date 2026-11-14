@@ -37,12 +37,11 @@ export const decodeOrThrow =
       }),
     )
 
-// The pick of the maintainer, right after the Originator: react-tea-cup,
-// the library this site is built with
+// react-tea-cup, the library this site is built with
 const MAINTAINER_PICK = 'react-tea-cup'
 
 // The Originator (Elm) first, then the pick of the maintainer, then the
-// most starred, then by name. An entry with no GitHub repository has no
+// most starred, then by name. An entry with no public repository has no
 // stars and comes last.
 const frameworkOrd: Ord.Ord<Framework> = concatAll(Ord.getMonoid<Framework>())([
   pipe(
@@ -69,30 +68,26 @@ export const frameworks: Framework[] = pipe(
   A.sort(frameworkOrd),
 )
 
-// The libraries that share the vocabulary of TEA but fail a hard
-// requirement: the same shape as a framework, with the tier `adjacent`
 export const adjacentEntries: Framework[] = pipe(
   adjacentData,
   decodeOrThrow(t.array(FrameworkJson), 'data/adjacent.json'),
   A.sort(frameworkOrd),
 )
 
-// An entry of either list, by its id (unique across both files)
+// Ids are unique across both files
 export const frameworkById = (id: string): O.Option<Framework> =>
   pipe(
     [...frameworks, ...adjacentEntries],
     A.findFirst((f) => f.id === id),
   )
 
-// The two lists of the site: the catalog of TEA frameworks, and the
-// TEA-adjacent libraries
 export type ListId = 'catalog' | 'adjacent'
 
 export const entriesOf = (list: ListId): Framework[] =>
   list === 'catalog' ? frameworks : adjacentEntries
 
-// The targets the entries of a list run on, in the order of `targets`: the
-// options of its target filter (TEA-adjacent has no game library)
+// The options of the target filter of a list, so TEA-adjacent, which has no
+// game library, offers no game target
 export const targetOptionsOf = (list: ListId): Target[] =>
   pipe(
     [...targets],
@@ -104,14 +99,13 @@ export const targetOptionsOf = (list: ListId): Target[] =>
     ),
   )
 
-// The list an entry belongs to: where its page goes back to
+// Where the page of an entry goes back to
 export const listOf = (framework: Framework): ListId =>
   framework.tier === 'adjacent' ? 'adjacent' : 'catalog'
 
-// The other entries in a language of an entry (any of the two of one that
-// ships one library per platform, as the language filter matches), list
-// by list: the Main catalog first, then the TEA-adjacent page, each in its
-// own order, a list with none left out. The page of an entry shows them
+// Other entries count when they share any of the two languages of an entry
+// that ships one library per platform, as the language filter matches. The
+// page of an entry shows them
 // under "More in <language>", so a Haskell framework also points to the
 // Haskell libraries that are not TEA, and back.
 export const sameLanguageEntriesOf = (
@@ -138,9 +132,11 @@ export const sameLanguageEntriesOf = (
     A.filter(({ entries }) => entries.length > 0),
   )
 
-// The hard requirements of the rubric (`doc/analysis.md`, section 3): the
-// parts full TEA needs, in the order of `concepts`. View and Ports are
-// graded but never required, so a headless loop (no view) is allowed.
+// The hard requirements of the rubric (`doc/analysis.md`, section 3), in
+// the order of `concepts`, which is the order the "Misses ...: " prefix of
+// a TEA-adjacent note lists them in. View
+// and Ports are graded but never required, so a headless loop (no view) is
+// allowed.
 export const requirements: readonly Concept[] = [
   'model',
   'msg',
@@ -149,17 +145,16 @@ export const requirements: readonly Concept[] = [
   'sub',
 ]
 
-// Whether a grade meets the requirement of its part: Model, Msg, update and
-// Cmd native, Sub native or managed. `equivalent` (the same power in
-// another shape) describes a part and never meets a requirement, so a
-// program ports back to Elm in the same shape.
+// `equivalent` (the same power in another shape) describes a part and
+// never meets a requirement, so a program ports back to Elm in the same
+// shape.
 export const meetsRequirement =
   (concept: Concept) =>
   (grade: Grade): boolean =>
     grade === 'native' || (concept === 'sub' && grade === 'managed')
 
-// The requirements of full TEA an entry misses, by its grades alone: none
-// for an entry of the catalog, at least one for a TEA-adjacent library
+// No missed requirement for an entry of the catalog, at least one for a
+// TEA-adjacent library
 export const missedRequirementsOf = (framework: Framework): Concept[] =>
   pipe(
     [...requirements],
@@ -177,7 +172,6 @@ const requirementLabel = (concept: Concept): string =>
       ? 'Msg'
       : `${concept.charAt(0).toUpperCase()}${concept.slice(1)}`
 
-// Labels joined as a sentence: "Cmd", "Cmd and Sub", "update, Cmd and Sub"
 const listText = (labels: string[]): string =>
   pipe(
     labels,
@@ -193,8 +187,6 @@ const listText = (labels: string[]): string =>
 // The word every first note of a TEA-adjacent library starts with
 export const MISSES_NOTE_PREFIX = 'Misses '
 
-// How the first note of a TEA-adjacent library starts: the requirements it
-// misses, then why ("Misses Cmd and Sub: ...")
 export const missesNotePrefixOf = (framework: Framework): string =>
   `${MISSES_NOTE_PREFIX}${pipe(missedRequirementsOf(framework), A.map(requirementLabel), listText)}: `
 
@@ -207,14 +199,11 @@ const namesBeyondTea = (framework: Framework): boolean =>
     A.some((note) => note.startsWith(SUPERSET_NOTE_PREFIX)),
   )
 
-// Whether a note stops at a prefix and gives no reason after it
 const stopsAt =
   (prefix: string) =>
   (note: string): boolean =>
     note.startsWith(prefix) && note.slice(prefix.length).trim() === ''
 
-// What keeps an entry from the rule of its tier, by its grades and the
-// note that names its tier
 const tierRuleProblemsOf = (framework: Framework): string[] => {
   const missed = missedRequirementsOf(framework)
   const missedProblems = pipe(
@@ -263,8 +252,7 @@ const tierRuleProblemsOf = (framework: Framework): string[] => {
 // TEA-adjacent library misses at least one requirement, and its first note
 // says which and why. A "Superset: " note that stops at its prefix gives
 // no reason, a problem on any tier, and so does a first note of a
-// TEA-adjacent library that stops at its "Misses ...: " prefix. Empty when
-// the entry holds the rule of its tier.
+// TEA-adjacent library that stops at its "Misses ...: " prefix.
 export const rubricProblemsOf = (framework: Framework): string[] => [
   ...tierRuleProblemsOf(framework),
   ...pipe(

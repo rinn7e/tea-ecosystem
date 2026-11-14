@@ -21,10 +21,10 @@ import type * as CatalogScreen from '@/screen/catalog-screen'
 import type * as FrameworkScreen from '@/screen/framework-screen'
 import type * as RubricScreen from '@/screen/rubric-screen'
 
-// The screen shown, as its model. Its tag and its own fields are the
-// destination's screen (`currentScreenOf`). The two list screens keep
-// their model elsewhere: each is a base layer of the stack, kept in
-// `Model.catalog` and `Model.adjacent` while an entry page covers it.
+// Its tag and its own fields are the destination's screen
+// (`currentScreenOf`). The two list screens keep their model elsewhere:
+// each is a base layer of the stack, kept in `Model.catalog` and
+// `Model.adjacent` while an entry page covers it.
 export type ScreenModel =
   | { _tag: 'CatalogScreenModel' }
   | { _tag: 'FrameworkScreenModel'; model: FrameworkScreen.Model }
@@ -70,9 +70,7 @@ export type Model = {
   catalog: CatalogScreen.Model
   adjacent: AdjacentScreen.Model
   screenModel: CurrentScreenModel
-  // The one tooltip of the app, over every screen
   tooltip: Tooltip.Model
-  // The floating button back to the top, over every screen
   backToTop: BackToTop.Model
   // The scroll each list was left at by a link, where the step back down
   // onto it draws it

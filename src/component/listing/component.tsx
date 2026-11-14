@@ -102,8 +102,7 @@ const entryCategories: readonly EntryCategory[] = ['languages', 'frameworks']
 // Stats
 // ---------------------------------------------
 
-// A count that is also a choice, like a radio button: choosing it narrows
-// the list to that category of entry, choosing it again shows every entry
+// A count that is also a choice, like a radio button
 const categoryChoiceView = ({
   category,
   count,
@@ -164,10 +163,9 @@ const categoryChoiceView = ({
   )
 }
 
-// Languages and frameworks, one on each side of the axis, together as wide
-// as the rows of language logos under them. Each count is what the list
-// shows with that category chosen, under the other filters. The catalog only:
-// the adjacent list has no language entries.
+// Together as wide as the rows of language logos under them. Each count is
+// what the list shows with that category chosen, under the other filters.
+// The catalog only: the adjacent list has no language entries.
 const categoryChoicesView = ({
   entries,
   filter,
@@ -190,10 +188,8 @@ const categoryChoicesView = ({
   </div>
 )
 
-// One language of the row: its logo, a choice like a radio button.
-// Choosing it narrows the list to it, and choosing it again shows every
-// language. The chosen one has the blue edge; hovering one draws the blue
-// shadow of the layout buttons
+// A choice like a radio button; hovering one draws the blue shadow of the
+// layout buttons
 const languageChoiceView = ({
   language,
   count,
@@ -236,11 +232,10 @@ const languageChoiceView = ({
   )
 }
 
-// The rows of language logos, the most popular first, in rows as even as
-// they can be (`balancedRows`), so the block is centred and never ends on
-// a short row. The boxes have one size (40px, 44px on a desktop), and a row
-// holds as many as fit the width of the window (`logosPerRowOf`): 7, 7, 6
-// and 6 on a phone, 13 and 13 from a tablet up
+// Rows as even as they can be (`balancedRows`), so the block is centred and
+// never ends on a short row: 7, 7, 6 and 6 on a phone, 13 and 13 from a
+// tablet up. A row holds as many as fit the window (`logosPerRowOf`, which
+// repeats the sizes and gaps of the boxes here)
 const languageRowsView = ({
   rows,
   className,
@@ -287,12 +282,10 @@ const languageChoicesView = ({
 // Rows of choice boxes: tiers or what an entry lacks, then targets
 // ---------------------------------------------
 
-// One choice of a row: a box in the colors of the badge or chip a card
-// shows for it (`tone`), larger, with its count under the other filters.
-// Every box has one width, so the rows line up.
-// Choosing it narrows the list and fills it blue, like the chosen layout
-// button (hovering it draws the blue edge and its shadow, like the other
-// layout button); choosing it again clears it.
+// In the colors of the badge or chip a card shows for it (`tone`). Every
+// box has one width, so the rows line up. Chosen, it fills blue like the
+// chosen layout button; hovering it draws the blue edge and its shadow, like
+// the other layout button.
 const choiceBoxView = ({
   id,
   label,
@@ -307,7 +300,6 @@ const choiceBoxView = ({
   label: string
   icon: React.ReactNode
   tone: Tone
-  // What choosing it means, on hover
   tooltip: Content
   count: number
   isChosen: boolean
@@ -347,7 +339,6 @@ const choiceRowView = ({ children }: { children: React.ReactNode }) => (
   <div className='flex flex-wrap gap-[8px]'>{children}</div>
 )
 
-// The tiers of the catalog
 const tierChoicesView = ({
   entries,
   filter,
@@ -376,7 +367,6 @@ const tierChoicesView = ({
     ),
   })
 
-// What an entry of the adjacent list lacks
 const lacksChoicesView = ({
   entries,
   filter,
@@ -412,8 +402,6 @@ const lacksChoicesView = ({
     ),
   })
 
-// The targets the entries of the list run on, in the order of `targets`
-// (`targetOptionsOf`)
 const targetChoicesView = ({
   entries,
   filter,
@@ -446,8 +434,8 @@ const targetChoicesView = ({
   })
 }
 
-// Active, quiet and archived, each with the dot a card shows: the first
-// two are chosen until others are
+// Each with the dot a card shows; active and quiet are chosen until others
+// are
 const statusChoicesView = ({
   entries,
   filter,
@@ -510,7 +498,6 @@ const layoutButtonView = ({
   </button>
 )
 
-// The search across the whole list, under the filter rows
 const searchView = ({
   filter,
   dispatch,
@@ -535,7 +522,6 @@ const searchView = ({
   </label>
 )
 
-// A row of the popover: its name, then its boxes
 const panelSectionView = ({
   title,
   children,
@@ -551,12 +537,9 @@ const panelSectionView = ({
   </div>
 )
 
-// The search, and on its right the Filters button with its popover: the
-// tiers (or, on the adjacent list, what an entry lacks), the targets and
-// the statuses, each a choice of several (`toggleChoice`, `toggleStatus`),
-// in a box with a sharp blue edge, like the button, and no shadow.
-// The popover fades in rising 4px (`starting:`) and out the same way while
-// the model keeps it `closing`; a press outside it or Escape closes it.
+// The popover has a sharp blue edge, like the button, and no shadow. It
+// fades in rising 4px (`starting:`) and out the same way while the model
+// keeps it `closing`.
 const searchRowView = ({
   entries,
   model,
@@ -645,10 +628,8 @@ const searchRowView = ({
   )
 }
 
-// The sort menu of the cards (the table sorts by its headers): the order
-// of the list, the most stars, the last push, the creation of the
-// repository, or the day an entry joined the catalog. A sort only the
-// table makes (by name, oldest first) shows as one more choice, chosen.
+// The table sorts by its headers instead. A sort only the table makes (by
+// name, oldest first) shows as one more choice, chosen.
 const sortMenuView = ({
   filter,
   dispatch,
@@ -712,9 +693,6 @@ const sortMenuView = ({
   )
 }
 
-// The toolbar right above the results: the layout and, in the card view,
-// the sort menu on the left, the count and (while a filter is on) Clear
-// filters on the right
 const filterBarView = ({
   filter,
   shown,
@@ -763,9 +741,7 @@ const filterBarView = ({
 // Results
 // ---------------------------------------------
 
-// When the repository was created and last pushed to, each with its icon,
-// on one line; nothing for an entry with no public repository. Raised above
-// the link that covers the card, for their tooltips.
+// Raised above the link that covers the card, for their tooltips
 const datesView = ({ framework }: { framework: Framework }) =>
   framework.createdAt === undefined ||
   framework.updatedAt === undefined ? null : (
@@ -855,8 +831,7 @@ const cardView = ({
   </div>
 )
 
-// One column on a phone, two on a tablet (`tablet:`, the exception to
-// `lg:` only), three on a desktop
+// `tablet:` is the exception to `lg:` only
 const cardsView = ({
   shown,
   recentSince,
@@ -869,8 +844,6 @@ const cardsView = ({
   </div>
 )
 
-// A header of the table that sorts by its column: the arrow shows the
-// column sorted by and its direction, a faint double arrow the others
 const sortHeaderView = ({
   column,
   label,
@@ -1079,11 +1052,8 @@ const tableView = ({
   </div>
 )
 
-// Nothing to show: only ever under a filter, so the toolbar above it
-// already offers to clear them. When the archive holds matches the list
-// hides, it says how many and offers to show them; when the other list
-// matches the filters that mean the same there (`carriedFilterOf`), it
-// says how many and links to them there.
+// Only ever under a filter, so the toolbar above it already offers to clear
+// them
 const emptyView = ({
   entries,
   filter,
@@ -1113,9 +1083,8 @@ const emptyView = ({
           Show the archived {noun}
         </button>
       )}
-      {/* The other list matches the filters this one carries over
-          (`carriedFilterOf`): the TEA-adjacent page for a library that is
-          not TEA, the Main catalog for one that is */}
+      {/* A library that is not TEA lives on the TEA-adjacent page, and one
+          that is on the Main catalog */}
       {pipe(
         other,
         O.map((matches) => ({ matches, link: otherListLinkOf(matches) })),
@@ -1141,12 +1110,8 @@ const emptyView = ({
   )
 }
 
-// Results found, and archived entries of this list match the filters too
-// while the archive is hidden: one quiet line above the results, with the
-// same button as the empty view, so a filter does not hide that the
-// archive holds more. Only under the default statuses and a filter that
-// narrows the list (`archivedHintCountOf`). Once the button shows them,
-// the line stays and offers to hide them again (`shownArchivedCountOf`).
+// One quiet line above the results, so a filter does not hide that the
+// archive holds more
 const archivedHintView = ({
   entries,
   filter,
@@ -1179,13 +1144,8 @@ const archivedHintView = ({
   )
 }
 
-// Results found, and the other list matches the same filters too
-// (`carriedFilterOf`: the search, the language, the targets, the statuses):
-// one quiet line above the results, so a search for "react", or the
-// TypeScript logo, on the catalog also points to the matching libraries
-// of the TEA-adjacent page. Nothing when no such filter narrows the other
-// list (statuses that widen it do not), or the other list does not match
-// it.
+// So a search for "react", or the TypeScript logo, on the catalog also
+// points to the matching libraries of the TEA-adjacent page
 const otherListHintView = ({ filter }: { filter: ListingFilter }) => {
   return pipe(
     otherListMatchesOf(filter),
@@ -1232,7 +1192,6 @@ const ListingComponent = ({
   recentSince,
   dispatch,
 }: Props) => {
-  // Which list it shows, from its filter
   const list = model.filter.list
   const entries = entriesOf(list)
   const shown = pipe(

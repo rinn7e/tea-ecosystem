@@ -69,8 +69,6 @@ const luminanceOf = ([r, g, b]: Rgb): number => {
   return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
 }
 
-// The same hue at another lightness: towards black for a step below 0,
-// towards white above
 const shadeOf =
   (step: number) =>
   ([r, g, b]: Rgb): Rgb =>

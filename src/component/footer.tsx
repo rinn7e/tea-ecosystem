@@ -19,7 +19,6 @@ import { Link } from './link'
 // The year of the build, for the copyright line
 const YEAR = new Date().getFullYear()
 
-// The languages of the catalog, counted once each
 const languageCount = new Set(frameworks.flatMap(languagesOf)).size
 
 const footerHeadingView = ({ title }: { title: string }) => (
@@ -44,10 +43,7 @@ const statChipView = ({ label }: { label: string }) => (
   </span>
 )
 
-// The foot of every page: what the site is and how big, its pages and its
-// source code, where to learn TEA and what the site draws on, then the
-// year, a note that it is a community catalog, and who made it and with
-// what. It takes no props, so it is drawn once.
+// It takes no props, so it is drawn once.
 const FooterComponent = () => (
   <footer className='border-line bg-panel border-t'>
     <div className='flex justify-center px-[16px]'>
@@ -155,7 +151,6 @@ const FooterComponent = () => (
           </div>
         </div>
 
-        {/* The bottom bar on the axis: the year, the note, the credit */}
         <div className='border-line text-ink-faint flex flex-col items-center gap-[8px] border-t pt-[24px] text-center text-xs'>
           <p>
             © {YEAR} TEA Ecosystem, updated {lastUpdated}

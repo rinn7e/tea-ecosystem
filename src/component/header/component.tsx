@@ -59,18 +59,16 @@ const navLinkView = ({
 // On a phone the bar shows only the emblem and the name, centred, and the
 // links move to the tab bar at the bottom (`BottomNavMemo`).
 //
-// The emblem on the axis is the link to the catalog. The link of the page
-// shown is underlined, but the emblem shows it by its opacity instead: full
-// on the catalog, dimmed elsewhere. Like every link of the bars and the
-// footer, it opens its list fresh (no filters, cards, the top of the
-// page); only going back (the link back of an entry page, or the back of
-// the browser) shows a list as it was left. The about page and the guide
-// face it from the left, the adjacent page and the rubric from the right.
+// The link of the page shown is underlined, but the emblem (the link to the
+// catalog) shows it by its opacity instead, from `lg` up: full on the
+// catalog, dimmed elsewhere. Like every link of the bars and the footer, it opens its list
+// fresh (no filters, cards, the top of the page); only going back (the link
+// back of an entry page, or the back of the browser) shows a list as it was
+// left.
 //
 // The source code of the site is linked at the end of the right column on
 // a desktop (the right edge of the frame), and pinned to the right edge of
-// the bar on a phone; neither moves the emblem off the axis. Under it, how
-// long ago the repository last changed at `now` (ms since 1970).
+// the bar on a phone, so neither moves the emblem off the axis.
 const HeaderComponent = ({ active, now }: HeaderProps) => (
   <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
@@ -103,9 +101,8 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
             TEA Ecosystem
           </span>
         </Link>
-        {/* The right column: its links, then the source code at the end of
-            the frame. On a phone the wrapper adds no box (\`contents\`): the
-            links hide and the source code is pinned to the right edge */}
+        {/* On a phone the wrapper adds no box (`contents`): the links hide
+            and the source code is pinned to the right edge */}
         <div className='contents lg:flex lg:items-center lg:justify-between'>
           <nav className='hidden justify-start gap-[2px] lg:flex'>
             {navLinkView({
@@ -119,8 +116,6 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
               isActive: active === 'rubric',
             })}
           </nav>
-          {/* The source code, with how long ago it last changed under the
-              icon, and the day in the tooltip */}
           <TooltipTrigger
             id='bar-last-updated'
             content={{
@@ -190,10 +185,8 @@ const bottomTabView = ({
   </Link>
 )
 
-// The tab bar of a phone, fixed to the bottom of the screen: the links of
-// the top bar in the same order, each an icon over its name, the emblem
-// (the catalog) on the axis. The tab of the page shown is blue with a blue
-// edge on top. Hidden from the `lg` width up, where the top bar has them.
+// The links of the top bar in the same order, the emblem (the catalog) on
+// the axis. Hidden from the `lg` width up, where the top bar has them.
 const BottomNavComponent = ({ active }: BottomNavProps) => (
   <nav
     aria-label='Pages'

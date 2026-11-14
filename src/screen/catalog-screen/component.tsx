@@ -4,8 +4,6 @@ import { ListingMemo } from '@/component/listing/component'
 
 import { type Props, PropsEq } from './type'
 
-// The catalog of TEA frameworks: the shared listing over
-// `data/frameworks.json`
 const CatalogComponent = ({
   model,
   logosPerRow,

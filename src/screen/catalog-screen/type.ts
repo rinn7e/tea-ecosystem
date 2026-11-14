@@ -7,10 +7,9 @@ import { type Dispatcher } from 'tea-cup-fp'
 import { type CatalogFilter, CatalogFilterEq } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
-// The catalog of TEA frameworks: the shared listing over
-// `data/frameworks.json`. A base layer of the screen stack: the root keeps
-// this model (`Model.catalog`) under every screen, so closing an entry page
-// shows the catalog as it was left
+// The shared listing over `data/frameworks.json`. A base layer of the
+// screen stack: the root keeps this model (`Model.catalog`) under every
+// screen, so closing an entry page shows the catalog as it was left
 export type Model = {
   listing: Listing.Model<CatalogFilter>
 }

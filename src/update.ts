@@ -193,7 +193,6 @@ const buildScreenMsgHandler = (
   }
 }
 
-// The tooltip of the app, over whatever screen is shown
 const tooltipMsgHandler = (
   subMsg: Tooltip.Msg,
   model: Model,
@@ -205,7 +204,6 @@ const tooltipMsgHandler = (
   ]
 }
 
-// The button back to the top, over whatever screen is shown
 const backToTopMsgHandler = (
   subMsg: BackToTop.Msg,
   model: Model,

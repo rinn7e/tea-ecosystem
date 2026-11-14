@@ -4,11 +4,10 @@ import { type Dispatcher } from 'tea-cup-fp'
 
 import { type Model, type Msg } from './type'
 
-// A circle on the right edge of the 1080px frame of the bar, the lists and
-// the footer, fixed near the bottom of the window; on a phone it sits above
-// the tab bar. The frame lets presses through, only the circle takes them.
-// Hidden, it fades out and stays out of reach of the mouse, the keyboard
-// and screen readers.
+// The 1080px frame lines the circle up with the right edge of the bar, the
+// lists and the footer. On a phone it sits above the tab bar (60px,
+// `BottomNavMemo`). The frame lets presses through, only the circle takes
+// them.
 export const backToTopView = ({
   model,
   dispatch,

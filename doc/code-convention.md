@@ -15,6 +15,7 @@ The rules of this app. They follow the code convention of the realworld `fronten
 - [Data files](#data-files)
 - [The samples of the guide](#the-samples-of-the-guide)
 - [TypeScript](#typescript)
+- [Comments](#comments)
 - [File structure](#file-structure)
 - [Views](#views)
 - [Styling](#styling)
@@ -143,6 +144,15 @@ A fact with an owner gets a type only its owner makes, so a write that skips the
 - The `Eq` of a generic type is a builder that takes the `Eq` of its type argument (`mkModelEq(filterEq)`), never one `Eq` fixed at the widest type: the catalog compares its model with `mkModelEq(CatalogFilterEq)`.
 - Imports in three groups (libraries, `@/` paths, relative paths), sorted by Prettier.
 - Re-export only from `index.ts` files.
+
+## Comments
+
+Code says what it does by itself; a comment says only what the code cannot. A comment needed to explain what a piece of code does usually means the code is too complex for its own good.
+
+1. Make the code explain itself first: a name that says what a value is, a type that rules out the wrong states (a brand, a union with a `_tag`), a small function with a name instead of a block with a comment over it. When a comment seems needed to say what the code does, rename or split the code instead.
+2. Never write a comment that restates the code: the name, the type or the line under it already says it.
+3. Comment only what the code cannot say: why it is this way and not the obvious way, a decision and its reason, a fact of the outside world (a host that answers 403 to scripts, a browser quirk), or the test that guards a rule (`test "keep every framework within the rules of its tier"`).
+4. When the code changes, change or remove its comment with it, so no comment describes code that is gone.
 
 ## File structure
 

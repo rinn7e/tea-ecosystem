@@ -159,7 +159,6 @@ export const App = ({
             model: model.backToTop,
             dispatch: (subMsg) => dispatch({ _tag: 'BackToTopMsg', subMsg }),
           })}
-          {/* The one tooltip of the app, fixed over the page */}
           {tooltipLayerView({ model: model.tooltip })}
         </div>
       </TooltipDispatchContext>

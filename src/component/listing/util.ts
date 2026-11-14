@@ -52,9 +52,8 @@ import {
   tierLabel,
 } from '@/component/framework-view'
 
-// The words the search reads for an entry: its name, language, summary and
-// id, and the labels it shows on screen (status, tier, targets, the language
-// line), so whatever a card says can be searched
+// The labels a card shows are searched too, so whatever a card says can be
+// searched
 const searchTextsOf = (framework: Framework): string[] => [
   framework.name,
   framework.language,
@@ -79,16 +78,14 @@ const matchesQuery =
     }
   }
 
-// An entry lacks a part when it is missing or only reached in another
-// shape: what keeps an adjacent library out of the catalog
+// A part only reached in another shape counts as lacking too: what keeps an
+// adjacent library out of the catalog
 export const lacks =
   (concept: Concept) =>
   (framework: Framework): boolean =>
     framework.rubric[concept] === 'missing' ||
     framework.rubric[concept] === 'equivalent'
 
-// Only the languages or only the frameworks when one is chosen; every
-// entry when none is
 const matchesCategory =
   (show: O.Option<EntryCategory>) =>
   (framework: Framework): boolean =>
@@ -105,8 +102,6 @@ const matchesCategory =
 
 type LanguageCount = { language: string; count: number }
 
-// Where a pinned language stands (`pinnedLanguages`: Elm, then TypeScript),
-// after them every other language
 const pinRankOf = (language: string): number => {
   const index = pinnedLanguages.indexOf(language)
   return index === -1 ? pinnedLanguages.length : index
@@ -135,8 +130,6 @@ const languageCountOrd: Ord.Ord<LanguageCount> = concatAll(
   ),
 ])
 
-// Whether an entry passes the filters of its own list: the tier and the
-// category of entry on the catalog, what it lacks on the adjacent list
 const passesOwnFilter = (
   filter: ListingFilter,
   framework: Framework,
@@ -146,15 +139,13 @@ const passesOwnFilter = (
       matchesCategory(filter.show)(framework)
     : passesChoice(filter.lacks, (concept) => lacks(concept)(framework))
 
-// Whether a filter of its own list narrows it (some tiers, or the category
-// of entry, on the catalog; some concepts an entry lacks on the adjacent
-// list). It stays behind when the filter is carried to the other list.
+// A filter of its own list stays behind when the filter is carried to the
+// other list
 const narrowsOwnFilter = (filter: ListingFilter): boolean =>
   filter.list === 'catalog'
     ? narrowsChoice(filter.tiers) || O.isSome(filter.show)
     : narrowsChoice(filter.lacks)
 
-// The entries the filter shows, in the order of their list
 export const filterFrameworks =
   (filter: ListingFilter) =>
   (frameworks: Framework[]): Framework[] =>
@@ -178,13 +169,10 @@ export const filterFrameworks =
       ),
     )
 
-// The other list: the TEA-adjacent page for the catalog, and back
 export const otherListOf = (list: ListId): ListId =>
   list === 'catalog' ? 'adjacent' : 'catalog'
 
-// How many archived entries of a list match its filter while the archive
-// is hidden (the statuses leave archived out): what "Show the archived"
-// would add. None while the archived entries are shown already.
+// What "Show the archived" would add
 export const hiddenArchivedCountOf = (
   entries: Framework[],
   filter: ListingFilter,
@@ -195,8 +183,6 @@ export const hiddenArchivedCountOf = (
         entries,
       ).length
 
-// An entry of a list in words, one or several: "1 framework" on the
-// catalog, "2 libraries" on the TEA-adjacent page
 export const entryNounOf = (list: ListId, count: number): string =>
   list === 'catalog'
     ? count === 1
@@ -206,10 +192,8 @@ export const entryNounOf = (list: ListId, count: number): string =>
       ? 'library'
       : 'libraries'
 
-// A choice of targets as the other list reads it, among its `options`:
-// the ones it offers kept, none when it offers none of them. A choice that
-// narrows nothing goes over with no box ticked: every box of this list
-// ticked is not every box of the other one.
+// A choice that narrows nothing goes over with no box ticked: every box of
+// this list ticked is not every box of the other one
 const carriedTargetsOf = (
   options: Target[],
   choice: Choice<Target>,
@@ -221,13 +205,8 @@ const carriedTargetsOf = (
         O.fromPredicate((carried) => isAnyTicked(carried)),
       )
 
-// A filter as the other list reads it: the parts that mean the same on
-// both lists (the search, the language, the targets and the statuses, with
-// the layout and the sort) over the default filter of the other list. The
-// filters of its own list (`narrowsOwnFilter`) stay behind. The targets
-// become a choice among the ones the other list offers
-// (`targetOptionsOf`); none when it offers none of those chosen, so nothing
-// there can match.
+// None when the other list offers none of the chosen targets, so nothing
+// there can match
 export const carriedFilterOf = (
   filter: ListingFilter,
 ): O.Option<ListingFilter> =>
@@ -246,21 +225,16 @@ export const carriedFilterOf = (
     })),
   )
 
-// Whether a filter narrows the list enough that its archived entries are
-// news: a search with more than spaces, a language, some targets (not
-// every one, `narrowsChoice`), or a filter of its own list
-// (`narrowsOwnFilter`)
+// A filter that narrows the list enough that its archived entries are news
 const narrowsForArchive = (filter: ListingFilter): boolean =>
   filter.query.trim() !== '' ||
   O.isSome(filter.language) ||
   narrowsChoice(filter.targets) ||
   narrowsOwnFilter(filter)
 
-// How many archived entries the line above the results of a list names:
-// the hidden archived ones (`hiddenArchivedCountOf`), only under the
-// default statuses (the reader did not choose which to show) and a filter
-// that narrows the list (`narrowsForArchive`). None with no such filter:
-// the archive is not news then.
+// Only under the default statuses, as the reader did not choose which to
+// show, and a filter that narrows the list: with no such filter the archive
+// is not news
 export const archivedHintCountOf = (
   entries: Framework[],
   filter: ListingFilter,
@@ -269,12 +243,10 @@ export const archivedHintCountOf = (
     ? hiddenArchivedCountOf(entries, filter)
     : 0
 
-// How many archived entries the same line names once "Show the archived"
-// added them: under every status box ticked (where that button leads from
-// the default, and where the pointer to the archived matches of the other
-// list opens) and a filter that narrows the list, the archived entries
-// that match it, so the line stays and offers to hide them again. None
-// under any other statuses, which the reader chose in the popover.
+// Every status box ticked is where "Show the archived" leads from the
+// default, and where the pointer to the archived matches of the other list
+// opens: the line stays there and offers to hide them again. Any other
+// statuses the reader chose in the popover, so the line names none.
 export const shownArchivedCountOf = (
   entries: Framework[],
   filter: ListingFilter,
@@ -287,16 +259,14 @@ export const shownArchivedCountOf = (
       ).length
     : 0
 
-// Whether a carried filter narrows the other list at all: statuses narrow
-// only when they leave out some of what a list shows by default (`Only`);
-// the default ones, or every one, do not
+// Statuses narrow only when they leave out some of what a list shows by
+// default (`Only`); the default ones, or every one, do not
 const narrowsOtherList = (carried: ListingFilter): boolean =>
   carried.query !== '' ||
   O.isSome(carried.language) ||
   narrowsChoice(carried.targets) ||
   carried.statuses._tag === 'Only'
 
-// What the pointer to the other list says and opens (`otherListMatchesOf`)
 export type OtherListMatches = {
   count: number
   isArchived: boolean
@@ -304,15 +274,9 @@ export type OtherListMatches = {
   subject: string
 }
 
-// The matches in the other list of the filter a list is under, the filter
-// that shows them there, and how the pointer names what they match: the
-// search in quotes when it is the only filter carried, "these filters"
-// when every filter on is carried, else "the filters that apply there". The
-// entries the other list shows by default come first; when none of them
-// match and the statuses are the default ones, its archived entries
-// (`isArchived`), shown with every status box ticked, so the archived line
-// there offers to hide them. None when no carried filter narrows the other
-// list (`narrowsOtherList`), or the other list does not match it at all.
+// The archived entries of the other list are tried only after its default
+// ones, and shown with every status box ticked, so the archived line there
+// offers to hide them
 export const otherListMatchesOf = (
   filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
@@ -360,12 +324,8 @@ export const otherListMatchesOf = (
   )
 }
 
-// What a list says about the matches in the other list, under its
-// results (`isAlso`) or in place of them when it has none: "3 TEA-adjacent
-// libraries also match "react"", "1 archived framework in the Main catalog
-// matches "seed"", "2 TEA-adjacent libraries also match these filters".
-// The catalog is the "Main catalog" there, to set it apart from the
-// TEA-adjacent page. The list of the matches is the one of their filter.
+// The catalog is the "Main catalog" here, to set it apart from the
+// TEA-adjacent page
 export const otherListMatchTextOf = ({
   matches,
   isAlso,
@@ -382,8 +342,6 @@ export const otherListMatchTextOf = ({
     : `${count} ${archived}${entryNounOf('catalog', count)} in the Main catalog ${also}${verb} ${subject}.`
 }
 
-// The link to the matches on the other list, with the filter that shows
-// them, and its words
 export const otherListLinkOf = (
   matches: OtherListMatches,
 ): { destination: Destination; label: string } => ({
@@ -394,9 +352,7 @@ export const otherListLinkOf = (
       : 'Show in Main catalog',
 })
 
-// How many of the filters in the popover differ from their default: the
-// tier (or what an entry lacks), the target and the status. A choice with
-// every box ticked counts, as it stays ticked on screen.
+// A choice with every box ticked counts, as it stays ticked on screen
 export const panelFilterCountOf = (filter: ListingFilter): number =>
   pipe(
     [
@@ -410,8 +366,8 @@ export const panelFilterCountOf = (filter: ListingFilter): number =>
     A.size,
   )
 
-// Whether anything is ticked or typed: Clear filters shows, also for a
-// choice with every box ticked, which stays ticked on screen
+// Clear filters shows also for a choice with every box ticked, which stays
+// ticked on screen
 export const isFiltered = (filter: ListingFilter): boolean =>
   (filter.list === 'catalog'
     ? isAnyTicked(filter.tiers) || O.isSome(filter.show)
@@ -421,10 +377,6 @@ export const isFiltered = (filter: ListingFilter): boolean =>
   filter.query !== '' ||
   O.isSome(filter.language)
 
-// Every language of a list with its number of entries: Elm and TypeScript
-// first (`pinnedLanguages`), then the most popular (`languagePopularity`),
-// then the one with the most entries, then by name. The row of language
-// logos.
 export const languageCountsOf = (
   entries: Framework[],
 ): { language: string; count: number }[] =>
@@ -438,10 +390,8 @@ export const languageCountsOf = (
     A.sort(languageCountOrd),
   )
 
-// `items` in rows of at most `maxPerRow`, as even as they can be: the rows
-// differ by one at most, the longer ones first (26 in rows of 13: 13 and
-// 13; in rows of 7: 7, 7, 6 and 6), so a centred block never ends on a
-// short last row
+// The rows differ by one at most, the longer ones first (26 in rows of 7:
+// 7, 7, 6 and 6), so a centred block never ends on a short last row
 export const balancedRows = <A>(items: A[], maxPerRow: number): A[][] => {
   const rowCount = Math.ceil(items.length / Math.max(1, maxPerRow))
   const base = Math.floor(items.length / Math.max(1, rowCount))
@@ -452,10 +402,8 @@ export const balancedRows = <A>(items: A[], maxPerRow: number): A[][] => {
   })
 }
 
-// How many language logos fit in a row in a window `windowWidth` wide: as
-// many fixed boxes as the content holds (40px with 6px gaps below `lg`,
-// 44px with 8px from it, as the view draws them), at most 13. Where the
-// CSS and `windowWidth` disagree on `lg` (`breakpoints`), 13 fit either way.
+// The boxes and gaps are the ones the view draws. Where the CSS and
+// `windowWidth` disagree on `lg` (`breakpoints`), 13 fit either way.
 export const logosPerRowOf = (windowWidth: number): number => {
   const isDesktop = windowWidth >= breakpoints.lg
   const box = isDesktop ? 44 : 40
@@ -480,16 +428,14 @@ const gradePoints = (grade: Grade): number =>
         ? 1
         : 0
 
-// How close an entry is to Elm, part by part: Native counts most, then
-// Managed, then Equivalent
+// How close an entry is to Elm
 export const rubricScoreOf = (framework: Framework): number =>
   concepts.reduce(
     (sum, concept) => sum + gradePoints(framework.rubric[concept]),
     0,
   )
 
-// The value an entry sorts by in a column; none for a value it lacks (no
-// stars or dates without a public repository)
+// No stars or dates for an entry without a public repository
 const sortKeyOf =
   (column: SortColumn) =>
   (framework: Framework): O.Option<number | string> => {
@@ -516,7 +462,6 @@ const sortKeyOf =
 const compareKeys = (a: number | string, b: number | string): number =>
   a < b ? -1 : a > b ? 1 : 0
 
-// Two values in a direction; a missing value after any present one
 const compareInDirection =
   (direction: SortDirection) =>
   (a: O.Option<number | string>, b: O.Option<number | string>): number =>
@@ -528,9 +473,8 @@ const compareInDirection =
           ? 1
           : 0
 
-// The entries in the order of the chosen column, an entry without a value
-// last in both directions. Entries with the same value keep the order of
-// their list (the sort is stable), and no column keeps that order whole.
+// Entries with the same value keep the order of their list (the sort is
+// stable), and no column keeps that order whole
 export const sortFrameworks =
   (sort: O.Option<ListingSort>) =>
   (frameworks: Framework[]): Framework[] =>
@@ -548,10 +492,8 @@ export const sortFrameworks =
       ),
     )
 
-// The orders the sort menu of the cards offers, the table sorting by any
-// column: the order of the list (Elm, react-tea-cup, then the most
-// starred), the most stars, the last push, the creation of the repository
-// and the day it joined the catalog, each newest or largest first
+// The table sorts by any column; the sort menu of the cards offers only
+// these, each newest or largest first
 export type CardSort =
   'default' | 'popularity' | 'updated' | 'created' | 'added'
 
@@ -593,15 +535,14 @@ const columnOfCardSort = (choice: CardSort): O.Option<SortColumn> => {
   }
 }
 
-// The sort a choice of the menu sets
 export const sortOfCardSort = (choice: CardSort): O.Option<ListingSort> =>
   pipe(
     columnOfCardSort(choice),
     O.map((column): ListingSort => ({ column, direction: 'descending' })),
   )
 
-// The choice of the menu a sort is; none for one only the table makes (by
-// name, or oldest first), which the menu shows as it is
+// None for a sort only the table makes (by name, or oldest first), which
+// the menu shows as it is
 export const cardSortOf = (sort: O.Option<ListingSort>): O.Option<CardSort> =>
   pipe(
     [...cardSorts],
@@ -610,8 +551,6 @@ export const cardSortOf = (sort: O.Option<ListingSort>): O.Option<CardSort> =>
     ),
   )
 
-// The words of a column of the table: its name, then how it reads sorted
-// up and sorted down
 const sortWordsOf = (
   column: SortColumn,
 ): { name: string; ascending: string; descending: string } => {
@@ -663,8 +602,7 @@ const sortWordsOf = (
   }
 }
 
-// The words of a sort of the table, for the sort menu of the cards when
-// it is none of its choices ("Framework, A to Z", "Stars, fewest first")
+// For the sort menu of the cards when the sort is none of its choices
 export const sortLabelOf = (sort: ListingSort): string => {
   const words = sortWordsOf(sort.column)
   return `${words.name}, ${sort.direction === 'ascending' ? words.ascending : words.descending}`

@@ -25,14 +25,14 @@ import {
 } from '@/type'
 import { destinationOf, isScreenBelow } from '@/util'
 
-// The two lists kept under every screen (the base layers of the stack)
+// The base layers of the stack, kept under every screen
 export type Lists = Pick<Model, 'catalog' | 'adjacent'>
 
-// The screen model of `destination`, the one place a move opens a screen.
-// A list is opened with the destination's filter when the destination is
-// that list, and kept as it is under any other screen. The overlays over
-// every screen (the tooltip, the button back to the top) stay as they are,
-// and so does the scroll, which the move sets.
+// The one place a move opens a screen. A list is opened with the
+// destination's filter when the destination is that list, and kept as it is
+// under any other screen. The overlays over every screen (the tooltip, the
+// button back to the top) stay as they are, and so does the scroll, which
+// the move sets.
 // Review: called only by `navigationMsgHandler` and the boot.
 export const openDestination = (
   destination: Destination,
@@ -114,7 +114,6 @@ export const setTitleCmd = (model: Model): Cmd<Msg> =>
     document.title = titleOf(model)
   })
 
-// The list a screen is, if it is one
 const listIdOf = (screen: Screen): O.Option<ListId> => {
   switch (screen._tag) {
     case 'CatalogScreen':
@@ -130,15 +129,15 @@ const listIdOf = (screen: Screen): O.Option<ListId> => {
   }
 }
 
-// Every move of the app. The URL follows the destination after the step
-// (`withUrl`), so nothing here writes it. Each move also says where its
-// screen is drawn (`Model.scroll`): a landing on a history entry (the
-// browser's back or forward) at the scroll saved in that entry, a link back
-// (`back`: an entry page closed onto its list) at the scroll the list was
-// left at, any other move at the top, so a list opened from the bars starts
-// fresh. A link that leaves a list keeps its scroll for that link back. The landing of the app's own back
-// (`backOrPushUrlCmd`) comes to the destination already shown and changes
-// nothing: the step drew the list at its place already.
+// The URL follows the destination after the step (`withUrl`), so nothing
+// here writes it. Each move also says where its screen is drawn
+// (`Model.scroll`): a landing on a history entry (the browser's back or
+// forward) at the scroll saved in that entry, a link back (`back`: an entry
+// page closed onto its list) at the scroll the list was left at, any other
+// move at the top, so a list opened from the bars starts fresh. A link that
+// leaves a list keeps its scroll for that link back. The landing of the
+// app's own back (`backOrPushUrlCmd`) comes to the destination already
+// shown and changes nothing: the step drew the list at its place already.
 export const navigationMsgHandler = (
   subMsg: NavigationMsg,
   model: Model,

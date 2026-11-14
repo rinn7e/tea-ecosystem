@@ -10,10 +10,10 @@ import {
 } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
-// The TEA-adjacent libraries: the same listing as the catalog, over
-// `data/adjacent.json`. A base layer of the screen stack: the root keeps
-// this model (`Model.adjacent`) under every screen, so closing an entry page
-// shows the adjacent list as it was left
+// The same listing as the catalog, over `data/adjacent.json`. A base layer
+// of the screen stack: the root keeps this model (`Model.adjacent`) under
+// every screen, so closing an entry page shows the adjacent list as it was
+// left
 export type Model = {
   listing: Listing.Model<AdjacentFilter>
 }

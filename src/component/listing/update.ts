@@ -14,7 +14,7 @@ import {
 
 import { type Model, type Msg } from './type'
 
-// How long the filter popover fades out (the `duration` of its view)
+// Matches the `duration` of the fade of the popover in its view
 export const PANEL_LEAVE_DURATION = 150
 
 export const init = <F extends ListingFilter>(filter: F): Model<F> => ({
@@ -28,8 +28,6 @@ const withFilter = <F extends ListingFilter>(
   filter: F,
 ): [Model<F>, Cmd<Msg>] => [{ ...model, filter }, Cmd.none()]
 
-// The popover fades out first (`closing`, then `PanelClosed`); one already
-// closed or closing stays as it is
 const closePanel = <F extends ListingFilter>(
   model: Model<F>,
 ): [Model<F>, Cmd<Msg>] => {
@@ -48,9 +46,6 @@ const closePanel = <F extends ListingFilter>(
 // A filter change updates the model only: the URL follows after the step
 // (`withUrl`), as a replace while typing a query or changing only the order
 // (`isRefinement`)
-// The filters of one list change only on that list: a tier or the
-// category of entry on the catalog, what an entry lacks on the adjacent
-// list
 export const update = <F extends ListingFilter>(
   msg: Msg,
   model: Model<F>,
@@ -130,7 +125,7 @@ export const update = <F extends ListingFilter>(
       })
     case 'SetSort':
       return withFilter(model, { ...model.filter, sort: msg.sort })
-    // Clears what narrows the list; how it is shown (layout, sort) stays
+    // How the list is shown (layout, sort) stays
     case 'ClearFilter':
       return withFilter(
         model,
@@ -148,7 +143,6 @@ export const update = <F extends ListingFilter>(
               sort: filter.sort,
             },
       )
-    // The Filters button opens the popover, or closes it when open
     case 'TogglePanel':
       return model.panel === 'open'
         ? closePanel(model)
@@ -158,7 +152,6 @@ export const update = <F extends ListingFilter>(
           ]
     case 'PanelKeyDown':
       return msg.key === 'Escape' ? closePanel(model) : [model, Cmd.none()]
-    // A press outside the popover and its button closes it
     case 'PanelPointerDown':
       return msg.isInside ? [model, Cmd.none()] : closePanel(model)
     case 'PanelClosed':
