@@ -1,5 +1,6 @@
 import { fc } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
+import { isDeepStrictEqual } from 'node:util'
 
 import {
   type ListId,
@@ -89,16 +90,15 @@ const languageArb = fc.option(
   { nil: undefined },
 )
 
-const sortArb = fc.option(
-  fc.record<ListingSort>(
-    {
-      column: fc.constantFrom(...sortColumns),
-      direction: fc.constantFrom('ascending', 'descending'),
-    },
-    { noNullPrototype: true },
-  ),
-  { nil: undefined },
+export const sortRecordArb = fc.record<ListingSort>(
+  {
+    column: fc.constantFrom(...sortColumns),
+    direction: fc.constantFrom('ascending', 'descending'),
+  },
+  { noNullPrototype: true },
 )
+
+const sortArb = fc.option(sortRecordArb, { nil: undefined })
 
 // The filters both lists have, the targets among the ones `list` offers
 const sharedArb = (list: ListId) =>
@@ -145,18 +145,29 @@ export const listingFilterArb: fc.Arbitrary<ListingFilter> = fc.oneof(
   adjacentFilterArb,
 )
 
-// Two values for a law of equality: the same value, the value with one
-// field taken from another (a difference in one field), or two values drawn
+// Two values for a law of equality: the same value built apart (a deep
+// copy, so an `Eq` that compares by reference fails), the value with one
+// field taken from another where that field differs, or two values drawn
 // apart
 export const pairArb = <A extends object>(
   arb: fc.Arbitrary<A>,
 ): fc.Arbitrary<[A, A]> =>
-  fc.tuple(arb, arb, fc.nat(), fc.nat(2)).map(([x, y, pick, kind]): [A, A] => {
-    const keys = Object.keys(x).filter((key) => key in y)
-    const key = keys[pick % keys.length]
-    return kind === 0
-      ? [x, { ...x }]
-      : kind === 1 && key !== undefined
-        ? [x, { ...x, [key]: Reflect.get(y, key) }]
-        : [x, y]
-  })
+  fc
+    .tuple(arb, arb, fc.nat(), fc.nat(2))
+    .map(([x, y, pick, kind]) => {
+      const keys = Object.keys(x).filter((key) => key in y)
+      return { x, y, kind, key: keys[pick % keys.length] }
+    })
+    .filter(
+      ({ x, y, kind, key }) =>
+        kind !== 1 ||
+        (key !== undefined &&
+          !isDeepStrictEqual(Reflect.get(x, key), Reflect.get(y, key))),
+    )
+    .map(({ x, y, kind, key }): [A, A] =>
+      kind === 0
+        ? [x, structuredClone(x)]
+        : kind === 1 && key !== undefined
+          ? [x, { ...structuredClone(x), [key]: Reflect.get(y, key) }]
+          : [x, y],
+    )

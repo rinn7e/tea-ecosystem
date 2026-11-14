@@ -2,14 +2,24 @@ import { fc, test } from '@fast-check/vitest'
 import { isDeepStrictEqual } from 'node:util'
 import { describe, expect } from 'vitest'
 
-import { ListingFilterEq } from '@/common/type/destination'
+import { ListingFilterEq, ListingSortEq } from '@/common/type/destination'
 
 import {
   adjacentFilterArb,
   catalogFilterArb,
   listingFilterArb,
   pairArb,
+  sortRecordArb,
 } from '../../../helper/arbitrary'
+
+describe('the equality of a sort', () => {
+  test.prop([pairArb(sortRecordArb)])(
+    'agrees with deep equality, the direction too',
+    ([x, y]) => {
+      expect(ListingSortEq.equals(x, y)).toBe(isDeepStrictEqual(x, y))
+    },
+  )
+})
 
 describe('the equality of filters', () => {
   // Equal filters, filters one field apart on the same list, and filters

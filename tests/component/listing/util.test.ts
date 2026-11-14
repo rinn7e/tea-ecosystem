@@ -198,33 +198,23 @@ describe('the lines of a list', () => {
       expect(isFiltered(filter)).toBe(
         !isDeepStrictEqual(shown, defaultOf(filter)),
       )
-      // The popover holds the targets, the statuses and the tier or what
-      // an entry lacks; the search, the language and the category are not
-      // in it
-      const popover = {
-        ...defaultOf(filter),
-        targets: filter.targets,
-        statuses: filter.statuses,
-        ...(filter.list === 'catalog'
-          ? { tiers: filter.tiers }
-          : { lacks: filter.lacks }),
-      }
-      expect(panelFilterCountOf(filter) === 0).toBe(
-        isDeepStrictEqual(popover, defaultOf(filter)),
-      )
-      // The number on the button: one for each of those filters off its
-      // default
-      const offDefault = (field: string) =>
-        !isDeepStrictEqual(
-          Reflect.get(filter, field),
-          Reflect.get(defaultOf(filter), field),
-        )
+      // The number on the button: one for each filter of the popover off
+      // its default. The popover holds the targets, the statuses and the
+      // tier or what an entry lacks; the search, the language and the
+      // category are not in it.
+      const fallback = defaultOf(filter)
+      const own =
+        filter.list === 'catalog' && fallback.list === 'catalog'
+          ? !isDeepStrictEqual(filter.tiers, fallback.tiers)
+          : filter.list === 'adjacent' &&
+            fallback.list === 'adjacent' &&
+            !isDeepStrictEqual(filter.lacks, fallback.lacks)
       expect(panelFilterCountOf(filter)).toBe(
         [
-          filter.list === 'catalog' ? 'tiers' : 'lacks',
-          'targets',
-          'statuses',
-        ].filter(offDefault).length,
+          own,
+          !isDeepStrictEqual(filter.targets, fallback.targets),
+          !isDeepStrictEqual(filter.statuses, fallback.statuses),
+        ].filter(Boolean).length,
       )
     },
   )
