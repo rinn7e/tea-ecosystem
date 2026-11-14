@@ -246,10 +246,13 @@ const narrowsOtherList = (carried: ListingFilter): boolean =>
   narrowsChoice(carried.targets, targets) ||
   narrowsStatuses(carried.statuses)
 
-// Whether a filter that belongs to one list only is on: it stays behind,
-// so the pointer cannot say the other list matches "these filters"
+// Whether a filter that belongs to one list only narrows it: it stays
+// behind, so the pointer cannot say the other list matches "these filters"
+// (every tier or lack chosen narrows nothing, as none does)
 const hasOneListFilter = (filter: ListingFilter): boolean =>
-  filter.tiers.length > 0 || filter.lacks.length > 0 || O.isSome(filter.show)
+  narrowsChoice(filter.tiers, catalogTiers) ||
+  narrowsChoice(filter.lacks, lackables) ||
+  O.isSome(filter.show)
 
 // The matches in the other list of the filter a list is under, the filter
 // that shows them there, and how the pointer names what they match: the

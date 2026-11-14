@@ -484,6 +484,19 @@ describe('otherListMatchesOf', () => {
     ).toEqual(O.some('"redux"'))
   })
 
+  it('names the search alone under every tier chosen', () => {
+    // Every tier chosen narrows nothing, so no filter stays behind
+    expect(
+      pipe(
+        otherListMatchesOf('catalog', {
+          ...searchOf('redux'),
+          tiers: ['reference', 'full', 'superset'],
+        }),
+        O.map((m) => m.subject),
+      ),
+    ).toEqual(O.some('"redux"'))
+  })
+
   it('finds no TEA-adjacent library in Scala', () => {
     expect(
       otherListMatchesOf('catalog', {

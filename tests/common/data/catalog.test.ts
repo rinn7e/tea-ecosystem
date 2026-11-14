@@ -154,16 +154,25 @@ describe('sameLanguageEntriesOf', () => {
 
   it('gathers the entries of the language from both lists, catalog first', () => {
     const groups = idsOf('brick')
-    expect(pipe(groups, O.map(A.map((g) => g.kind)))).toEqual(
-      O.some(['catalog', 'adjacent']),
+    expect(groups).toEqual(
+      O.some([
+        { kind: 'catalog', ids: ['miso', 'monomer', 'gi-gtk-declarative'] },
+        { kind: 'adjacent', ids: ['hyperbole'] },
+      ]),
     )
-    expect(
+  })
+
+  it('matches an entry in two languages by each of them, both ways', () => {
+    // Keemun ships one library for Kotlin and one for Swift
+    const has = (id: string, other: string) =>
       pipe(
-        groups,
-        O.map((gs) => gs.flatMap((g) => g.ids)),
-        O.map((ids) => ids.includes('miso') && ids.includes('hyperbole')),
-      ),
-    ).toEqual(O.some(true))
+        idsOf(id),
+        O.map((gs) => gs.flatMap((g) => g.ids).includes(other)),
+      )
+    expect(has('keemun', 'mobius-kt')).toEqual(O.some(true))
+    expect(has('keemun', 'reswift')).toEqual(O.some(true))
+    expect(has('mvikotlin', 'keemun')).toEqual(O.some(true))
+    expect(has('mvikotlin', 'reswift')).toEqual(O.some(false))
   })
 
   it('leaves out the entry itself and a list with none', () => {
