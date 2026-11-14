@@ -7,7 +7,6 @@ import {
   choiceOf,
   destinationOfScreen,
   frameworkScreen,
-  lackables,
   statusChoiceOf,
 } from '@/common/type/destination'
 import { targets } from '@/common/type/framework'
@@ -37,8 +36,8 @@ describe('the screen stack', () => {
       bootOn('/rubric'),
       destinationOfScreen(
         catalogScreen({
+          list: 'catalog',
           tiers: choiceOf(catalogTiers, ['full']),
-          lacks: choiceOf(lackables, []),
           targets: choiceOf(targets, []),
           statuses: statusChoiceOf(['active', 'quiet']),
           query: '',

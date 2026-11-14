@@ -11,7 +11,8 @@ import {
   catalogScreen,
   catalogTiers,
   choiceOf,
-  defaultListingFilter,
+  defaultAdjacentFilter,
+  defaultCatalogFilter,
   defaultStatusChoice,
   destinationOfScreen,
   frameworkScreen,
@@ -48,8 +49,8 @@ describe('destination URL', () => {
 
   it('keeps the catalog filter in the query', () => {
     const screen = catalogScreen({
+      list: 'catalog',
       tiers: choiceOf(catalogTiers, ['full', 'superset']),
-      lacks: choiceOf(lackables, []),
       targets: choiceOf(targets, ['desktop', 'tui']),
       statuses: statusChoiceOf([]),
       query: 'rust tea',
@@ -63,12 +64,11 @@ describe('destination URL', () => {
 
   it('keeps the adjacent filter in the query, with lacks for tier', () => {
     const screen = adjacentScreen({
-      tiers: choiceOf(catalogTiers, []),
+      list: 'adjacent',
       lacks: choiceOf(lackables, ['cmd', 'sub']),
       targets: choiceOf(targets, ['web']),
       statuses: statusChoiceOf(['archived']),
       query: '',
-      show: O.none,
       language: O.none,
       layout: 'table',
       sort: O.none,
@@ -106,7 +106,7 @@ describe('destination URL', () => {
     expect(
       toUrlString(
         destinationOfScreen(
-          catalogScreen({ ...defaultListingFilter(), tiers: anyChoice(true) }),
+          catalogScreen({ ...defaultCatalogFilter(), tiers: anyChoice(true) }),
         ),
       ),
     ).toBe('/?tier=reference,full,superset')
@@ -114,15 +114,26 @@ describe('destination URL', () => {
       toUrlString(
         destinationOfScreen(
           catalogScreen({
-            ...defaultListingFilter(),
+            ...defaultCatalogFilter(),
             statuses: statusChoiceOf([]),
           }),
         ),
       ),
     ).toBe('/?status=all')
     expect(
-      toUrlString(destinationOfScreen(catalogScreen(defaultListingFilter()))),
+      toUrlString(destinationOfScreen(catalogScreen(defaultCatalogFilter()))),
     ).toBe('/')
+  })
+
+  it('reads only the filters of its own list', () => {
+    // The catalog has no lacks, the adjacent list no tier or category
+    expect(parseDestination('http://localhost/?lacks=cmd').screen).toEqual(
+      catalogScreen(),
+    )
+    expect(
+      parseDestination('http://localhost/adjacent?tier=full&show=languages')
+        .screen,
+    ).toEqual(adjacentScreen())
   })
 
   it('reads the targets of a list among the ones it offers', () => {
@@ -147,7 +158,7 @@ describe('destination URL', () => {
       toUrlString(
         destinationOfScreen(
           adjacentScreen({
-            ...defaultListingFilter(),
+            ...defaultAdjacentFilter(),
             targets: anyChoice(true),
           }),
         ),
@@ -173,7 +184,7 @@ describe('destination URL', () => {
       toUrlString(
         destinationOfScreen(
           catalogScreen({
-            ...defaultListingFilter(),
+            ...defaultCatalogFilter(),
             sort: O.some({ column: 'updated', direction: 'descending' }),
           }),
         ),
@@ -181,14 +192,14 @@ describe('destination URL', () => {
     ).toBe('/?sort=updated&order=descending')
     expect(parse('/?sort=added').screen).toEqual(
       catalogScreen({
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         sort: O.some({ column: 'added', direction: 'descending' }),
       }),
     )
     expect(parse('/?sort=nope').screen).toEqual(catalogScreen())
     expect(parse('/?sort=name').screen).toEqual(
       catalogScreen({
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         sort: O.some({ column: 'name', direction: 'ascending' }),
       }),
     )
@@ -196,7 +207,7 @@ describe('destination URL', () => {
 
   it('reads unknown filter values as no filter', () => {
     expect(parse('/?tier=gold&target=fridge&layout=list').screen).toEqual(
-      catalogScreen(defaultListingFilter()),
+      catalogScreen(defaultCatalogFilter()),
     )
     expect(parse('/build-your-own?language=cobol').screen).toEqual(
       buildScreen('typescript'),

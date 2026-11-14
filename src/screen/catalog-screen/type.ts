@@ -4,6 +4,7 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import { type CatalogFilter } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
 // The catalog of TEA frameworks: the shared listing over
@@ -11,7 +12,7 @@ import * as Listing from '@/component/listing'
 // this model (`Model.catalog`) under every screen, so closing an entry page
 // shows the catalog as it was left
 export type Model = {
-  listing: Listing.Model
+  listing: Listing.Model<CatalogFilter>
 }
 
 export const ModelEq: EqClass.Eq<Model> = EqClass.struct({

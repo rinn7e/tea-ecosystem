@@ -4,6 +4,7 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import { type AdjacentFilter } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
 // The TEA-adjacent libraries: the same listing as the catalog, over
@@ -11,7 +12,7 @@ import * as Listing from '@/component/listing'
 // this model (`Model.adjacent`) under every screen, so closing an entry page
 // shows the adjacent list as it was left
 export type Model = {
-  listing: Listing.Model
+  listing: Listing.Model<AdjacentFilter>
 }
 
 export const ModelEq: EqClass.Eq<Model> = EqClass.struct({

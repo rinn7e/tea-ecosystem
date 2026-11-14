@@ -13,7 +13,6 @@ const CatalogComponent = ({
   dispatch,
 }: Props) => (
   <ListingMemo
-    list='catalog'
     model={model.listing}
     logosPerRow={logosPerRow}
     recentSince={recentSince}

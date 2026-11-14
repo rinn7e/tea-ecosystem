@@ -1,6 +1,9 @@
 import { Cmd } from 'tea-cup-fp'
 
-import { defaultListingFilter } from '@/common/type/destination'
+import {
+  defaultAdjacentFilter,
+  defaultCatalogFilter,
+} from '@/common/type/destination'
 import { manualScrollRestorationCmd } from '@/common/util'
 import * as BackToTop from '@/component/back-to-top'
 import * as Tooltip from '@/component/tooltip'
@@ -29,8 +32,8 @@ export const init = (
 ): [Model, Cmd<Msg>] => {
   const model: Model = {
     ...openDestination(bootDestinationOf(location), {
-      catalog: CatalogScreen.init(defaultListingFilter()),
-      adjacent: AdjacentScreen.init(defaultListingFilter()),
+      catalog: CatalogScreen.init(defaultCatalogFilter()),
+      adjacent: AdjacentScreen.init(defaultAdjacentFilter()),
     }),
     tooltip: Tooltip.init(),
     backToTop: BackToTop.init(),

@@ -71,23 +71,18 @@ export const buildLanguages: readonly BuildLanguage[] = [
   'kotlin',
 ]
 
-// The filters of a list, which a link can share. The catalog filters by
-// `tier`, the adjacent list by the part an entry `lacks`; each leaves the
-// other one `Any`.
+// The filters of a list, which a link can share: the ones both lists have,
+// and the ones of its own list, which the other list has no field for
+// (`list` says which). The catalog filters by tier and by the category of
+// entry, the adjacent list by the part an entry lacks.
 // Each filter of the popover is a `Choice` among the options the list
 // offers: an entry passes when it matches any option chosen, and `Any`
 // (no box ticked, or every one) passes every entry
-export type ListingFilter = {
-  tiers: Choice<Tier>
-  // What an entry of the adjacent list lacks
-  lacks: Choice<Concept>
+type SharedFilter = {
   targets: Choice<Target>
   // Active and quiet by default: archived entries are hidden until chosen
   statuses: StatusChoice
   query: string
-  // Only the language entries (Elm, Gren), or only the frameworks; none
-  // shows every entry
-  show: Option<EntryCategory>
   // Only the entries written in this language (`languagesOf`)
   language: Option<string>
   layout: ListingLayout
@@ -96,9 +91,25 @@ export type ListingFilter = {
   sort: Option<ListingSort>
 }
 
+export type CatalogFilter = SharedFilter & {
+  readonly list: 'catalog'
+  tiers: Choice<Tier>
+  // Only the language entries (Elm, Gren), or only the frameworks; none
+  // shows every entry
+  show: Option<EntryCategory>
+}
+
+export type AdjacentFilter = SharedFilter & {
+  readonly list: 'adjacent'
+  // What an entry of the adjacent list lacks
+  lacks: Choice<Concept>
+}
+
+export type ListingFilter = CatalogFilter | AdjacentFilter
+
 export type CatalogScreen = {
   readonly _tag: 'CatalogScreen'
-  filter: ListingFilter
+  filter: CatalogFilter
 }
 
 export type FrameworkScreen = {
@@ -116,7 +127,7 @@ export type AboutScreen = {
 
 export type AdjacentScreen = {
   readonly _tag: 'AdjacentScreen'
-  filter: ListingFilter
+  filter: AdjacentFilter
 }
 
 export type BuildScreen = {
@@ -137,17 +148,25 @@ export type Screen =
   | BuildScreen
   | NotFoundScreen
 
-export const ListingFilterEq: EqClass.Eq<ListingFilter> = EqClass.struct({
-  tiers: getChoiceEq(S.Eq),
-  lacks: getChoiceEq(S.Eq),
+const SharedFilterEq: EqClass.Eq<SharedFilter> = EqClass.struct({
   targets: getChoiceEq(S.Eq),
   statuses: StatusChoiceEq,
   query: S.Eq,
-  show: O.getEq(S.Eq),
   language: O.getEq(S.Eq),
   layout: S.Eq,
   sort: O.getEq(ListingSortEq),
 })
+
+export const ListingFilterEq: EqClass.Eq<ListingFilter> = {
+  equals: (x, y) =>
+    SharedFilterEq.equals(x, y) &&
+    (x.list === 'catalog' && y.list === 'catalog'
+      ? getChoiceEq(S.Eq).equals(x.tiers, y.tiers) &&
+        O.getEq(S.Eq).equals(x.show, y.show)
+      : x.list === 'adjacent' && y.list === 'adjacent'
+        ? getChoiceEq(S.Eq).equals(x.lacks, y.lacks)
+        : false),
+}
 
 export const ScreenEq: EqClass.Eq<Screen> = {
   equals: (x, y) => {
@@ -197,20 +216,30 @@ export const lackables: readonly Concept[] = [
   'sub',
 ]
 
-export const defaultListingFilter = (): ListingFilter => ({
-  tiers: anyChoice(false),
-  lacks: anyChoice(false),
+const defaultSharedFilter = (): SharedFilter => ({
   targets: anyChoice(false),
   statuses: defaultStatusChoice(),
   query: '',
-  show: O.none,
   language: O.none,
   layout: 'cards',
   sort: O.none,
 })
 
+export const defaultCatalogFilter = (): CatalogFilter => ({
+  ...defaultSharedFilter(),
+  list: 'catalog',
+  tiers: anyChoice(false),
+  show: O.none,
+})
+
+export const defaultAdjacentFilter = (): AdjacentFilter => ({
+  ...defaultSharedFilter(),
+  list: 'adjacent',
+  lacks: anyChoice(false),
+})
+
 export const catalogScreen = (
-  filter: ListingFilter = defaultListingFilter(),
+  filter: CatalogFilter = defaultCatalogFilter(),
 ): Screen => ({ _tag: 'CatalogScreen', filter })
 export const frameworkScreen = (frameworkId: string): Screen => ({
   _tag: 'FrameworkScreen',
@@ -219,8 +248,12 @@ export const frameworkScreen = (frameworkId: string): Screen => ({
 export const rubricScreen = (): Screen => ({ _tag: 'RubricScreen' })
 export const aboutScreen = (): Screen => ({ _tag: 'AboutScreen' })
 export const adjacentScreen = (
-  filter: ListingFilter = defaultListingFilter(),
+  filter: AdjacentFilter = defaultAdjacentFilter(),
 ): Screen => ({ _tag: 'AdjacentScreen', filter })
+
+// The screen of the list a filter belongs to
+export const listScreenOf = (filter: ListingFilter): Screen =>
+  filter.list === 'catalog' ? catalogScreen(filter) : adjacentScreen(filter)
 export const buildScreen = (
   language: BuildLanguage = 'typescript',
 ): Screen => ({

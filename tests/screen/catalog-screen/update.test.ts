@@ -1,19 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { defaultListingFilter } from '@/common/type/destination'
+import { defaultCatalogFilter } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 import { type Msg, init, update } from '@/screen/catalog-screen'
 
 describe('the update of the catalog', () => {
   it('opens its listing with the filter of its destination', () => {
-    const filter = { ...defaultListingFilter(), query: 'rust' }
+    const filter = { ...defaultCatalogFilter(), query: 'rust' }
     expect(init(filter).listing).toEqual(Listing.init(filter))
   })
 
   it('hands a listing message to its listing', () => {
     const [next] = update(
       { _tag: 'ListingMsg', subMsg: { _tag: 'SetLayout', layout: 'table' } },
-      init(defaultListingFilter()),
+      init(defaultCatalogFilter()),
     )
     expect(next.listing.filter.layout).toBe('table')
   })
@@ -22,7 +22,7 @@ describe('the update of the catalog', () => {
     vi.useFakeTimers()
     const [open] = update(
       { _tag: 'ListingMsg', subMsg: { _tag: 'TogglePanel' } },
-      init(defaultListingFilter()),
+      init(defaultCatalogFilter()),
     )
     const [closing, closeCmd] = update(
       { _tag: 'ListingMsg', subMsg: { _tag: 'PanelKeyDown', key: 'Escape' } },

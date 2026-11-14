@@ -5,7 +5,6 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import { type ListId } from '@/common/data/catalog'
 import {
   type EntryCategory,
   type ListingFilter,
@@ -26,8 +25,10 @@ import {
 // the screen stack: the root keeps its model while an entry page covers
 // it, so closing the page shows the list as it was left. Its filter is the
 // destination's (`CatalogScreen`, `AdjacentScreen`).
-export type Model = {
-  filter: ListingFilter
+// `F` is the filter of its list (`CatalogFilter`, `AdjacentFilter`), so a
+// list never holds the filter of the other one
+export type Model<F extends ListingFilter = ListingFilter> = {
+  filter: F
   // The popover of the Filters button (tiers or what an entry lacks, and
   // targets): `closing` while it fades out, until `PanelClosed`. Not in the
   // URL: a list opens with it closed.
@@ -72,8 +73,6 @@ export type Msg =
   | { _tag: 'PanelClosed'; seq: number }
 
 export type Props = {
-  // Which list it shows: its entries, words and the select on its left
-  list: ListId
   model: Model
   // How many language logos fit in a row (`logosPerRowOf` the width of the
   // window): a resize draws the list again only when this number changes
@@ -85,7 +84,6 @@ export type Props = {
 }
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
-  list: S.Eq,
   model: ModelEq,
   logosPerRow: N.Eq,
   recentSince: S.Eq,

@@ -1,12 +1,12 @@
 import { type Cmd } from 'tea-cup-fp'
 
-import { type ListingFilter } from '@/common/type/destination'
+import { type CatalogFilter } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
 import { type Model, type Msg } from './type'
 
 // Opened with the filter of its destination
-export const init = (filter: ListingFilter): Model => ({
+export const init = (filter: CatalogFilter): Model => ({
   listing: Listing.init(filter),
 })
 

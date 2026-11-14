@@ -5,31 +5,35 @@ import { Cmd, Task, Time } from 'tea-cup-fp'
 import {
   type ListingFilter,
   type ListingSort,
-  defaultListingFilter,
+  anyChoice,
+  defaultStatusChoice,
   firstDirectionOf,
   toggleChoice,
   toggleStatus,
 } from '@/common/type/destination'
+import { type Concept, type Target, type Tier } from '@/common/type/framework'
 
 import { type Model, type Msg } from './type'
 
 // How long the filter popover fades out (the `duration` of its view)
 export const PANEL_LEAVE_DURATION = 150
 
-export const init = (filter: ListingFilter): Model => ({
+export const init = <F extends ListingFilter>(filter: F): Model<F> => ({
   filter,
   panel: 'closed',
   panelSeq: 0,
 })
 
-const withFilter = (model: Model, filter: ListingFilter): [Model, Cmd<Msg>] => [
-  { ...model, filter },
-  Cmd.none(),
-]
+const withFilter = <F extends ListingFilter>(
+  model: Model<F>,
+  filter: F,
+): [Model<F>, Cmd<Msg>] => [{ ...model, filter }, Cmd.none()]
 
 // The popover fades out first (`closing`, then `PanelClosed`); one already
 // closed or closing stays as it is
-const closePanel = (model: Model): [Model, Cmd<Msg>] => {
+const closePanel = <F extends ListingFilter>(
+  model: Model<F>,
+): [Model<F>, Cmd<Msg>] => {
   const panelSeq = model.panelSeq + 1
   return model.panel === 'open'
     ? [
@@ -42,20 +46,40 @@ const closePanel = (model: Model): [Model, Cmd<Msg>] => {
     : [model, Cmd.none()]
 }
 
+// What Clear filters resets of the filters both lists have: all but the
+// layout and the sort
+const clearedShared = () => ({
+  targets: anyChoice<Target>(false),
+  statuses: defaultStatusChoice(),
+  query: '',
+  language: O.none,
+})
+
 // A filter change updates the model only: the URL follows after the step
 // (`withUrl`), as a replace while typing a query
-export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
+// The filters of one list change only on that list: a tier or the
+// category of entry on the catalog, what an entry lacks on the adjacent
+// list
+export const update = <F extends ListingFilter>(
+  msg: Msg,
+  model: Model<F>,
+): [Model<F>, Cmd<Msg>] => {
+  const filter = model.filter
   switch (msg._tag) {
     case 'ToggleTier':
-      return withFilter(model, {
-        ...model.filter,
-        tiers: toggleChoice(msg.options, model.filter.tiers, msg.tier),
-      })
+      return filter.list === 'catalog'
+        ? withFilter(model, {
+            ...filter,
+            tiers: toggleChoice(msg.options, filter.tiers, msg.tier),
+          })
+        : [model, Cmd.none()]
     case 'ToggleLacks':
-      return withFilter(model, {
-        ...model.filter,
-        lacks: toggleChoice(msg.options, model.filter.lacks, msg.concept),
-      })
+      return filter.list === 'adjacent'
+        ? withFilter(model, {
+            ...filter,
+            lacks: toggleChoice(msg.options, filter.lacks, msg.concept),
+          })
+        : [model, Cmd.none()]
     case 'ToggleTarget':
       return withFilter(model, {
         ...model.filter,
@@ -69,15 +93,17 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     case 'SetQuery':
       return withFilter(model, { ...model.filter, query: msg.query })
     case 'ToggleShow':
-      return withFilter(model, {
-        ...model.filter,
-        show: pipe(
-          model.filter.show,
-          O.exists((shown) => shown === msg.category),
-        )
-          ? O.none
-          : O.some(msg.category),
-      })
+      return filter.list === 'catalog'
+        ? withFilter(model, {
+            ...filter,
+            show: pipe(
+              filter.show,
+              O.exists((shown) => shown === msg.category),
+            )
+              ? O.none
+              : O.some(msg.category),
+          })
+        : [model, Cmd.none()]
     case 'ToggleLanguage':
       return withFilter(model, {
         ...model.filter,
@@ -115,11 +141,17 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return withFilter(model, { ...model.filter, sort: msg.sort })
     // Clears what narrows the list; how it is shown (layout, sort) stays
     case 'ClearFilter':
-      return withFilter(model, {
-        ...defaultListingFilter(),
-        layout: model.filter.layout,
-        sort: model.filter.sort,
-      })
+      return withFilter(
+        model,
+        filter.list === 'catalog'
+          ? {
+              ...filter,
+              ...clearedShared(),
+              tiers: anyChoice<Tier>(false),
+              show: O.none,
+            }
+          : { ...filter, ...clearedShared(), lacks: anyChoice<Concept>(false) },
+      )
     // The Filters button opens the popover, or closes it when open
     case 'TogglePanel':
       return model.panel === 'open'

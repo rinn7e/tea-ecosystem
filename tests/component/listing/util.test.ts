@@ -8,6 +8,8 @@ import {
   targetOptionsOf,
 } from '@/common/data/catalog'
 import {
+  type AdjacentFilter,
+  type CatalogFilter,
   type EntryCategory,
   type ListingFilter,
   type ListingSort,
@@ -17,7 +19,8 @@ import {
   catalogScreen,
   catalogTiers,
   choiceOf,
-  defaultListingFilter,
+  defaultAdjacentFilter,
+  defaultCatalogFilter,
   destinationOfScreen,
   lackables,
   statusChoiceOf,
@@ -49,21 +52,21 @@ import {
 
 describe('filterFrameworks', () => {
   it('shows everything but the archived entries with no filter', () => {
-    expect(filterFrameworks(defaultListingFilter())(frameworks)).toEqual(
+    expect(filterFrameworks(defaultCatalogFilter())(frameworks)).toEqual(
       frameworks.filter((f) => f.status !== 'archived'),
     )
-    expect(isFiltered(defaultListingFilter())).toBe(false)
+    expect(isFiltered(defaultCatalogFilter())).toBe(false)
   })
 
   it('shows every status when no status is chosen', () => {
-    const filter = { ...defaultListingFilter(), statuses: statusChoiceOf([]) }
+    const filter = { ...defaultCatalogFilter(), statuses: statusChoiceOf([]) }
     expect(filterFrameworks(filter)(frameworks)).toEqual(frameworks)
     expect(isFiltered(filter)).toBe(true)
   })
 
   it('hides the archived entries by default', () => {
     expect(
-      filterFrameworks(defaultListingFilter())(frameworks).every(
+      filterFrameworks(defaultCatalogFilter())(frameworks).every(
         (f) => f.status !== 'archived',
       ),
     ).toBe(true)
@@ -71,7 +74,7 @@ describe('filterFrameworks', () => {
 
   it('keeps the entries that match any choice of a filter', () => {
     const shown = filterFrameworks({
-      ...defaultListingFilter(),
+      ...defaultCatalogFilter(),
       targets: choiceOf(targets, ['mobile', 'tui']),
       statuses: statusChoiceOf([]),
     })(frameworks)
@@ -86,7 +89,7 @@ describe('filterFrameworks', () => {
 
   it('filters by target and query together', () => {
     const shown = filterFrameworks({
-      ...defaultListingFilter(),
+      ...defaultCatalogFilter(),
       targets: choiceOf(targets, ['tui']),
       query: 'RUST',
     })(frameworks)
@@ -99,7 +102,7 @@ describe('filterFrameworks', () => {
   it('shows only languages or only frameworks, and all with neither', () => {
     const shownWith = (show: O.Option<EntryCategory>) =>
       filterFrameworks({
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         show,
         statuses: statusChoiceOf([]),
       })(frameworks).map((f) => f.id)
@@ -113,7 +116,7 @@ describe('filterFrameworks', () => {
 
   it('filters by tier', () => {
     const shown = filterFrameworks({
-      ...defaultListingFilter(),
+      ...defaultCatalogFilter(),
       tiers: choiceOf(catalogTiers, ['superset']),
     })(frameworks)
     expect(shown.map((f) => f.id)).toContain('miso')
@@ -124,7 +127,7 @@ describe('filterFrameworks', () => {
 describe('lacks', () => {
   it('keeps only the adjacent entries that miss a part', () => {
     const shown = filterFrameworks({
-      ...defaultListingFilter(),
+      ...defaultAdjacentFilter(),
       lacks: choiceOf(lackables, ['sub']),
       statuses: statusChoiceOf([]),
     })(adjacentEntries)
@@ -141,7 +144,7 @@ describe('ToggleShow', () => {
     const toggle = (show: O.Option<EntryCategory>, category: EntryCategory) =>
       update(
         { _tag: 'ToggleShow', category },
-        init({ ...defaultListingFilter(), show }),
+        init({ ...defaultCatalogFilter(), show }),
       )[0].filter.show
     expect(toggle(O.none, 'languages')).toEqual(O.some('languages'))
     expect(toggle(O.some('languages'), 'frameworks')).toEqual(
@@ -155,7 +158,7 @@ describe('language', () => {
   it('keeps the entries of a language, both languages of a pair too', () => {
     const shownIn = (language: string) =>
       filterFrameworks({
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         language: O.some(language),
         statuses: statusChoiceOf([]),
       })(adjacentEntries).map((e) => e.language)
@@ -186,7 +189,7 @@ describe('language', () => {
   it('chooses a language, and clears it when chosen again', () => {
     const chosen = update(
       { _tag: 'ToggleLanguage', language: 'Rust' },
-      init(defaultListingFilter()),
+      init(defaultCatalogFilter()),
     )[0]
     expect(chosen.filter.language).toEqual(O.some('Rust'))
     expect(
@@ -199,7 +202,7 @@ describe('language', () => {
 describe('search', () => {
   const searched = (query: string) =>
     filterFrameworks({
-      ...defaultListingFilter(),
+      ...defaultCatalogFilter(),
       query,
       statuses: statusChoiceOf([]),
     })(frameworks).map((f) => f.id)
@@ -213,7 +216,7 @@ describe('search', () => {
 
   it('still needs the Archived status for an archived entry', () => {
     const shown = filterFrameworks({
-      ...defaultListingFilter(),
+      ...defaultCatalogFilter(),
       query: 'archived',
     })(frameworks)
     expect(shown.every((f) => f.status !== 'archived')).toBe(true)
@@ -222,7 +225,7 @@ describe('search', () => {
 
 describe('sort', () => {
   const all = filterFrameworks({
-    ...defaultListingFilter(),
+    ...defaultCatalogFilter(),
     statuses: statusChoiceOf([]),
   })(frameworks)
 
@@ -255,7 +258,7 @@ describe('sort', () => {
   it('sorts names from A, and turns around on the same column', () => {
     const byName = update(
       { _tag: 'SortBy', column: 'name' },
-      init(defaultListingFilter()),
+      init(defaultCatalogFilter()),
     )[0]
     expect(byName.filter.sort).toEqual(
       O.some({ column: 'name', direction: 'ascending' }),
@@ -271,7 +274,7 @@ describe('sort', () => {
   it('keeps the sort when the filters are cleared', () => {
     const sort: ListingSort = { column: 'stars', direction: 'ascending' }
     const sorted = init({
-      ...defaultListingFilter(),
+      ...defaultCatalogFilter(),
       query: 'rust',
       sort: O.some(sort),
     })
@@ -282,7 +285,7 @@ describe('sort', () => {
 })
 
 describe('filter popover', () => {
-  const open = update({ _tag: 'TogglePanel' }, init(defaultListingFilter()))[0]
+  const open = update({ _tag: 'TogglePanel' }, init(defaultCatalogFilter()))[0]
 
   it('opens on the button, and fades out before it closes', () => {
     expect(open.panel).toBe('open')
@@ -363,7 +366,7 @@ describe('the statuses of a list', () => {
   it('shows every entry with every box ticked, as with none', () => {
     expect(
       filterFrameworks({
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         statuses: statusChoiceOf(['active', 'quiet', 'archived']),
       })(frameworks),
     ).toEqual(frameworks)
@@ -372,20 +375,24 @@ describe('the statuses of a list', () => {
   it('shows the archive from the default statuses with one press', () => {
     const shown = update(
       { _tag: 'ToggleStatus', status: 'archived' },
-      init(defaultListingFilter()),
+      init(defaultCatalogFilter()),
     )[0].filter.statuses
     expect(shown).toEqual(anyChoice(true))
   })
 })
 
 describe('otherListMatchesOf', () => {
-  const searchOf = (query: string): ListingFilter => ({
-    ...defaultListingFilter(),
+  const searchOf = (query: string): CatalogFilter => ({
+    ...defaultCatalogFilter(),
     query,
   })
-  const countOf = (list: 'catalog' | 'adjacent', filter: ListingFilter) =>
+  const adjacentSearchOf = (query: string): AdjacentFilter => ({
+    ...defaultAdjacentFilter(),
+    query,
+  })
+  const countOf = (filter: ListingFilter) =>
     pipe(
-      otherListMatchesOf(list, filter),
+      otherListMatchesOf(filter),
       O.map((matches) => matches.count),
     )
 
@@ -395,18 +402,18 @@ describe('otherListMatchesOf', () => {
   })
 
   it('counts the matches of a search in the other list, as it shows them', () => {
-    expect(countOf('catalog', searchOf('XState'))).toEqual(
+    expect(countOf(searchOf('XState'))).toEqual(
       O.some(filterFrameworks(searchOf('XState'))(adjacentEntries).length),
     )
-    expect(countOf('adjacent', searchOf('Bubble Tea'))).toEqual(
+    expect(countOf(adjacentSearchOf('Bubble Tea'))).toEqual(
       O.some(filterFrameworks(searchOf('Bubble Tea'))(frameworks).length),
     )
   })
 
   it('carries what means the same on both lists, and leaves the rest', () => {
-    const full: ListingFilter = {
+    const full: CatalogFilter = {
+      list: 'catalog',
       tiers: choiceOf(catalogTiers, ['full']),
-      lacks: choiceOf(lackables, ['cmd']),
       targets: choiceOf(targets, ['web']),
       statuses: statusChoiceOf(['active']),
       query: ' react ',
@@ -415,9 +422,9 @@ describe('otherListMatchesOf', () => {
       layout: 'table',
       sort: O.some({ column: 'stars', direction: 'descending' }),
     }
-    expect(carriedFilterOf('catalog', full)).toEqual(
+    expect(carriedFilterOf(full)).toEqual(
       O.some({
-        ...defaultListingFilter(),
+        ...defaultAdjacentFilter(),
         targets: choiceOf(targetOptionsOf('adjacent'), ['web']),
         statuses: statusChoiceOf(['active']),
         query: 'react',
@@ -431,8 +438,8 @@ describe('otherListMatchesOf', () => {
   it('carries targets as a choice among those the other list offers', () => {
     const carriedTargetsOf = (chosen: Target[]) =>
       pipe(
-        carriedFilterOf('catalog', {
-          ...defaultListingFilter(),
+        carriedFilterOf({
+          ...defaultCatalogFilter(),
           targets: choiceOf(targets, chosen),
         }),
         O.map((carried) => carried.targets),
@@ -454,16 +461,16 @@ describe('otherListMatchesOf', () => {
   it('points on targets alone, or statuses that leave some out', () => {
     expect(
       O.isSome(
-        otherListMatchesOf('catalog', {
-          ...defaultListingFilter(),
+        otherListMatchesOf({
+          ...defaultCatalogFilter(),
           targets: choiceOf(targets, ['web']),
         }),
       ),
     ).toBe(true)
     expect(
       O.isSome(
-        otherListMatchesOf('catalog', {
-          ...defaultListingFilter(),
+        otherListMatchesOf({
+          ...defaultCatalogFilter(),
           statuses: statusChoiceOf(['active']),
         }),
       ),
@@ -472,14 +479,14 @@ describe('otherListMatchesOf', () => {
 
   it('does not point on statuses that widen the list', () => {
     expect(
-      otherListMatchesOf('catalog', {
-        ...defaultListingFilter(),
+      otherListMatchesOf({
+        ...defaultCatalogFilter(),
         statuses: statusChoiceOf(['active', 'quiet', 'archived']),
       }),
     ).toEqual(O.none)
     expect(
-      otherListMatchesOf('catalog', {
-        ...defaultListingFilter(),
+      otherListMatchesOf({
+        ...defaultCatalogFilter(),
         statuses: statusChoiceOf([]),
       }),
     ).toEqual(O.none)
@@ -488,14 +495,14 @@ describe('otherListMatchesOf', () => {
   it('does not point on every target chosen', () => {
     // Every target chosen shows every entry, as no target does
     expect(
-      otherListMatchesOf('catalog', {
-        ...defaultListingFilter(),
+      otherListMatchesOf({
+        ...defaultCatalogFilter(),
         targets: choiceOf(targets, [...targets]),
       }),
     ).toEqual(O.none)
     expect(
       pipe(
-        otherListMatchesOf('catalog', {
+        otherListMatchesOf({
           ...searchOf('redux'),
           targets: choiceOf(targets, [...targets]),
         }),
@@ -510,14 +517,14 @@ describe('otherListMatchesOf', () => {
     expect(six).not.toContain('game')
     expect(choiceOf(six, six)).toEqual(anyChoice(true))
     expect(
-      otherListMatchesOf('adjacent', {
-        ...defaultListingFilter(),
+      otherListMatchesOf({
+        ...defaultAdjacentFilter(),
         targets: choiceOf(six, six),
       }),
     ).toEqual(O.none)
     expect(
       archivedHintCountOf(adjacentEntries, {
-        ...defaultListingFilter(),
+        ...defaultAdjacentFilter(),
         targets: choiceOf(six, six),
       }),
     ).toBe(0)
@@ -527,8 +534,8 @@ describe('otherListMatchesOf', () => {
     // Everything but TUI on the catalog, game included: on TEA-adjacent it
     // hides the TUI libraries
     const noTui = pipe(
-      carriedFilterOf('catalog', {
-        ...defaultListingFilter(),
+      carriedFilterOf({
+        ...defaultCatalogFilter(),
         targets: choiceOf(
           targets,
           targets.filter((target) => target !== 'tui'),
@@ -540,14 +547,14 @@ describe('otherListMatchesOf', () => {
     expect(noTui._tag).toBe('Only')
     expect(
       archivedHintCountOf(adjacentEntries, {
-        ...defaultListingFilter(),
+        ...defaultAdjacentFilter(),
         targets: noTui,
       }),
     ).toBe(2)
     expect(
       O.isSome(
-        otherListMatchesOf('adjacent', {
-          ...defaultListingFilter(),
+        otherListMatchesOf({
+          ...defaultAdjacentFilter(),
           targets: noTui,
         }),
       ),
@@ -558,7 +565,7 @@ describe('otherListMatchesOf', () => {
     // Every tier chosen narrows nothing, so no filter stays behind
     expect(
       pipe(
-        otherListMatchesOf('catalog', {
+        otherListMatchesOf({
           ...searchOf('redux'),
           tiers: choiceOf(catalogTiers, ['reference', 'full', 'superset']),
         }),
@@ -569,8 +576,8 @@ describe('otherListMatchesOf', () => {
 
   it('finds no TEA-adjacent library in Scala', () => {
     expect(
-      otherListMatchesOf('catalog', {
-        ...defaultListingFilter(),
+      otherListMatchesOf({
+        ...defaultCatalogFilter(),
         language: O.some('Scala'),
       }),
     ).toEqual(O.none)
@@ -580,51 +587,51 @@ describe('otherListMatchesOf', () => {
     // Seed is archived: under the default statuses the pointer falls back
     // to it, under Active only it does not
     expect(
-      otherListMatchesOf('adjacent', {
-        ...searchOf('seed'),
+      otherListMatchesOf({
+        ...adjacentSearchOf('seed'),
         statuses: statusChoiceOf(['active']),
       }),
     ).toEqual(O.none)
   })
 
   it('names what the matches match', () => {
-    const subjectOf = (list: 'catalog' | 'adjacent', filter: ListingFilter) =>
+    const subjectOf = (filter: ListingFilter) =>
       pipe(
-        otherListMatchesOf(list, filter),
+        otherListMatchesOf(filter),
         O.map((m) => m.subject),
       )
     expect(
-      subjectOf('adjacent', {
-        ...defaultListingFilter(),
+      subjectOf({
+        ...defaultAdjacentFilter(),
         language: O.some('TypeScript'),
       }),
     ).toEqual(O.some('these filters'))
     expect(
-      subjectOf('adjacent', {
-        ...searchOf('elm'),
+      subjectOf({
+        ...adjacentSearchOf('elm'),
         language: O.some('TypeScript'),
       }),
     ).toEqual(O.some('these filters'))
     // The tier stays behind, so the other list does not match "these
     // filters", only the ones that apply there
     expect(
-      subjectOf('catalog', {
-        ...defaultListingFilter(),
+      subjectOf({
+        ...defaultCatalogFilter(),
         tiers: choiceOf(catalogTiers, ['reference']),
         language: O.some('TypeScript'),
       }),
     ).toEqual(O.some('the filters that apply there'))
     // What a library lacks, or the category of entry, stays behind too
     expect(
-      subjectOf('adjacent', {
-        ...defaultListingFilter(),
+      subjectOf({
+        ...defaultAdjacentFilter(),
         lacks: choiceOf(lackables, ['cmd']),
         language: O.some('TypeScript'),
       }),
     ).toEqual(O.some('the filters that apply there'))
     expect(
-      subjectOf('catalog', {
-        ...defaultListingFilter(),
+      subjectOf({
+        ...defaultCatalogFilter(),
         show: O.some('frameworks'),
         language: O.some('TypeScript'),
       }),
@@ -634,7 +641,7 @@ describe('otherListMatchesOf', () => {
   it('quotes a search beside statuses that widen the list or a one-list filter', () => {
     const subjectOf = (filter: ListingFilter) =>
       pipe(
-        otherListMatchesOf('catalog', filter),
+        otherListMatchesOf(filter),
         O.map((m) => m.subject),
       )
     expect(
@@ -661,14 +668,14 @@ describe('otherListMatchesOf', () => {
   it('names a search alone in quotes', () => {
     expect(
       pipe(
-        otherListMatchesOf('catalog', searchOf('xstate')),
+        otherListMatchesOf(searchOf('xstate')),
         O.map((m) => m.subject),
       ),
     ).toEqual(O.some('"xstate"'))
   })
 
   it('falls back to the archived entries, shown with every status', () => {
-    const seed = otherListMatchesOf('adjacent', searchOf('seed'))
+    const seed = otherListMatchesOf(adjacentSearchOf('seed'))
     expect(
       pipe(
         seed,
@@ -683,49 +690,53 @@ describe('otherListMatchesOf', () => {
     ).toEqual(O.some(anyChoice(true)))
     expect(
       pipe(
-        otherListMatchesOf('catalog', searchOf('XState')),
+        otherListMatchesOf(searchOf('XState')),
         O.map((m) => m.isArchived),
       ),
     ).toEqual(O.some(false))
   })
 
   it('finds nothing when no filter carries over, or nothing matches', () => {
-    expect(otherListMatchesOf('catalog', searchOf('  '))).toEqual(O.none)
+    expect(otherListMatchesOf(searchOf('  '))).toEqual(O.none)
     expect(
-      otherListMatchesOf('catalog', {
-        ...defaultListingFilter(),
+      otherListMatchesOf({
+        ...defaultCatalogFilter(),
         tiers: choiceOf(catalogTiers, ['full']),
       }),
     ).toEqual(O.none)
-    expect(
-      otherListMatchesOf('adjacent', searchOf('no such framework')),
-    ).toEqual(O.none)
+    expect(otherListMatchesOf(adjacentSearchOf('no such framework'))).toEqual(
+      O.none,
+    )
   })
 
   it('says how many match there, with "also" under results', () => {
+    // The matches of a filter of TEA-adjacent, pointed to from the catalog
     const shown = {
       isArchived: false,
-      filter: searchOf('react'),
+      filter: adjacentSearchOf('react'),
       subject: '"react"',
     }
     expect(
       otherListMatchTextOf({
-        list: 'catalog',
         matches: { ...shown, count: 3 },
         isAlso: true,
       }),
     ).toBe('3 TEA-adjacent libraries also match "react".')
     expect(
       otherListMatchTextOf({
-        list: 'catalog',
         matches: { ...shown, count: 2, subject: 'these filters' },
         isAlso: true,
       }),
     ).toBe('2 TEA-adjacent libraries also match these filters.')
     expect(
       otherListMatchTextOf({
-        list: 'adjacent',
-        matches: { ...shown, count: 1, isArchived: true, subject: '"seed"' },
+        matches: {
+          ...shown,
+          filter: searchOf('seed'),
+          count: 1,
+          isArchived: true,
+          subject: '"seed"',
+        },
         isAlso: false,
       }),
     ).toBe('1 archived framework in the Main catalog matches "seed".')
@@ -734,20 +745,22 @@ describe('otherListMatchesOf', () => {
   it('links to the matches with the filter that shows them', () => {
     expect(
       pipe(
-        otherListMatchesOf('catalog', searchOf('xstate')),
-        O.map((matches) => otherListLinkOf('catalog', matches)),
+        otherListMatchesOf(searchOf('xstate')),
+        O.map((matches) => otherListLinkOf(matches)),
       ),
     ).toEqual(
       O.some({
-        destination: destinationOfScreen(adjacentScreen(searchOf('xstate'))),
+        destination: destinationOfScreen(
+          adjacentScreen(adjacentSearchOf('xstate')),
+        ),
         label: 'Show in TEA-adjacent',
       }),
     )
     // An archived match opens the other list with every status shown
     expect(
       pipe(
-        otherListMatchesOf('adjacent', searchOf('seed')),
-        O.map((matches) => otherListLinkOf('adjacent', matches)),
+        otherListMatchesOf(adjacentSearchOf('seed')),
+        O.map((matches) => otherListLinkOf(matches)),
       ),
     ).toEqual(
       O.some({
@@ -798,7 +811,7 @@ describe('sort menu of the cards', () => {
   it('sets the sort whole from the menu, and back to the list order', () => {
     const [sorted] = update(
       { _tag: 'SetSort', sort: sortOfCardSort('popularity') },
-      init(defaultListingFilter()),
+      init(defaultCatalogFilter()),
     )
     expect(sorted.filter.sort).toEqual(sortOfCardSort('popularity'))
     const [plain] = update({ _tag: 'SetSort', sort: O.none }, sorted)
@@ -808,7 +821,7 @@ describe('sort menu of the cards', () => {
 
 describe('hiddenArchivedCountOf', () => {
   const purescript: ListingFilter = {
-    ...defaultListingFilter(),
+    ...defaultCatalogFilter(),
     language: O.some('PureScript'),
   }
 
@@ -835,8 +848,14 @@ describe('hiddenArchivedCountOf', () => {
   it('names the archived ones above the results under each narrowing filter', () => {
     const count = (
       entries: typeof frameworks,
-      filter: Partial<ListingFilter>,
-    ) => archivedHintCountOf(entries, { ...defaultListingFilter(), ...filter })
+      filter: Partial<CatalogFilter> & Partial<AdjacentFilter>,
+    ) =>
+      archivedHintCountOf(
+        entries,
+        entries === adjacentEntries
+          ? { ...defaultAdjacentFilter(), ...filter, list: 'adjacent' }
+          : { ...defaultCatalogFilter(), ...filter, list: 'catalog' },
+      )
     expect(count(frameworks, { language: O.some('PureScript') })).toBe(2)
     // Seed is archived; Dartea is an archived mobile framework; every
     // archived framework is full TEA; ts-elmish and Comet lack Sub
@@ -856,7 +875,7 @@ describe('hiddenArchivedCountOf', () => {
   it('names none under statuses the reader chose', () => {
     expect(
       archivedHintCountOf(frameworks, {
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         language: O.some('PureScript'),
         statuses: statusChoiceOf(['active']),
       }),
@@ -864,29 +883,29 @@ describe('hiddenArchivedCountOf', () => {
   })
 
   it('names none when no filter narrows the list', () => {
-    expect(archivedHintCountOf(frameworks, defaultListingFilter())).toBe(0)
+    expect(archivedHintCountOf(frameworks, defaultCatalogFilter())).toBe(0)
     expect(
       archivedHintCountOf(frameworks, {
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         query: ' ',
       }),
     ).toBe(0)
     // Every tier chosen shows every entry, as no choice does
     expect(
       archivedHintCountOf(frameworks, {
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         tiers: choiceOf(catalogTiers, ['reference', 'full', 'superset']),
       }),
     ).toBe(0)
     expect(
       archivedHintCountOf(frameworks, {
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         targets: choiceOf(targets, [...targets]),
       }),
     ).toBe(0)
     expect(
       archivedHintCountOf(adjacentEntries, {
-        ...defaultListingFilter(),
+        ...defaultAdjacentFilter(),
         lacks: choiceOf(lackables, [...lackables]),
       }),
     ).toBe(0)
@@ -894,9 +913,9 @@ describe('hiddenArchivedCountOf', () => {
 
   it('keeps naming the archived ones once they are shown', () => {
     // "Show the archived" leads from the default statuses to these
-    const shownOf = (filter: Partial<ListingFilter>) =>
+    const shownOf = (filter: Partial<CatalogFilter>) =>
       shownArchivedCountOf(frameworks, {
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         statuses: statusChoiceOf(['active', 'quiet', 'archived']),
         ...filter,
       })
@@ -909,7 +928,7 @@ describe('hiddenArchivedCountOf', () => {
     ).toBe(0)
     expect(
       shownArchivedCountOf(frameworks, {
-        ...defaultListingFilter(),
+        ...defaultCatalogFilter(),
         query: 'spo',
       }),
     ).toBe(0)

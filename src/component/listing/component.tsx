@@ -19,6 +19,8 @@ import { type Dispatcher } from 'tea-cup-fp'
 
 import { type ListId, entriesOf, targetOptionsOf } from '@/common/data/catalog'
 import {
+  type AdjacentFilter,
+  type CatalogFilter,
   type EntryCategory,
   type ListingFilter,
   type ListingLayout,
@@ -110,7 +112,7 @@ const categoryChoiceView = ({
 }: {
   category: EntryCategory
   count: number
-  filter: ListingFilter
+  filter: CatalogFilter
   dispatch: Dispatcher<Msg>
 }) => {
   const isChosen = pipe(
@@ -172,7 +174,7 @@ const categoryChoicesView = ({
   dispatch,
 }: {
   entries: Framework[]
-  filter: ListingFilter
+  filter: CatalogFilter
   dispatch: Dispatcher<Msg>
 }) => (
   <div className='grid grid-cols-2 gap-[16px] lg:gap-[22px]'>
@@ -352,7 +354,7 @@ const tierChoicesView = ({
   dispatch,
 }: {
   entries: Framework[]
-  filter: ListingFilter
+  filter: CatalogFilter
   dispatch: Dispatcher<Msg>
 }) =>
   choiceRowView({
@@ -381,7 +383,7 @@ const lacksChoicesView = ({
   dispatch,
 }: {
   entries: Framework[]
-  filter: ListingFilter
+  filter: AdjacentFilter
   dispatch: Dispatcher<Msg>
 }) =>
   choiceRowView({
@@ -540,8 +542,9 @@ const searchView = ({
 // every box ticked counts, as it stays ticked on screen.
 const panelFilterCountOf = (filter: ListingFilter): number =>
   [
-    isAnyTicked(filter.tiers),
-    isAnyTicked(filter.lacks),
+    filter.list === 'catalog'
+      ? isAnyTicked(filter.tiers)
+      : isAnyTicked(filter.lacks),
     isAnyTicked(filter.targets),
     filter.statuses._tag !== 'Default',
   ].filter((isOn) => isOn).length
@@ -618,17 +621,23 @@ const searchRowView = ({
                 : 'translate-y-0 opacity-100',
             )}
           >
-            {panelSectionView({
-              title: list === 'catalog' ? 'Tier' : 'Lacks',
-              children:
-                list === 'catalog'
-                  ? tierChoicesView({ entries, filter: model.filter, dispatch })
-                  : lacksChoicesView({
-                      entries,
-                      filter: model.filter,
-                      dispatch,
-                    }),
-            })}
+            {model.filter.list === 'catalog'
+              ? panelSectionView({
+                  title: 'Tier',
+                  children: tierChoicesView({
+                    entries,
+                    filter: model.filter,
+                    dispatch,
+                  }),
+                })
+              : panelSectionView({
+                  title: 'Lacks',
+                  children: lacksChoicesView({
+                    entries,
+                    filter: model.filter,
+                    dispatch,
+                  }),
+                })}
             {panelSectionView({
               title: 'Target',
               children: targetChoicesView({
@@ -1105,7 +1114,7 @@ const emptyView = ({
 }) => {
   const archivedCount = hiddenArchivedCountOf(entries, filter)
   const noun = entryNounOf(list, archivedCount)
-  const other = otherListMatchesOf(list, filter)
+  const other = otherListMatchesOf(filter)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
       <span className='text-ink text-base font-normal'>
@@ -1133,14 +1142,14 @@ const emptyView = ({
           (matches) => (
             <>
               <span className='text-ink-muted text-sm text-balance'>
-                {otherListMatchTextOf({ list, matches, isAlso: false })}
+                {otherListMatchTextOf({ matches, isAlso: false })}
               </span>
               <Link
-                destination={otherListLinkOf(list, matches).destination}
+                destination={otherListLinkOf(matches).destination}
                 className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
               >
                 <IconSearch size={16} stroke={1.75} aria-hidden />
-                {otherListLinkOf(list, matches).label}
+                {otherListLinkOf(matches).label}
               </Link>
             </>
           ),
@@ -1197,26 +1206,20 @@ const archivedHintView = ({
 // of the TEA-adjacent page. Nothing when no such filter narrows the other
 // list (statuses that widen it do not), or the other list does not match
 // it.
-const otherListHintView = ({
-  list,
-  filter,
-}: {
-  list: ListId
-  filter: ListingFilter
-}) => {
+const otherListHintView = ({ filter }: { filter: ListingFilter }) => {
   return pipe(
-    otherListMatchesOf(list, filter),
+    otherListMatchesOf(filter),
     O.fold(
       () => null,
       (matches) => (
         <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
-          <span>{otherListMatchTextOf({ list, matches, isAlso: true })}</span>
+          <span>{otherListMatchTextOf({ matches, isAlso: true })}</span>
           <Link
-            destination={otherListLinkOf(list, matches).destination}
+            destination={otherListLinkOf(matches).destination}
             className='text-accent inline-flex items-center gap-[4px] hover:underline'
           >
             <IconSearch size={14} stroke={1.75} aria-hidden />
-            {otherListLinkOf(list, matches).label}
+            {otherListLinkOf(matches).label}
           </Link>
         </p>
       ),
@@ -1243,12 +1246,13 @@ const headingOf = (list: ListId) => {
 }
 
 const ListingComponent = ({
-  list,
   model,
   logosPerRow,
   recentSince,
   dispatch,
 }: Props) => {
+  // Which list it shows, from its filter
+  const list = model.filter.list
   const entries = entriesOf(list)
   const shown = pipe(
     entries,
@@ -1273,7 +1277,7 @@ const ListingComponent = ({
             boxes stretch to it */}
         <div className='flex justify-center'>
           <div className='flex flex-col gap-[24px]'>
-            {list === 'catalog' &&
+            {model.filter.list === 'catalog' &&
               categoryChoicesView({ entries, filter: model.filter, dispatch })}
             {languageChoicesView({
               entries,
@@ -1300,7 +1304,7 @@ const ListingComponent = ({
             filter: model.filter,
             dispatch,
           })}
-        {shown.length > 0 && otherListHintView({ list, filter: model.filter })}
+        {shown.length > 0 && otherListHintView({ filter: model.filter })}
         {shown.length === 0
           ? emptyView({ list, entries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'

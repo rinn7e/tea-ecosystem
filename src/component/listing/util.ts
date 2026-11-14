@@ -14,19 +14,20 @@ import {
 import {
   type Choice,
   type Destination,
+  type EntryCategory,
   type ListingFilter,
   type ListingSort,
   ListingSortEq,
   type SortColumn,
   type SortDirection,
-  adjacentScreen,
   anyChoice,
   anyStatusChoice,
-  catalogScreen,
   choiceOf,
-  defaultListingFilter,
+  defaultAdjacentFilter,
+  defaultCatalogFilter,
   destinationOfScreen,
   isAnyTicked,
+  listScreenOf,
   narrowsChoice,
   passesChoice,
   passesStatus,
@@ -89,10 +90,10 @@ export const lacks =
 // Only the languages or only the frameworks when one is chosen; every
 // entry when none is
 const matchesCategory =
-  (filter: ListingFilter) =>
+  (show: O.Option<EntryCategory>) =>
   (framework: Framework): boolean =>
     pipe(
-      filter.show,
+      show,
       O.fold(
         () => true,
         (category) =>
@@ -134,6 +135,25 @@ const languageCountOrd: Ord.Ord<LanguageCount> = concatAll(
   ),
 ])
 
+// Whether an entry passes the filters of its own list: the tier and the
+// category of entry on the catalog, what it lacks on the adjacent list
+const passesOwnFilter = (
+  filter: ListingFilter,
+  framework: Framework,
+): boolean =>
+  filter.list === 'catalog'
+    ? passesChoice(filter.tiers, (tier) => tier === framework.tier) &&
+      matchesCategory(filter.show)(framework)
+    : passesChoice(filter.lacks, (concept) => lacks(concept)(framework))
+
+// Whether a filter of its own list narrows it (some tiers, or the category
+// of entry, on the catalog; some concepts an entry lacks on the adjacent
+// list). It stays behind when the filter is carried to the other list.
+const narrowsOwnFilter = (filter: ListingFilter): boolean =>
+  filter.list === 'catalog'
+    ? narrowsChoice(filter.tiers) || O.isSome(filter.show)
+    : narrowsChoice(filter.lacks)
+
 // The entries the filter shows, in the order of their list
 export const filterFrameworks =
   (filter: ListingFilter) =>
@@ -142,13 +162,11 @@ export const filterFrameworks =
       frameworks,
       A.filter(
         (framework) =>
-          passesChoice(filter.tiers, (tier) => tier === framework.tier) &&
-          passesChoice(filter.lacks, (concept) => lacks(concept)(framework)) &&
+          passesOwnFilter(filter, framework) &&
           passesChoice(filter.targets, (target) =>
             framework.targets.includes(target),
           ) &&
           passesStatus(filter.statuses, framework.status) &&
-          matchesCategory(filter)(framework) &&
           pipe(
             filter.language,
             O.fold(
@@ -204,20 +222,22 @@ const carriedTargetsOf = (
         O.map((kept) => choiceOf(options, kept)),
       )
 
-// The part of a filter of `list` that means the same on both lists:
-// the search, the language, the targets and the statuses, with the layout
-// and the sort. The tiers, what an adjacent library lacks and the category of
-// entry belong to one list only, and stay behind. The targets become a
-// choice among the ones the other list offers (`targetOptionsOf`); none
-// when it offers none of those chosen, so nothing there can match.
+// A filter as the other list reads it: the parts that mean the same on
+// both lists (the search, the language, the targets and the statuses, with
+// the layout and the sort) over the default filter of the other list. The
+// filters of its own list (`narrowsOwnFilter`) stay behind. The targets
+// become a choice among the ones the other list offers
+// (`targetOptionsOf`); none when it offers none of those chosen, so nothing
+// there can match.
 export const carriedFilterOf = (
-  list: ListId,
   filter: ListingFilter,
 ): O.Option<ListingFilter> =>
   pipe(
-    carriedTargetsOf(targetOptionsOf(otherListOf(list)), filter.targets),
+    carriedTargetsOf(targetOptionsOf(otherListOf(filter.list)), filter.targets),
     O.map((carried) => ({
-      ...defaultListingFilter(),
+      ...(filter.list === 'catalog'
+        ? defaultAdjacentFilter()
+        : defaultCatalogFilter()),
       query: filter.query.trim(),
       language: filter.language,
       targets: carried,
@@ -228,16 +248,14 @@ export const carriedFilterOf = (
   )
 
 // Whether a filter narrows the list enough that its archived entries are
-// news: a search with more than spaces, a language, some targets, tiers or
-// concepts an adjacent library lacks (not every one, `narrowsChoice`), or
-// the category of entry
+// news: a search with more than spaces, a language, some targets (not
+// every one, `narrowsChoice`), or a filter of its own list
+// (`narrowsOwnFilter`)
 const narrowsForArchive = (filter: ListingFilter): boolean =>
   filter.query.trim() !== '' ||
   O.isSome(filter.language) ||
   narrowsChoice(filter.targets) ||
-  narrowsChoice(filter.tiers) ||
-  narrowsChoice(filter.lacks) ||
-  O.isSome(filter.show)
+  narrowsOwnFilter(filter)
 
 // How many archived entries the line above the results of a list names:
 // the hidden archived ones (`hiddenArchivedCountOf`), only under the
@@ -279,13 +297,6 @@ const narrowsOtherList = (carried: ListingFilter): boolean =>
   narrowsChoice(carried.targets) ||
   carried.statuses._tag === 'Only'
 
-// Whether a filter that belongs to one list only narrows it: it stays
-// behind, so the pointer cannot say the other list matches "these filters"
-const hasOneListFilter = (filter: ListingFilter): boolean =>
-  narrowsChoice(filter.tiers) ||
-  narrowsChoice(filter.lacks) ||
-  O.isSome(filter.show)
-
 // What the pointer to the other list says and opens (`otherListMatchesOf`)
 export type OtherListMatches = {
   count: number
@@ -304,12 +315,11 @@ export type OtherListMatches = {
 // there offers to hide them. None when no carried filter narrows the other
 // list (`narrowsOtherList`), or the other list does not match it at all.
 export const otherListMatchesOf = (
-  list: ListId,
   filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
-  const entries = entriesOf(otherListOf(list))
+  const entries = entriesOf(otherListOf(filter.list))
   return pipe(
-    carriedFilterOf(list, filter),
+    carriedFilterOf(filter),
     O.filter(narrowsOtherList),
     O.chain((carried) => {
       const subject =
@@ -318,7 +328,7 @@ export const otherListMatchesOf = (
         !narrowsChoice(carried.targets) &&
         carried.statuses._tag !== 'Only'
           ? `"${carried.query}"`
-          : hasOneListFilter(filter)
+          : narrowsOwnFilter(filter)
             ? 'the filters that apply there'
             : 'these filters'
       const tries = [
@@ -356,13 +366,11 @@ export const otherListMatchesOf = (
 // libraries also match "react"", "1 archived framework in the Main catalog
 // matches "seed"", "2 TEA-adjacent libraries also match these filters".
 // The catalog is the "Main catalog" there, to set it apart from the
-// TEA-adjacent page.
+// TEA-adjacent page. The list of the matches is the one of their filter.
 export const otherListMatchTextOf = ({
-  list,
   matches,
   isAlso,
 }: {
-  list: ListId
   matches: OtherListMatches
   isAlso: boolean
 }): string => {
@@ -370,7 +378,7 @@ export const otherListMatchTextOf = ({
   const archived = isArchived ? 'archived ' : ''
   const also = isAlso ? 'also ' : ''
   const verb = count === 1 ? 'matches' : 'match'
-  return list === 'catalog'
+  return matches.filter.list === 'adjacent'
     ? `${count} ${archived}TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} ${subject}.`
     : `${count} ${archived}${count === 1 ? 'framework' : 'frameworks'} in the Main catalog ${also}${verb} ${subject}.`
 }
@@ -378,28 +386,24 @@ export const otherListMatchTextOf = ({
 // The link to the matches on the other list, with the filter that shows
 // them, and its words
 export const otherListLinkOf = (
-  list: ListId,
   matches: OtherListMatches,
-): { destination: Destination; label: string } =>
-  list === 'catalog'
-    ? {
-        destination: destinationOfScreen(adjacentScreen(matches.filter)),
-        label: 'Show in TEA-adjacent',
-      }
-    : {
-        destination: destinationOfScreen(catalogScreen(matches.filter)),
-        label: 'Show in Main catalog',
-      }
+): { destination: Destination; label: string } => ({
+  destination: destinationOfScreen(listScreenOf(matches.filter)),
+  label:
+    matches.filter.list === 'adjacent'
+      ? 'Show in TEA-adjacent'
+      : 'Show in Main catalog',
+})
 
 // Whether anything is ticked or typed: Clear filters shows, also for a
 // choice with every box ticked, which stays ticked on screen
 export const isFiltered = (filter: ListingFilter): boolean =>
-  isAnyTicked(filter.tiers) ||
-  isAnyTicked(filter.lacks) ||
+  (filter.list === 'catalog'
+    ? isAnyTicked(filter.tiers) || O.isSome(filter.show)
+    : isAnyTicked(filter.lacks)) ||
   isAnyTicked(filter.targets) ||
   filter.statuses._tag !== 'Default' ||
   filter.query !== '' ||
-  O.isSome(filter.show) ||
   O.isSome(filter.language)
 
 // Every language of a list with its number of entries: Elm and TypeScript

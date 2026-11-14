@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   aboutScreen,
   catalogScreen,
-  defaultListingFilter,
+  defaultCatalogFilter,
   destinationOfScreen,
   frameworkScreen,
 } from '@/common/type/destination'
@@ -78,7 +78,7 @@ describe('where a move draws its screen', () => {
     const onPage = click(filtered, miso, 1500)
     const logo = click(onPage, destinationOfScreen(catalogScreen()), 200)
     expect(logo.screenModel._tag).toBe('CatalogScreenModel')
-    expect(logo.catalog.listing.filter).toEqual(defaultListingFilter())
+    expect(logo.catalog.listing.filter).toEqual(defaultCatalogFilter())
     expect(logo.scroll.top).toBe(0)
   })
 

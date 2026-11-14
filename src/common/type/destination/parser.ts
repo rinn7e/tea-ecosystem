@@ -22,7 +22,6 @@ import { statuses } from '@/common/type/framework'
 
 import {
   type StatusChoice,
-  anyChoice,
   anyStatusChoice,
   choiceOf,
   defaultStatusChoice,
@@ -30,7 +29,9 @@ import {
   tickedOf,
 } from './choice'
 import {
+  type AdjacentFilter,
   type BuildLanguage,
+  type CatalogFilter,
   type Destination,
   type EntryCategory,
   type ListingFilter,
@@ -190,28 +191,29 @@ const layoutOf = (value: string | undefined): ListingLayout =>
 const languageOf = (value: string | undefined): BuildLanguage =>
   value === 'swift' || value === 'kotlin' ? value : 'typescript'
 
-const catalogFilterOf = (params: ListingParams): ListingFilter => ({
-  tiers: choiceOfParam(catalogTiers, params.tier),
-  lacks: anyChoice(false),
-  targets: choiceOfParam(targetOptionsOf('catalog'), params.target),
+// The filters both lists read, the targets among the ones `list` offers
+const sharedFilterOf = (list: ListId, params: ListingParams) => ({
+  targets: choiceOfParam(targetOptionsOf(list), params.target),
   statuses: statusesOf(params),
   query: params.query ?? '',
-  show: showOf(params.show),
   language: listLanguageOf(params.language),
   layout: layoutOf(params.layout),
   sort: sortOf(params),
 })
 
-const adjacentFilterOf = (params: ListingParams): ListingFilter => ({
-  tiers: anyChoice(false),
-  lacks: choiceOfParam(lackables, params.lacks),
-  targets: choiceOfParam(targetOptionsOf('adjacent'), params.target),
-  statuses: statusesOf(params),
-  query: params.query ?? '',
+// The catalog reads `tier` and `show`; `lacks` belongs to the adjacent list
+const catalogFilterOf = (params: ListingParams): CatalogFilter => ({
+  ...sharedFilterOf('catalog', params),
+  list: 'catalog',
+  tiers: choiceOfParam(catalogTiers, params.tier),
   show: showOf(params.show),
-  language: listLanguageOf(params.language),
-  layout: layoutOf(params.layout),
-  sort: sortOf(params),
+})
+
+// The adjacent list reads `lacks`; `tier` and `show` belong to the catalog
+const adjacentFilterOf = (params: ListingParams): AdjacentFilter => ({
+  ...sharedFilterOf('adjacent', params),
+  list: 'adjacent',
+  lacks: choiceOfParam(lackables, params.lacks),
 })
 
 const screenParser: Parser<Screen> = zero<Screen>()
@@ -261,17 +263,22 @@ const statusParamOf = (choice: StatusChoice): string | undefined =>
       : tickedOf(statuses, choice).join(',')
 
 // Defaults are left out of the URL, so the plain catalog is just `/`. The
-// targets of `list` are its own options (`targetOptionsOf`).
-const listingParamsOf = (
-  list: ListId,
-  filter: ListingFilter,
-): ListingParams => ({
-  tier: listParamOf(tickedOf(catalogTiers, filter.tiers)),
-  lacks: listParamOf(tickedOf(lackables, filter.lacks)),
-  target: listParamOf(tickedOf(targetOptionsOf(list), filter.targets)),
+// targets of a list are its own options (`targetOptionsOf`), and each list
+// writes the filters of its own list only.
+const listingParamsOf = (filter: ListingFilter): ListingParams => ({
+  tier:
+    filter.list === 'catalog'
+      ? listParamOf(tickedOf(catalogTiers, filter.tiers))
+      : undefined,
+  lacks:
+    filter.list === 'adjacent'
+      ? listParamOf(tickedOf(lackables, filter.lacks))
+      : undefined,
+  target: listParamOf(tickedOf(targetOptionsOf(filter.list), filter.targets)),
   status: statusParamOf(filter.statuses),
   query: filter.query === '' ? undefined : filter.query,
-  show: pipe(filter.show, O.toUndefined),
+  show:
+    filter.list === 'catalog' ? pipe(filter.show, O.toUndefined) : undefined,
   language: pipe(filter.language, O.toUndefined),
   layout: filter.layout === 'cards' ? undefined : filter.layout,
   sort: pipe(
@@ -291,10 +298,7 @@ export const toUrlString = (destination: Destination): string => {
   const getPath = () => {
     switch (screen._tag) {
       case 'CatalogScreen':
-        return format(
-          catalogMatch.formatter,
-          listingParamsOf('catalog', screen.filter),
-        )
+        return format(catalogMatch.formatter, listingParamsOf(screen.filter))
       case 'FrameworkScreen':
         return format(frameworkMatch.formatter, {
           frameworkId: screen.frameworkId,
@@ -304,10 +308,7 @@ export const toUrlString = (destination: Destination): string => {
       case 'AboutScreen':
         return format(aboutMatch.formatter, {})
       case 'AdjacentScreen':
-        return format(
-          adjacentMatch.formatter,
-          listingParamsOf('adjacent', screen.filter),
-        )
+        return format(adjacentMatch.formatter, listingParamsOf(screen.filter))
       case 'BuildScreen':
         return format(buildMatch.formatter, {
           language:
