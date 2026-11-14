@@ -132,6 +132,9 @@ const anyStrings = new Match<object>(
 )
 
 // The values a list names: `?tier=full,superset`
+const namedOf = (value: string | undefined): string[] =>
+  (value ?? '').split(',')
+
 // Whether a named value is one of `options`, as that option
 const isOptionOf =
   <A extends string>(options: readonly A[]) =>
@@ -140,9 +143,6 @@ const isOptionOf =
       options,
       RA.some((option) => option === named),
     )
-
-const namedOf = (value: string | undefined): string[] =>
-  (value ?? '').split(',')
 
 // The choice of the options a list names (`choiceOf`): an option the list
 // does not offer is left out, so an old or mistyped link still opens

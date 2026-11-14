@@ -7,13 +7,17 @@ import {
   monogramOf,
   readableColorOf,
 } from '@/common/data/language-logo'
+import { languagesOf } from '@/common/type/framework'
 
 describe('languageLogoOf', () => {
   it('has a logo for every language of the data', () => {
-    const languages = new Set([
-      ...frameworks.map((f) => f.language),
-      ...adjacentEntries.map((e) => e.language),
-    ])
+    // Each language of a pair too: the row of logos draws them one by one
+    const languages = new Set(
+      [...frameworks, ...adjacentEntries].flatMap((f) => [
+        f.language,
+        ...languagesOf(f),
+      ]),
+    )
     const missing = [...languages].filter((language) =>
       O.isNone(languageLogoOf(language)),
     )

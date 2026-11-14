@@ -2,7 +2,7 @@ import * as A from 'fp-ts/Array'
 import { concatAll } from 'fp-ts/Monoid'
 import * as O from 'fp-ts/Option'
 import * as Ord from 'fp-ts/Ord'
-import { pipe } from 'fp-ts/function'
+import { identity, pipe } from 'fp-ts/function'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 
@@ -218,9 +218,7 @@ const carriedTargetsOf = (
     ? O.some(anyChoice<Target>(false))
     : pipe(
         choiceOf(options, choice.chosen),
-        O.fromPredicate(
-          (carried) => carried._tag === 'Only' || carried.allSelected,
-        ),
+        O.fromPredicate((carried) => isAnyTicked(carried)),
       )
 
 // A filter as the other list reads it: the parts that mean the same on
@@ -400,13 +398,17 @@ export const otherListLinkOf = (
 // tier (or what an entry lacks), the target and the status. A choice with
 // every box ticked counts, as it stays ticked on screen.
 export const panelFilterCountOf = (filter: ListingFilter): number =>
-  [
-    filter.list === 'catalog'
-      ? isAnyTicked(filter.tiers)
-      : isAnyTicked(filter.lacks),
-    isAnyTicked(filter.targets),
-    filter.statuses._tag !== 'Default',
-  ].filter((isOn) => isOn).length
+  pipe(
+    [
+      filter.list === 'catalog'
+        ? isAnyTicked(filter.tiers)
+        : isAnyTicked(filter.lacks),
+      isAnyTicked(filter.targets),
+      filter.statuses._tag !== 'Default',
+    ],
+    A.filter(identity),
+    A.size,
+  )
 
 // Whether anything is ticked or typed: Clear filters shows, also for a
 // choice with every box ticked, which stays ticked on screen

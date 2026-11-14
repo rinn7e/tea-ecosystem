@@ -2,6 +2,7 @@ import * as A from 'fp-ts/Array'
 import type * as EqClass from 'fp-ts/Eq'
 import * as NEA from 'fp-ts/NonEmptyArray'
 import * as O from 'fp-ts/Option'
+import * as RA from 'fp-ts/ReadonlyArray'
 import * as B from 'fp-ts/boolean'
 import { pipe } from 'fp-ts/function'
 import * as S from 'fp-ts/string'
@@ -50,7 +51,7 @@ export const choiceOf = <A extends string>(
 ): Choice<A> =>
   pipe(
     [...options],
-    A.filter((option) => A.elem(S.Eq)(option)([...chosen])),
+    A.filter((option) => RA.elem(S.Eq)(option)(chosen)),
     NEA.fromArray,
     O.fold(
       () => anyChoice<A>(false),
@@ -165,7 +166,7 @@ export const isStatusTicked = (
   status: Status,
 ): boolean =>
   choice._tag === 'Default'
-    ? A.elem(S.Eq)(status)([...defaultStatuses])
+    ? RA.elem(S.Eq)(status)(defaultStatuses)
     : isTicked(choice, status)
 
 export const toggleStatus = (
