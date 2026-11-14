@@ -1,5 +1,6 @@
 import { EqAlways } from '@rinn7e/tea-cup-prelude'
 import * as EqClass from 'fp-ts/Eq'
+import type * as O from 'fp-ts/Option'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
@@ -10,6 +11,7 @@ import {
   type ListingFilter,
   ListingFilterEq,
   type ListingLayout,
+  type ListingSort,
   type SortColumn,
 } from '@/common/type/destination'
 import {
@@ -58,6 +60,9 @@ export type Msg =
   // Sorts by a column of the table, or turns its direction around when it
   // is the column sorted by already
   | { _tag: 'SortBy'; column: SortColumn }
+  // Sets the order whole, from the sort menu of the cards: none for the
+  // order of the list
+  | { _tag: 'SetSort'; sort: O.Option<ListingSort> }
   | { _tag: 'ClearFilter' }
   | { _tag: 'TogglePanel' }
   // While the popover is open: a key, or a press inside or outside it

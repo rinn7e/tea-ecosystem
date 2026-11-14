@@ -14,6 +14,7 @@ import {
 import {
   type ListingFilter,
   type ListingSort,
+  ListingSortEq,
   type SortColumn,
   type SortDirection,
   defaultListingFilter,
@@ -304,3 +305,125 @@ export const sortFrameworks =
           ),
       ),
     )
+
+// The orders the sort menu of the cards offers, the table sorting by any
+// column: the order of the list (Elm, react-tea-cup, then the most
+// starred), the most stars, the last push, the creation of the repository
+// and the day it joined the catalog, each newest or largest first
+export type CardSort =
+  'default' | 'popularity' | 'updated' | 'created' | 'added'
+
+export const cardSorts: readonly CardSort[] = [
+  'default',
+  'popularity',
+  'updated',
+  'created',
+  'added',
+]
+
+export const cardSortLabel = (choice: CardSort): string => {
+  switch (choice) {
+    case 'default':
+      return 'Default'
+    case 'popularity':
+      return 'Popularity'
+    case 'updated':
+      return 'Recently updated'
+    case 'created':
+      return 'Recently created'
+    case 'added':
+      return 'Newly added'
+  }
+}
+
+const columnOfCardSort = (choice: CardSort): O.Option<SortColumn> => {
+  switch (choice) {
+    case 'default':
+      return O.none
+    case 'popularity':
+      return O.some('stars')
+    case 'updated':
+      return O.some('updated')
+    case 'created':
+      return O.some('created')
+    case 'added':
+      return O.some('added')
+  }
+}
+
+// The sort a choice of the menu sets
+export const sortOfCardSort = (choice: CardSort): O.Option<ListingSort> =>
+  pipe(
+    columnOfCardSort(choice),
+    O.map((column): ListingSort => ({ column, direction: 'descending' })),
+  )
+
+// The choice of the menu a sort is; none for one only the table makes (by
+// name, or oldest first), which the menu shows as it is
+export const cardSortOf = (sort: O.Option<ListingSort>): O.Option<CardSort> =>
+  pipe(
+    [...cardSorts],
+    A.findFirst((choice) =>
+      O.getEq(ListingSortEq).equals(sortOfCardSort(choice), sort),
+    ),
+  )
+
+// The words of a column of the table: its name, then how it reads sorted
+// up and sorted down
+const sortWordsOf = (
+  column: SortColumn,
+): { name: string; ascending: string; descending: string } => {
+  switch (column) {
+    case 'name':
+      return { name: 'Name', ascending: 'A to Z', descending: 'Z to A' }
+    case 'tier':
+      return {
+        name: 'Tier',
+        ascending: 'Originator first',
+        descending: 'adjacent first',
+      }
+    case 'rubric':
+      return {
+        name: 'Rubric',
+        ascending: 'weakest first',
+        descending: 'strongest first',
+      }
+    case 'status':
+      return {
+        name: 'Status',
+        ascending: 'active first',
+        descending: 'archived first',
+      }
+    case 'stars':
+      return {
+        name: 'Stars',
+        ascending: 'fewest first',
+        descending: 'most first',
+      }
+    case 'created':
+      return {
+        name: 'Created',
+        ascending: 'oldest first',
+        descending: 'newest first',
+      }
+    case 'updated':
+      return {
+        name: 'Updated',
+        ascending: 'oldest first',
+        descending: 'newest first',
+      }
+    case 'added':
+      return {
+        name: 'Added',
+        ascending: 'oldest first',
+        descending: 'newest first',
+      }
+  }
+}
+
+// The words of a sort of the table, for the sort menu of the cards when
+// it is none of its choices ("Name, A to Z", "Stars, fewest first")
+export const sortLabelOf = (sort: ListingSort): string => {
+  const words = sortWordsOf(sort.column)
+  return `${words.name}, ${sort.direction === 'ascending' ? words.ascending : words.descending}`
+}

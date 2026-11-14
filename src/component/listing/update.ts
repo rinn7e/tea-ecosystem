@@ -112,6 +112,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
         ),
       })
     // Clears what narrows the list; how it is shown (layout, sort) stays
+    case 'SetSort':
+      return withFilter(model, { ...model.filter, sort: msg.sort })
     case 'ClearFilter':
       return withFilter(model, {
         ...defaultListingFilter(),

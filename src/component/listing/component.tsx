@@ -5,6 +5,7 @@ import {
   IconArrowDown,
   IconArrowUp,
   IconArrowsSort,
+  IconChevronDown,
   IconFilterOff,
   IconLayoutGrid,
   IconSearch,
@@ -74,13 +75,19 @@ import { TooltipTrigger } from '@/component/tooltip/trigger'
 import { PANEL_ATTRIBUTE } from './subscription'
 import { type Model, type Msg, type Props, PropsEq } from './type'
 import {
+  type CardSort,
   balancedRows,
+  cardSortLabel,
+  cardSortOf,
+  cardSorts,
   filterFrameworks,
   isFiltered,
   languageCountsOf,
   otherListMatchesOf,
   searchFilterOf,
   sortFrameworks,
+  sortLabelOf,
+  sortOfCardSort,
 } from './util'
 
 const entryKinds: readonly EntryKind[] = ['languages', 'frameworks']
@@ -629,6 +636,73 @@ const searchRowView = ({
   )
 }
 
+// The sort menu of the cards (the table sorts by its headers): the order
+// of the list, the most stars, the last push, the creation of the
+// repository, or the day an entry joined the catalog. A sort only the
+// table makes (by name, oldest first) shows as one more choice, chosen.
+const sortMenuView = ({
+  filter,
+  dispatch,
+}: {
+  filter: ListingFilter
+  dispatch: Dispatcher<Msg>
+}) => {
+  const chosen = cardSortOf(filter.sort)
+  return (
+    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge relative flex h-[38px] items-center border-2 text-[0.9375rem] transition-shadow'>
+      <IconArrowsSort
+        size={16}
+        stroke={1.75}
+        aria-hidden
+        className='pointer-events-none absolute left-[12px]'
+      />
+      <select
+        aria-label='Sort the cards'
+        value={pipe(
+          chosen,
+          O.getOrElse((): string => 'table'),
+        )}
+        onChange={(e) =>
+          pipe(
+            [...cardSorts],
+            A.findFirst((choice: CardSort) => choice === e.target.value),
+            O.fold(
+              () => undefined,
+              (choice) =>
+                dispatch({ _tag: 'SetSort', sort: sortOfCardSort(choice) }),
+            ),
+          )
+        }
+        className='h-full cursor-pointer appearance-none bg-transparent pr-[34px] pl-[34px] outline-none'
+      >
+        {O.isNone(chosen) &&
+          pipe(
+            filter.sort,
+            O.fold(
+              () => null,
+              (sort) => (
+                <option value='table' disabled>
+                  {sortLabelOf(sort)}
+                </option>
+              ),
+            ),
+          )}
+        {cardSorts.map((choice) => (
+          <option key={choice} value={choice}>
+            {cardSortLabel(choice)}
+          </option>
+        ))}
+      </select>
+      <IconChevronDown
+        size={16}
+        stroke={1.75}
+        aria-hidden
+        className='pointer-events-none absolute right-[12px]'
+      />
+    </label>
+  )
+}
+
 // The toolbar right above the results: the layout on the left, the count
 // and (while a filter is on) Clear filters on the right
 const filterBarView = ({
@@ -656,6 +730,7 @@ const filterBarView = ({
           dispatch,
         })}
       </div>
+      {filter.layout === 'cards' && sortMenuView({ filter, dispatch })}
     </div>
     <div className='flex items-center gap-[12px]'>
       <span className='text-ink-muted text-sm whitespace-nowrap tabular-nums'>

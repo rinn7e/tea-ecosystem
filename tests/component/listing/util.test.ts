@@ -10,6 +10,8 @@ import {
 } from '@/common/type/destination'
 import {
   balancedRows,
+  cardSortOf,
+  cardSorts,
   filterFrameworks,
   init,
   isFiltered,
@@ -19,6 +21,8 @@ import {
   otherListOf,
   searchFilterOf,
   sortFrameworks,
+  sortLabelOf,
+  sortOfCardSort,
   update,
 } from '@/component/listing'
 
@@ -392,5 +396,48 @@ describe('otherListMatchesOf', () => {
       ...defaultListingFilter(),
       query: 'XState',
     })
+  })
+})
+
+describe('sort menu of the cards', () => {
+  it('sets each sort newest or largest first, and none for the default', () => {
+    expect(sortOfCardSort('default')).toEqual(O.none)
+    expect(sortOfCardSort('popularity')).toEqual(
+      O.some({ column: 'stars', direction: 'descending' }),
+    )
+    expect(sortOfCardSort('updated')).toEqual(
+      O.some({ column: 'updated', direction: 'descending' }),
+    )
+    expect(sortOfCardSort('created')).toEqual(
+      O.some({ column: 'created', direction: 'descending' }),
+    )
+    expect(sortOfCardSort('added')).toEqual(
+      O.some({ column: 'added', direction: 'descending' }),
+    )
+  })
+
+  it('reads each of its sorts back as its choice', () => {
+    cardSorts.forEach((choice) =>
+      expect(cardSortOf(sortOfCardSort(choice))).toEqual(O.some(choice)),
+    )
+  })
+
+  it('names a sort only the table makes', () => {
+    const byName: ListingSort = { column: 'name', direction: 'ascending' }
+    expect(cardSortOf(O.some(byName))).toEqual(O.none)
+    expect(sortLabelOf(byName)).toBe('Name, A to Z')
+    expect(sortLabelOf({ column: 'stars', direction: 'ascending' })).toBe(
+      'Stars, fewest first',
+    )
+  })
+
+  it('sets the sort whole from the menu, and back to the list order', () => {
+    const [sorted] = update(
+      { _tag: 'SetSort', sort: sortOfCardSort('popularity') },
+      init(defaultListingFilter()),
+    )
+    expect(sorted.filter.sort).toEqual(sortOfCardSort('popularity'))
+    const [plain] = update({ _tag: 'SetSort', sort: O.none }, sorted)
+    expect(plain.filter.sort).toEqual(O.none)
   })
 })
