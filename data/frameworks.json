@@ -3013,6 +3013,74 @@
     "updatedAt": "2026-10-27"
   },
   {
+    "id": "redux-loop",
+    "name": "redux-loop",
+    "language": "JavaScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "quiet",
+    "repo": "https://github.com/redux-loop/redux-loop",
+    "logo": "redux-loop.png",
+    "logoOnLight": true,
+    "summary": "Brings Cmd to Redux: the reducer returns a loop of state and command, and Cmd.setInterval gives a cancellable timer; the view comes from React-Redux.",
+    "snippetSource": "https://github.com/redux-loop/redux-loop/blob/master/docs/tutorial/Tutorial.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "missing",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "update is the reducer: it returns loop(model, cmd), a state and a Cmd value; Cmd.run, Cmd.action, Cmd.list and Cmd.map are data that the store enhancer install() runs after the reducer, and results come back as actions (https://github.com/redux-loop/redux-loop/blob/master/docs/api-docs/cmds.md).",
+      "No subscriptions function: Cmd.setInterval repeats a nested Cmd and Cmd.clearInterval(timerId) cancels it, so a timer is managed; other outside events reach the store by dispatch.",
+      "Cmd.run(func, { successActionCreator, failActionCreator, args }) calls any function, including a Promise one, and dispatches the action it maps the result to.",
+      "A store enhancer for Redux, so it has no view: the view comes from React-Redux or another library."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2016-01-05",
+    "updatedAt": "2024-03-19",
+    "stars": 1948
+  },
+  {
+    "id": "re-frame",
+    "name": "re-frame",
+    "language": "ClojureScript",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "full",
+    "status": "active",
+    "repo": "https://github.com/day8/re-frame",
+    "logo": "re-frame.png",
+    "logoOnLight": true,
+    "summary": "Events, pure handlers and effects as data in ClojureScript, designed in 2014 before the Elm Architecture; its subscriptions are derived queries over app-db.",
+    "snippetSource": "https://github.com/day8/re-frame/blob/master/examples/simple/src/simple/core.cljs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "update returns effects as data: reg-event-fx takes coeffects and an event vector and returns an effects map such as {:db ... :fx [[:dispatch [...]]]}, and reg-fx handlers run it (https://github.com/day8/re-frame/blob/master/docs/Effects.md).",
+      "Events are vectors like [:timer now] (a tagged union by convention); app-db is one atom holding one map, and views are Reagent components that read it through subscribe.",
+      "Sub is managed, not declarative: re-frame subscriptions (reg-sub) are derived queries for the view, not sources of outside events. Outside events come from a handler returning :dispatch-later again, or a reg-fx effect that starts and cancels a timer by id (https://github.com/day8/re-frame/blob/master/docs/FAQs/PollADatabaseEvery60.md); the bundled example just calls dispatch from setInterval.",
+      "Ports are managed: re-frame.core/dispatch sends an event from any code outside the app; reg-fx and reg-cofx are also the sanctioned way to talk to the host (HTTP, local storage, time). The docs say it slightly predates the Elm Architecture (https://github.com/day8/re-frame/blob/master/docs/re-frame.md)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-13T07:24:58Z",
+    "createdAt": "2014-12-05",
+    "updatedAt": "2026-05-05",
+    "stars": 5545
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",
