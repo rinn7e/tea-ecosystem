@@ -5,6 +5,10 @@
 <h1 align="center">TEA Ecosystem</h1>
 
 <p align="center">
+  <a href="https://rinn7e.com/tea-ecosystem/"><b>rinn7e.com/tea-ecosystem</b></a>
+</p>
+
+<p align="center">
   Every language and framework that implements The Elm Architecture, graded against Elm.
 </p>
 
@@ -18,15 +22,13 @@
 
 A catalog of The Elm Architecture across languages: every language and framework that implements Model, Msg, update, Cmd and Sub, graded against Elm, so you can compare what each ecosystem has and what could come back to Elm.
 
-**Open the site: [rinn7e.com/tea-ecosystem](https://rinn7e.com/tea-ecosystem/)**
-
 <p align="center">
   <img src="doc/screenshot.png" alt="The catalog of TEA Ecosystem in a browser: the title, the language and framework boxes, the language logos, the search and the first row of framework cards">
 </p>
 
 The site has:
 
-- **Catalog**: 90 entries in 27 languages, as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added. A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
+- **Catalog**: 93 entries in 27 languages, as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added, with a New button that shows the newest entries first and a Default button that leads back. A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
 - **A page per framework**: its grade on each part of TEA, with notes, and the other entries in its languages from both lists.
 - **Rubric**: what counts as TEA, the four grades and the three tiers.
 - **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, re-frame, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.
