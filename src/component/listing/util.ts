@@ -12,13 +12,17 @@ import {
   pinnedLanguages,
 } from '@/common/data/language-popularity'
 import {
+  type Destination,
   type ListingFilter,
   type ListingSort,
   ListingSortEq,
   type SortColumn,
   type SortDirection,
+  adjacentScreen,
+  catalogScreen,
   defaultListingFilter,
   defaultStatuses,
+  destinationOfScreen,
 } from '@/common/type/destination'
 import {
   type Concept,
@@ -169,6 +173,42 @@ export const otherListMatchesOf = (kind: ListKind, query: string): number =>
     ? 0
     : filterFrameworks(searchFilterOf(query))(entriesOf(otherListOf(kind)))
         .length
+
+// What a list says about the matches of a search in the other list, under
+// its results (`isAlso`) or in place of them when it has none: "3
+// TEA-adjacent libraries also match "react"."
+export const otherListMatchTextOf = ({
+  kind,
+  count,
+  query,
+  isAlso,
+}: {
+  kind: ListKind
+  count: number
+  query: string
+  isAlso: boolean
+}): string => {
+  const also = isAlso ? 'also ' : ''
+  const verb = count === 1 ? 'matches' : 'match'
+  return kind === 'catalog'
+    ? `${count} TEA-adjacent ${count === 1 ? 'library' : 'libraries'} ${also}${verb} "${query}".`
+    : `${count} ${count === 1 ? 'framework' : 'frameworks'} in the catalog ${also}${verb} "${query}".`
+}
+
+// The link to the same search on the other list, and its words
+export const otherListLinkOf = (
+  kind: ListKind,
+  query: string,
+): { destination: Destination; label: string } =>
+  kind === 'catalog'
+    ? {
+        destination: destinationOfScreen(adjacentScreen(searchFilterOf(query))),
+        label: 'Show in TEA-adjacent',
+      }
+    : {
+        destination: destinationOfScreen(catalogScreen(searchFilterOf(query))),
+        label: 'Show in the catalog',
+      }
 
 export const isFiltered = (filter: ListingFilter): boolean =>
   filter.tiers.length > 0 ||

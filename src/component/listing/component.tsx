@@ -25,8 +25,6 @@ import {
   type ListingLayout,
   type ListingSort,
   type SortColumn,
-  adjacentScreen,
-  catalogScreen,
   catalogTiers,
   defaultStatuses,
   destinationOfScreen,
@@ -83,8 +81,9 @@ import {
   filterFrameworks,
   isFiltered,
   languageCountsOf,
+  otherListLinkOf,
+  otherListMatchTextOf,
   otherListMatchesOf,
-  searchFilterOf,
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
@@ -1120,26 +1119,50 @@ const emptyView = ({
       {otherCount > 0 && (
         <>
           <span className='text-ink-muted text-sm text-balance'>
-            {kind === 'catalog'
-              ? `${otherCount} TEA-adjacent ${otherCount === 1 ? 'library matches' : 'libraries match'} "${query}".`
-              : `${otherCount} ${otherCount === 1 ? 'framework' : 'frameworks'} in the catalog ${otherCount === 1 ? 'matches' : 'match'} "${query}".`}
+            {otherListMatchTextOf({
+              kind,
+              count: otherCount,
+              query,
+              isAlso: false,
+            })}
           </span>
           <Link
-            destination={destinationOfScreen(
-              kind === 'catalog'
-                ? adjacentScreen(searchFilterOf(query))
-                : catalogScreen(searchFilterOf(query)),
-            )}
+            destination={otherListLinkOf(kind, query).destination}
             className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
           >
             <IconSearch size={16} stroke={1.75} aria-hidden />
-            {kind === 'catalog'
-              ? 'Show in TEA-adjacent'
-              : 'Show in the catalog'}
+            {otherListLinkOf(kind, query).label}
           </Link>
         </>
       )}
     </div>
+  )
+}
+
+// Results found, and the other list matches the search too: one quiet line
+// above the results, so a search for "react" on the catalog also points to
+// the React libraries of the TEA-adjacent page. Nothing for an empty search
+// or one the other list does not match.
+const otherListHintView = ({
+  kind,
+  filter,
+}: {
+  kind: ListKind
+  filter: ListingFilter
+}) => {
+  const query = filter.query.trim()
+  const count = otherListMatchesOf(kind, query)
+  return count === 0 ? null : (
+    <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
+      <span>{otherListMatchTextOf({ kind, count, query, isAlso: true })}</span>
+      <Link
+        destination={otherListLinkOf(kind, query).destination}
+        className='text-accent inline-flex items-center gap-[4px] hover:underline'
+      >
+        <IconSearch size={14} stroke={1.75} aria-hidden />
+        {otherListLinkOf(kind, query).label}
+      </Link>
+    </p>
   )
 }
 
@@ -1212,6 +1235,7 @@ const ListingComponent = ({
           total: entries.length,
           dispatch,
         })}
+        {shown.length > 0 && otherListHintView({ kind, filter: model.filter })}
         {shown.length === 0
           ? emptyView({ kind, entries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'

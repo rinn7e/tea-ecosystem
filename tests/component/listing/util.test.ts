@@ -5,7 +5,9 @@ import { adjacentEntries, frameworks } from '@/common/data/catalog'
 import {
   type EntryKind,
   type ListingSort,
+  adjacentScreen,
   defaultListingFilter,
+  destinationOfScreen,
   toggleChoice,
 } from '@/common/type/destination'
 import {
@@ -17,6 +19,8 @@ import {
   isFiltered,
   languageCountsOf,
   logosPerRowOf,
+  otherListLinkOf,
+  otherListMatchTextOf,
   otherListMatchesOf,
   otherListOf,
   searchFilterOf,
@@ -389,6 +393,45 @@ describe('otherListMatchesOf', () => {
   it('counts nothing for an empty search or one that matches nothing', () => {
     expect(otherListMatchesOf('catalog', '  ')).toBe(0)
     expect(otherListMatchesOf('adjacent', 'no such framework')).toBe(0)
+  })
+
+  it('says how many match there, with "also" under results', () => {
+    expect(
+      otherListMatchTextOf({
+        kind: 'catalog',
+        count: 3,
+        query: 'react',
+        isAlso: true,
+      }),
+    ).toBe('3 TEA-adjacent libraries also match "react".')
+    expect(
+      otherListMatchTextOf({
+        kind: 'catalog',
+        count: 1,
+        query: 'xstate',
+        isAlso: false,
+      }),
+    ).toBe('1 TEA-adjacent library matches "xstate".')
+    expect(
+      otherListMatchTextOf({
+        kind: 'adjacent',
+        count: 2,
+        query: 'elm',
+        isAlso: true,
+      }),
+    ).toBe('2 frameworks in the catalog also match "elm".')
+  })
+
+  it('links to the same search on the other list', () => {
+    expect(otherListLinkOf('catalog', 'react').label).toBe(
+      'Show in TEA-adjacent',
+    )
+    expect(otherListLinkOf('adjacent', 'react').label).toBe(
+      'Show in the catalog',
+    )
+    expect(otherListLinkOf('catalog', 'react').destination).toEqual(
+      destinationOfScreen(adjacentScreen(searchFilterOf('react'))),
+    )
   })
 
   it('opens the other list on the search alone', () => {
