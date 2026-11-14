@@ -143,6 +143,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
         env:
           EXECUTION_FILE: ${{ runner.temp }}/discover-execution.json
+          TRANSCRIPT_ARTIFACT: discover-transcript-${{ github.run_attempt }}
 
       # The full transcript of the agent (every message, call and result),
       # also after a failure or a timeout. Any signed-in GitHub user can
@@ -151,12 +152,12 @@ jobs:
       - if: ${{ !cancelled() && steps.context.outputs.gate == 'go' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: discover-transcript
+          # One a try of the run, so a re-run keeps the transcript of the
+          # try it was started to look into
+          name: discover-transcript-${{ github.run_attempt }}
           path: ${{ runner.temp }}/discover-execution.json
           retention-days: 7
           if-no-files-found: ignore
-          # A re-run of the job uploads it again under the same name
-          overwrite: true
 
       # The branch of the run goes to the next job as a bundle, when it has
       # a commit (`scripts/bundle-discovered.sh`)

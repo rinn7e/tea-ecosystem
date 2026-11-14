@@ -27,7 +27,8 @@
 //   EXECUTION_FILE=<file> node scripts/discover-agent.mjs
 import { query } from '@anthropic-ai/claude-agent-sdk'
 import { randomUUID } from 'node:crypto'
-import { realpathSync, renameSync, writeFileSync } from 'node:fs'
+import { mkdirSync, realpathSync, renameSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 export const TOOLS = [
@@ -281,6 +282,12 @@ export const reasonOf = (result) =>
       ? result.errors.map(stringOf).join('; ')
       : 'no reason'
 
+/** @type {(cost: unknown) => string} */
+const dollarsOf = (cost) =>
+  typeof cost === 'number' && Number.isFinite(cost)
+    ? cost.toFixed(2)
+    : stringOf(cost)
+
 /**
  * The last lines of the log: how the agent ended, and why the run stopped,
  * when something threw (the SDK throws after an error result too).
@@ -296,7 +303,7 @@ export const endLinesOf = (result, thrown) => {
     end(
       result === undefined
         ? 'The agent ended with no result.'
-        : `The agent ended: ${stringOf(result.subtype)}, ${stringOf(result.num_turns)} turns, ${stringOf(result.total_cost_usd)} dollars, ${denied} denied: ${reason}.`,
+        : `The agent ended: ${stringOf(result.subtype)}, ${stringOf(result.num_turns)} turns, ${dollarsOf(result.total_cost_usd)} dollars, ${denied} denied: ${reason}.`,
     ),
     ...(thrown === undefined ? [] : [end(`The run stopped: ${thrown}`)]),
   ]
@@ -355,6 +362,7 @@ export const run = async ({ stream, write, print, cwd, redact, marker }) => {
 // A whole file at each step, never half of one: a timeout can stop the
 // process in the middle of a write
 const writeWholeTo = (file) => (text) => {
+  mkdirSync(dirname(file), { recursive: true })
   writeFileSync(`${file}.part`, text)
   renameSync(`${file}.part`, file)
 }
@@ -370,7 +378,8 @@ const main = async () => {
         options,
       }),
     write: writeWholeTo(
-      process.env.EXECUTION_FILE ?? 'discover-execution.json',
+      // In `tmp/`, which git ignores, when no file is named
+      process.env.EXECUTION_FILE ?? 'tmp/discover/execution.json',
     ),
     print: (line) => console.log(line),
     cwd: process.cwd(),

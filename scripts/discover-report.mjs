@@ -4,7 +4,7 @@
 // after a timeout too, with no result: such a run is said to have stopped,
 // with what the agent said last, and never shown as if it were a report.
 //
-// Run: node scripts/discover-report.mjs <execution file>
+// Run: TRANSCRIPT_ARTIFACT=<name> node scripts/discover-report.mjs <file>
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
@@ -24,14 +24,14 @@ const textsOf = (message) =>
 const whyOf = (result) =>
   result === undefined
     ? 'it has no result: it failed or timed out'
-    : `${String(result.subtype)}: ${reasonOf(result)}`
+    : `${result.subtype === 'success' ? 'an error' : String(result.subtype)}: ${reasonOf(result)}`
 
 /**
  * The report of a run, from its messages (`undefined` when it wrote none,
- * as the agent never started).
- * @type {(messages: any[] | undefined) => string}
+ * as the agent never started), naming the artifact of its transcript.
+ * @type {(messages: any[] | undefined, artifact: string) => string}
  */
-export const reportOf = (messages) => {
+export const reportOf = (messages, artifact) => {
   if (messages === undefined) {
     return 'No report: the agent never started.'
   } else {
@@ -40,7 +40,7 @@ export const reportOf = (messages) => {
     return endedWellOf(result) && typeof result.result === 'string'
       ? result.result
       : [
-          `No report: the agent did not finish (${whyOf(result)}). Its full transcript is the artifact \`discover-transcript\` of this run.`,
+          `No report: the agent did not finish (${whyOf(result)}). Its full transcript is the artifact \`${artifact}\` of this run.`,
           ...(last === undefined ? [] : ['', 'What it said last:', '', last]),
         ].join('\n')
   }
@@ -54,6 +54,7 @@ if (
   console.log(
     reportOf(
       existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined,
+      process.env.TRANSCRIPT_ARTIFACT ?? 'discover-transcript',
     ),
   )
 }

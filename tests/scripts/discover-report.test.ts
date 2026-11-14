@@ -16,28 +16,42 @@ const said = (text: string) => ({
   message: { content: [{ type: 'text', text }] },
 })
 const init = { type: 'system', subtype: 'init' }
-const stopped =
-  'Its full transcript is the artifact `discover-transcript` of this run.'
+const artifact = 'discover-transcript-2'
+const stopped = `Its full transcript is the artifact \`${artifact}\` of this run.`
+const reportIn = (messages: unknown[]): string => reportOf(messages, artifact)
+const ended = (more: Record<string, unknown>) => ({
+  type: 'result',
+  subtype: 'success',
+  ...more,
+})
 
 describe('the report of the discovery agent', () => {
-  it('is the result of a run that ended well', () => {
+  it('is the result of a run that ended well, its last result', () => {
     expect(
-      reportOf([
+      reportIn([
         init,
+        ended({ is_error: true, result: 'Overloaded' }),
         said('Searching.'),
-        {
-          type: 'result',
-          subtype: 'success',
-          is_error: false,
-          result: 'Report',
-        },
+        ended({ is_error: false, result: 'Report' }),
       ]),
     ).toBe('Report')
   })
 
-  it('says that a run cut off before its result did not finish, with what it said last', () => {
+  it('says that a run cut off before its result did not finish, with what the agent said last', () => {
     expect(
-      reportOf([init, said('Searching.'), said('Now let me check the stars.')]),
+      reportIn([
+        init,
+        said('Searching.'),
+        said('Now let me check the stars.'),
+        {
+          type: 'user',
+          message: { content: [{ type: 'text', text: 'A page said this.' }] },
+        },
+        {
+          type: 'assistant',
+          message: { content: [{ type: 'tool_use', text: 'Not text.' }] },
+        },
+      ]),
     ).toBe(
       [
         `No report: the agent did not finish (it has no result: it failed or timed out). ${stopped}`,
@@ -49,28 +63,23 @@ describe('the report of the discovery agent', () => {
     )
   })
 
-  it('never takes a result that does not say it had no error for a report', () => {
-    expect(
-      reportOf([{ type: 'result', subtype: 'success', result: 'Report' }]),
-    ).toBe(`No report: the agent did not finish (success: Report). ${stopped}`)
+  it('never takes a result that does not say it had no error, or has no text, for a report', () => {
+    expect(reportIn([ended({ result: 'Report' })])).toBe(
+      `No report: the agent did not finish (an error: Report). ${stopped}`,
+    )
+    expect(reportIn([ended({ is_error: false })])).toBe(
+      `No report: the agent did not finish (an error: no reason). ${stopped}`,
+    )
   })
 
   it('says why a run that ended with an error did not finish', () => {
     expect(
-      reportOf([
-        init,
-        {
-          type: 'result',
-          subtype: 'success',
-          is_error: true,
-          result: 'Invalid API key',
-        },
-      ]),
+      reportIn([init, ended({ is_error: true, result: 'Invalid API key' })]),
     ).toBe(
-      `No report: the agent did not finish (success: Invalid API key). ${stopped}`,
+      `No report: the agent did not finish (an error: Invalid API key). ${stopped}`,
     )
     expect(
-      reportOf([
+      reportIn([
         said('Half way.'),
         {
           type: 'result',
@@ -86,17 +95,30 @@ describe('the report of the discovery agent', () => {
 
   it('says that the agent never started when there is no file, also when run through a link', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'discover-report-'))
-    const file = path.join(dir, 'execution.json')
-    // A path through a link, as `/tmp` is on macOS, must still run it
-    const link = path.join(dir, 'report.mjs')
-    symlinkSync(scriptOf('discover-report.mjs'), link)
-    const reportFrom = () =>
-      spawnSync(process.execPath, [link, file], {
-        encoding: 'utf8',
-      }).stdout
-    expect(reportFrom()).toBe('No report: the agent never started.\n')
-    writeFileSync(file, JSON.stringify([init, said('Searching.')]))
-    expect(reportFrom()).toContain('What it said last:\n\nSearching.\n')
-    rmSync(dir, { recursive: true, force: true })
+    try {
+      const file = path.join(dir, 'execution.json')
+      // A path through a link, as `/tmp` is on macOS, must still run it
+      const link = path.join(dir, 'report.mjs')
+      symlinkSync(scriptOf('discover-report.mjs'), link)
+      const reportFrom = () =>
+        spawnSync(process.execPath, [link, file], {
+          encoding: 'utf8',
+          env: { ...process.env, TRANSCRIPT_ARTIFACT: artifact },
+        }).stdout
+      expect(reportFrom()).toBe('No report: the agent never started.\n')
+      writeFileSync(file, JSON.stringify([init, said('Searching.')]))
+      expect(reportFrom()).toBe(
+        [
+          `No report: the agent did not finish (it has no result: it failed or timed out). ${stopped}`,
+          '',
+          'What it said last:',
+          '',
+          'Searching.',
+          '',
+        ].join('\n'),
+      )
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

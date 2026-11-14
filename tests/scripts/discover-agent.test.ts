@@ -111,11 +111,17 @@ const denial = (id: string) => ({
   tool_use_id: id,
   message: 'denied',
 })
-const toolResult = (id: string, isError: boolean) => ({
+// Claude Code leaves `is_error` out of a call that went well
+const toolResult = (id: string, isError: boolean | undefined) => ({
   type: 'user',
   message: {
     content: [
-      { type: 'tool_result', tool_use_id: id, is_error: isError, content: 'x' },
+      {
+        type: 'tool_result',
+        tool_use_id: id,
+        content: 'x',
+        ...(isError === undefined ? {} : { is_error: isError }),
+      },
     ],
   },
 })
@@ -182,6 +188,7 @@ describe('the live log of the discovery agent', () => {
     ])
     expect(logOf([call, denial('t')])(toolResult('t', true))).toEqual([])
     expect(logOf([call])(toolResult('t', false))).toEqual([])
+    expect(logOf([call])(toolResult('t', undefined))).toEqual([])
   })
 
   it('show the start, a retry, a text turn on one line, and nothing for the rest', () => {
@@ -257,7 +264,7 @@ describe('the live log of the discovery agent', () => {
   })
 
   test.prop([fc.string({ minLength: 8 }), fc.string(), fc.string()])(
-    'leave no secret in the transcript',
+    'hide a secret wherever it is in a text',
     (secret, start, end) => {
       expect(redactOf([secret])(`${start}${secret}${end}`)).not.toContain(
         secret,
@@ -303,7 +310,7 @@ describe('the end of a run of the discovery agent', () => {
     const thrown =
       'Claude Code returned an error result: Invalid API key · Fix external API key'
     expect(endOf(refused, thrown)).toEqual([
-      'The agent ended: success, 1 turns, 0 dollars, 0 denied: Invalid API key · Fix external API key.',
+      'The agent ended: success, 1 turns, 0.00 dollars, 0 denied: Invalid API key · Fix external API key.',
       `The run stopped: ${thrown}`,
     ])
   })
@@ -322,7 +329,7 @@ describe('the end of a run of the discovery agent', () => {
         undefined,
       ),
     ).toEqual([
-      'The agent ended: success, 40 turns, 1.5 dollars, 2 denied: ok.',
+      'The agent ended: success, 40 turns, 1.50 dollars, 2 denied: ok.',
     ])
   })
 
@@ -482,11 +489,14 @@ const messageArb = fc.oneof(
     type: fc.constant('user'),
     message: fc.record({
       content: fc.array(
-        fc.record({
-          type: fc.constant('tool_result'),
-          tool_use_id: idArb,
-          is_error: fc.boolean(),
-        }),
+        fc.record(
+          {
+            type: fc.constant('tool_result'),
+            tool_use_id: idArb,
+            is_error: fc.boolean(),
+          },
+          { requiredKeys: ['type', 'tool_use_id'] },
+        ),
       ),
     }),
   }),
@@ -570,7 +580,7 @@ describe('a run of the discovery agent', () => {
       'Tool: Bash curl x',
       'Denied: Bash(curl x)',
       'Text: The key is ***',
-      'The agent ended: success, 2 turns, 0.1 dollars, 1 denied: Refused ***.',
+      'The agent ended: success, 2 turns, 0.10 dollars, 1 denied: Refused ***.',
       'The run stopped: it broke',
       '::marker::',
     ])
@@ -627,7 +637,8 @@ describe('a run of the discovery agent', () => {
   ])(
     'never print a workflow command, a line break, a long line or part of a secret, whatever the agent writes',
     async (messages, thrown) => {
-      const { code, printed } = await ranOf(messages, thrown)
+      const { code, printed, written } = await ranOf(messages, thrown)
+      expect(written.filter((text) => text.includes(key))).toEqual([])
       expect(printed.at(0)).toBe('::stop-commands::marker')
       expect(printed.at(-1)).toBe('::marker::')
       printed.slice(1, -1).forEach((line) => {
