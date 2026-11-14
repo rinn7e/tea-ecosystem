@@ -1,0 +1,129 @@
+name: Refresh stats
+
+# Refreshes the numbers of every entry (stars, the created and updated
+# dates) and the links of every repository that moved, every week and on
+# demand, with `scripts/fetch-repo-stats.mjs`. When the data changed and
+# `pnpm run test` passes, it commits the two data files to `master` and
+# starts the Pages workflow. The job summary lists what the script moved
+# and what it left for a person: a status to check, an entry not refreshed
+# (its host did not answer, or the run ran out of time), a broken link, a
+# link that redirects, and how many links it had no time left to check.
+#
+# Two jobs, so the token that can write never meets the installed packages:
+# `refresh` installs and runs them with a token that only reads, and
+# `publish` installs nothing and only commits, pushes and deploys.
+on:
+  schedule:
+    # Mondays at 05:17 UTC, off the hour, when fewer scheduled runs queue
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+# Each job asks for its own
+permissions: {}
+
+# One refresh at a time
+concurrency:
+  group: refresh-stats
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    # It commits to `master`, so a dispatch on another branch does nothing
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # The @rinn7e packages come from GitHub Packages (`.npmrc`)
+      packages: read
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+      sha: ${{ steps.head.outputs.sha }}
+    steps:
+      # `master` as it is when the job starts, not when the run was queued
+      # (a run waits for the one before it, which may have committed)
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          persist-credentials: false
+      - name: Note the commit the refresh reads
+        id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      # The token reads the public @rinn7e packages; it is written to the
+      # user .npmrc of the runner, never to the one of the repository
+      - run: echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm install --frozen-lockfile
+      # A host that does not answer, a status to check, a broken link, a
+      # link that redirects and a run out of time do not fail the run: the
+      # script lists them in the job summary
+      - name: Fetch the stats
+        run: node scripts/fetch-repo-stats.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Format the data files
+        run: pnpm exec prettier --write data/frameworks.json data/adjacent.json
+      - name: See whether the data changed
+        id: diff
+        run: |
+          if git diff --quiet -- data/frameworks.json data/adjacent.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            printf '\nNothing new: no commit.\n' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.diff.outputs.changed == 'true'
+        run: pnpm run test
+      - if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: data
+          path: |
+            data/frameworks.json
+            data/adjacent.json
+          retention-days: 7
+
+  publish:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      # Push the data files to `master`
+      contents: write
+      # Start the Pages workflow: a push made with `GITHUB_TOKEN` starts none
+      actions: write
+    steps:
+      # The same commit the refresh read; the token is not kept in the
+      # checkout, only the push gets it
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.refresh.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: data
+          path: data
+      # Only the two data files are committed. A push that `master` moved
+      # past during the run fails, and the next run tries again.
+      - name: Commit the data files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/frameworks.json data/adjacent.json
+          git commit -m 'Refresh the stats of the catalog'
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master
+          printf '\nCommitted the new data to `master`.\n' >> "$GITHUB_STEP_SUMMARY"
+      - name: Deploy the site
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run pages.yml --ref master
