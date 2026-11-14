@@ -7,7 +7,8 @@ name: Refresh stats
 # starts the Pages workflow. The job summary lists what the script moved
 # and what it left for a person: a status to check, an entry not refreshed
 # (its host did not answer, or the run ran out of time), a broken link, a
-# link that redirects, and how many links it had no time left to check.
+# link that redirects, how many links it had no time left to check, and
+# how many a host refused to a script (403, which says nothing of the link).
 #
 # Two jobs, so the token that can write never meets the installed packages:
 # `refresh` installs and runs them with a token that only reads, and

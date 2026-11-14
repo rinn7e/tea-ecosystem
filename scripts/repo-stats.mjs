@@ -14,7 +14,8 @@
  * What the run saw about one entry: its numbers from its host (`stats`), or
  * why its host did not answer (`skipped`), or neither when it has no public
  * repository; and its move, its status to check, its broken links, its
- * links that redirect and its links the run had no time left to check.
+ * links that redirect, its links the run had no time left to check and its
+ * links whose host refused a script.
  *
  * @typedef {{
  *   id: string
@@ -25,6 +26,7 @@
  *   brokenLinks: { url: string, reason: string }[]
  *   redirects: { url: string, to: string }[]
  *   notChecked: string[]
+ *   refused: string[]
  * }} Report
  *
  * @typedef {{
@@ -41,7 +43,13 @@ export const USER_AGENT =
 // The fields of an entry that hold a link: the run checks each of them, and
 // a move rewrites the ones under the old address. `originRepo` is not one:
 // it is where the project lived before, on purpose.
-export const LINK_FIELDS = ['repo', 'website', 'source', 'snippetSource']
+export const LINK_FIELDS = [
+  'repo',
+  'website',
+  'source',
+  'snippetSource',
+  'unmaintainedNotice',
+]
 
 const dayOf = (timestamp) => timestamp.slice(0, 10)
 
@@ -186,17 +194,21 @@ const pageOf = (url) => {
 // why (`brokenLinks`), and those that answer 200 at another address
 // (`redirects`): a branch renamed to `main`, a repository that moved. Both
 // are left for a person. A link the run had no time left for is only
-// counted (`notChecked`).
+// counted (`notChecked`), and so is one whose host refused a script (403,
+// `refused`): npm and sites behind a bot check answer it to every script
+// while the page works in a browser, so it says nothing about the link.
 const checkLinks = async (getStatus, entry) => {
   const checks = await Promise.all(
     linksOf(entry).map(async (url) => {
       try {
         const answer = await getStatus(url)
-        return answer.status !== 200
-          ? { broken: { url, reason: `${answer.status}` } }
-          : pageOf(answer.url) !== pageOf(url)
-            ? { redirect: { url, to: answer.url } }
-            : {}
+        return answer.status === 403
+          ? { refused: url }
+          : answer.status !== 200
+            ? { broken: { url, reason: `${answer.status}` } }
+            : pageOf(answer.url) !== pageOf(url)
+              ? { redirect: { url, to: answer.url } }
+              : {}
       } catch (error) {
         return error instanceof OutOfTime
           ? { notChecked: url }
@@ -213,6 +225,9 @@ const checkLinks = async (getStatus, entry) => {
     ),
     notChecked: checks.flatMap((check) =>
       check.notChecked === undefined ? [] : [check.notChecked],
+    ),
+    refused: checks.flatMap((check) =>
+      check.refused === undefined ? [] : [check.refused],
     ),
   }
 }
@@ -235,7 +250,9 @@ const statsOf = async (getJson, entry) => {
 // One entry, refreshed: its numbers from its host, its links moved when its
 // repository moved, and a report of what the run saw. `status` is never
 // changed: when it disagrees with the archived flag of the host, the report
-// says so (`statusToCheck`) and a person decides. A host that does not
+// says so (`statusToCheck`) and a person decides. An entry whose author
+// says it is no longer maintained (`unmaintainedNotice`) counts as archived
+// though its host does not say so. A host that does not
 // answer, or a run out of time, leaves the entry as it was (`skipped`). An
 // entry with no public repository keeps its values. Every link of the
 // result is checked, unless the run is out of time (`notChecked`); a broken
@@ -262,7 +279,8 @@ export const refreshEntry = async ({ getJson, getStatus }, entry) => {
             ...(moved
               ? { moved: { from: entry.repo, to: address, rewritten } }
               : {}),
-            ...(archived !== (entry.status === 'archived')
+            ...((archived || entry.unmaintainedNotice !== undefined) !==
+            (entry.status === 'archived')
               ? { statusToCheck: { status: entry.status, archived } }
               : {}),
           },
@@ -303,7 +321,7 @@ const NOT_REWRITTEN = ' (left unchanged: not an owner and a name)'
 // The lines the run prints for one entry, as the script always did: its
 // numbers (with `STATUS?` when its status disagrees with its host), or
 // `SKIPPED` with why, then one line per move, per broken link, per link
-// that redirects and per link not checked
+// that redirects, per link not checked and per link its host refused
 /** @type {(report: Report) => string[]} */
 export const linesOf = (report) => [
   ...(report.stats !== undefined
@@ -326,6 +344,7 @@ export const linesOf = (report) => [
     (link) => `${report.id}: REDIRECTS, ${link.url} -> ${link.to}`,
   ),
   ...report.notChecked.map((url) => `${report.id}: NOT CHECKED, ${url}`),
+  ...report.refused.map((url) => `${report.id}: REFUSED, ${url}`),
 ]
 
 const sectionOf = (title, items) => [
@@ -337,19 +356,22 @@ const sectionOf = (title, items) => [
 
 // The job summary of a run (Markdown): what it moved, what it left for a
 // person (a status to check, an entry not refreshed, a broken link, a link
-// that redirects), and how many links it had no time left to check
+// that redirects), how many links it had no time left to check, and how
+// many its host refused to a script
 /** @type {(reports: Report[]) => string} */
 export const summaryOf = (reports) => {
   const statusLine = (report) =>
     report.statusToCheck.archived
       ? `\`${report.id}\`: archived on its host, \`status\` is \`${report.statusToCheck.status}\``
-      : `\`${report.id}\`: not archived on its host, \`status\` is \`archived\``
+      : `\`${report.id}\`: not archived on its host, \`status\` is \`${report.statusToCheck.status}\``
   return [
     '## Refresh of the stats',
     '',
     `Entries read: ${reports.length} (${reports.filter((report) => report.stats !== undefined).length} from their host, ${reports.filter((report) => report.skipped !== undefined).length} skipped, ${reports.filter((report) => report.stats === undefined && report.skipped === undefined).length} with no public repository).`,
     '',
     `Links not checked, for lack of time: ${reports.flatMap((report) => report.notChecked).length}.`,
+    '',
+    `Links not checked, refused to a script by their host (403): ${reports.flatMap((report) => report.refused).length}.`,
     '',
     ...sectionOf(
       'Moved repositories (rewritten, unless it says otherwise)',

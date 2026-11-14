@@ -217,7 +217,10 @@ describe('refreshEntry', () => {
         { getJson: hostOf(entry, answer, answer), getStatus: allUp },
         entry,
       )
-      const disagrees = archived !== (entry.status === 'archived')
+      // An author who says it is no longer maintained counts as the flag
+      const disagrees =
+        (archived || entry.unmaintainedNotice !== undefined) !==
+        (entry.status === 'archived')
       expect(refreshed.status).toBe(entry.status)
       expect(report.statusToCheck).toEqual(
         disagrees ? { status: entry.status, archived } : undefined,
@@ -250,7 +253,8 @@ describe('refreshEntry', () => {
 
   // How a link answers: 200 at its own address (also with a trailing slash,
   // or without its anchor, which no host sees), 200 at another address, an
-  // error, or not at all as the run ran out of time (`late`)
+  // error, 403 to a script (not checked, as the page may work in a
+  // browser), or not at all as the run ran out of time (`late`)
   type Outcome =
     'up' | 'slash' | 'anchorless' | 'elsewhere' | number | 'timeout' | 'late'
   test.prop([
@@ -271,7 +275,7 @@ describe('refreshEntry', () => {
       ),
     ),
   ])(
-    'reports every link that does not answer 200, answers at another address or was not checked, and changes none',
+    'reports every link that does not answer 200, answers at another address, was refused or was not checked, and changes none',
     async (entry, outcomeOf) => {
       const answer = sameAnswerOf(entry, false)
       const elsewhereOf = (url: string) => `${new URL(url).origin}/elsewhere`
@@ -297,7 +301,8 @@ describe('refreshEntry', () => {
         entry,
       )
       const isError = (outcome: Outcome) =>
-        typeof outcome === 'number' || outcome === 'timeout'
+        (typeof outcome === 'number' && outcome !== 403) ||
+        outcome === 'timeout'
       expect(refreshed).toStrictEqual(entry)
       expect(report.brokenLinks).toEqual(
         linksOf(entry)
@@ -312,6 +317,9 @@ describe('refreshEntry', () => {
       expect(report.notChecked).toEqual(
         linksOf(entry).filter((url) => outcomeOf(url) === 'late'),
       )
+      expect(report.refused).toEqual(
+        linksOf(entry).filter((url) => outcomeOf(url) === 403),
+      )
       expect(
         linesOf(report).filter(
           (line) => !line.includes(' stars, ') && !line.includes(': SKIPPED, '),
@@ -324,6 +332,7 @@ describe('refreshEntry', () => {
           (link) => `${entry.id}: REDIRECTS, ${link.url} -> ${link.to}`,
         ),
         ...report.notChecked.map((url) => `${entry.id}: NOT CHECKED, ${url}`),
+        ...report.refused.map((url) => `${entry.id}: REFUSED, ${url}`),
       ])
     },
   )
@@ -340,6 +349,7 @@ describe('refreshEntry', () => {
       entry.website,
       entry.source,
       entry.snippetSource,
+      entry.unmaintainedNotice,
     ].filter((url) => url !== undefined)
     expect(getStatus.mock.calls.map(([url]) => url).sort()).toEqual(
       [...new Set(links)].sort(),
@@ -615,6 +625,7 @@ describe('summaryOf', () => {
             },
           ],
           notChecked: ['https://hyperapp.dev'],
+          refused: ['https://www.npmjs.com/package/hyperapp'],
         },
         {
           id: 'seed',
@@ -628,6 +639,7 @@ describe('summaryOf', () => {
           brokenLinks: [],
           redirects: [],
           notChecked: [],
+          refused: [],
         },
         {
           id: 'pux',
@@ -646,6 +658,7 @@ describe('summaryOf', () => {
           brokenLinks: [],
           redirects: [],
           notChecked: [],
+          refused: [],
         },
         {
           id: 'teatui',
@@ -653,8 +666,15 @@ describe('summaryOf', () => {
           brokenLinks: [],
           redirects: [],
           notChecked: [],
+          refused: [],
         },
-        { id: 'hojicha', brokenLinks: [], redirects: [], notChecked: [] },
+        {
+          id: 'hojicha',
+          brokenLinks: [],
+          redirects: [],
+          notChecked: [],
+          refused: [],
+        },
       ]),
     ).toBe(
       [
@@ -663,6 +683,8 @@ describe('summaryOf', () => {
         'Entries read: 5 (3 from their host, 1 skipped, 1 with no public repository).',
         '',
         'Links not checked, for lack of time: 1.',
+        '',
+        'Links not checked, refused to a script by their host (403): 1.',
         '',
         '### Moved repositories (rewritten, unless it says otherwise)',
         '',
@@ -693,7 +715,13 @@ describe('summaryOf', () => {
   it('says None under each heading when the run found nothing', () => {
     expect(
       summaryOf([
-        { id: 'elm', brokenLinks: [], redirects: [], notChecked: [] },
+        {
+          id: 'elm',
+          brokenLinks: [],
+          redirects: [],
+          notChecked: [],
+          refused: [],
+        },
       ]),
     ).toBe(
       [
@@ -702,6 +730,8 @@ describe('summaryOf', () => {
         'Entries read: 1 (0 from their host, 0 skipped, 1 with no public repository).',
         '',
         'Links not checked, for lack of time: 0.',
+        '',
+        'Links not checked, refused to a script by their host (403): 0.',
         '',
         '### Moved repositories (rewritten, unless it says otherwise)',
         '',

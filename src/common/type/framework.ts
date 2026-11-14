@@ -120,6 +120,12 @@ export type Framework = {
   // every adjacent entry failing the rubric, so it is not TEA")
   tier: Tier
   status: Status
+  // Where its author says it is no longer maintained (a section of its
+  // README), for an entry that is `archived` though its repository is not:
+  // the stats script then counts it as archived, so its status is not
+  // flagged every week (test "give an unmaintained notice only to an
+  // archived entry")
+  unmaintainedNotice?: string
   // Its repository, as a full URL of owner and name on any host (GitHub,
   // GitLab, Codeberg or another Gitea): where its source links go, and
   // where its stars and dates come from. When its source is not public,
@@ -197,6 +203,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     discoveredAt: t.string,
   }),
   t.partial({
+    unmaintainedNotice: t.string,
     website: t.string,
     source: t.string,
     originRepo: t.string,

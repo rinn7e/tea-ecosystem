@@ -144,6 +144,15 @@ describe('data files', () => {
     ).toEqual(['hojicha', 'mvu-flutter', 'cauldron'])
   })
 
+  it('give an unmaintained notice only to an archived entry', () => {
+    // The stats script counts the notice as archived, so a notice on an
+    // active or quiet entry would hide that its status disagrees
+    const wrong = [...frameworks, ...adjacentEntries].filter(
+      (f) => f.unmaintainedNotice !== undefined && f.status !== 'archived',
+    )
+    expect(wrong.map((f) => f.id)).toEqual([])
+  })
+
   it('give the source of an entry inside its repository, or as its own page', () => {
     const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) =>
