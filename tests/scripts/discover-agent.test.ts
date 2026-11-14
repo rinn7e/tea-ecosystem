@@ -34,16 +34,19 @@ describe('the options of the discovery agent', () => {
     expect(TOOLS).not.toContain('NotebookEdit')
   })
 
-  it('let the agent write only the data of an entry, and run only bare git reads', () => {
+  it('let the agent write only the data of an entry, and name no option of a git read', () => {
+    // Claude Code matches the Write tool against the `Edit(...)` rules and
+    // never a `Write(...)` one (`discover-agent-rules.test.ts`)
     const writes = ALLOWED_TOOLS.filter(
       (tool) => tool.startsWith('Edit') || tool.startsWith('Write'),
     )
     expect(writes).toEqual([
       'Edit(data/frameworks.json)',
       'Edit(data/adjacent.json)',
-      'Write(data/snippet/*)',
+      'Edit(data/snippet/*)',
     ])
-    // Their options can write files (`--output`)
+    // Their options can write files (`--output`): Claude Code allows the
+    // read-only ones on its own, and a rule must never allow the others
     expect(ALLOWED_TOOLS).toContain('Bash(git diff)')
     expect(ALLOWED_TOOLS).toContain('Bash(git log)')
     expect(

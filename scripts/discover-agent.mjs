@@ -8,7 +8,10 @@
 // every call that `ALLOWED_TOOLS` does not name is denied (`dontAsk`, no
 // prompt), and no settings file is read (`settingSources: []`), so nothing
 // in the repository can widen them. `git diff` and `git log` are allowed
-// bare only, as their options can write files (`--output`).
+// bare only, as their options can write files (`--output`); Claude Code
+// itself allows their read-only options and denies `--output` and a
+// redirect to a file, which `tests/scripts/discover-agent-rules.test.ts`
+// checks on the Claude Code of the SDK.
 //
 // Each step of the agent is one short line of the log, so the run can be
 // followed live in the log of the job. Every message goes to
@@ -44,7 +47,9 @@ export const ALLOWED_TOOLS = [
   'WebFetch',
   'Edit(data/frameworks.json)',
   'Edit(data/adjacent.json)',
-  'Write(data/snippet/*)',
+  // A rule for the Write tool is written `Edit(...)`: Claude Code never
+  // matches a `Write(...)` rule (`tests/scripts/discover-agent-rules.test.ts`)
+  'Edit(data/snippet/*)',
   'Bash(git switch *)',
   'Bash(git add *)',
   'Bash(git commit *)',
