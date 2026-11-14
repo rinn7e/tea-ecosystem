@@ -72,6 +72,22 @@ pnpm run build
 
 Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a hard requirement). Give it the day you add it as `discoveredAt` (`YYYY-MM-DD`; a new entry shows as "Recently added" for 30 days), its `repo` (the full URL of its public repository, on GitHub, GitLab, Codeberg or another Gitea; only when its source is not public, its website instead, with the same URL in `website`), its `website` when it has one apart from the repository, its `source` when it is one package of a monorepo (the full URL of its directory in `repo`), and run `GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs` to fill its stars and its created and updated dates (after that, the stats of every entry refresh every week on their own: `.github/workflows/refresh-stats.yml` runs the same script, follows a repository that moved, commits the data when `pnpm run test` passes, and lists in its job summary what is left for a person: a status to check, a host that did not answer, a broken link, a link that redirects); a logo goes in `public/logo/` and is named in `logo`. Each grade is `native`, `managed`, `equivalent` or `missing`; the [rubric](doc/analysis.md#3-inclusion-rubric) says what each means (`equivalent` describes a part and never qualifies a tier). A superset names what it adds beyond TEA in a note that starts with `Superset: `; a TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`). An entry whose author says it is no longer maintained, though its repository is not archived, is `archived` with `unmaintainedNotice` set to where the author says so. `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
 
+## New entries every week
+
+Every Monday, `.github/workflows/discover.yml` runs an AI agent (Claude Code, through `anthropics/claude-code-action`) that searches for TEA frameworks the catalog does not list yet, as `.github/discover-prompt.md` says. It grades each candidate from its own docs and source, and opens one draft pull request for the week (three candidates at most) that adds their entries with the evidence of each grade. Only the data the agent wrote leaves its run: the workflow checks it and makes a commit of its own of it, and the pull request shows each new entry as code and links to the report of the run. A person reviews it and merges it: nothing merges on its own. While that pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict. It skips what either data file lists, forks, archived, unmaintained and tiny projects, and the projects of `data/rejected.json`.
+
+To turn a candidate down, remove its entry and its example from the pull request, and add its repository to `data/rejected.json` in the same pull request, with the day and the reason, so it is never proposed again, then run `pnpm run test` on the branch before merging (no check runs on a pull request); to turn them all down, close the pull request and add each one to `data/rejected.json` on `master`:
+
+```json
+{
+  "repo": "https://github.com/<owner>/<name>",
+  "rejectedAt": "2026-11-16",
+  "reason": "A fork of an entry, with no change to its loop."
+}
+```
+
+`pnpm run test` checks the file, and that no project is both listed and turned down. The workflow runs with the repository secret `ANTHROPIC_API_KEY`, and needs GitHub Actions allowed to create pull requests (Settings, Actions, General).
+
 ## Deploy
 
 `.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`, and after every weekly refresh of the stats that commits new data (`refresh-stats.yml` starts it, since a push made with the `GITHUB_TOKEN` of a workflow starts no workflow). The site is served under `/tea-ecosystem/` (`.env.production`); the build copies `index.html` to `404.html` so a deep link opens the app. The built site counts visits with Cloudflare Web Analytics (no cookies, no personal data), added by the build only (`vite.config.ts`), so the dev server is never counted.
