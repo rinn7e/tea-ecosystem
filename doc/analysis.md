@@ -37,19 +37,21 @@ The concepts:
 Tiers:
 
 1. Full TEA: Model, Msg, Update, Cmd `native`; Sub `native` or `managed`.
-2. TEA superset: full TEA plus more (nested stateful components, SSR and hydration, server-side TEA, typeclasses, and so on).
-3. TEA-adjacent (separate page): fails at least one hard requirement. Each entry states which one.
+2. TEA superset: full TEA plus something beyond it (nested stateful components, SSR and hydration, server-side TEA, typeclasses, and so on), named in its notes. An entry with nothing beyond TEA is full TEA.
+3. TEA-adjacent (separate page): fails at least one hard requirement. Each entry states which one, in its first note.
 
-Note on the examples named at the start: Miso passes cleanly (update schedules effects with `io`, it does not run them). Halogen does not pass the strict reading of point 3: `handleAction` runs effects directly in the `HalogenM` monad, and subscriptions are started imperatively. Halogen is as powerful as TEA but not shaped like it. The site grades this as a fourth grade, `equivalent` (same power, another shape), which a superset may use for update, Cmd and Sub (decision 1 in section 10).
+The test behind the tiers is the port-back test: a program written with an entry of the catalog ports back to Elm in the same shape. Not the same code, but the gist: its model becomes a `Model`, its messages a `Msg`, its update an Elm `update` whose effects go into the `Cmd` it returns, and its subscriptions Elm `subscriptions`, with no part restructured. What a superset adds (components, SSR) may have no Elm counterpart, but its core loop ports as it is.
+
+Note on the examples named at the start: Miso passes cleanly (update schedules effects with `io`, it does not run them). Halogen does not: `handleAction` runs effects directly in the `HalogenM` monad, and subscriptions are started imperatively, so porting a Halogen program back to Elm means pulling every effect out into a `Cmd`, a redesign rather than a port. Halogen is as powerful as TEA but not shaped like it. The site grades such a part with a fourth grade, `equivalent` (same power, another shape), which describes the part and never qualifies an entry for a tier (decision 1 in section 10), so Halogen is TEA-adjacent.
 
 ## 4. Candidate list
 
 The list lives in the data files of the site, not in this document:
 
-- `data/frameworks.json`: 91 entries in 27 languages, each with its rubric grades, tier, targets, status and notes.
-- `data/adjacent.json`: 35 TEA-adjacent libraries, each with the hard requirement it misses and why.
+- `data/frameworks.json`: 90 entries in 27 languages, each with its rubric grades, tier, targets, status and notes.
+- `data/adjacent.json`: 36 TEA-adjacent libraries, each with the hard requirement it misses and why.
 
-The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every framework holds the rules of its tier (`rubricProblemsOf`).
+The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every entry holds the rules of its tier (`rubricProblemsOf`): no entry of the catalog misses a requirement of full TEA, and every entry of the adjacent list misses one and says which.
 
 Grades come from memory plus a light web check on 2026-11-13. An entry is `verified: true` only once every grade was checked against its docs or source (40 frameworks and 6 TEA-adjacent libraries by 2026-11-14, starting with Elm, Miso, Lustre, react-tea-cup, Bubble Tea and Mobius); the page of every other entry says it is not yet checked. Checking every entry against its docs, with an evidence link per grade, is the next data task.
 
@@ -130,7 +132,7 @@ The taxonomy is the hardest design work of the project: too coarse and every cel
 
 Decided on 2026-11-13:
 
-1. Shape or capability: capability for supersets. A fourth grade, `equivalent`, marks a concept reached in another shape; a superset may have it for update, Cmd and Sub, a full TEA entry may not. Halogen is a superset with that note.
+1. Shape or capability: shape, for every tier (changed on 2026-11-14, decision 7 below). A fourth grade, `equivalent`, marks a concept reached in another shape; it describes the concept and never qualifies an entry for a tier, the superset tier included. At first a superset could have it for update, Cmd and Sub, and Halogen was a superset with that note; it is TEA-adjacent now.
 2. A `managed` Sub is enough for full TEA, so Bubble Tea, TCA, Mobius and Lustre are in.
 3. A headless loop (no view) is allowed; its view grade is `missing`.
 4. Gren and Lamdera have entries of their own in the Elm family; elm-pages and elm-land stay libraries of the Elm column.
@@ -145,10 +147,7 @@ Decided on 2026-11-14:
 4. Every box of a filter ticked narrows nothing, as no box ticked does, but stays ticked on screen and counts on the Filters button.
 5. Every entry has a `repo`, which falls back to its website when its source is not public, and the day it was added (`discoveredAt`): an entry added after the first list wears "Recently added" for 30 days.
 6. The page of an entry lists the other entries in any of its languages from both lists, each list under its own label.
-
-Still open:
-
-1. The rubric is not yet applied the same way to every entry (Brick and `@xstate/store` fail a tier that their grades seem to meet): issue #8 proposes a stricter rule.
+7. The strict rule (issue #8): `equivalent` never qualifies a tier, judged by the port-back test (section 3). Every tier of the catalog needs Model, Msg, update and Cmd `native` and Sub `native` or `managed`; a superset differs from full TEA only by what it adds, named in a note that starts with `Superset: `. Halogen moved to the adjacent page (it misses update, Cmd and Sub), and libcosmic from superset to full TEA (what it adds on iced is a toolkit, not a part of the architecture). Every TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd: ...`), and a test checks both lists against the rule.
 
 ## 11. Phases
 
