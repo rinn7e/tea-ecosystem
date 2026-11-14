@@ -74,7 +74,7 @@ Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a
 
 ## Deploy
 
-`.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`. The site is served under `/tea-ecosystem/` (`.env.production`); the build copies `index.html` to `404.html` so a deep link opens the app.
+`.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`. The site is served under `/tea-ecosystem/` (`.env.production`); the build copies `index.html` to `404.html` so a deep link opens the app. The built site counts visits with Cloudflare Web Analytics (no cookies, no personal data), added by the build only (`vite.config.ts`), so the dev server is never counted.
 
 ## Contributing
 
