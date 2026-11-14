@@ -73,7 +73,9 @@ afterEach(() => {
   current().remove()
 })
 
-describe('propose-discovered.sh', () => {
+// Each test runs the script on real git repositories, the checks and the
+// rules of a merge included, which takes seconds under a full suite
+describe('propose-discovered.sh', { timeout: 30_000 }, () => {
   it('pushes a fresh commit of the data and opens one draft pull request, the entries as code', () => {
     candidates(['good-tea', 'other-tea'])
     const { status, out, log } = propose({}, { GITHUB_RUN_ID: '42' })
@@ -96,7 +98,65 @@ describe('propose-discovered.sh', () => {
     )
     expect(log).toContain('## other-tea')
     expect(log).toContain('To turn one down, remove its entry')
-    expect(out).toContain('Proposed 2 candidates in one pull request.')
+    expect(out).toContain(
+      'Proposed 2 candidates in one pull request: https://github.com/owner/name/pull/17',
+    )
+  })
+
+  it('leaves a run whose candidates break a rule as a draft, with a comment that names the rules', () => {
+    candidates(['good-tea'])
+    const { status, out, log } = propose()
+    expect(status).toBe(0)
+    expect(log).toContain(
+      'pr comment https://github.com/owner/name/pull/17 --body-file -',
+    )
+    expect(log).toContain('good-tea: 0 stars (at least 50)')
+    expect(log).toContain('good-tea: no example')
+    expect(log).not.toContain('gh pr ready')
+    expect(log).not.toContain('gh pr merge')
+    expect(out).toMatch(/Left it as a draft: \d+ rules failed\./)
+  })
+
+  it('merges a run whose candidates pass every rule, then starts the deploy', () => {
+    const at = current()
+    at.git('switch', '-q', '-c', runBranch, 'base')
+    writeFileSync(
+      path.join(at.dir, 'data/frameworks.json'),
+      json([
+        elm,
+        {
+          ...entryOf('good-tea'),
+          status: 'active',
+          stars: 120,
+          updatedAt: '2026-10-01',
+          verified: true,
+          snippetSource: 'https://github.com/o/good-tea/blob/main/README.md',
+        },
+      ]),
+    )
+    writeFileSync(
+      path.join(at.dir, 'data/snippet/good-tea.rs'),
+      'fn main() {}\n',
+    )
+    at.git('add', '-A')
+    at.git('commit', '-q', '-m', 'Add good-tea')
+    at.git('switch', '-q', '--detach', 'base')
+    const { status, out, log } = propose()
+    expect(status).toBe(0)
+    const ready = log.indexOf(
+      'gh pr ready https://github.com/owner/name/pull/17',
+    )
+    const merge = log.indexOf(
+      'gh pr merge https://github.com/owner/name/pull/17 --merge --delete-branch',
+    )
+    const deploy = log.indexOf('gh workflow run pages.yml --ref master')
+    expect([ready > -1, merge > ready, deploy > merge]).toEqual([
+      true,
+      true,
+      true,
+    ])
+    expect(log).not.toContain('pr comment')
+    expect(out).toContain('Merged it: every candidate passed the rules.')
   })
 
   it('never pushes a commit of the agent: its message, its author and its states in between', () => {
@@ -140,7 +200,7 @@ describe('propose-discovered.sh', () => {
     expect(log).not.toContain('push --quiet')
     expect(log).toContain(`pr create --draft --base master --head ${runBranch}`)
     expect(log).toContain('## good-tea')
-    expect(out).toContain('Proposed 1 candidates in one pull request.')
+    expect(out).toContain('Proposed 1 candidates in one pull request: ')
   })
 
   it('refuses a branch on GitHub at another commit than it says', () => {

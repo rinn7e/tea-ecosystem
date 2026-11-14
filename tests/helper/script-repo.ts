@@ -197,6 +197,12 @@ export const scriptRepo = (
       '  echo "pr create $*" >> "$LOG"',
       '  echo "body:" >> "$LOG"; cat >> "$LOG"',
       '  [ -z "$FAIL_CREATE" ] || { echo "GraphQL: Actions may not create pull requests" >&2; exit 1; }',
+      '  echo "https://github.com/owner/name/pull/17"',
+      'elif [ "$1 $2" = "pr comment" ]; then',
+      '  echo "pr comment $*" >> "$LOG"',
+      '  echo "comment:" >> "$LOG"; cat >> "$LOG"',
+      'else',
+      '  echo "gh $*" >> "$LOG"',
       'fi',
     ].join('\n'),
   )

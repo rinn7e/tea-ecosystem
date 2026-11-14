@@ -12,6 +12,10 @@
 # is finished by the next one, which fetches it from GitHub and needs
 # nothing else of the search job.
 #
+# Once it opened the pull request, it merges it when every candidate
+# passes the rules of `scripts/judge-discovered.sh`, and otherwise leaves
+# it a draft with a comment that names the rules that failed.
+#
 # Before anything, `scripts/gate-discovered.sh` decides whether the run
 # may propose at all. Then `pnpm run format:check` and `pnpm run test` run
 # on the fresh commit, without the token. The text of the pull request is
@@ -176,6 +180,30 @@ if [ "${#body}" -gt 65000 ]; then
   exit 1
 fi
 [ "$gate" != go ] || git push --quiet "$repo_url" "$commit:refs/heads/$branch"
-gh pr create --draft --base master --head "$branch" \
-  --title "Add the entries the weekly search found on $day" --body-file - <<<"$body"
-echo "Proposed $count candidates in one pull request."
+url="$(gh pr create --draft --base master --head "$branch" \
+  --title "Add the entries the weekly search found on $day" --body-file - <<<"$body")"
+echo "Proposed $count candidates in one pull request: $url"
+
+# The pull request merges on its own when every new entry passes the rules
+# of `scripts/judge-discovered.sh`; otherwise it stays a draft for a person,
+# with a comment that names the rules that failed. A merge made with the
+# token of the workflow starts no other workflow, so the deploy is started
+# here. Rules that fail to run count as failed, never as passed.
+if ! broken="$("$here/judge-discovered.sh" "$on" "$commit")"; then
+  broken="the rules failed to run"
+fi
+if [ -z "$broken" ]; then
+  gh pr ready "$url"
+  gh pr merge "$url" --merge --delete-branch
+  gh workflow run pages.yml --ref master
+  echo "Merged it: every candidate passed the rules."
+else
+  {
+    echo 'Left for a person to review: not every candidate passed the rules that let the weekly search merge on its own (`scripts/judge-discovered.sh`).'
+    echo
+    echo '```text'
+    echo "$broken"
+    echo '```'
+  } | gh pr comment "$url" --body-file -
+  echo "Left it as a draft: $(wc -l <<<"$broken" | tr -d ' ') rules failed."
+fi

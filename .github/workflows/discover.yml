@@ -7,9 +7,12 @@ name: Discover
 # hand (`.github/discover-prompt.md`). A second job checks the
 # final data of the branch, makes a fresh commit of it (no commit of the
 # agent is ever pushed), and opens one draft pull request with every
-# candidate of the run, so they never conflict with each other. A person reviews it,
-# turns down the candidates they do not want, and merges: nothing merges
-# on its own. While an earlier pull request of the search is still open,
+# candidate of the run, so they never conflict with each other. It merges
+# that pull request on its own when every candidate passes the rules of
+# `scripts/judge-discovered.sh` (at least 50 stars, pushed to in the last
+# year, verified grades, an example of at most 60 lines); otherwise it
+# stays a draft for a person, who turns down the candidates they do not
+# want and merges. While an earlier pull request of the search is still open,
 # the run skips its search before the agent starts, so it spends nothing
 # and never opens a second one that would conflict with the first.
 #
@@ -205,10 +208,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
-      # Push the branch of the run
+      # Push the branch of the run, and merge its pull request when every
+      # candidate passes the rules of `scripts/judge-discovered.sh`
       contents: write
-      # Open its draft pull request
+      # Open its draft pull request, mark it ready, or comment on it
       pull-requests: write
+      # Start the Pages workflow after a merge: a merge made with this
+      # token starts none
+      actions: write
       # The @rinn7e packages come from GitHub Packages (`.npmrc`)
       packages: read
     steps:
