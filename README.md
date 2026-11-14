@@ -26,8 +26,8 @@ A catalog of The Elm Architecture across languages: every language and framework
 
 The site has:
 
-- **Catalog**: 91 entries in 27 languages, as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added.
-- **A page per framework**: its grade on each part of TEA, with notes.
+- **Catalog**: 91 entries in 27 languages, as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added. A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
+- **A page per framework**: its grade on each part of TEA, with notes, and the other entries in its languages from both lists.
 - **Rubric**: what counts as TEA, the four grades and the three tiers.
 - **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, re-frame, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.
 - **Build your own TEA**: a runtime in eight steps, in Swift, TypeScript and Kotlin.

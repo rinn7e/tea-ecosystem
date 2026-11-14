@@ -137,10 +137,18 @@ Decided on 2026-11-13:
 5. Site stack: React with react-tea-cup, the stack of the other web apps, built on the navigation of the realworld `frontend-web` (destination, screen stack, URL adapter). Frontend only for now, static on GitHub Pages; the data is bundled at build time.
 6. A "Build your own TEA" page: eight steps in Swift, TypeScript and Kotlin. The Swift and Kotlin code is the runtime of the iOS and Android admin apps of the realworld example.
 
+Decided on 2026-11-14:
+
+1. Name and place: "TEA Ecosystem", public from the start, at `https://rinn7e.com/tea-ecosystem/` on GitHub Pages.
+2. The two lists point to each other: a search or a filter that matches entries of the other list says so, above the results or in place of them, with a link that opens the other list under the filters both lists share. The filters of one list (the tier and the category of entry, or what an entry lacks) stay behind.
+3. The archive stays hidden by default, but a filter that narrows the list says how many archived entries also match, with "Show the archived" and then "Hide the archived". With no narrowing filter the archive is not news, so the line does not show.
+4. Every box of a filter ticked narrows nothing, as no box ticked does, but stays ticked on screen and counts on the Filters button.
+5. Every entry has a `repo`, which falls back to its website when its source is not public, and the day it was added (`discoveredAt`): an entry added after the first list wears "Recently added" for 30 days.
+6. The page of an entry lists the other entries in any of its languages from both lists, each list under its own label.
+
 Still open:
 
-1. Name and domain (for example "TEA Ecosystem", "Elm Architecture Atlas").
-2. Whether the repository is public from the start (GitHub Pages on a free plan needs a public repository).
+1. The rubric is not yet applied the same way to every entry (Brick and `@xstate/store` fail a tier that their grades seem to meet): issue #8 proposes a stricter rule.
 
 ## 11. Phases
 
