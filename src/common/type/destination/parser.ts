@@ -23,6 +23,7 @@ import { statuses } from '@/common/type/framework'
 import {
   type StatusChoice,
   anyChoice,
+  anyStatusChoice,
   choiceOf,
   defaultStatusChoice,
   statusChoiceOf,
@@ -149,11 +150,11 @@ const choiceOfParam = <A extends string>(
 const statusesOf = (params: ListingParams): StatusChoice => {
   const named = statuses.filter((s) => namedOf(params.status).includes(s))
   return params.status === 'all'
-    ? anyChoice(false)
+    ? anyStatusChoice(false)
     : named.length > 0
       ? statusChoiceOf(named)
       : params.status === undefined && params.includeArchived === 'true'
-        ? anyChoice(false)
+        ? anyStatusChoice(false)
         : defaultStatusChoice()
 }
 

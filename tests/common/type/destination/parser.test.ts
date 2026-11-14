@@ -1,6 +1,7 @@
 import * as O from 'fp-ts/Option'
 import { describe, expect, it } from 'vitest'
 
+import { targetOptionsOf } from '@/common/data/catalog'
 import {
   type Screen,
   aboutScreen,
@@ -122,6 +123,36 @@ describe('destination URL', () => {
     expect(
       toUrlString(destinationOfScreen(catalogScreen(defaultListingFilter()))),
     ).toBe('/')
+  })
+
+  it('reads the targets of a list among the ones it offers', () => {
+    const targetsOf = (path: string) => {
+      const { screen } = parseDestination(`http://localhost${path}`)
+      return screen._tag === 'AdjacentScreen'
+        ? screen.filter.targets
+        : undefined
+    }
+    // No TEA-adjacent library is a game: game is left out
+    expect(targetsOf('/adjacent?target=game')).toEqual(anyChoice(false))
+    expect(targetsOf('/adjacent?target=web,game')).toEqual({
+      _tag: 'Only',
+      chosen: ['web'],
+    })
+    // Every target it offers is every box ticked, and writes them back
+    const six = targetOptionsOf('adjacent')
+    expect(targetsOf(`/adjacent?target=${six.join(',')}`)).toEqual(
+      anyChoice(true),
+    )
+    expect(
+      toUrlString(
+        destinationOfScreen(
+          adjacentScreen({
+            ...defaultListingFilter(),
+            targets: anyChoice(true),
+          }),
+        ),
+      ),
+    ).toBe(`/adjacent?target=${six.join(',')}`)
   })
 
   it('reads every screen back', () => {

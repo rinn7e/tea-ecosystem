@@ -564,7 +564,7 @@ const panelSectionView = ({
 
 // The search, and on its right the Filters button with its popover: the
 // tiers (or, on the adjacent list, what an entry lacks), the targets and
-// the statuses, each a choice of several (`toggleChoice`),
+// the statuses, each a choice of several (`toggleChoice`, `toggleStatus`),
 // in a box with a sharp blue edge, like the button, and no shadow.
 // The popover fades in rising 4px (`starting:`) and out the same way while
 // the model keeps it `closing`; a press outside it or Escape closes it.

@@ -13,6 +13,7 @@ import {
   type ListingSort,
   adjacentScreen,
   anyChoice,
+  anyStatusChoice,
   catalogScreen,
   catalogTiers,
   choiceOf,
@@ -446,6 +447,8 @@ describe('otherListMatchesOf', () => {
     expect(
       carriedTargetsOf(targets.filter((target) => target !== 'game')),
     ).toEqual(O.some(anyChoice(true)))
+    // Every box ticked here goes over with none ticked
+    expect(carriedTargetsOf([...targets])).toEqual(O.some(anyChoice(false)))
   })
 
   it('points on targets alone, or statuses that leave some out', () => {
@@ -749,7 +752,10 @@ describe('otherListMatchesOf', () => {
     ).toEqual(
       O.some({
         destination: destinationOfScreen(
-          catalogScreen({ ...searchOf('seed'), statuses: anyChoice(true) }),
+          catalogScreen({
+            ...searchOf('seed'),
+            statuses: anyStatusChoice(true),
+          }),
         ),
         label: 'Show in Main catalog',
       }),

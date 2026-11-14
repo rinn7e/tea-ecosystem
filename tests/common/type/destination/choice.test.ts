@@ -1,9 +1,13 @@
+import * as S from 'fp-ts/string'
 import { describe, expect, it } from 'vitest'
 
 import {
+  StatusChoiceEq,
   anyChoice,
+  anyStatusChoice,
   choiceOf,
   defaultStatusChoice,
+  getChoiceEq,
   isAnyTicked,
   isStatusTicked,
   isTicked,
@@ -95,5 +99,45 @@ describe('the statuses', () => {
     expect(passesStatus(defaultStatusChoice(), 'archived')).toBe(false)
     // No box ticked shows every status, as every box does
     expect(passesStatus(anyChoice(false), 'archived')).toBe(true)
+  })
+})
+
+describe('the equality of choices', () => {
+  const eq = getChoiceEq(S.Eq)
+
+  it('tells every state apart', () => {
+    expect(eq.equals(anyChoice(true), anyChoice(true))).toBe(true)
+    expect(eq.equals(anyChoice(true), anyChoice(false))).toBe(false)
+    expect(
+      eq.equals(choiceOf(options, ['web']), choiceOf(options, ['web'])),
+    ).toBe(true)
+    expect(
+      eq.equals(choiceOf(options, ['web']), choiceOf(options, ['ssr'])),
+    ).toBe(false)
+    expect(
+      eq.equals(choiceOf(options, ['web', 'ssr']), choiceOf(options, ['web'])),
+    ).toBe(false)
+    expect(eq.equals(anyChoice(false), choiceOf(options, ['web']))).toBe(false)
+  })
+
+  it('tells the default statuses apart from every other', () => {
+    expect(
+      StatusChoiceEq.equals(defaultStatusChoice(), defaultStatusChoice()),
+    ).toBe(true)
+    expect(
+      StatusChoiceEq.equals(defaultStatusChoice(), statusChoiceOf(['active'])),
+    ).toBe(false)
+    expect(
+      StatusChoiceEq.equals(defaultStatusChoice(), anyStatusChoice(true)),
+    ).toBe(false)
+    expect(
+      StatusChoiceEq.equals(anyStatusChoice(true), anyStatusChoice(false)),
+    ).toBe(false)
+    expect(
+      StatusChoiceEq.equals(
+        statusChoiceOf(['archived']),
+        statusChoiceOf(['archived']),
+      ),
+    ).toBe(true)
   })
 })

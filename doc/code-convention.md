@@ -81,15 +81,16 @@ Every fact lives in one place in the model, and the types allow only the states 
 
 - The destination is never stored. The screen model says which screen is shown (its tag, read by `currentScreenOf`), and a screen with params keeps them as fields of its own: the catalog `filter`, the framework of a framework page, the `language` of the guide.
 - A change of a param (a filter, a language) only updates its owner. The URL follows after the step, with no navigation.
-- A filter of the popover is a `Choice` (`src/common/type/destination/choice.ts`), never a plain array: `Any` narrows nothing (no box ticked, or every one, with `allSelected` for the popover), and `Only` holds some of the options the list offers, never every one. `choiceOf` is the one way to build it, at the toggle, the URL parser and the carry to the other list, so whether a filter narrows is always `narrowsChoice`, with no count of options. The statuses add `Default` (active and quiet) to it (`StatusChoice`).
+- A filter of the popover is a `Choice` (`src/common/type/destination/choice.ts`), never a plain array: `Any` narrows nothing (no box ticked, or every one, with `allSelected` for the popover), and `Only` holds some of the options the list offers, never every one. It is branded (next section): only `choiceOf` and `anyChoice` make one, at the toggle, the URL parser and the carry to the other list, so whether a filter narrows is always `narrowsChoice`, with no count of options. The statuses add `Default` (active and quiet) to it (`StatusChoice`, made only by `statusChoiceOf`, `defaultStatusChoice` and `anyStatusChoice`).
 
 ## Make impossible updates impossible
 
 A fact with an owner gets a type only its owner makes, so a write that skips the owner does not type check: a branded type, `Brand<T, B>` (`src/common/type/brand-wrapper.ts`), where `B` is a `declare class` with one private method that the owner declares next to the type and never exports.
 
-| Value                | Made only by                                                                               | So you cannot                    |
-| -------------------- | ------------------------------------------------------------------------------------------ | -------------------------------- |
-| `CurrentScreenModel` | `currentScreenModelOfMove` (used by the navigation only), `sameScreenWith` (`src/type.ts`) | change the screen without a move |
+| Value                    | Made only by                                                                                                                  | So you cannot                                                                       |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `CurrentScreenModel`     | `currentScreenModelOfMove` (used by the navigation only), `sameScreenWith` (`src/type.ts`)                                    | change the screen without a move                                                    |
+| `Choice`, `StatusChoice` | `choiceOf`, `anyChoice`, `statusChoiceOf`, `defaultStatusChoice`, `anyStatusChoice` (`src/common/type/destination/choice.ts`) | store a filter that ticks every option as narrowing, or one the list does not offer |
 
 - Reading stays free: a brand is a subtype.
 - `eslint.config.js` forbids `currentScreenModelOfMove` outside the navigation and tests.

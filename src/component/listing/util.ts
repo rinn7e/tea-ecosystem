@@ -21,6 +21,7 @@ import {
   type SortDirection,
   adjacentScreen,
   anyChoice,
+  anyStatusChoice,
   catalogScreen,
   choiceOf,
   defaultListingFilter,
@@ -163,7 +164,7 @@ export const filterFrameworks =
 export const otherListOf = (list: ListId): ListId =>
   list === 'catalog' ? 'adjacent' : 'catalog'
 
-// The archived entries of a list that match its filter while the archive
+// How many archived entries of a list match its filter while the archive
 // is hidden (the statuses leave archived out): what "Show the archived"
 // would add. None while the archived entries are shown already.
 export const hiddenArchivedCountOf = (
@@ -188,13 +189,15 @@ export const entryNounOf = (list: ListId, count: number): string =>
       : 'libraries'
 
 // A choice of targets as the other list reads it, among its `options`:
-// the ones it offers kept, none when it offers none of them
+// the ones it offers kept, none when it offers none of them. A choice that
+// narrows nothing goes over with no box ticked: every box of this list
+// ticked is not every box of the other one.
 const carriedTargetsOf = (
   options: Target[],
   choice: Choice<Target>,
 ): O.Option<Choice<Target>> =>
   choice._tag === 'Any'
-    ? O.some(anyChoice<Target>(choice.allSelected))
+    ? O.some(anyChoice<Target>(false))
     : pipe(
         options.filter((option) => choice.chosen.includes(option)),
         O.fromPredicate((kept) => kept.length > 0),
@@ -323,7 +326,7 @@ export const otherListMatchesOf = (
         ...(carried.statuses._tag === 'Default'
           ? [
               {
-                filter: { ...carried, statuses: anyChoice<Status>(true) },
+                filter: { ...carried, statuses: anyStatusChoice(true) },
                 isArchived: true,
               },
             ]
