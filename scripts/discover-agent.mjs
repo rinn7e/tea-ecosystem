@@ -5,27 +5,29 @@
 // (14 Nov 2026).
 //
 // The agent reads untrusted pages, so it gets only the tools of `TOOLS`,
-// every call that `ALLOWED_TOOLS` does not name is denied (`dontAsk`, no
+// a call that `ALLOWED_TOOLS` does not name is denied (`dontAsk`, no
 // prompt), and no settings file is read (`settingSources: []`), so nothing
-// in the repository can widen them. `git diff` and `git log` are allowed
-// bare only, as their options can write files (`--output`); Claude Code
-// itself allows their read-only options and denies `--output` and a
-// redirect to a file, which `tests/scripts/discover-agent-rules.test.ts`
-// checks on the Claude Code of the SDK.
+// in the repository can widen them. Claude Code itself also allows a
+// read-only command with its options (`git log --oneline -n 2`, a pipe to
+// `tail`, a redirect to `/dev/null`), and denies `--output` and a redirect
+// to a file, so `git diff` and `git log` are named bare only:
+// `tests/scripts/discover-agent-rules.test.ts` checks these rules on the
+// Claude Code of the SDK.
 //
-// Each step of the agent is one short line of the log, so the run can be
-// followed live in the log of the job. Every message goes to
-// `$EXECUTION_FILE`, one JSON array replaced whole after each message, so
-// the report step and the transcript artifact read what the agent did even
-// after a timeout. The workflow uploads that file as an artifact, which any
-// signed-in GitHub user can download from a public repository, so the file
-// and the log carry the values of `SECRET_NAMES` as `***`.
+// Each step of the agent is one short line of the log (`linesOf`), so the
+// run can be followed live in the log of the job. Every message goes to
+// `$EXECUTION_FILE`, one JSON array replaced whole as the run goes, so the
+// report step (`scripts/discover-report.mjs`) and the transcript artifact
+// read what the agent did even after a timeout. The workflow uploads that
+// file as an artifact, which any signed-in GitHub user can download from a
+// public repository, so the file and the log carry the values of
+// `SECRET_NAMES` as `***`.
 //
 // Run: ANTHROPIC_API_KEY=<key> DAY=<YYYY-MM-DD> MAX_CANDIDATES=3 \
 //   EXECUTION_FILE=<file> node scripts/discover-agent.mjs
 import { query } from '@anthropic-ai/claude-agent-sdk'
 import { randomUUID } from 'node:crypto'
-import { renameSync, writeFileSync } from 'node:fs'
+import { realpathSync, renameSync, writeFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
 export const TOOLS = [
@@ -111,20 +113,34 @@ export const redactOf = (secrets) => (text) =>
  * One line of the log, at most `max` characters. The runner of GitHub reads
  * a line that starts with `::` as a workflow command, and `##[` anywhere in
  * a line (the old syntax): every line starts with a word of the script, and
- * `##[` is broken up. Line breaks of any kind and runs of spaces become one
- * space, so a text of the agent can never start a line of its own.
+ * `##[` is broken up. Line breaks of any kind, control and format
+ * characters (a zero-width space, a soft hyphen) and runs of spaces become
+ * one space, so a text of the agent can never start a line of its own or
+ * hide a `##[` in plain sight.
  * @type {(max: number) => (text: string) => string}
  */
 export const oneLineOf = (max) => (text) => {
   const line = text
-    .replace(/[\s\u0000-\u001f\u007f-\u009f]+/g, ' ')
+    .replace(/[\s\p{Cc}\p{Cf}]+/gu, ' ')
     .replaceAll('##[', '# #[')
     .trim()
   return line.length > max ? `${line.slice(0, max - 3)}...` : line
 }
 
-const inputLineOf = oneLineOf(100)
-const textLineOf = oneLineOf(160)
+/** The most characters of a line: a call, a text of the agent, the end */
+export const MAX = { call: 100, text: 160, end: 400 }
+
+/**
+ * A line of the log before it is shown: every line goes through `shownOf`,
+ * which hides the secrets before it cuts the line, so a cut never leaves
+ * part of one.
+ * @typedef {{ text: string, max: number }} Line
+ * @type {(redact: (text: string) => string) => (line: Line) => string}
+ */
+export const shownOf =
+  (redact) =>
+  ({ text, max }) =>
+    oneLineOf(max)(redact(text))
 
 /** @type {(value: unknown) => string} */
 const stringOf = (value) =>
@@ -168,50 +184,75 @@ export const inputOf = (cwd) => (name, input) => {
 const contentOf = (message) =>
   Array.isArray(message?.message?.content) ? message.message.content : []
 
+/** @type {(cwd: string, before: any[]) => (id: unknown) => string} */
+const callOf = (cwd, before) => (id) => {
+  const call = before
+    .flatMap(contentOf)
+    .find((block) => block?.type === 'tool_use' && block.id === id)
+  return call === undefined
+    ? ''
+    : `${stringOf(call.name)}(${inputOf(cwd)(stringOf(call.name), call.input)})`
+}
+
+/** @type {(before: any[]) => (id: unknown) => boolean} */
+const isDeniedIn = (before) => (id) =>
+  before.some(
+    (message) =>
+      message?.type === 'system' &&
+      message.subtype === 'permission_denied' &&
+      message.tool_use_id === id,
+  )
+
 /**
  * The lines of the log for one message of the agent, given the messages
- * before it (a denial names its call by id only), with `redact` applied
- * before a line is cut, so a cut never leaves part of a secret.
- * @type {(context: { cwd: string, redact: (text: string) => string, before: any[] }) => (message: any) => string[]}
+ * before it: a denial and a tool result name their call by id only. A
+ * denied call comes back as a failed tool result too, after its denial,
+ * so only a failure with no denial before it gets a line of its own.
+ * @type {(context: { cwd: string, before: any[] }) => (message: any) => Line[]}
  */
 export const linesOf =
-  ({ cwd, redact, before }) =>
+  ({ cwd, before }) =>
   (message) => {
-    const line = (max) => (text) => max(redact(text))
+    const call = (text) => ({ text, max: MAX.call })
+    const said = (text) => ({ text, max: MAX.text })
     if (message?.type === 'system' && message.subtype === 'init') {
       return [
-        line(textLineOf)(
-          `Start: ${stringOf(message.model)}, ${stringOf(message.permissionMode)}, tools ${Array.isArray(message.tools) ? message.tools.join(' ') : ''}`,
+        said(
+          `Start: ${stringOf(message.model)}, ${stringOf(message.permissionMode)}, tools ${Array.isArray(message.tools) ? message.tools.map(stringOf).join(' ') : ''}`,
         ),
       ]
     } else if (
       message?.type === 'system' &&
       message.subtype === 'permission_denied'
     ) {
-      const call = before
-        .flatMap(contentOf)
-        .find(
-          (block) =>
-            block?.type === 'tool_use' && block.id === message.tool_use_id,
-        )
+      return [call(`Denied: ${callOf(cwd, before)(message.tool_use_id)}`)]
+    } else if (message?.type === 'system' && message.subtype === 'api_retry') {
       return [
-        line(inputLineOf)(
-          `Denied: ${stringOf(message.tool_name)}(${call === undefined ? '' : inputOf(cwd)(stringOf(call.name), call.input)})`,
+        said(
+          `Retry: attempt ${stringOf(message.attempt)} of ${stringOf(message.max_retries)}, status ${stringOf(message.error_status)}, in ${stringOf(message.retry_delay_ms)} ms`,
         ),
       ]
     } else if (message?.type === 'assistant') {
       return contentOf(message).flatMap((block) =>
         block?.type === 'tool_use'
           ? [
-              line(inputLineOf)(
+              call(
                 `Tool: ${stringOf(block.name)} ${inputOf(cwd)(stringOf(block.name), block.input)}`,
               ),
             ]
           : block?.type === 'text' &&
               typeof block.text === 'string' &&
               block.text.trim() !== ''
-            ? [line(textLineOf)(`Text: ${block.text}`)]
+            ? [said(`Text: ${block.text}`)]
             : [],
+      )
+    } else if (message?.type === 'user') {
+      return contentOf(message).flatMap((block) =>
+        block?.type === 'tool_result' &&
+        block.is_error === true &&
+        !isDeniedIn(before)(block.tool_use_id)
+          ? [call(`Failed: ${callOf(cwd, before)(block.tool_use_id)}`)]
+          : [],
       )
     } else {
       return []
@@ -219,12 +260,12 @@ export const linesOf =
   }
 
 /**
- * The last lines of the log: how the agent ended, and why the SDK threw,
- * when it did (it throws after an error result too).
- * @type {(redact: (text: string) => string) => (result: any, thrown: string | undefined) => string[]}
+ * The last lines of the log: how the agent ended, and why the run stopped,
+ * when something threw (the SDK throws after an error result too).
+ * @type {(result: any, thrown: string | undefined) => Line[]}
  */
-export const endLinesOf = (redact) => (result, thrown) => {
-  const line = (text) => oneLineOf(400)(redact(text))
+export const endLinesOf = (result, thrown) => {
+  const end = (text) => ({ text, max: MAX.end })
   const denied = Array.isArray(result?.permission_denials)
     ? result.permission_denials.length
     : 0
@@ -232,12 +273,12 @@ export const endLinesOf = (redact) => (result, thrown) => {
     ? stringOf(result.result ?? result.errors?.join('; ') ?? 'no reason')
     : 'ok'
   return [
-    line(
+    end(
       result === undefined
         ? 'The agent ended with no result.'
         : `The agent ended: ${stringOf(result.subtype)}, ${stringOf(result.num_turns)} turns, ${stringOf(result.total_cost_usd)} dollars, ${denied} denied: ${reason}.`,
     ),
-    ...(thrown === undefined ? [] : [line(`The SDK stopped: ${thrown}`)]),
+    ...(thrown === undefined ? [] : [end(`The run stopped: ${thrown}`)]),
   ]
 }
 
@@ -245,48 +286,84 @@ export const endLinesOf = (redact) => (result, thrown) => {
 export const exitCodeOf = (result, thrown) =>
   thrown !== undefined || result === undefined || result.is_error ? 1 : 0
 
-// A whole file at each step, never half of one: a timeout can stop the
-// process in the middle of a write
-const writeWhole = (file, text) => {
-  writeFileSync(`${file}.part`, text)
-  renameSync(`${file}.part`, file)
-}
+/**
+ * Whether a message changes the transcript enough to write it again:
+ * progress and token counts come many times a turn, and a rewrite costs
+ * the whole file, so they wait for the next message.
+ * @type {(message: any) => boolean}
+ */
+export const isWorthWritingOf = (message) =>
+  !(
+    message?.type === 'stream_event' ||
+    message?.type === 'tool_progress' ||
+    (message?.type === 'system' && message.subtype === 'thinking_tokens')
+  )
 
-const main = async () => {
-  const file = process.env.EXECUTION_FILE ?? 'discover-execution.json'
-  const redact = redactOf(secretsOf(process.env))
-  const messages = []
-  // The lines are safe already (`oneLineOf`); this also stops a workflow
-  // command in any other output of the process, until the marker comes back
-  const marker = `discover-agent-${randomUUID()}`
-  console.log(`::stop-commands::${marker}`)
+/**
+ * One run of the agent over the messages of `stream`: the transcript goes
+ * to `write` after each message, redacted, and the lines of each message
+ * to `print`, between the two markers of `::stop-commands::`. The lines
+ * are safe already (`oneLineOf`); the markers also stop a workflow command
+ * in any other output of the process. Returns the exit code.
+ * @type {(context: { stream: () => AsyncIterable<any>, write: (text: string) => void, print: (line: string) => void, cwd: string, redact: (text: string) => string, marker: string }) => Promise<number>}
+ */
+export const run = async ({ stream, write, print, cwd, redact, marker }) => {
+  const kept = []
+  const show = (lines) => lines.map(shownOf(redact)).forEach(print)
+  print(`::stop-commands::${marker}`)
   const thrown = await (async () => {
     try {
-      for await (const message of query({
-        prompt: promptOf({
-          day: process.env.DAY ?? new Date().toISOString().slice(0, 10),
-          maxCandidates: process.env.MAX_CANDIDATES ?? '3',
-        }),
-        options,
-      })) {
-        const lines = linesOf({ cwd: process.cwd(), redact, before: messages })(
-          message,
-        )
-        messages.push(message)
-        writeWhole(file, redact(JSON.stringify(messages, null, 2)))
-        lines.forEach((line) => console.log(line))
+      for await (const message of stream()) {
+        const lines = linesOf({ cwd, before: kept })(message)
+        kept.push(message)
+        if (isWorthWritingOf(message)) {
+          write(redact(JSON.stringify(kept, null, 2)))
+        }
+        show(lines)
       }
       return undefined
     } catch (error) {
       return error instanceof Error ? error.message : String(error)
     }
   })()
-  const result = messages.findLast((message) => message.type === 'result')
-  endLinesOf(redact)(result, thrown).forEach((line) => console.log(line))
-  console.log(`::${marker}::`)
-  process.exitCode = exitCodeOf(result, thrown)
+  const result = kept.findLast((message) => message?.type === 'result')
+  show(endLinesOf(result, thrown))
+  print(`::${marker}::`)
+  return exitCodeOf(result, thrown)
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+// A whole file at each step, never half of one: a timeout can stop the
+// process in the middle of a write
+const writeWholeTo = (file) => (text) => {
+  writeFileSync(`${file}.part`, text)
+  renameSync(`${file}.part`, file)
+}
+
+const main = async () => {
+  process.exitCode = await run({
+    stream: () =>
+      query({
+        prompt: promptOf({
+          day: process.env.DAY ?? new Date().toISOString().slice(0, 10),
+          maxCandidates: process.env.MAX_CANDIDATES ?? '3',
+        }),
+        options,
+      }),
+    write: writeWholeTo(
+      process.env.EXECUTION_FILE ?? 'discover-execution.json',
+    ),
+    print: (line) => console.log(line),
+    cwd: process.cwd(),
+    redact: redactOf(secretsOf(process.env)),
+    marker: `discover-agent-${randomUUID()}`,
+  })
+}
+
+// The real path on both sides: `import.meta.url` is one, and a path through
+// a link (`/tmp` on macOS) would otherwise skip the run with no word
+if (
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
+) {
   await main()
 }
