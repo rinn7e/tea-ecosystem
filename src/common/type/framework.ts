@@ -108,6 +108,8 @@ export type Framework = {
   // id, across both files" and "use ids that are readable URL segments")
   id: string
   name: string
+  // One language, or two joined by " and " (`languagesOf`), each with a
+  // logo (test "has a logo for every language of the data")
   language: string
   // Elm itself and the languages forked from it or built on its runtime
   elmFamily: boolean
@@ -157,7 +159,8 @@ export type Framework = {
   updatedAt?: string
   summary: string
   // Where its example (`data/snippet/<id>.<extension>`) was copied from:
-  // its own README, docs or examples. Absent when it has no example.
+  // its own README, docs or examples. Absent when it has no example (test
+  // "give every example its source, and every source its example").
   snippetSource?: string
   rubric: Rubric
   notes: string[]

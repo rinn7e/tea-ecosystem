@@ -32,7 +32,9 @@ describe('data files', () => {
   })
 
   it('use ids that are readable URL segments', () => {
-    const bad = frameworks.filter((f) => !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(f.id))
+    const bad = [...frameworks, ...adjacentEntries].filter(
+      (f) => !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(f.id),
+    )
     expect(bad.map((f) => f.id)).toEqual([])
   })
 
