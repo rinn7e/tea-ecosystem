@@ -31,6 +31,7 @@ import {
   type Framework,
   type Grade,
   type Status,
+  type Target,
   type Tier,
   concepts,
   isLanguageEntry,
@@ -185,15 +186,26 @@ export const entryNounOf = (kind: ListKind, count: number): string =>
       ? 'library'
       : 'libraries'
 
-// The part of a filter that means the same on both lists: the search, the
-// language, the targets and the statuses, with the layout and the sort.
-// The tiers, what an adjacent library lacks and the kind of entry belong
-// to one list only, and stay behind.
-export const carriedFilterOf = (filter: ListingFilter): ListingFilter => ({
+// The targets the entries of a list run on, in the order of `targets`: the
+// ones its popover offers (TEA-adjacent has no game library)
+export const targetOptionsOf = (entries: Framework[]): Target[] =>
+  targets.filter((target) => entries.some((f) => f.targets.includes(target)))
+
+// The part of a filter of list `kind` that means the same on both lists:
+// the search, the language, the targets and the statuses, with the layout
+// and the sort. The tiers, what an adjacent library lacks and the kind of
+// entry belong to one list only, and stay behind. Every target the list
+// offers chosen narrows nothing there, so it is carried as none.
+export const carriedFilterOf = (
+  kind: ListKind,
+  filter: ListingFilter,
+): ListingFilter => ({
   ...defaultListingFilter(),
   query: filter.query.trim(),
   language: filter.language,
-  targets: filter.targets,
+  targets: narrowsChoice(filter.targets, targetOptionsOf(entriesOf(kind)))
+    ? filter.targets
+    : [],
   statuses: filter.statuses,
   layout: filter.layout,
   sort: filter.sort,
@@ -212,11 +224,14 @@ const narrowsChoice = <A>(
 // Whether a filter narrows the list enough that its archived entries are
 // news: a search with more than spaces, a language, some targets, tiers or
 // concepts an adjacent library lacks, or the kind of entry (choosing every
-// option of one narrows nothing)
-const narrowsForArchive = (filter: ListingFilter): boolean =>
+// option of one narrows nothing, every target the list offers included)
+const narrowsForArchive = (
+  entries: Framework[],
+  filter: ListingFilter,
+): boolean =>
   filter.query.trim() !== '' ||
   O.isSome(filter.language) ||
-  narrowsChoice(filter.targets, targets) ||
+  narrowsChoice(filter.targets, targetOptionsOf(entries)) ||
   narrowsChoice(filter.tiers, catalogTiers) ||
   narrowsChoice(filter.lacks, lackables) ||
   O.isSome(filter.show)
@@ -230,7 +245,7 @@ export const archivedHintCountOf = (
   entries: Framework[],
   filter: ListingFilter,
 ): number =>
-  isDefaultStatuses(filter.statuses) && narrowsForArchive(filter)
+  isDefaultStatuses(filter.statuses) && narrowsForArchive(entries, filter)
     ? hiddenArchivedCountOf(entries, filter)
     : 0
 
@@ -244,7 +259,7 @@ export const shownArchivedCountOf = (
   filter: ListingFilter,
 ): number =>
   A.getEq(S.Eq).equals(filter.statuses, [...defaultStatuses(), 'archived']) &&
-  narrowsForArchive(filter)
+  narrowsForArchive(entries, filter)
     ? filterFrameworks({ ...filter, statuses: ['archived'] })(entries).length
     : 0
 
@@ -256,12 +271,12 @@ const narrowsStatuses = (chosen: Status[]): boolean =>
   chosen.length > 0 &&
   chosen.length < statuses.length
 
-// Whether a carried filter narrows the other list at all (every target
-// chosen narrows nothing, as no target does)
+// Whether a carried filter narrows the other list at all (`carriedFilterOf`
+// already carries every target chosen as none)
 const narrowsOtherList = (carried: ListingFilter): boolean =>
   carried.query !== '' ||
   O.isSome(carried.language) ||
-  narrowsChoice(carried.targets, targets) ||
+  carried.targets.length > 0 ||
   narrowsStatuses(carried.statuses)
 
 // Whether a filter that belongs to one list only narrows it: it stays
@@ -272,6 +287,14 @@ const hasOneListFilter = (filter: ListingFilter): boolean =>
   narrowsChoice(filter.lacks, lackables) ||
   O.isSome(filter.show)
 
+// What the pointer to the other list says and opens (`otherListMatchesOf`)
+export type OtherListMatches = {
+  count: number
+  isArchived: boolean
+  filter: ListingFilter
+  subject: string
+}
+
 // The matches in the other list of the filter a list is under, the filter
 // that shows them there, and how the pointer names what they match: the
 // search in quotes when it is the only filter carried, "these filters"
@@ -281,23 +304,17 @@ const hasOneListFilter = (filter: ListingFilter): boolean =>
 // (`isArchived`), shown with every status. None when no carried filter
 // narrows the other list (`narrowsOtherList`: statuses that widen it do
 // not), or the other list does not match it at all.
-export type OtherListMatches = {
-  count: number
-  isArchived: boolean
-  filter: ListingFilter
-  subject: string
-}
 
 export const otherListMatchesOf = (
   kind: ListKind,
   filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
   const entries = entriesOf(otherListOf(kind))
-  const carried = carriedFilterOf(filter)
+  const carried = carriedFilterOf(kind, filter)
   const subject =
     carried.query !== '' &&
     O.isNone(carried.language) &&
-    !narrowsChoice(carried.targets, targets) &&
+    carried.targets.length === 0 &&
     !narrowsStatuses(carried.statuses)
       ? `"${carried.query}"`
       : hasOneListFilter(filter)

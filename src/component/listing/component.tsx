@@ -35,7 +35,6 @@ import {
   type Framework,
   isRecentlyAdded,
   statuses,
-  targets,
 } from '@/common/type/framework'
 import {
   type Tone,
@@ -91,6 +90,7 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
+  targetOptionsOf,
 } from './util'
 
 const entryKinds: readonly EntryKind[] = ['languages', 'frameworks']
@@ -413,9 +413,7 @@ const targetChoicesView = ({
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
-  const options = targets.filter((target) =>
-    entries.some((f) => f.targets.includes(target)),
-  )
+  const options = targetOptionsOf(entries)
   return choiceRowView({
     children: options.map((target) =>
       choiceBoxView({

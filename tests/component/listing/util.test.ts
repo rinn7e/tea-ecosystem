@@ -36,6 +36,7 @@ import {
   sortFrameworks,
   sortLabelOf,
   sortOfCardSort,
+  targetOptionsOf,
   update,
 } from '@/component/listing'
 
@@ -421,7 +422,7 @@ describe('otherListMatchesOf', () => {
       layout: 'table',
       sort: O.some({ column: 'stars', direction: 'descending' }),
     }
-    expect(carriedFilterOf(full)).toEqual({
+    expect(carriedFilterOf('catalog', full)).toEqual({
       ...defaultListingFilter(),
       targets: ['web'],
       statuses: ['active'],
@@ -483,6 +484,30 @@ describe('otherListMatchesOf', () => {
         O.map((m) => m.subject),
       ),
     ).toEqual(O.some('"redux"'))
+  })
+
+  it('reads every target TEA-adjacent offers as none', () => {
+    // No TEA-adjacent library is a game: its popover offers six targets
+    const six = targetOptionsOf(adjacentEntries)
+    expect(six).not.toContain('game')
+    expect(
+      otherListMatchesOf('adjacent', {
+        ...defaultListingFilter(),
+        targets: six,
+      }),
+    ).toEqual(O.none)
+    expect(
+      pipe(
+        otherListMatchesOf('adjacent', { ...searchOf('elm'), targets: six }),
+        O.map((m) => m.subject),
+      ),
+    ).toEqual(O.some('"elm"'))
+    expect(
+      archivedHintCountOf(adjacentEntries, {
+        ...defaultListingFilter(),
+        targets: six,
+      }),
+    ).toBe(0)
   })
 
   it('names the search alone under every tier chosen', () => {
