@@ -35,7 +35,9 @@ import { skyLogoPaths } from './sky-logo'
 // The logo of a language: its name, and either its shapes (`Shapes`: the
 // box they are drawn in, each shape with its color) or a picture in
 // `public/logo/` (`Image`), for a language whose logo exists only as a
-// picture (Gren: the bird of gren-lang.org). A logo of Simple Icons (CC0)
+// picture (Gren: the bird of gren-lang.org; Monad: the standing stone of
+// monad-lang.org, without the words over it, in the dark of its site
+// made readable on both panels: `readableColorOf('0d1117')`, #67696d). A logo of Simple Icons (CC0)
 // is one shape in a 24 x 24 box; the languages it does not carry have
 // their own files (Java, PowerShell, Roc, Lean, Sky: `<language>-logo.ts`).
 export type LanguageLogo =
@@ -128,6 +130,7 @@ const javaLogo: LanguageLogo = {
 const logos: Record<string, LanguageLogo> = {
   Elm: logoOf(siElm),
   Gren: { _tag: 'Image', title: 'Gren', file: 'gren.png' },
+  Monad: { _tag: 'Image', title: 'Monad', file: 'monad.svg' },
   Haskell: logoOf(siHaskell),
   PureScript: logoOf(siPurescript),
   'F#': logoOf(siFsharp),

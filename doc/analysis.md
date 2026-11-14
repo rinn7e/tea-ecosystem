@@ -46,12 +46,12 @@ Note on the examples named at the start: Miso passes cleanly (update schedules e
 
 The list lives in the data files of the site, not in this document:
 
-- `data/frameworks.json`: 90 entries in 26 languages, each with its rubric grades, tier, targets, status and notes.
-- `data/adjacent.json`: 33 TEA-adjacent libraries, each with the hard requirement it misses and why.
+- `data/frameworks.json`: 91 entries in 27 languages, each with its rubric grades, tier, targets, status and notes.
+- `data/adjacent.json`: 35 TEA-adjacent libraries, each with the hard requirement it misses and why.
 
 The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every framework holds the rules of its tier (`rubricProblemsOf`).
 
-Grades come from memory plus a light web check on 2026-11-13. An entry is `verified: true` only once every grade was checked against its docs or source (39 frameworks and 4 TEA-adjacent libraries by 2026-11-13, starting with Elm, Miso, Lustre, react-tea-cup, Bubble Tea and Mobius); the page of every other entry says it is not yet checked. Checking every entry against its docs, with an evidence link per grade, is the next data task.
+Grades come from memory plus a light web check on 2026-11-13. An entry is `verified: true` only once every grade was checked against its docs or source (40 frameworks and 6 TEA-adjacent libraries by 2026-11-14, starting with Elm, Miso, Lustre, react-tea-cup, Bubble Tea and Mobius); the page of every other entry says it is not yet checked. Checking every entry against its docs, with an evidence link per grade, is the next data task.
 
 Added after the first draft, on review: Foldkit and tea-effect (TypeScript, on Effect), react-elmish, `@typescript-tea/core`, Ferp, Indigo, Scalm, Avalonia.FuncUI, Terminal.Gui.Elmish, gi-gtk-declarative, Pux, Spork, libcosmic, Draco, and the terminal frameworks: tears, hojicha, osteak and teatui (Rust on ratatui), Mint Tea (OCaml), Shore, Teashop and gleamtea (Gleam), Milo (Python). fastTEA, ts-elmish and Raj went to the adjacent page for lack of subscriptions.
 

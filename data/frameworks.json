@@ -2675,5 +2675,36 @@
     "stars": 1,
     "createdAt": "2024-08-24",
     "updatedAt": "2025-04-13"
+  },
+  {
+    "id": "monad-oak",
+    "name": "Oak (Monad)",
+    "language": "Monad",
+    "elmFamily": false,
+    "targets": ["web", "ssr"],
+    "tier": "full",
+    "status": "active",
+    "url": "https://monad-lang.org/docs/web-and-oak.html",
+    "repo": "https://github.com/monad-lang/monad",
+    "summary": "The web stack of the Monad language: an Elm-shaped app compiled to wasm, with a pure update that returns Command values and subscriptions declared from the model.",
+    "snippetSource": "https://monad-lang.org/docs/web-and-oak.html",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "update : Model -> Msg -> Pair Model (Command Unit Msg); Command is none, quit, dispatch, perform, after, focus, after_render or batch, and the runtime runs it.",
+      "Program.with_subs takes subs : Model -> List (Subscription Msg) (window and document events, animation frames), registered by the runtime from the model.",
+      "Command.perform hands an effect value to a Host that the app writes, in place of ports; the oak mote also renders pages on the server (Ssr) for the http mote."
+    ],
+    "verified": true,
+    "createdAt": "2026-04-08",
+    "updatedAt": "2026-11-13",
+    "stars": 7
   }
 ]

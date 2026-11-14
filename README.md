@@ -26,7 +26,7 @@ A catalog of The Elm Architecture across languages: every language and framework
 
 The site has:
 
-- **Catalog**: 90 entries in 26 languages, as cards or as a table of grades, filtered by tier, target and search.
+- **Catalog**: 91 entries in 27 languages, as cards or as a table of grades, filtered by tier, target and search.
 - **A page per framework**: its grade on each part of TEA, with notes.
 - **Rubric**: what counts as TEA, the four grades and the three tiers.
 - **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, re-frame, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.

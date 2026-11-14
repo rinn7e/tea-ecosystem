@@ -923,5 +923,68 @@
     "stars": 2,
     "createdAt": "2025-11-26",
     "updatedAt": "2026-04-25"
+  },
+  {
+    "id": "hyperbole",
+    "name": "Hyperbole",
+    "language": "Haskell",
+    "elmFamily": false,
+    "targets": ["web", "ssr", "server"],
+    "tier": "adjacent",
+    "status": "active",
+    "url": "https://hyperbole.live",
+    "repo": "https://github.com/seanhess/hyperbole",
+    "summary": "Server-side views inspired by Elm, HTMX and LiveView, whose update runs effects through Effectful and returns a new view instead of a model.",
+    "snippetSource": "https://github.com/seanhess/hyperbole/blob/main/README.md",
+    "rubric": {
+      "model": "equivalent",
+      "msg": "native",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "managed",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "Its own comparison with Elm says it removes state: each HyperView has an Action type and an update that returns the next view; ViewState can thread a state through the actions.",
+      "update runs in Effectful, so it performs effects itself instead of returning them as values: the hard requirement it misses.",
+      "onLoad in a view sends an action after a delay (polling), stopped by drawing a view without it; pushEvent sends an event to the JavaScript of the page."
+    ],
+    "verified": true,
+    "createdAt": "2023-11-27",
+    "updatedAt": "2026-09-02",
+    "stars": 354
+  },
+  {
+    "id": "xstate-store",
+    "name": "@xstate/store",
+    "language": "TypeScript",
+    "elmFamily": false,
+    "targets": ["web", "server"],
+    "tier": "adjacent",
+    "status": "active",
+    "url": "https://stately.ai/docs/xstate-store",
+    "logo": "xstate.svg",
+    "repo": "https://github.com/statelyai/xstate",
+    "summary": "An event store from Stately whose transitions return the next context and queue effects, but with no view and no subscriptions.",
+    "snippetSource": "https://github.com/statelyai/xstate/blob/main/packages/xstate-store/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "missing",
+      "cmd": "equivalent",
+      "sub": "missing",
+      "ports": "missing"
+    },
+    "notes": [
+      "A transition (context, event, enqueue) returns the next context; enqueue.effect queues a function that the store runs after it, and its result comes back by sending an event.",
+      "The effect is a function, not a value the runtime reads, and outside events reach the store only by calling send or trigger: no subscriptions, the hard requirement it misses.",
+      "A store, not an app: the view comes from React, Solid or another library through a selector."
+    ],
+    "verified": true,
+    "createdAt": "2015-09-14",
+    "updatedAt": "2026-11-13",
+    "stars": 30459
   }
 ]

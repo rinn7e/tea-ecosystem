@@ -25,8 +25,8 @@ import swift from 'highlight.js/lib/languages/swift'
 import typescript from 'highlight.js/lib/languages/typescript'
 
 // The grammars the examples need. Some languages have none in highlight.js
-// and read well in the grammar of a close relative: PureScript and Lean as
-// Haskell, Roc and Sky as Elm, Odin as Go, Zig as Rust.
+// and read well in the grammar of a close relative: PureScript, Lean and
+// Monad as Haskell, Roc and Sky as Elm, Odin as Go, Zig as Rust.
 const grammars = {
   clojure,
   csharp,
@@ -71,6 +71,7 @@ const grammarOfExtension: Record<string, keyof typeof grammars> = {
   jsx: 'javascript',
   kt: 'kotlin',
   lean: 'haskell',
+  mo: 'haskell',
   ml: 'ocaml',
   odin: 'go',
   ps1: 'powershell',

@@ -33,6 +33,7 @@ export const languagePopularity: Record<string, number> = {
   Roc: 10,
   Gren: 6,
   Sky: 4,
+  Monad: 2,
 }
 
 // In front of the row, in this order, whatever their popularity: Elm, where
