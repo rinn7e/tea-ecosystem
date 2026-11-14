@@ -15,6 +15,9 @@ import {
   isFiltered,
   languageCountsOf,
   logosPerRowOf,
+  otherListMatchesOf,
+  otherListOf,
+  searchFilterOf,
   sortFrameworks,
   update,
 } from '@/component/listing'
@@ -352,5 +355,35 @@ describe('toggleChoice', () => {
       init(defaultListingFilter()),
     )[0].filter.statuses
     expect(shown).toEqual(['active', 'quiet', 'archived'])
+  })
+})
+
+describe('otherListMatchesOf', () => {
+  it('points each list to the other one', () => {
+    expect(otherListOf('catalog')).toBe('adjacent')
+    expect(otherListOf('adjacent')).toBe('catalog')
+  })
+
+  it('counts the matches of a search in the other list', () => {
+    expect(otherListMatchesOf('catalog', 'XState')).toBe(
+      filterFrameworks(searchFilterOf('XState'))(adjacentEntries).length,
+    )
+    expect(otherListMatchesOf('catalog', 'XState')).toBeGreaterThan(0)
+    expect(otherListMatchesOf('adjacent', 'Bubble Tea')).toBe(
+      filterFrameworks(searchFilterOf('Bubble Tea'))(frameworks).length,
+    )
+    expect(otherListMatchesOf('adjacent', 'Bubble Tea')).toBeGreaterThan(0)
+  })
+
+  it('counts nothing for an empty search or one that matches nothing', () => {
+    expect(otherListMatchesOf('catalog', '  ')).toBe(0)
+    expect(otherListMatchesOf('adjacent', 'no such framework')).toBe(0)
+  })
+
+  it('opens the other list on the search alone', () => {
+    expect(searchFilterOf('XState')).toEqual({
+      ...defaultListingFilter(),
+      query: 'XState',
+    })
   })
 })

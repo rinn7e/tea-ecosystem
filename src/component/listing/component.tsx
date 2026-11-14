@@ -24,6 +24,8 @@ import {
   type ListingLayout,
   type ListingSort,
   type SortColumn,
+  adjacentScreen,
+  catalogScreen,
   catalogTiers,
   defaultStatuses,
   destinationOfScreen,
@@ -70,6 +72,8 @@ import {
   filterFrameworks,
   isFiltered,
   languageCountsOf,
+  otherListMatchesOf,
+  searchFilterOf,
   sortFrameworks,
 } from './util'
 
@@ -951,7 +955,8 @@ const tableView = ({
 
 // Nothing to show: only ever under a filter, so the toolbar above it
 // already offers to clear them. When the archive holds matches the list
-// hides, it says how many and offers to show them.
+// hides, it says how many and offers to show them; when the other list
+// matches the search, it says how many and links to that search there.
 const emptyView = ({
   kind,
   entries,
@@ -975,6 +980,8 @@ const emptyView = ({
       : archivedCount === 1
         ? 'library'
         : 'libraries'
+  const query = filter.query.trim()
+  const otherCount = otherListMatchesOf(kind, query)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
       <span className='text-ink text-base font-normal'>
@@ -991,6 +998,30 @@ const emptyView = ({
           <IconArchive size={16} stroke={1.75} aria-hidden />
           Show the archived {noun}
         </button>
+      )}
+      {/* The other list has what this search names: the TEA-adjacent page
+          for a library that is not TEA, the catalog for one that is */}
+      {otherCount > 0 && (
+        <>
+          <span className='text-ink-muted text-sm text-balance'>
+            {kind === 'catalog'
+              ? `${otherCount} TEA-adjacent ${otherCount === 1 ? 'library matches' : 'libraries match'} "${query}".`
+              : `${otherCount} ${otherCount === 1 ? 'framework' : 'frameworks'} in the catalog ${otherCount === 1 ? 'matches' : 'match'} "${query}".`}
+          </span>
+          <Link
+            destination={destinationOfScreen(
+              kind === 'catalog'
+                ? adjacentScreen(searchFilterOf(query))
+                : catalogScreen(searchFilterOf(query)),
+            )}
+            className='border-edge bg-panel text-accent hover:offset-shadow-edge flex items-center gap-[6px] border-2 px-[14px] py-[6px] text-sm transition-shadow'
+          >
+            <IconSearch size={16} stroke={1.75} aria-hidden />
+            {kind === 'catalog'
+              ? 'Show in TEA-adjacent'
+              : 'Show in the catalog'}
+          </Link>
+        </>
       )}
     </div>
   )

@@ -6,6 +6,7 @@ import { pipe } from 'fp-ts/function'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 
+import { type ListKind, entriesOf } from '@/common/data/catalog'
 import {
   languagePopularity,
   pinnedLanguages,
@@ -15,6 +16,7 @@ import {
   type ListingSort,
   type SortColumn,
   type SortDirection,
+  defaultListingFilter,
   defaultStatuses,
 } from '@/common/type/destination'
 import {
@@ -147,6 +149,25 @@ export const filterFrameworks =
           matchesQuery(filter.query)(framework),
       ),
     )
+
+// The other list: the TEA-adjacent page for the catalog, and back
+export const otherListOf = (kind: ListKind): ListKind =>
+  kind === 'catalog' ? 'adjacent' : 'catalog'
+
+// The filter that opens a list on a search and nothing else
+export const searchFilterOf = (query: string): ListingFilter => ({
+  ...defaultListingFilter(),
+  query,
+})
+
+// How many entries of the other list match a search (as `searchFilterOf`
+// opens it there): where a search that finds nothing in one list can point
+// to. None for an empty search.
+export const otherListMatchesOf = (kind: ListKind, query: string): number =>
+  query.trim() === ''
+    ? 0
+    : filterFrameworks(searchFilterOf(query))(entriesOf(otherListOf(kind)))
+        .length
 
 export const isFiltered = (filter: ListingFilter): boolean =>
   filter.tiers.length > 0 ||
