@@ -111,7 +111,7 @@ export const gradeMeaning = (grade: ShownGrade): string => {
     case 'managed':
       return 'A long-running source the runtime manages, without a declarative function of the model.'
     case 'equivalent':
-      return 'The same power in another shape, such as effects run inside update.'
+      return 'The same power in another shape, such as effects run inside update. It describes a part and never qualifies an entry for a tier.'
     case 'missing':
       return 'Not there, and the rubric needs it.'
     case 'none':
@@ -189,7 +189,7 @@ export const tierMeaning = (tier: Tier): string => {
     case 'full':
       return 'Model, Msg, update and Cmd native; Sub native or managed. A headless loop with no view counts.'
     case 'superset':
-      return 'Full TEA plus more: components, SSR, a server loop. May reach Cmd and Sub in an equivalent shape.'
+      return 'Full TEA plus something beyond it, named in its notes: components with a loop of their own, SSR and hydration, a server loop.'
     case 'adjacent':
       return 'Shares the words of TEA but misses a hard requirement of the rubric.'
   }
