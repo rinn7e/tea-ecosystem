@@ -312,7 +312,8 @@ export const statusView = ({ status }: { status: Status }) => (
   </span>
 )
 
-// Each part is as wide as its label, so a long one (Update) never clips.
+// Each part is as wide as its label, so a long one (Update) never clips. It
+// is thinner on a phone (20 px, 26 px from `sm:` up), to fit more cards.
 // Inside a link (`isInLink`, the strip of a card), a tap on a touch screen
 // follows the link instead of opening the tooltip.
 export const rubricStripView = ({
@@ -333,7 +334,7 @@ export const rubricStripView = ({
         label={`${conceptLabel(concept)}: ${gradeLabel(shownGradeOf(concept, rubric[concept]))}`}
         touch={!isInLink}
         className={cn(
-          'flex h-[26px] flex-auto items-center justify-center rounded-[2px] border px-[4px] text-[0.6875rem] font-normal',
+          'flex h-[20px] flex-auto items-center justify-center rounded-[2px] border px-[4px] text-[0.6875rem] leading-none font-normal sm:h-[26px]',
           isInLink ? 'cursor-pointer' : 'cursor-default',
           gradeClass(shownGradeOf(concept, rubric[concept])),
         )}
