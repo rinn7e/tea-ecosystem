@@ -4,7 +4,6 @@ import { pipe } from 'fp-ts/function'
 import {
   siClojure,
   siDart,
-  siDotnet,
   siElixir,
   siElm,
   siFsharp,
@@ -25,6 +24,7 @@ import {
   siZig,
 } from 'simple-icons'
 
+import { csharpLogoPaths } from './csharp'
 import { javaLogoPaths } from './java'
 import { leanLogoPaths } from './lean'
 import { type LogoPath } from './path'
@@ -148,7 +148,7 @@ const logos: Record<string, LanguageLogo> = {
   Dart: logoOf(siDart),
   Python: logoOf(siPython),
   ClojureScript: logoOf(siClojure),
-  'C#': logoOf(siDotnet),
+  'C#': ownLogo('C#', '0 0 128 128', csharpLogoPaths),
   'F# and C#': logoOf(siFsharp),
   Ruby: logoOf(siRuby),
   Zig: logoOf(siZig),
