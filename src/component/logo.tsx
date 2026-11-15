@@ -92,6 +92,8 @@ export const languageLogoView = ({
 
 export type TileSize = 'chip' | 'row' | 'card' | 'page'
 
+// A card on a phone (below `tablet:`) takes the tile of a table row, so
+// more cards fit on the screen
 const tileClass = (size: TileSize): string => {
   switch (size) {
     case 'chip':
@@ -99,7 +101,7 @@ const tileClass = (size: TileSize): string => {
     case 'row':
       return 'size-[36px]'
     case 'card':
-      return 'size-[44px]'
+      return 'size-[36px] tablet:size-[44px]'
     case 'page':
       return 'size-[72px]'
   }
@@ -113,7 +115,7 @@ const tileGlyphClass = (size: TileSize): string => {
     case 'row':
       return 'text-[0.9375rem]'
     case 'card':
-      return 'text-[1.125rem]'
+      return 'text-[0.9375rem] tablet:text-[1.125rem]'
     case 'page':
       return 'text-[1.875rem]'
   }
@@ -128,7 +130,7 @@ const tileMonogramClass = (size: TileSize): string => {
     case 'row':
       return 'text-[1.0625rem]'
     case 'card':
-      return 'text-[1.3125rem]'
+      return 'text-[1.0625rem] tablet:text-[1.3125rem]'
     case 'page':
       return 'text-[2.125rem]'
   }
@@ -141,7 +143,7 @@ const tileLanguageLogoClass = (size: TileSize): string => {
     case 'row':
       return 'size-[22px]'
     case 'card':
-      return 'size-[26px]'
+      return 'size-[22px] tablet:size-[26px]'
     case 'page':
       return 'size-[42px]'
   }

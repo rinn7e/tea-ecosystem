@@ -811,7 +811,7 @@ const cardView = ({
   return (
     <div
       key={framework.id}
-      className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge relative flex flex-col gap-[12px] rounded-[3px] border p-[18px] transition-shadow'
+      className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge tablet:gap-[12px] tablet:p-[18px] relative flex flex-col gap-[8px] rounded-[3px] border p-[12px] transition-shadow'
     >
       {pipe(
         ribbon,
@@ -820,7 +820,7 @@ const cardView = ({
           (shown) => edgeRibbonView({ ribbon: shown }),
         ),
       )}
-      <div className='flex items-start gap-[12px]'>
+      <div className='tablet:gap-[12px] flex items-start gap-[10px]'>
         {frameworkTileView({ framework, size: 'card' })}
         {/* Room on the right for the ribbon, which reaches in from the edge
           of the card under the tier badge */}
@@ -832,11 +832,11 @@ const cardView = ({
         >
           <Link
             destination={destinationOfScreen(frameworkScreen(framework.id))}
-            className='text-ink stretched-link truncate text-[1.1875rem] leading-snug font-normal'
+            className='text-ink stretched-link tablet:text-[1.1875rem] truncate text-[1.0625rem] leading-snug font-normal'
           >
             {framework.name}
           </Link>
-          <span className='text-ink-muted flex items-center gap-[6px] text-sm'>
+          <span className='text-ink-muted tablet:text-sm flex items-center gap-[6px] text-[0.8125rem]'>
             {languageLineLogoView({ framework, size: 'small' })}
             <span className='truncate'>{languageLineOf(framework)}</span>
           </span>
@@ -858,10 +858,10 @@ const cardView = ({
           isInLink: true,
         })}
       </Link>
-      <p className='text-ink-muted line-clamp-3 flex-1 text-sm'>
+      <p className='text-ink-muted tablet:line-clamp-3 line-clamp-2 flex-1 text-sm'>
         {framework.summary}
       </p>
-      <div className='flex flex-col gap-[8px]'>
+      <div className='tablet:gap-[8px] flex flex-col gap-[6px]'>
         <div className='flex items-start justify-between gap-[8px] text-xs'>
           {targetChipsView({ targets: framework.targets, align: 'start' })}
           {sourceLinkView({ framework })}
@@ -883,7 +883,7 @@ const cardsView = ({
   shown: Framework[]
   recentSince: string
 }) => (
-  <div className='tablet:grid-cols-2 grid grid-cols-1 gap-[22px] lg:grid-cols-3'>
+  <div className='tablet:grid-cols-2 tablet:gap-[22px] grid grid-cols-1 gap-[14px] lg:grid-cols-3'>
     {shown.map((framework) => cardView({ framework, recentSince }))}
   </div>
 )

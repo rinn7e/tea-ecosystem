@@ -448,7 +448,7 @@ export const edgeRibbonView = ({ ribbon }: { ribbon: CardRibbon }) => {
   return (
     <span
       className={cn(
-        'pointer-events-none absolute top-[52px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent',
+        'tablet:top-[52px] pointer-events-none absolute top-[37px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent',
         look.fold,
       )}
     >
@@ -465,7 +465,8 @@ export const edgeRibbonView = ({ ribbon }: { ribbon: CardRibbon }) => {
 }
 
 // Drawn like the star button of GitHub. On a card it sits above the link
-// that covers the card (`relative z-10`).
+// that covers the card (`relative z-10`). Its press area reaches 5 px past
+// it above and below, a tap target of 34 px for a 24 px button.
 export const sourceLinkView = ({ framework }: { framework: Framework }) => (
   <a
     href={sourceUrlOf(framework)}
@@ -473,7 +474,7 @@ export const sourceLinkView = ({ framework }: { framework: Framework }) => (
     rel='noreferrer'
     title={`Open the source: ${sourceUrlOf(framework).replace(/^https:\/\//, '')}`}
     aria-label={`Open the source of ${framework.name}${framework.stars === undefined ? '' : `, ${framework.stars} stars`}`}
-    className='border-line hover:border-edge relative z-10 inline-flex h-[24px] shrink-0 items-stretch rounded-[2px] border text-xs transition-colors'
+    className="border-line hover:border-edge relative z-10 inline-flex h-[24px] shrink-0 items-stretch rounded-[2px] border text-xs transition-colors after:absolute after:inset-x-0 after:-inset-y-[5px] after:content-['']"
   >
     {framework.stars !== undefined && (
       <span className='border-line flex items-center border-r px-[7px]'>

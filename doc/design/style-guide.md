@@ -90,6 +90,32 @@ Shapes:
 - A tooltip is a small dialog: the panel color, a border and the hard offset shadow in `ink-faint` (darker than the cards, so it stands apart from them), 300 px wide, with a 15 px title and 14 px text (never smaller: it is there to be read), square, with a small arrow on its trigger: above it, or below when there is no room. It fades in rising 4 px and fades out the same way back, in 150 ms (no motion under reduced motion). It explains a badge or a cell; the page never needs a legend for what a tooltip says. A cell of the rubric strip carries the legend itself: the grades with their colors and meanings, its own grade at full strength, in a 400 px box.
 - A popover (the Filters of a list) is a box with a sharp 2 px `edge` blue border, like the button that opens it, and no shadow. It fades in and out like a tooltip and closes on its button, Escape or a press outside.
 
+### Breakpoints
+
+Mobile first: unprefixed classes are the phone layout, and a breakpoint only overrides them upward. Never `sm:`, `md:` or `max-*` (`doc/code-convention.md`, section Styling).
+
+| Prefix    | From                                                           | Used for                                                                                                                                                                    |
+| --------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| (none)    | 0                                                              | Every layout, written for a phone first                                                                                                                                     |
+| `tablet:` | 640 px (`--breakpoint-tablet: 40rem` in `src/asset/index.css`) | Only where a layout needs its own step between phone and desktop: the cards, and the age of the repository in the bar (`3h ago` on a phone, `3 hours ago` from a tablet up) |
+| `lg:`     | 1024 px                                                        | The desktop layout                                                                                                                                                          |
+
+### The card on a phone
+
+Below `tablet:` a card is denser, so about three and a half fit on a 375 x 812 screen in place of under three. It keeps every piece of the card.
+
+| Part                                | Phone                                    | From `tablet:`     |
+| ----------------------------------- | ---------------------------------------- | ------------------ |
+| Padding, and space between its rows | 12 px, 8 px                              | 18 px, 12 px       |
+| Space between cards                 | 14 px                                    | 22 px              |
+| Tile                                | 36 px (the tile of a table row)          | 44 px              |
+| Name                                | 17 px                                    | 19 px              |
+| Summary                             | 2 lines                                  | 3 lines            |
+| Ribbon                              | under the tier badge, 37 px from the top | 52 px from the top |
+| Columns                             | 1                                        | 2 (3 from `lg:`)   |
+
+The source link keeps a tap target of 34 px around its 24 px button (5 px more above and below).
+
 ## 5. Dark mode
 
 The Elm site has none; this site keeps one. Dark derives from the same tokens: a deep navy page (`#07131B`), light ink (`#E4EEF4`), a lighter blue (`#4CB4EE`) for links and accents, and the bar in a darker blue (`#0B5F8F`). Box shadows use a dark line (`#22323D`).
