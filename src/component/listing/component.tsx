@@ -1245,9 +1245,11 @@ const ListingComponent = ({
   )
   const heading = headingOf(list)
   return (
-    // Three groups, a wide gap between them and tight gaps inside: the
-    // hero, the filters (category boxes, logo row, search), the results
-    <div className='flex flex-col gap-[44px]'>
+    // Three groups with tight gaps inside: the hero, the filters (category
+    // boxes, logo row, search), the results. A wide gap after the hero,
+    // and a short one between the search and the toolbar, which work as
+    // one set of controls.
+    <div className='flex flex-col'>
       <section className='flex flex-col items-center gap-[12px] text-center'>
         <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
           {heading.title}
@@ -1256,7 +1258,7 @@ const ListingComponent = ({
           {heading.lead}
         </p>
       </section>
-      <div className='flex flex-col gap-[20px]'>
+      <div className='mt-[44px] flex flex-col gap-[20px]'>
         {/* One centred column as wide as the widest row of logos: the category
             boxes stretch to it */}
         <div className='flex justify-center'>
@@ -1274,7 +1276,7 @@ const ListingComponent = ({
         {searchRowView({ entries, model, dispatch })}
       </div>
       {/* The toolbar sits right on the results it acts on */}
-      <div className='flex flex-col gap-[14px]'>
+      <div className='mt-[24px] flex flex-col gap-[14px]'>
         {filterBarView({
           filter: model.filter,
           shown: shown.length,
