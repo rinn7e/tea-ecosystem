@@ -105,6 +105,7 @@
     "tier": "superset",
     "status": "active",
     "repo": "https://github.com/dmjio/miso",
+    "website": "https://haskell-miso.org",
     "logo": "miso.png",
     "summary": "A Haskell front-end framework with the Elm shape, plus components, server-side rendering and hydration.",
     "snippetSource": "https://github.com/dmjio/miso/blob/master/README.md",
