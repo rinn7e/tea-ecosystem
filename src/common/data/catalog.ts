@@ -1,5 +1,6 @@
 import * as A from 'fp-ts/Array'
 import * as E from 'fp-ts/Either'
+import * as EqClass from 'fp-ts/Eq'
 import { concatAll } from 'fp-ts/Monoid'
 import * as O from 'fp-ts/Option'
 import * as Ord from 'fp-ts/Ord'
@@ -13,11 +14,13 @@ import { PathReporter } from 'io-ts/PathReporter'
 import {
   type Concept,
   type Framework,
+  type FrameworkEntry,
   FrameworkJson,
   type Grade,
   type Target,
   featuredRankOf,
   languagesOf,
+  statusAt,
   targets,
 } from '@/common/type/framework'
 
@@ -41,45 +44,68 @@ export const decodeOrThrow =
 // The Originator (Elm) first, then the picks of the maintainer in their
 // order, then the most starred, then by name. An entry with no public
 // repository has no stars and comes last.
-const frameworkOrd: Ord.Ord<Framework> = concatAll(Ord.getMonoid<Framework>())([
+const frameworkOrd: Ord.Ord<FrameworkEntry> = concatAll(
+  Ord.getMonoid<FrameworkEntry>(),
+)([
   pipe(
     Ord.reverse(B.Ord),
-    Ord.contramap((f: Framework) => f.tier === 'reference'),
+    Ord.contramap((f: FrameworkEntry) => f.tier === 'reference'),
   ),
   pipe(N.Ord, Ord.contramap(featuredRankOf)),
   pipe(
     Ord.reverse(N.Ord),
-    Ord.contramap((f: Framework) => f.stars ?? -1),
+    Ord.contramap((f: FrameworkEntry) => f.stars ?? -1),
   ),
   pipe(
     S.Ord,
-    Ord.contramap((f: Framework) => f.name.toLowerCase()),
+    Ord.contramap((f: FrameworkEntry) => f.name.toLowerCase()),
   ),
 ])
 
-export const frameworks: Framework[] = pipe(
+// The entries as the data files hold them, before their status is derived,
+// in the order of the lists (which no status changes)
+export const storedFrameworks: FrameworkEntry[] = pipe(
   frameworkData,
   decodeOrThrow(t.array(FrameworkJson), 'data/frameworks.json'),
   A.sort(frameworkOrd),
 )
 
-export const adjacentEntries: Framework[] = pipe(
+export const storedAdjacentEntries: FrameworkEntry[] = pipe(
   adjacentData,
   decodeOrThrow(t.array(FrameworkJson), 'data/adjacent.json'),
   A.sort(frameworkOrd),
 )
 
-// Ids are unique across both files
-export const frameworkById = (id: string): O.Option<Framework> =>
-  pipe(
-    [...frameworks, ...adjacentEntries],
-    A.findFirst((f) => f.id === id),
-  )
-
 export type ListId = 'catalog' | 'adjacent'
 
-export const entriesOf = (list: ListId): Framework[] =>
-  list === 'catalog' ? frameworks : adjacentEntries
+const storedEntriesOf = (list: ListId): FrameworkEntry[] =>
+  list === 'catalog' ? storedFrameworks : storedAdjacentEntries
+
+// The entries of each list, in the order of the lists, with the status of
+// each at one time
+export type Entries = Record<ListId, Framework[]>
+
+// Made once, by `init`, at the time the site loaded (`Model.entries`): a
+// visit does not last long enough for an entry to cross the year of its
+// last push
+export const entriesAt = (now: number): Entries => ({
+  catalog: pipe(storedFrameworks, A.map(statusAt(now))),
+  adjacent: pipe(storedAdjacentEntries, A.map(statusAt(now))),
+})
+
+// Made once a run, so the same entries are the same object
+export const EntriesEq: EqClass.Eq<Entries> = EqClass.fromEquals(
+  (x, y) => x === y,
+)
+
+// Ids are unique across both files
+export const frameworkById =
+  (entries: Entries) =>
+  (id: string): O.Option<Framework> =>
+    pipe(
+      [...entries.catalog, ...entries.adjacent],
+      A.findFirst((f) => f.id === id),
+    )
 
 // The options of the target filter of a list, so TEA-adjacent, which has no
 // game library, offers no game target
@@ -88,15 +114,23 @@ export const targetOptionsOf = (list: ListId): Target[] =>
     [...targets],
     A.filter((target) =>
       pipe(
-        entriesOf(list),
+        storedEntriesOf(list),
         A.some((f) => A.elem(S.Eq)(target)(f.targets)),
       ),
     ),
   )
 
 // Where the page of an entry goes back to
-export const listOf = (framework: Framework): ListId =>
+export const listOf = (framework: Pick<Framework, 'tier'>): ListId =>
   framework.tier === 'adjacent' ? 'adjacent' : 'catalog'
+
+// The list of an entry, read from the data alone (a status plays no part)
+export const listOfId = (id: string): O.Option<ListId> =>
+  pipe(
+    [...storedFrameworks, ...storedAdjacentEntries],
+    A.findFirst((f) => f.id === id),
+    O.map(listOf),
+  )
 
 export type LanguageGroup = {
   language: string
@@ -109,28 +143,31 @@ export type LanguageGroup = {
 // An entry in two languages shows in the group of each. A Haskell framework
 // also points to the Haskell libraries that are not TEA, and back. A
 // language or a list with no other entry is left out.
-export const sameLanguageEntriesOf = (framework: Framework): LanguageGroup[] =>
-  pipe(
-    languagesOf(framework),
-    A.map((language) => ({
-      language,
-      lists: pipe(
-        ['catalog', 'adjacent'] satisfies ListId[],
-        A.map((list) => ({
-          list,
-          entries: pipe(
-            entriesOf(list),
-            A.filter(
-              (f) =>
-                f.id !== framework.id && A.elem(S.Eq)(language)(languagesOf(f)),
+export const sameLanguageEntriesOf =
+  (entries: Entries) =>
+  (framework: Framework): LanguageGroup[] =>
+    pipe(
+      languagesOf(framework),
+      A.map((language) => ({
+        language,
+        lists: pipe(
+          ['catalog', 'adjacent'] satisfies ListId[],
+          A.map((list) => ({
+            list,
+            entries: pipe(
+              entries[list],
+              A.filter(
+                (f) =>
+                  f.id !== framework.id &&
+                  A.elem(S.Eq)(language)(languagesOf(f)),
+              ),
             ),
-          ),
-        })),
-        A.filter(({ entries }) => entries.length > 0),
-      ),
-    })),
-    A.filter(({ lists }) => lists.length > 0),
-  )
+          })),
+          A.filter(({ entries }) => entries.length > 0),
+        ),
+      })),
+      A.filter(({ lists }) => lists.length > 0),
+    )
 
 // The hard requirements of the rubric (`doc/analysis.md`, section 3), in
 // the order of `concepts`, which is the order the "Misses ...: " prefix of

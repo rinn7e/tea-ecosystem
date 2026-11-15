@@ -4,6 +4,7 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import { type Entries, EntriesEq } from '@/common/data/catalog'
 import { type CatalogFilter, CatalogFilterEq } from '@/common/type/destination'
 import * as Listing from '@/component/listing'
 
@@ -22,6 +23,8 @@ export type Msg = { _tag: 'ListingMsg'; subMsg: Listing.Msg }
 
 export type Props = {
   model: Model
+  // The entries of both lists (`Model.entries`)
+  entries: Entries
   // How many language logos fit in a row (`logosPerRowOf` the width of the
   // window): a resize draws the list again only when this number changes
   logosPerRow: number
@@ -32,6 +35,7 @@ export type Props = {
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   model: ModelEq,
+  entries: EntriesEq,
   logosPerRow: N.Eq,
   recentSince: S.Eq,
   dispatch: EqAlways,

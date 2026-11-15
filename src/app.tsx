@@ -62,6 +62,7 @@ const screenView = ({
       return (
         <CatalogMemo
           model={model.catalog}
+          entries={model.entries}
           logosPerRow={logosPerRowOf(model.windowWidth)}
           recentSince={recentSinceOf(model.now)}
           dispatch={(subMsg) => dispatch({ _tag: 'CatalogScreenMsg', subMsg })}
@@ -71,6 +72,7 @@ const screenView = ({
       return (
         <FrameworkMemo
           model={screenModel.model}
+          entries={model.entries}
           listDestination={listDestinationOf(
             model,
             listOf(screenModel.model.framework),
@@ -96,6 +98,7 @@ const screenView = ({
       return (
         <AdjacentMemo
           model={model.adjacent}
+          entries={model.entries}
           logosPerRow={logosPerRowOf(model.windowWidth)}
           recentSince={recentSinceOf(model.now)}
           dispatch={(subMsg) => dispatch({ _tag: 'AdjacentScreenMsg', subMsg })}

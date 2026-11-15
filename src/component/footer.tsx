@@ -1,7 +1,7 @@
 import { IconExternalLink } from '@tabler/icons-react'
 import { memo } from 'react'
 
-import { adjacentEntries, frameworks } from '@/common/data/catalog'
+import { storedAdjacentEntries, storedFrameworks } from '@/common/data/catalog'
 import {
   aboutScreen,
   adjacentScreen,
@@ -19,7 +19,8 @@ import { Link } from './link'
 // The year of the build, for the copyright line
 const YEAR = new Date().getFullYear()
 
-const languageCount = new Set(frameworks.flatMap(languagesOf)).size
+// Counts of the data alone: a status plays no part
+const languageCount = new Set(storedFrameworks.flatMap(languagesOf)).size
 
 const footerHeadingView = ({ title }: { title: string }) => (
   <h2 className='text-ink text-xs tracking-wider uppercase'>{title}</h2>
@@ -60,10 +61,10 @@ const FooterComponent = () => (
               ecosystem has and what it could bring back.
             </p>
             <div className='flex flex-wrap gap-[6px]'>
-              {statChipView({ label: `${frameworks.length} entries` })}
+              {statChipView({ label: `${storedFrameworks.length} entries` })}
               {statChipView({ label: `${languageCount} languages` })}
               {statChipView({
-                label: `${adjacentEntries.length} TEA-adjacent`,
+                label: `${storedAdjacentEntries.length} TEA-adjacent`,
               })}
             </div>
           </div>

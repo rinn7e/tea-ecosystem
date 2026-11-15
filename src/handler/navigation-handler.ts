@@ -3,7 +3,7 @@ import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { Cmd } from 'tea-cup-fp'
 
-import { type ListId, frameworkById } from '@/common/data/catalog'
+import { type Entries, type ListId, frameworkById } from '@/common/data/catalog'
 import {
   type Destination,
   DestinationEq,
@@ -32,13 +32,16 @@ export type Lists = Pick<Model, 'catalog' | 'adjacent'>
 // destination's filter when the destination is that list, and kept as it is
 // under any other screen. The overlays over every screen (the tooltip, the
 // button back to the top) stay as they are, and so does the scroll, which
-// the move sets.
+// the move sets. An entry page opens on its entry in `entries`, with its
+// status.
 // Review: called only by `navigationMsgHandler` and the boot.
 export const openDestination = (
   destination: Destination,
   lists: Lists,
+  entries: Entries,
 ): Omit<
   Model,
+  | 'entries'
   | 'tooltip'
   | 'backToTop'
   | 'listScrollY'
@@ -54,7 +57,7 @@ export const openDestination = (
         return { _tag: 'CatalogScreenModel' }
       case 'FrameworkScreen':
         return pipe(
-          frameworkById(screen.frameworkId),
+          frameworkById(entries)(screen.frameworkId),
           O.fold(
             (): ScreenModel => ({ _tag: 'NotFoundScreenModel' }),
             (framework): ScreenModel => ({
@@ -167,7 +170,7 @@ export const navigationMsgHandler = (
         : model.listScrollY
     // A move closes any tooltip: its trigger goes away with the screen
     const opened: Model = {
-      ...openDestination(subMsg.destination, model),
+      ...openDestination(subMsg.destination, model, model.entries),
       tooltip: Tooltip.update({ _tag: 'Dismiss' }, model.tooltip)[0],
       // The scroll the move makes shows or hides it
       backToTop: model.backToTop,
@@ -175,6 +178,7 @@ export const navigationMsgHandler = (
       scroll: model.scroll,
       windowWidth: model.windowWidth,
       now: model.now,
+      entries: model.entries,
       repoStars: model.repoStars,
     }
     const nextDestination = destinationOf(opened)

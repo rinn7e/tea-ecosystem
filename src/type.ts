@@ -1,7 +1,7 @@
 import type * as RD from '@devexperts/remote-data-ts'
 import { type Result } from 'tea-cup-fp'
 
-import { type ListId } from '@/common/data/catalog'
+import { type Entries, type ListId } from '@/common/data/catalog'
 import { type Brand } from '@/common/type/brand-wrapper'
 import {
   type Destination,
@@ -68,6 +68,9 @@ export const sameScreenWith =
       : current
 
 export type Model = {
+  // The entries of both lists, each with its status at the time the site
+  // loaded (`entriesAt`): made once, by `init`, and read by every screen
+  entries: Entries
   // The base layers of the screen stack, the model of each list screen:
   // alive under every screen
   catalog: CatalogScreen.Model

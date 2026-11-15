@@ -3,6 +3,7 @@ import { resultToRd } from '@rinn7e/tea-cup-prelude'
 import { pipe } from 'fp-ts/function'
 import { Cmd } from 'tea-cup-fp'
 
+import { entriesAt } from '@/common/data/catalog'
 import {
   defaultAdjacentFilter,
   defaultCatalogFilter,
@@ -27,17 +28,24 @@ import { bootDestinationOf } from '@/util'
 // ---------------------------------------------
 
 // The data is bundled, so the app opens its first screen at once, at the
-// width of the window and the time (read in `program.tsx`)
+// width of the window and the time (read in `program.tsx`), which gives
+// each entry its status
 export const init = (
   location: Pick<Location, 'href'>,
   windowWidth: number,
   now: number,
 ): [Model, Cmd<Msg>] => {
+  const entries = entriesAt(now)
   const model: Model = {
-    ...openDestination(bootDestinationOf(location), {
-      catalog: CatalogScreen.init(defaultCatalogFilter()),
-      adjacent: AdjacentScreen.init(defaultAdjacentFilter()),
-    }),
+    ...openDestination(
+      bootDestinationOf(location),
+      {
+        catalog: CatalogScreen.init(defaultCatalogFilter()),
+        adjacent: AdjacentScreen.init(defaultAdjacentFilter()),
+      },
+      entries,
+    ),
+    entries,
     tooltip: Tooltip.init(),
     backToTop: BackToTop.init(),
     listScrollY: { catalog: 0, adjacent: 0 },

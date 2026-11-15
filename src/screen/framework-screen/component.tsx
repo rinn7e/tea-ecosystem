@@ -3,7 +3,11 @@ import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { memo } from 'react'
 
-import { listOf, sameLanguageEntriesOf } from '@/common/data/catalog'
+import {
+  type Entries,
+  listOf,
+  sameLanguageEntriesOf,
+} from '@/common/data/catalog'
 import { snippetOf } from '@/common/data/snippet'
 import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
 import {
@@ -133,8 +137,14 @@ const relatedChipView = ({ framework }: { framework: Framework }) => (
 )
 
 // One section per language of the entry ("More in F#", then "More in C#")
-const relatedView = ({ framework }: { framework: Framework }) =>
-  sameLanguageEntriesOf(framework).map(({ language, lists }) => (
+const relatedView = ({
+  entries,
+  framework,
+}: {
+  entries: Entries
+  framework: Framework
+}) =>
+  sameLanguageEntriesOf(entries)(framework).map(({ language, lists }) => (
     <section key={language} className='flex flex-col gap-[14px]'>
       {sectionTitleView({ title: `More in ${language}` })}
       <div className='flex flex-col gap-[16px]'>
@@ -152,7 +162,12 @@ const relatedView = ({ framework }: { framework: Framework }) =>
     </section>
   ))
 
-const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
+const FrameworkComponent = ({
+  model,
+  entries,
+  listDestination,
+  recentSince,
+}: Props) => {
   const { framework } = model
   return (
     <article className='flex flex-col gap-[28px]'>
@@ -278,7 +293,7 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
         </section>
       )}
 
-      {relatedView({ framework })}
+      {relatedView({ entries, framework })}
     </article>
   )
 }

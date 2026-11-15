@@ -2,7 +2,7 @@ import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 
-import { type ListId, frameworkById, listOf } from '@/common/data/catalog'
+import { type ListId, listOfId } from '@/common/data/catalog'
 import { type Destination } from '@/common/type/destination'
 
 // A layer of the screen stack: a list at the bottom (the catalog or the
@@ -36,11 +36,11 @@ export const screenStackOf = (destination: Destination): ScreenLayer[] => {
       // The page of an entry sits on the list it belongs to; an unknown
       // id opens Not Found, which stands alone
       return pipe(
-        frameworkById(screen.frameworkId),
+        listOfId(screen.frameworkId),
         O.fold(
           (): ScreenLayer[] => [{ _tag: 'Alone', screen: 'NotFoundScreen' }],
-          (framework): ScreenLayer[] => [
-            { _tag: 'List', list: listOf(framework) },
+          (list): ScreenLayer[] => [
+            { _tag: 'List', list },
             { _tag: 'Framework', frameworkId: screen.frameworkId },
           ],
         ),

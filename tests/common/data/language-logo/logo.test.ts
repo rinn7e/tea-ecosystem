@@ -1,13 +1,14 @@
 import * as O from 'fp-ts/Option'
 import { describe, expect, it } from 'vitest'
 
-import { adjacentEntries, frameworks } from '@/common/data/catalog'
 import {
   languageLogoOf,
   monogramOf,
   readableColorOf,
 } from '@/common/data/language-logo'
 import { languagesOf } from '@/common/type/framework'
+
+import { adjacentEntries, frameworks } from '../../../helper/entries'
 
 describe('languageLogoOf', () => {
   it('has a logo for every language of the data', () => {

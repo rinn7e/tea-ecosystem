@@ -129,12 +129,17 @@ export type Framework = {
   // (tests "keep every framework within the rules of its tier" and "keep
   // every adjacent entry failing the rubric, so it is not TEA")
   tier: Tier
+  // Derived at the time the site loaded (`entriesAt`, `statusAt`):
+  // `archived` as the data says, else by the last push of its repository
+  // (`activityStatusOf`: in the last year `active`, in the last two
+  // `quiet`, else `archived`); the status the data gives an entry with no
+  // public repository, which has no day of its last push
   status: Status
   // Where its author says it is no longer maintained (a section of its
   // README), for an entry that is `archived` though its repository is not:
   // the stats script then counts it as archived, so its status is not
   // flagged every week (test "give an unmaintained notice only to an
-  // archived entry")
+  // entry stored as archived")
   unmaintainedNotice?: string
   // Its repository, as a full URL of owner and name on any host (GitHub,
   // GitLab, Codeberg or another Gitea): where its source links go, and
@@ -207,7 +212,11 @@ export type Framework = {
   discoveredAt: string
 }
 
-export const FrameworkJson: t.Type<Framework> = t.intersection([
+// An entry as the data files hold it, with its `status` optional:
+// `statusAt` gives every entry its status
+export type FrameworkEntry = Omit<Framework, 'status'> & { status?: Status }
+
+export const FrameworkJson: t.Type<FrameworkEntry> = t.intersection([
   t.type({
     id: t.string,
     name: t.string,
@@ -215,7 +224,6 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     elmFamily: t.boolean,
     targets: t.array(TargetJson),
     tier: TierJson,
-    status: StatusJson,
     repo: t.string,
     summary: t.string,
     rubric: RubricJson,
@@ -224,6 +232,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     discoveredAt: t.string,
   }),
   t.partial({
+    status: StatusJson,
     unmaintainedNotice: t.string,
     website: t.string,
     source: t.string,
@@ -239,9 +248,44 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
   }),
 ])
 
+// An entry not pushed to for a year is quiet (the year of the rule of the
+// weekly search too, `scripts/judge-discovered.sh`), and for two years
+// archived
+export const QUIET_AFTER_DAYS = 365
+export const ARCHIVED_AFTER_DAYS = 730
+
+const DAY_MS = 86_400_000
+
+// The status the last push tells, at `now` (ms since 1970)
+export const activityStatusOf = (updatedAt: string, now: number): Status => {
+  const days = (now - Date.parse(updatedAt)) / DAY_MS
+  return days > ARCHIVED_AFTER_DAYS
+    ? 'archived'
+    : days > QUIET_AFTER_DAYS
+      ? 'quiet'
+      : 'active'
+}
+
+// The status of an entry at `now`: stored when it is archived (by its host,
+// or its author who says it is no longer maintained), else told by its last
+// push, so it never disagrees with the dates the site shows. An entry with
+// no last push has no public repository (test "give every repository its
+// stars and both dates"), and keeps the status it stores
+export const statusAt =
+  (now: number) =>
+  (entry: FrameworkEntry): Framework => ({
+    ...entry,
+    status:
+      entry.status === 'archived'
+        ? 'archived'
+        : entry.updatedAt !== undefined
+          ? activityStatusOf(entry.updatedAt, now)
+          : (entry.status ?? 'quiet'),
+  })
+
 // Two languages for an entry that ships one library per platform ("Kotlin
 // and Swift")
-export const languagesOf = (framework: Framework): string[] =>
+export const languagesOf = (framework: Pick<Framework, 'language'>): string[] =>
   framework.language.split(' and ')
 
 // An entry that is a language of its own (Elm, Gren), not a framework
@@ -259,8 +303,9 @@ const isSameUrl = (a: string, b: string | undefined): boolean =>
 // The data marks an entry whose source is not public by giving `website`
 // the same URL as `repo`, which falls back to it. Only an entry with a
 // public repository has stars and dates.
-export const hasPublicRepo = (framework: Framework): boolean =>
-  !isSameUrl(framework.repo, framework.website)
+export const hasPublicRepo = (
+  framework: Pick<Framework, 'repo' | 'website'>,
+): boolean => !isSameUrl(framework.repo, framework.website)
 
 // The star button and the source link of its page both open it
 export const sourceUrlOf = (framework: Framework): string =>
@@ -342,7 +387,7 @@ export const FEATURED_IDS: readonly string[] = [
 ]
 
 // Its place among the picks, or after them all when it is not one
-export const featuredRankOf = (framework: Framework): number => {
+export const featuredRankOf = (framework: Pick<Framework, 'id'>): number => {
   const index = FEATURED_IDS.indexOf(framework.id)
   return index === -1 ? FEATURED_IDS.length : index
 }

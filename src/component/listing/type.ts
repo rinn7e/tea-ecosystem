@@ -5,6 +5,7 @@ import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import { type Entries, EntriesEq } from '@/common/data/catalog'
 import {
   type EntryCategory,
   type ListingFilter,
@@ -66,6 +67,9 @@ export type Msg =
 
 export type Props = {
   model: Model<ListingFilter>
+  // The entries of both lists (`Model.entries`): this list, and the other
+  // one for the hints that point to it
+  entries: Entries
   // Not the width of the window, so a resize draws the list again only when
   // this number changes
   logosPerRow: number
@@ -76,6 +80,7 @@ export type Props = {
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   model: mkModelEq(ListingFilterEq),
+  entries: EntriesEq,
   logosPerRow: N.Eq,
   recentSince: S.Eq,
   dispatch: EqAlways,

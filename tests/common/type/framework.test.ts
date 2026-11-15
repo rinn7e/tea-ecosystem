@@ -3,15 +3,14 @@ import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { describe, expect, it } from 'vitest'
 
+import { frameworkById } from '@/common/data/catalog'
 import {
-  adjacentEntries,
-  frameworkById,
-  frameworks,
-} from '@/common/data/catalog'
-import {
+  ARCHIVED_AFTER_DAYS,
   FEATURED_IDS,
   FIRST_LIST_DAY,
   type Framework,
+  QUIET_AFTER_DAYS,
+  activityStatusOf,
   addedDayOf,
   cardRibbonOf,
   hasPublicRepo,
@@ -19,13 +18,16 @@ import {
   recentSinceOf,
   sourceLabelOf,
   sourceUrlOf,
+  statusAt,
   websiteOf,
 } from '@/common/type/framework'
+
+import { adjacentEntries, frameworks, testEntries } from '../../helper/entries'
 
 // An entry of the data by its id; a missing one fails the test
 const entry = (id: string): Framework =>
   pipe(
-    frameworkById(id),
+    frameworkById(testEntries)(id),
     O.getOrElse((): Framework => {
       throw new Error(`No entry ${id}`)
     }),
@@ -182,5 +184,64 @@ describe('hasPublicRepo', () => {
         repo: 'https://git.example.org/owner/name',
       }),
     ).toBe(true)
+  })
+})
+
+describe('the status of an entry', () => {
+  const NOW = Date.parse('2026-11-15T12:00:00Z')
+  const daysBefore = (days: number) =>
+    new Date(NOW - days * 86_400_000).toISOString().replace(/\.\d{3}Z$/, 'Z')
+
+  it('reads the last push: active within a year, quiet within two, else archived', () => {
+    expect(activityStatusOf(daysBefore(0), NOW)).toBe('active')
+    expect(activityStatusOf(daysBefore(QUIET_AFTER_DAYS), NOW)).toBe('active')
+    expect(activityStatusOf(daysBefore(QUIET_AFTER_DAYS + 1), NOW)).toBe(
+      'quiet',
+    )
+    expect(activityStatusOf(daysBefore(ARCHIVED_AFTER_DAYS), NOW)).toBe('quiet')
+    expect(activityStatusOf(daysBefore(ARCHIVED_AFTER_DAYS + 1), NOW)).toBe(
+      'archived',
+    )
+  })
+
+  test.prop([fc.integer({ min: 0, max: 5000 })])(
+    'never comes back less archived as the last push grows older',
+    (days) => {
+      const rank = { active: 0, quiet: 1, archived: 2 }
+      expect(
+        rank[activityStatusOf(daysBefore(days + 1), NOW)],
+      ).toBeGreaterThanOrEqual(rank[activityStatusOf(daysBefore(days), NOW)])
+    },
+  )
+
+  it('keeps a stored archived status, whatever the last push', () => {
+    const { status: _, ...stored } = entry('elm')
+    expect(
+      statusAt(NOW)({
+        ...stored,
+        status: 'archived',
+        updatedAt: daysBefore(1),
+      }).status,
+    ).toBe('archived')
+  })
+
+  it('derives the status of an entry with a public repository from its last push', () => {
+    const { status: _, ...stored } = entry('elm')
+    expect(statusAt(NOW)({ ...stored, updatedAt: daysBefore(10) }).status).toBe(
+      'active',
+    )
+    expect(
+      statusAt(NOW)({ ...stored, updatedAt: daysBefore(400) }).status,
+    ).toBe('quiet')
+    expect(
+      statusAt(NOW)({ ...stored, updatedAt: daysBefore(800) }).status,
+    ).toBe('archived')
+  })
+
+  it('keeps the stored status of an entry with no public repository', () => {
+    const { status: _, updatedAt: __, ...stored } = entry('hojicha')
+    expect(statusAt(NOW)({ ...stored, status: 'active' }).status).toBe('active')
+    expect(statusAt(NOW)({ ...stored, status: 'quiet' }).status).toBe('quiet')
+    expect(statusAt(NOW)(stored).status).toBe('quiet')
   })
 })

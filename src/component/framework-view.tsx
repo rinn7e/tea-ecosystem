@@ -204,11 +204,11 @@ export const statusLabel = (status: Status): string => {
 export const statusMeaning = (status: Status): string => {
   switch (status) {
     case 'active':
-      return 'Still worked on: recent pushes or releases.'
+      return 'Its repository was pushed to in the last year.'
     case 'quiet':
-      return 'Little or no recent activity, but not archived: often finished rather than dead.'
+      return 'No push to its repository for a year or more, but less than two: often finished rather than dead.'
     case 'archived':
-      return 'Its repository is archived, or its author has moved on.'
+      return 'Its repository is archived, its author has moved on, or it has had no push for two years.'
   }
 }
 

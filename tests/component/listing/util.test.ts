@@ -4,12 +4,7 @@ import { pipe } from 'fp-ts/function'
 import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it } from 'vitest'
 
-import {
-  adjacentEntries,
-  entriesOf,
-  frameworks,
-  targetOptionsOf,
-} from '@/common/data/catalog'
+import { targetOptionsOf } from '@/common/data/catalog'
 import {
   type AdjacentFilter,
   type CatalogFilter,
@@ -66,10 +61,12 @@ import {
 } from '@/component/listing'
 
 import { listingFilterArb, sortRecordArb } from '../../helper/arbitrary'
+import { adjacentEntries, frameworks, testEntries } from '../../helper/entries'
 
 describe('filterFrameworks', () => {
   it('shows everything but the archived entries with no filter', () => {
-    // The archived entries are all TEA-adjacent (Seed, ts-elmish, Comet)
+    // The TEA-adjacent list always has archived ones: Seed, ts-elmish and
+    // Comet are stored so
     expect(filterFrameworks(defaultAdjacentFilter())(adjacentEntries)).toEqual(
       adjacentEntries.filter((f) => f.status !== 'archived'),
     )
@@ -160,7 +157,7 @@ describe('the lines of a list', () => {
   test.prop([listingFilterArb])(
     'read every box ticked as no box ticked',
     (filter) => {
-      const entries = entriesOf(filter.list)
+      const entries = testEntries[filter.list]
       const none = noneForEvery(filter)
       expect(filterFrameworks(filter)(entries)).toEqual(
         filterFrameworks(none)(entries),
@@ -171,14 +168,16 @@ describe('the lines of a list', () => {
       expect(shownArchivedCountOf(entries, filter)).toBe(
         shownArchivedCountOf(entries, none),
       )
-      expect(otherListMatchesOf(filter)).toEqual(otherListMatchesOf(none))
+      expect(otherListMatchesOf(testEntries, filter)).toEqual(
+        otherListMatchesOf(testEntries, none),
+      )
     },
   )
 
   test.prop([listingFilterArb])(
     'never offer to show and to hide the archive at once',
     (filter) => {
-      const entries = entriesOf(filter.list)
+      const entries = testEntries[filter.list]
       expect(
         archivedHintCountOf(entries, filter) > 0 &&
           shownArchivedCountOf(entries, filter) > 0,
@@ -190,12 +189,12 @@ describe('the lines of a list', () => {
     'point to matches the other list really shows, under the filter it opens with',
     (filter) => {
       pipe(
-        otherListMatchesOf(filter),
+        otherListMatchesOf(testEntries, filter),
         O.map((matches) => {
           expect(matches.filter.list).toBe(otherListOf(filter.list))
           expect(matches.count).toBeGreaterThan(0)
           expect(matches.count).toBe(
-            filterFrameworks(matches.filter)(entriesOf(matches.filter.list))
+            filterFrameworks(matches.filter)(testEntries[matches.filter.list])
               .length,
           )
         }),
@@ -417,7 +416,7 @@ describe('otherListMatchesOf', () => {
   })
   const countOf = (filter: ListingFilter) =>
     pipe(
-      otherListMatchesOf(filter),
+      otherListMatchesOf(testEntries, filter),
       O.map((matches) => matches.count),
     )
 
@@ -488,7 +487,7 @@ describe('otherListMatchesOf', () => {
   it('points on targets alone, or statuses that leave some out', () => {
     expect(
       O.isSome(
-        otherListMatchesOf({
+        otherListMatchesOf(testEntries, {
           ...defaultCatalogFilter(),
           targets: choiceOf(targets, ['web']),
         }),
@@ -496,7 +495,7 @@ describe('otherListMatchesOf', () => {
     ).toBe(true)
     expect(
       O.isSome(
-        otherListMatchesOf({
+        otherListMatchesOf(testEntries, {
           ...defaultCatalogFilter(),
           statuses: statusChoiceOf(['active']),
         }),
@@ -506,13 +505,13 @@ describe('otherListMatchesOf', () => {
 
   it('does not point on statuses that widen the list', () => {
     expect(
-      otherListMatchesOf({
+      otherListMatchesOf(testEntries, {
         ...defaultCatalogFilter(),
         statuses: statusChoiceOf(['active', 'quiet', 'archived']),
       }),
     ).toEqual(O.none)
     expect(
-      otherListMatchesOf({
+      otherListMatchesOf(testEntries, {
         ...defaultCatalogFilter(),
         statuses: statusChoiceOf([]),
       }),
@@ -542,7 +541,7 @@ describe('otherListMatchesOf', () => {
     ).toBe(3)
     expect(
       O.isSome(
-        otherListMatchesOf({
+        otherListMatchesOf(testEntries, {
           ...defaultAdjacentFilter(),
           targets: noTui,
         }),
@@ -552,7 +551,7 @@ describe('otherListMatchesOf', () => {
 
   it('finds no TEA-adjacent library in Scala', () => {
     expect(
-      otherListMatchesOf({
+      otherListMatchesOf(testEntries, {
         ...defaultCatalogFilter(),
         language: O.some('Scala'),
       }),
@@ -563,7 +562,7 @@ describe('otherListMatchesOf', () => {
     // Seed is archived: under the default statuses the pointer falls back
     // to it, under Active only it does not
     expect(
-      otherListMatchesOf({
+      otherListMatchesOf(testEntries, {
         ...searchOf('seed'),
         statuses: statusChoiceOf(['active']),
       }),
@@ -573,7 +572,7 @@ describe('otherListMatchesOf', () => {
   it('names what the matches match', () => {
     const subjectOf = (filter: ListingFilter) =>
       pipe(
-        otherListMatchesOf(filter),
+        otherListMatchesOf(testEntries, filter),
         O.map((m) => m.subject),
       )
     expect(
@@ -617,7 +616,7 @@ describe('otherListMatchesOf', () => {
   it('quotes a search beside statuses that widen the list or a one-list filter', () => {
     const subjectOf = (filter: ListingFilter) =>
       pipe(
-        otherListMatchesOf(filter),
+        otherListMatchesOf(testEntries, filter),
         O.map((m) => m.subject),
       )
     expect(
@@ -644,14 +643,14 @@ describe('otherListMatchesOf', () => {
   it('names a search alone in quotes', () => {
     expect(
       pipe(
-        otherListMatchesOf(searchOf('xstate')),
+        otherListMatchesOf(testEntries, searchOf('xstate')),
         O.map((m) => m.subject),
       ),
     ).toEqual(O.some('"xstate"'))
   })
 
   it('falls back to the archived entries, shown with every status', () => {
-    const seed = otherListMatchesOf(searchOf('seed'))
+    const seed = otherListMatchesOf(testEntries, searchOf('seed'))
     expect(
       pipe(
         seed,
@@ -666,23 +665,23 @@ describe('otherListMatchesOf', () => {
     ).toEqual(O.some(anyChoice(true)))
     expect(
       pipe(
-        otherListMatchesOf(searchOf('XState')),
+        otherListMatchesOf(testEntries, searchOf('XState')),
         O.map((m) => m.isArchived),
       ),
     ).toEqual(O.some(false))
   })
 
   it('finds nothing when no filter carries over, or nothing matches', () => {
-    expect(otherListMatchesOf(searchOf('  '))).toEqual(O.none)
+    expect(otherListMatchesOf(testEntries, searchOf('  '))).toEqual(O.none)
     expect(
-      otherListMatchesOf({
+      otherListMatchesOf(testEntries, {
         ...defaultCatalogFilter(),
         tiers: choiceOf(catalogTiers, ['full']),
       }),
     ).toEqual(O.none)
-    expect(otherListMatchesOf(adjacentSearchOf('no such framework'))).toEqual(
-      O.none,
-    )
+    expect(
+      otherListMatchesOf(testEntries, adjacentSearchOf('no such framework')),
+    ).toEqual(O.none)
   })
 
   it('says how many match there, with "also" under results', () => {
@@ -733,7 +732,7 @@ describe('otherListMatchesOf', () => {
   it('links to the matches with the filter that shows them', () => {
     expect(
       pipe(
-        otherListMatchesOf(searchOf('xstate')),
+        otherListMatchesOf(testEntries, searchOf('xstate')),
         O.map((matches) => otherListLinkOf(matches)),
       ),
     ).toEqual(
@@ -747,7 +746,7 @@ describe('otherListMatchesOf', () => {
     // An archived match opens the other list with every status shown
     expect(
       pipe(
-        otherListMatchesOf(searchOf('seed')),
+        otherListMatchesOf(testEntries, searchOf('seed')),
         O.map((matches) => otherListLinkOf(matches)),
       ),
     ).toEqual(
@@ -779,11 +778,12 @@ describe('otherListRecentOf', () => {
       .map((f) => f.id)
 
   it('says nothing while the list is not shown newest first', () => {
-    expect(otherListRecentOf(defaultCatalogFilter(), recentSince)).toEqual(
-      O.none,
-    )
+    expect(
+      otherListRecentOf(testEntries, defaultCatalogFilter(), recentSince),
+    ).toEqual(O.none)
     expect(
       otherListRecentOf(
+        testEntries,
         { ...defaultCatalogFilter(), sort: sortOfCardSort('popularity') },
         recentSince,
       ),
@@ -792,6 +792,7 @@ describe('otherListRecentOf', () => {
 
   it('counts the recent entries of TEA-adjacent from the catalog shown newest first, and opens them newest first', () => {
     const recent = otherListRecentOf(
+      testEntries,
       { ...defaultCatalogFilter(), sort: newestFirst },
       recentSince,
     )
@@ -816,6 +817,7 @@ describe('otherListRecentOf', () => {
 
   it('counts the recent entries of the catalog from TEA-adjacent shown newest first', () => {
     const recent = otherListRecentOf(
+      testEntries,
       { ...defaultAdjacentFilter(), sort: newestFirst },
       recentSince,
     )
@@ -835,6 +837,7 @@ describe('otherListRecentOf', () => {
   it('carries the shared filters, and says nothing when no recent entry is left', () => {
     expect(
       otherListRecentOf(
+        testEntries,
         {
           ...defaultCatalogFilter(),
           sort: newestFirst,
@@ -846,6 +849,7 @@ describe('otherListRecentOf', () => {
     // Before any entry was added after the first list
     expect(
       otherListRecentOf(
+        testEntries,
         { ...defaultCatalogFilter(), sort: newestFirst },
         '2099-01-01',
       ),
@@ -923,15 +927,15 @@ describe('sort menu of the cards', () => {
 })
 
 describe('hiddenArchivedCountOf', () => {
-  // The archived entries are all TEA-adjacent: Seed (Rust, web), ts-elmish
-  // (TypeScript, web) and Comet (C#, mobile and desktop)
+  // The entries stored as archived are all TEA-adjacent: Seed (Rust, web),
+  // ts-elmish (TypeScript, web) and Comet (C#, mobile and desktop)
   const rust: AdjacentFilter = {
     ...defaultAdjacentFilter(),
     language: O.some('Rust'),
   }
 
   it('counts the archived entries a filter matches while they are hidden', () => {
-    // Seed, the archived Rust library
+    // Seed, the Rust library stored as archived
     expect(hiddenArchivedCountOf(adjacentEntries, rust)).toBe(1)
   })
 

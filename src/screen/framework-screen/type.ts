@@ -1,6 +1,7 @@
 import * as EqClass from 'fp-ts/Eq'
 import * as S from 'fp-ts/string'
 
+import { type Entries, EntriesEq } from '@/common/data/catalog'
 import { type Destination, DestinationEq } from '@/common/type/destination'
 import { type Framework } from '@/common/type/framework'
 
@@ -16,6 +17,9 @@ export const ModelEq: EqClass.Eq<Model> = EqClass.struct({
 
 export type Props = {
   model: Model
+  // The entries of both lists (`Model.entries`): the other entries in its
+  // languages
+  entries: Entries
   // The list under this page (the catalog or the adjacent list), as it was
   // left: the target of its back link
   listDestination: Destination
@@ -26,6 +30,7 @@ export type Props = {
 
 export const PropsEq: EqClass.Eq<Props> = EqClass.struct({
   model: ModelEq,
+  entries: EntriesEq,
   listDestination: DestinationEq,
   recentSince: S.Eq,
 })

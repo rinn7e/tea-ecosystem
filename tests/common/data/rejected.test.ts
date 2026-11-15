@@ -3,11 +3,7 @@ import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { describe, expect, it } from 'vitest'
 
-import {
-  adjacentEntries,
-  frameworkById,
-  frameworks,
-} from '@/common/data/catalog'
+import { frameworkById } from '@/common/data/catalog'
 import {
   listedKeysOf,
   listedRejectionsOf,
@@ -17,6 +13,8 @@ import {
 } from '@/common/data/rejected'
 import { FIRST_LIST_DAY, sourceUrlOf } from '@/common/type/framework'
 import { type Rejection } from '@/common/type/rejected'
+
+import { adjacentEntries, frameworks, testEntries } from '../../helper/entries'
 
 const entries = [...frameworks, ...adjacentEntries]
 
@@ -199,7 +197,7 @@ describe('listedRejectionsOf', () => {
     // of React, which is not TEA
     expect(
       pipe(
-        frameworkById('use-reducer'),
+        frameworkById(testEntries)('use-reducer'),
         O.map((f) => [f.repo, listedKeysOf(f)]),
       ),
     ).toEqual(

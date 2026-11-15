@@ -1,5 +1,7 @@
 import * as RD from '@devexperts/remote-data-ts'
+import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
 import { err, ok } from 'tea-cup-fp'
 import { describe, expect, it } from 'vitest'
 
@@ -12,6 +14,7 @@ import {
   statusChoiceOf,
 } from '@/common/type/destination'
 import { targets } from '@/common/type/framework'
+import { type Model } from '@/type'
 import { catalogDestinationOf, destinationOf } from '@/util'
 
 import { bootOn, navigate, step } from './helper/app'
@@ -143,5 +146,37 @@ describe('the star count of the repository', () => {
     expect(
       navigate(loaded, destinationOfScreen(frameworkScreen('tears'))).repoStars,
     ).toEqual(RD.success(8))
+  })
+})
+
+describe('the status of an entry', () => {
+  // Long after the last push of Elm, which is archived then
+  const LATE = Date.parse('2100-01-01T00:00:00Z')
+
+  const pageStatusOf = (model: Model) =>
+    model.screenModel._tag === 'FrameworkScreenModel'
+      ? O.some(model.screenModel.model.framework.status)
+      : O.none
+
+  const listStatusOf = (model: Model) =>
+    pipe(
+      model.entries.catalog,
+      A.findFirst((f) => f.id === 'elm'),
+      O.map((f) => f.status),
+    )
+
+  it('compares the last push with the time the site loaded', () => {
+    expect(listStatusOf(bootOn('/', 0))).toEqual(O.some('active'))
+    expect(listStatusOf(bootOn('/', LATE))).toEqual(O.some('archived'))
+    expect(pageStatusOf(bootOn('/framework/elm', LATE))).toEqual(
+      O.some('archived'),
+    )
+  })
+
+  it('opens an entry page with the status of the lists', () => {
+    const late = bootOn('/', LATE)
+    const onPage = navigate(late, destinationOfScreen(frameworkScreen('elm')))
+    expect(pageStatusOf(onPage)).toEqual(O.some('archived'))
+    expect(onPage.entries).toBe(late.entries)
   })
 })

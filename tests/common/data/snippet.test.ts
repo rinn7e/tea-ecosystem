@@ -1,12 +1,13 @@
 import * as O from 'fp-ts/Option'
 import { describe, expect, it } from 'vitest'
 
-import { adjacentEntries, frameworks } from '@/common/data/catalog'
 import {
   isKnownSnippetExtension,
   snippetFileNames,
   snippetOf,
 } from '@/common/data/snippet'
+
+import { adjacentEntries, frameworks } from '../../helper/entries'
 
 const entries = [...frameworks, ...adjacentEntries]
 

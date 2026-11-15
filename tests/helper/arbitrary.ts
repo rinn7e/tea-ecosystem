@@ -2,12 +2,7 @@ import { fc } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
 import { isDeepStrictEqual } from 'node:util'
 
-import {
-  type ListId,
-  adjacentEntries,
-  frameworks,
-  targetOptionsOf,
-} from '@/common/data/catalog'
+import { type ListId, targetOptionsOf } from '@/common/data/catalog'
 import {
   type AdjacentFilter,
   type CatalogFilter,
@@ -34,6 +29,8 @@ import {
   languagesOf,
   statuses,
 } from '@/common/type/framework'
+
+import { adjacentEntries, frameworks } from './entries'
 
 // Random filters for the property tests. Every value is built the way the
 // app builds it (`choiceOf`, `statusChoiceOf`), so only states the app can

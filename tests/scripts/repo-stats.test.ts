@@ -1,8 +1,8 @@
 import { fc, test } from '@fast-check/vitest'
 import { describe, expect, it, vi } from 'vitest'
 
-import { adjacentEntries, frameworks } from '@/common/data/catalog'
-import { type Framework, hasPublicRepo } from '@/common/type/framework'
+import { storedAdjacentEntries, storedFrameworks } from '@/common/data/catalog'
+import { type FrameworkEntry, hasPublicRepo } from '@/common/type/framework'
 
 import {
   LINK_FIELDS,
@@ -22,10 +22,11 @@ import {
 } from '../../scripts/repo-stats.mjs'
 
 // The script runs on made-up answers of the hosts: no test reaches the
-// network. Every entry comes from the data files, so the moves and links
-// are checked on the real shapes of `repo`, `source` and `snippetSource`.
+// network. Every entry comes from the data files as they are stored (the
+// script reads them so, with no derived status), so the moves and links are
+// checked on the real shapes of `repo`, `source` and `snippetSource`.
 
-const allEntries = [...frameworks, ...adjacentEntries]
+const allEntries = [...storedFrameworks, ...storedAdjacentEntries]
 const publicEntries = allEntries.filter(hasPublicRepo)
 
 const entryArb = fc.constantFrom(...allEntries)
@@ -76,13 +77,13 @@ const isApiOf = (repo: string | undefined, url: string): boolean => {
 
 // A host that answers `answer` for `repo` and `origin` for `originRepo`
 const hostOf =
-  (entry: Framework, answer: Answer, origin: Answer) => (url: string) =>
+  (entry: FrameworkEntry, answer: Answer, origin: Answer) => (url: string) =>
     Promise.resolve(bodyOf(isApiOf(entry.originRepo, url) ? origin : answer))
 
 // The answer of a host that has nothing new about an entry: its numbers,
 // its own address (in another case at times: the hosts ignore it), and the
 // archived flag its status says
-const sameAnswerOf = (entry: Framework, upper: boolean): Answer => ({
+const sameAnswerOf = (entry: FrameworkEntry, upper: boolean): Answer => ({
   stars: entry.stars ?? 0,
   createdAt: entry.createdAt ?? '2020-01-01T00:00:00Z',
   updatedAt: entry.updatedAt ?? '2020-01-01T00:00:00Z',
@@ -114,7 +115,7 @@ const answerArb = (fullName: fc.Arbitrary<string>): fc.Arbitrary<Answer> =>
   })
 
 // The fields an entry has apart from its numbers and links
-const withoutNumbersAndLinks = (entry: Framework) =>
+const withoutNumbersAndLinks = (entry: FrameworkEntry) =>
   Object.fromEntries(
     Object.entries(entry).filter(
       ([field]) =>

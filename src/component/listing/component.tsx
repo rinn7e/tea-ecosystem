@@ -17,7 +17,11 @@ import { pipe } from 'fp-ts/function'
 import React, { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import { type ListId, entriesOf, targetOptionsOf } from '@/common/data/catalog'
+import {
+  type Entries,
+  type ListId,
+  targetOptionsOf,
+} from '@/common/data/catalog'
 import {
   type AdjacentFilter,
   type CatalogFilter,
@@ -1263,16 +1267,18 @@ const tableView = ({
 // them
 const emptyView = ({
   entries,
+  allEntries,
   filter,
   dispatch,
 }: {
   entries: Framework[]
+  allEntries: Entries
   filter: ListingFilter
   dispatch: Dispatcher<Msg>
 }) => {
   const archivedCount = hiddenArchivedCountOf(entries, filter)
   const noun = entryNounOf(filter.list, archivedCount)
-  const other = otherListMatchesOf(filter)
+  const other = otherListMatchesOf(allEntries, filter)
   return (
     <div className='border-line flex flex-col items-center gap-[10px] rounded-[3px] border border-dashed px-[16px] py-[48px] text-center'>
       <span className='text-ink text-base font-normal'>
@@ -1356,21 +1362,23 @@ const archivedHintView = ({
 // shown newest first points to what the other list added recently. One
 // line at most: the matches of a filter first.
 const otherListHintView = ({
+  allEntries,
   filter,
   recentSince,
 }: {
+  allEntries: Entries
   filter: ListingFilter
   recentSince: string
 }) => {
   return pipe(
-    otherListMatchesOf(filter),
+    otherListMatchesOf(allEntries, filter),
     O.map((matches) => ({
       text: otherListMatchTextOf({ matches, isAlso: true }),
       link: otherListLinkOf(matches),
     })),
     O.alt(() =>
       pipe(
-        otherListRecentOf(filter, recentSince),
+        otherListRecentOf(allEntries, filter, recentSince),
         O.map((recent) => ({
           text: otherListRecentTextOf(recent),
           link: otherListLinkOf(recent),
@@ -1415,12 +1423,13 @@ const headingOf = (list: ListId) => {
 
 const ListingComponent = ({
   model,
+  entries: allEntries,
   logosPerRow,
   recentSince,
   dispatch,
 }: Props) => {
   const list = model.filter.list
-  const entries = entriesOf(list)
+  const entries = allEntries[list]
   const shown = pipe(
     entries,
     filterFrameworks(model.filter),
@@ -1473,9 +1482,9 @@ const ListingComponent = ({
             dispatch,
           })}
         {shown.length > 0 &&
-          otherListHintView({ filter: model.filter, recentSince })}
+          otherListHintView({ allEntries, filter: model.filter, recentSince })}
         {shown.length === 0
-          ? emptyView({ entries, filter: model.filter, dispatch })
+          ? emptyView({ entries, allEntries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'
             ? cardsView({ shown, recentSince })
             : tableView({ shown, sort: model.filter.sort, dispatch })}

@@ -9,15 +9,15 @@ import { describe, expect, it } from 'vitest'
 import {
   MISSES_NOTE_PREFIX,
   SUPERSET_NOTE_PREFIX,
-  adjacentEntries,
   frameworkById,
-  frameworks,
   meetsRequirement,
   missedRequirementsOf,
   missesNotePrefixOf,
   requirements,
   rubricProblemsOf,
   sameLanguageEntriesOf,
+  storedAdjacentEntries,
+  storedFrameworks,
 } from '@/common/data/catalog'
 import { repoKeyOf } from '@/common/data/rejected'
 import {
@@ -36,6 +36,7 @@ import {
   plainNotesArb,
   rubricArb,
 } from '../../helper/arbitrary'
+import { adjacentEntries, frameworks, testEntries } from '../../helper/entries'
 
 describe('data files', () => {
   it('decode, with frameworks in both files', () => {
@@ -103,7 +104,7 @@ describe('data files', () => {
 
   it('spell the requirements an adjacent entry misses as its note starts', () => {
     const prefixOf = (id: string) =>
-      pipe(frameworkById(id), O.map(missesNotePrefixOf))
+      pipe(frameworkById(testEntries)(id), O.map(missesNotePrefixOf))
     expect(prefixOf('ngrx')).toEqual(O.some('Misses Cmd: '))
     expect(prefixOf('redux')).toEqual(O.some('Misses Cmd and Sub: '))
     expect(prefixOf('halogen')).toEqual(O.some('Misses update, Cmd and Sub: '))
@@ -113,8 +114,8 @@ describe('data files', () => {
   })
 
   it('find an entry of either list by its id', () => {
-    expect(O.isSome(frameworkById('lustre'))).toBe(true)
-    expect(O.isSome(frameworkById('redux'))).toBe(true)
+    expect(O.isSome(frameworkById(testEntries)('lustre'))).toBe(true)
+    expect(O.isSome(frameworkById(testEntries)('redux'))).toBe(true)
   })
 
   it('keep Elm first, as the reference', () => {
@@ -174,10 +175,11 @@ describe('data files', () => {
     ).toEqual(['hojicha', 'mvu-flutter', 'cauldron'])
   })
 
-  it('give an unmaintained notice only to an archived entry', () => {
+  it('give an unmaintained notice only to an entry stored as archived', () => {
     // The stats script counts the notice as archived, so a notice on an
-    // active or quiet entry would hide that its status disagrees
-    const wrong = [...frameworks, ...adjacentEntries].filter(
+    // entry not stored as archived would hide that its status disagrees;
+    // the stored data, as time may archive the entry too
+    const wrong = [...storedFrameworks, ...storedAdjacentEntries].filter(
       (f) => f.unmaintainedNotice !== undefined && f.status !== 'archived',
     )
     expect(wrong.map((f) => f.id)).toEqual([])
@@ -374,8 +376,8 @@ describe('sameLanguageEntriesOf', () => {
   // Each group as its language and, per list, the ids of its entries
   const groupsOf = (id: string) =>
     pipe(
-      frameworkById(id),
-      O.map(sameLanguageEntriesOf),
+      frameworkById(testEntries)(id),
+      O.map(sameLanguageEntriesOf(testEntries)),
       O.map(
         A.map(({ language, lists }) => ({
           language,

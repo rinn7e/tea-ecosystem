@@ -6,12 +6,14 @@ import { type Props, PropsEq } from './type'
 
 const CatalogComponent = ({
   model,
+  entries,
   logosPerRow,
   recentSince,
   dispatch,
 }: Props) => (
   <ListingMemo
     model={model.listing}
+    entries={entries}
     logosPerRow={logosPerRow}
     recentSince={recentSince}
     dispatch={(subMsg) => dispatch({ _tag: 'ListingMsg', subMsg })}

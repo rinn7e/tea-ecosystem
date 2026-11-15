@@ -6,7 +6,11 @@ import { identity, pipe } from 'fp-ts/function'
 import * as N from 'fp-ts/number'
 import * as S from 'fp-ts/string'
 
-import { type ListId, entriesOf, targetOptionsOf } from '@/common/data/catalog'
+import {
+  type Entries,
+  type ListId,
+  targetOptionsOf,
+} from '@/common/data/catalog'
 import {
   languagePopularity,
   pinnedLanguages,
@@ -279,9 +283,10 @@ export type OtherListMatches = {
 // ones, and shown with every status box ticked, so the archived line there
 // offers to hide them
 export const otherListMatchesOf = (
+  entries: Entries,
   filter: ListingFilter,
 ): O.Option<OtherListMatches> => {
-  const entries = entriesOf(otherListOf(filter.list))
+  const otherEntries = entries[otherListOf(filter.list)]
   return pipe(
     carriedFilterOf(filter),
     O.filter(narrowsOtherList),
@@ -310,7 +315,7 @@ export const otherListMatchesOf = (
         tries,
         A.findFirstMap(({ filter: shown, isArchived }) =>
           pipe(
-            filterFrameworks(shown)(entries).length,
+            filterFrameworks(shown)(otherEntries).length,
             O.fromPredicate((count) => count > 0),
             O.map((count): OtherListMatches => ({
               count,
@@ -352,6 +357,7 @@ export type OtherListRecent = {
 // the other list that wear "Recently added" too, under the filters both
 // lists share: the link opens that list newest first as well
 export const otherListRecentOf = (
+  entries: Entries,
   filter: ListingFilter,
   recentSince: string,
 ): O.Option<OtherListRecent> =>
@@ -361,7 +367,7 @@ export const otherListRecentOf = (
     O.chain(carriedFilterOf),
     O.map((carried) => ({
       count: pipe(
-        filterFrameworks(carried)(entriesOf(carried.list)),
+        filterFrameworks(carried)(entries[carried.list]),
         A.filter((framework) => isRecentlyAdded(framework, recentSince)),
         A.size,
       ),
