@@ -526,12 +526,13 @@ const searchView = ({
     />
     {/* The hint, drawn over the empty field in place of a placeholder, which
         cannot change with the width: a few words on a phone, where the long
-        one was cut. The field keeps 16px text on a phone, below which
-        Safari zooms the page into it. */}
+        one was cut, and smaller than the text typed in. The field itself
+        keeps 16px text on a phone, below which Safari zooms the page into
+        it. */}
     {filter.query === '' && (
       <span
         aria-hidden='true'
-        className='text-ink-faint pointer-events-none absolute right-[12px] left-[38px] truncate text-base lg:text-[0.9375rem]'
+        className='text-ink-faint pointer-events-none absolute right-[12px] left-[38px] truncate text-sm sm:text-base lg:text-[0.9375rem]'
       >
         <span className='sm:hidden'>Search name or language</span>
         <span className='hidden sm:inline'>
