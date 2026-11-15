@@ -573,7 +573,7 @@ const searchRowView = ({
   const count = panelFilterCountOf(model.filter)
   const isOpen = model.panel === 'open'
   return (
-    <div className='flex items-stretch gap-[10px]'>
+    <div className='flex items-stretch gap-[6px] sm:gap-[10px]'>
       {searchView({ filter: model.filter, dispatch })}
       <div className='relative flex' {...{ [PANEL_ATTRIBUTE]: '' }}>
         <button
