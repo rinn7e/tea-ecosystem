@@ -1429,9 +1429,9 @@ const ListingComponent = ({
   const heading = headingOf(list)
   return (
     // Three groups with tight gaps inside: the hero, the filters (category
-    // boxes, logo row, search), the results. A wide gap after the hero,
-    // and a short one between the search and the toolbar, which work as
-    // one set of controls.
+    // boxes, logo row, search), the results, a wide gap between them. On a
+    // phone the gap between the search and the toolbar is short, so the
+    // first card shows on landing.
     <div className='flex flex-col'>
       <section className='flex flex-col items-center gap-[12px] text-center'>
         <h1 className='text-ink text-[1.625rem] leading-tight font-normal text-balance sm:text-[2rem] lg:text-[2.625rem]'>
@@ -1459,7 +1459,7 @@ const ListingComponent = ({
         {searchRowView({ entries, model, dispatch })}
       </div>
       {/* The toolbar sits right on the results it acts on */}
-      <div className='mt-[16px] flex flex-col gap-[14px]'>
+      <div className='mt-[16px] flex flex-col gap-[14px] sm:mt-[44px]'>
         {filterBarView({
           filter: model.filter,
           shown: shown.length,
