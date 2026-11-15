@@ -90,16 +90,17 @@ Edit `data/frameworks.json`, or `data/adjacent.json` for a library that misses a
 
 ### Fields
 
-| Field                | Required | What it holds                                                                                                                                                       |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `discoveredAt`       | yes      | When you add it, `YYYY-MM-DDTHH:MM:SSZ` in UTC. A new entry shows as "Recently added" for 30 days.                                                                  |
-| `repo`               | yes      | The full URL of its public repository (GitHub, GitLab, Codeberg or another Gitea). Only when its source is not public: its website, with the same URL in `website`. |
-| `website`            | no       | Its website, when it has one apart from the repository                                                                                                              |
-| `source`             | no       | For one package of a monorepo: the full URL of its directory in `repo`                                                                                              |
-| `logo`               | no       | A file in `public/logo/`. Without one, the logo of its language stands in, on stripes.                                                                              |
-| `logoOnLight`        | no       | `true` when the logo is drawn in dark ink on a transparent ground (its tile stays white in dark mode)                                                               |
-| `logoPadding`        | no       | `small`, `medium` or `large`, for a logo drawn edge to edge that looks too large next to the others                                                                 |
-| `unmaintainedNotice` | no       | For an entry whose author says it is no longer maintained, though its repository is not archived: where the author says so (its status is then `archived`)          |
+| Field                | Required | What it holds                                                                                                                                                                                                                                                           |
+| -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `discoveredAt`       | yes      | When you add it, `YYYY-MM-DDTHH:MM:SSZ` in UTC. A new entry shows as "Recently added" for 30 days.                                                                                                                                                                      |
+| `repo`               | yes      | The full URL of its public repository (GitHub, GitLab, Codeberg or another Gitea). Only when its source is not public: its website, with the same URL in `website`.                                                                                                     |
+| `website`            | no       | Its website, when it has one apart from the repository                                                                                                                                                                                                                  |
+| `source`             | no       | For one package of a monorepo: the full URL of its directory in `repo`                                                                                                                                                                                                  |
+| `logo`               | no       | A file in `public/logo/`. Without one, the logo of its language stands in, on stripes.                                                                                                                                                                                  |
+| `logoOnLight`        | no       | `true` when the logo is drawn in dark ink on a transparent ground (its tile stays white in dark mode)                                                                                                                                                                   |
+| `logoPadding`        | no       | `small`, `medium` or `large`, for a logo drawn edge to edge that looks too large next to the others                                                                                                                                                                     |
+| `status`             | no       | Only `archived` (its repository is archived, or its author says it is no longer maintained). The site derives the rest from `updatedAt`: a push in the last year is active, in the last two quiet, else archived. An entry with no public repository stores its status. |
+| `unmaintainedNotice` | no       | For an entry whose author says it is no longer maintained, though its repository is not archived: where the author says so (its status is then `archived`)                                                                                                              |
 
 ### Grades and notes
 
@@ -133,7 +134,7 @@ The rules of `scripts/judge-discovered.sh`:
 - every grade verified;
 - an example of at most 90 lines, with its source.
 
-It skips what either data file lists, forks, archived, unmaintained and tiny projects, and the projects of `data/rejected.json`. While its pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict.
+It skips what either data file lists, forks, archived, unmaintained, abandoned (no push for two years) and tiny projects, and the projects of `data/rejected.json`. While its pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict.
 
 ### Settle a pull request by hand
 

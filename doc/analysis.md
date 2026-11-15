@@ -58,7 +58,7 @@ Note on the examples named at the start: Miso passes cleanly (update schedules e
 
 The list lives in the data files of the site, not in this document:
 
-- `data/frameworks.json`: the entries of the catalog, each with its rubric grades, tier, targets, status and notes.
+- `data/frameworks.json`: the entries of the catalog, each with its rubric grades, tier, targets and notes, and a status only where the last push cannot tell it (decision 2 of 2026-11-15).
 - `data/adjacent.json`: the TEA-adjacent libraries, each with the hard requirement it misses and why.
 
 The tests in CI (`tests/common/data/catalog.test.ts`) decode both files and check that every entry holds the rules of its tier (`rubricProblemsOf`): no entry of the catalog misses a requirement of full TEA, and every entry of the adjacent list misses one and says which.
@@ -164,6 +164,7 @@ Decided on 2026-11-14:
 Decided on 2026-11-15:
 
 1. The site moves to its own hostname, `https://tea.rinn7e.com/`, a CNAME to `rinn7e.github.io` set as the custom domain of the repo. Google Search shows one favicon and one site name per hostname, so under `rinn7e.com/tea-ecosystem/` the results showed the icon and the name of `rinn7e.com`. GitHub Pages redirects every old link under `rinn7e.com/tea-ecosystem/` to the same path on the new hostname, with a 301.
+2. The status of an entry follows the last push of its repository (`statusAt` in `src/common/type/framework.ts`), compared with the time the site loaded (`entriesAt`, derived once by `init` into `entries` of the root model): a push in the last year is active, in the last two quiet, else archived. It used to be set by hand, and disagreed with the dates on the cards (Elm read quiet, pushed to two weeks before). The data stores `archived` alone, where time cannot tell it: the repository is archived, or its author says it is no longer maintained (`unmaintainedNotice`). An entry with no public repository has no last push and stores its status. An archived entry stays hidden from the default list. The weekly search skips a project with no push for two years, whatever its stars, since it would land archived and hidden.
 
 ## 11. Phases
 
