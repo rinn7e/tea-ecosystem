@@ -8,7 +8,11 @@ import {
   monogramOf,
 } from '@/common/data/language-logo'
 import { BASE_URL } from '@/common/env'
-import { type Framework, isLanguageEntry } from '@/common/type/framework'
+import {
+  type Framework,
+  type LogoPadding,
+  isLanguageEntry,
+} from '@/common/type/framework'
 
 export type LogoSize = 'small' | 'large'
 
@@ -143,6 +147,19 @@ const tileLanguageLogoClass = (size: TileSize): string => {
   }
 }
 
+// A share of the tile: padding in percent counts from the width of the
+// tile, which holds the image
+const logoPaddingClass = (padding: LogoPadding): string => {
+  switch (padding) {
+    case 'small':
+      return 'p-[6%]'
+    case 'medium':
+      return 'p-[12%]'
+    case 'large':
+      return 'p-[18%]'
+  }
+}
+
 const logoUrl = (file: string): string =>
   `${BASE_URL.replace(/\/$/, '')}/logo/${file}`
 
@@ -174,7 +191,13 @@ export const frameworkTileView = ({
         <img
           src={logoUrl(framework.logo)}
           alt=''
-          className='size-full object-contain'
+          className={cn(
+            'size-full object-contain',
+            pipe(
+              O.fromNullable(framework.logoPadding),
+              O.fold(() => '', logoPaddingClass),
+            ),
+          )}
         />
       </span>
     )

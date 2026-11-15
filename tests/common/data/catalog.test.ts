@@ -149,6 +149,13 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
+  it('give a logo room in its tile only when there is a logo', () => {
+    const wrong = [...frameworks, ...adjacentEntries].filter(
+      (f) => f.logoPadding !== undefined && f.logo === undefined,
+    )
+    expect(wrong.map((f) => f.id)).toEqual([])
+  })
+
   it('give every repository as a full URL of owner and name', () => {
     const repoUrl = /^https:\/\/[a-z0-9.-]+\/[^/\s]+\/[^/\s]+$/
     const wrong = [...frameworks, ...adjacentEntries].filter((f) =>

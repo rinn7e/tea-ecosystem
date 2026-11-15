@@ -106,6 +106,14 @@ export const StatusJson: t.Type<Status> = t.keyof({
   archived: null,
 })
 
+// How much room a logo gets inside its tile (`logoPadding`)
+export const LogoPaddingJson = t.keyof({
+  small: null,
+  medium: null,
+  large: null,
+})
+export type LogoPadding = t.TypeOf<typeof LogoPaddingJson>
+
 export type Framework = {
   // Its URL segment: `/framework/<id>` (tests "give every entry a unique
   // id, across both files" and "use ids that are readable URL segments")
@@ -160,6 +168,10 @@ export type Framework = {
   // page: its tile stays white in dark mode too, where it would vanish on
   // the dark panel (`frameworkTileView`)
   logoOnLight?: true
+  // Room around its `logo` inside the tile, for a mark drawn edge to edge
+  // that looks too large next to the others: a share of the tile, so it
+  // holds at every tile size (`frameworkTileView`). Absent: no room.
+  logoPadding?: LogoPadding
   // A logo made of text, for a project whose mark is an emoji or a glyph
   // in its title (react-tea-cup: a cup of tea), used when it has no `logo`
   logoText?: string
@@ -217,6 +229,7 @@ export const FrameworkJson: t.Type<Framework> = t.intersection([
     originRepo: t.string,
     logo: t.string,
     logoOnLight: t.literal(true),
+    logoPadding: LogoPaddingJson,
     logoText: t.string,
     stars: t.number,
     snippetSource: t.string,
