@@ -38,11 +38,16 @@ Why it exists: [doc/analysis.md](doc/analysis.md).
 
 ## Run it
 
-Needs a GitHub token that can read packages in `~/.npmrc` (for the `@rinn7e` packages):
+Some packages come from GitHub, so npm needs a GitHub token once:
+
+1. Make a [classic token](https://github.com/settings/tokens/new?scopes=read:packages) with only `read:packages`.
+2. Save it, with your token in place of `<token>`:
 
 ```bash
-//npm.pkg.github.com/:_authToken=<token>
+echo "//npm.pkg.github.com/:_authToken=<token>" >> ~/.npmrc
 ```
+
+Then:
 
 ```bash
 pnpm install
