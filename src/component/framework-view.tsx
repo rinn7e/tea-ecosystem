@@ -448,7 +448,7 @@ export const edgeRibbonView = ({ ribbon }: { ribbon: CardRibbon }) => {
   return (
     <span
       className={cn(
-        'tablet:top-[52px] pointer-events-none absolute top-[37px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent',
+        'pointer-events-none absolute top-[37px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent sm:top-[52px]',
         look.fold,
       )}
     >

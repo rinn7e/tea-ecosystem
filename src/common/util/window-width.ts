@@ -9,11 +9,12 @@ import { pageWidth } from './page-scroll'
 // `window.innerWidth`: on a phone that one grows with content wider than
 // the screen, so a row too wide would make itself wider.
 
-// The breakpoints of the CSS: `tablet:` (`src/asset/index.css`) and `lg:`.
+// The breakpoints of the CSS, the defaults of Tailwind: `sm:` (a tablet)
+// and `lg:` (a desktop).
 // A media query counts the scrollbar and `windowWidth` does not, so near a
 // breakpoint the two can disagree by its width (16px at most).
 export const breakpoints = {
-  tablet: 640,
+  sm: 640,
   lg: 1024,
 }
 

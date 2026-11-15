@@ -142,10 +142,10 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
               {/* The compact form on a phone, where the emblem leaves
                   little room on its right; the words from a tablet up */}
               <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
-                <span className='tablet:hidden'>
+                <span className='sm:hidden'>
                   {relativeTimeOf(LAST_UPDATED, now, true)}
                 </span>
-                <span className='tablet:inline hidden'>
+                <span className='hidden sm:inline'>
                   {relativeTimeOf(LAST_UPDATED, now)}
                 </span>
               </span>

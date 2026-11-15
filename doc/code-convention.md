@@ -180,7 +180,12 @@ Code says what it does by itself; a comment says only what the code cannot. A co
 - The look follows the website of Elm: read [doc/design/style-guide.md](design/style-guide.md) (tokens, type, shapes, what not to do) and the pages of elm-lang.org it lists (section 1) before changing the UI.
 - Tailwind v4 with the tokens of `src/asset/index.css` (`bg-panel`, `text-ink-muted`, `text-accent` for blue that meets text, `border-edge` for the brighter blue of borders, `bg-bar` for the top bar, one color per grade). The tokens switch for dark mode, so classes need no `dark:` variants.
 - Every text is regular weight (`font-normal`); hierarchy comes from size and space. Boxes take the hard offset shadow (`offset-shadow`, or `offset-shadow-edge` for the main one) and square corners (3 px at most).
-- Mobile first: unprefixed classes for phones and portrait tablets, `lg:` for desktop. No `sm:`, `md:` or `max-*` breakpoints. Exception: an element that needs its own layout between a phone and a desktop uses `tablet:` (640 px, defined in `src/asset/index.css`), and says so in a comment. Today the cards use it (two columns, and the denser card of a phone below it: less padding, the tile of a table row, a two-line summary) and the age of the repository in the bar (the compact `3h ago` on a phone, `3 hours ago` from a tablet up); everything else stays on the phone layout up to `lg:`. The breakpoints and what uses each are in the table of `doc/design/style-guide.md` (section 4, Breakpoints).
+- Mobile first, with three layouts: phone, tablet and desktop.
+  - Phone: unprefixed classes, always written first.
+  - Tablet: `sm:` (640 px, the default of Tailwind), for an element whose layout differs on a tablet.
+  - Desktop: `lg:` (1024 px).
+  - A breakpoint only overrides the layout below it, upward. No `md:`, `xl:`, `2xl:` or `max-*`.
+  - Most elements need no tablet step: the phone layout holds up to `lg:`. The breakpoints and what uses `sm:` today are in the table of `doc/design/style-guide.md` (section 4, Breakpoints).
 - A layout that depends on the width of the window beyond what CSS can do (how many language logos fit a row) reads `windowWidth` from the root model (or a value the root derives from it, such as `logosPerRow`), kept by `windowWidthChanges` in `src/common/util/window-width.ts`; a view never reads the window itself.
 - The same goes for the time: a view that shows how long ago something was (`relativeTimeOf` in `src/common/util/date.ts`) reads `now` from the root model, read at boot and refreshed every minute by a `Time.every` subscription; a view never calls `Date.now()` itself.
 - No margin utilities: space with the padding or `gap` of the parent.

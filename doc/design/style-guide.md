@@ -92,19 +92,24 @@ Shapes:
 
 ### Breakpoints
 
-Mobile first: unprefixed classes are the phone layout, and a breakpoint only overrides them upward. Never `sm:`, `md:` or `max-*` (`doc/code-convention.md`, section Styling).
+Three layouts, mobile first: unprefixed classes are the phone layout, and each breakpoint only overrides the layout below it, upward. Never `md:`, `xl:`, `2xl:` or `max-*` (`doc/code-convention.md`, section Styling).
 
-| Prefix    | From                                                           | Used for                                                                                                                                                                    |
-| --------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| (none)    | 0                                                              | Every layout, written for a phone first                                                                                                                                     |
-| `tablet:` | 640 px (`--breakpoint-tablet: 40rem` in `src/asset/index.css`) | Only where a layout needs its own step between phone and desktop: the cards, and the age of the repository in the bar (`3h ago` on a phone, `3 hours ago` from a tablet up) |
-| `lg:`     | 1024 px                                                        | The desktop layout                                                                                                                                                          |
+| Layout  | Prefix | From    |
+| ------- | ------ | ------- |
+| Phone   | (none) | 0       |
+| Tablet  | `sm:`  | 640 px  |
+| Desktop | `lg:`  | 1024 px |
+
+- The phone layout is written first, for every element.
+- `sm:` and `lg:` are the defaults of Tailwind, with no breakpoint of our own. `sm:` is for an element that differs on a tablet. Today it is used by:
+  - the cards: two columns, and the full card in place of the denser phone card;
+  - the age of the repository in the bar: `3h ago` on a phone, `3 hours ago` from a tablet up.
 
 ### The card on a phone
 
-Below `tablet:` a card is denser, so about three and a half fit on a 375 x 812 screen in place of under three. It keeps every piece of the card.
+Below `sm:` a card is denser, so about three and a half fit on a 375 x 812 screen in place of under three. It keeps every piece of the card.
 
-| Part                                | Phone                                    | From `tablet:`     |
+| Part                                | Phone                                    | From `sm:`         |
 | ----------------------------------- | ---------------------------------------- | ------------------ |
 | Padding, and space between its rows | 12 px, 8 px                              | 18 px, 12 px       |
 | Space between cards                 | 14 px                                    | 22 px              |

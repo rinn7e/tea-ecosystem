@@ -1,12 +1,5 @@
 @import 'tailwindcss';
 
-/* The one breakpoint below `lg:`, for the few elements that need a layout
- * between a phone and a desktop (the cards: two columns). Everything else
- * is a phone layout up to `lg:` (`doc/code-convention.md`). */
-@theme {
-  --breakpoint-tablet: 40rem;
-}
-
 /* `hover:` also holds while a thing is pressed, so a tap on a touch screen,
  * where hover never shows, answers at once with the same look as a mouse
  * over it. `:active` also matches the parents of what is pressed, so a card
