@@ -12,11 +12,32 @@ const pageScrollBox = (): HTMLElement | null =>
 // 0 before the box is drawn
 export const pageScrollTop = (): number => pageScrollBox()?.scrollTop ?? 0
 
+// Safari on a phone keeps a flicked box gliding after a jump, so a tap on
+// a link mid-glide showed the new page at its place for a frame and then
+// slid on. The box stops scrolling for one frame first, which ends the
+// glide, then scrolls again (and glides to `top` when `behavior` says so).
 export const scrollPageTo = (
   top: number,
   behavior: ScrollBehavior = 'auto',
 ): void => {
-  pageScrollBox()?.scrollTo({ top, behavior })
+  const box = pageScrollBox()
+  if (box !== null) {
+    box.style.overflowY = 'hidden'
+    // A smooth move starts from where the glide stopped
+    box.scrollTo({ top: behavior === 'smooth' ? box.scrollTop : top })
+    // On the next frame, or after a short wait in a tab that draws no
+    // frames (hidden); the style is the flag, so it scrolls again once
+    const resume = () => {
+      if (box.style.overflowY === 'hidden') {
+        box.style.overflowY = ''
+        if (behavior === 'smooth') {
+          box.scrollTo({ top, behavior })
+        }
+      }
+    }
+    requestAnimationFrame(resume)
+    setTimeout(resume, 50)
+  }
 }
 
 // The width the page lays out in: the box without its scrollbar, or the
