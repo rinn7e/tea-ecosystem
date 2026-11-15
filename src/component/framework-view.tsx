@@ -520,7 +520,16 @@ const dateIconView = ({ which }: { which: DateField }) => {
     case 'created':
       return <IconCalendarPlus size={14} stroke={1.75} aria-hidden />
     case 'updated':
-      return <IconGitCommit size={14} stroke={1.75} aria-hidden />
+      // A narrow mark in the middle of its box: pulled in on the right, so
+      // its day sits as close to it as the other days to their icons
+      return (
+        <IconGitCommit
+          size={14}
+          stroke={1.75}
+          aria-hidden
+          className='-mr-[3px]'
+        />
+      )
     case 'added':
       return <IconSparkles size={14} stroke={1.75} aria-hidden />
   }
