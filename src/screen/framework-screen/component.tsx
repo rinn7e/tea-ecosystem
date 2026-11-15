@@ -119,6 +119,8 @@ const rubricView = ({ framework }: { framework: Framework }) => (
   </div>
 )
 
+// Its tile and its name: the heading of its group ("More in Rust") says
+// the language already
 const relatedChipView = ({ framework }: { framework: Framework }) => (
   <Link
     key={framework.id}
@@ -127,7 +129,6 @@ const relatedChipView = ({ framework }: { framework: Framework }) => (
   >
     {frameworkTileView({ framework, size: 'chip' })}
     {framework.name}
-    {languageLineLogoView({ framework, size: 'small' })}
   </Link>
 )
 
