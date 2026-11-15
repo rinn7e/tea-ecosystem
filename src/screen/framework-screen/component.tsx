@@ -128,7 +128,7 @@ const relatedChipView = ({ framework }: { framework: Framework }) => (
     className='border-line bg-panel text-ink hover:border-edge hover:text-accent flex items-center gap-[8px] rounded-[2px] border py-[5px] pr-[12px] pl-[5px] text-sm transition-colors'
   >
     {frameworkTileView({ framework, size: 'chip' })}
-    {framework.name}
+    <span className='font-medium'>{framework.name}</span>
   </Link>
 )
 
@@ -187,7 +187,7 @@ const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
           {languageLineLogoView({ framework, size: 'large' })}
           {languageLineOf(framework)}
         </span>
-        <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
+        <h1 className='text-ink text-[2rem] leading-tight font-medium text-balance lg:text-[2.625rem]'>
           {framework.name}
         </h1>
         <p className='text-ink-muted max-w-[620px] text-base text-balance'>

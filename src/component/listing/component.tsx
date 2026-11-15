@@ -994,7 +994,7 @@ const cardView = ({
         >
           <Link
             destination={destinationOfScreen(frameworkScreen(framework.id))}
-            className='text-ink stretched-link truncate text-[1.0625rem] leading-snug font-normal sm:text-[1.1875rem]'
+            className='text-ink stretched-link truncate text-[1.0625rem] leading-snug font-medium sm:text-[1.1875rem]'
           >
             {framework.name}
           </Link>
@@ -1200,7 +1200,7 @@ const tableView = ({
               >
                 {frameworkTileView({ framework, size: 'row' })}
                 <span className='flex flex-col'>
-                  <span className='text-ink hover:text-accent font-normal'>
+                  <span className='text-ink hover:text-accent font-medium'>
                     {framework.name}
                   </span>
                   <span className='text-ink-muted flex items-center gap-[5px] text-xs'>
