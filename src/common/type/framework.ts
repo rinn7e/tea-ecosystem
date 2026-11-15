@@ -177,8 +177,7 @@ export type Framework = {
   logoText?: string
   // The star count of `repo`, and the time its repository was created and
   // last pushed to (`YYYY-MM-DDTHH:MM:SSZ` in UTC, so two of one day sort
-  // newest first; a day `YYYY-MM-DD` until the next refresh writes the
-  // time), filled by `scripts/fetch-repo-stats.mjs`; present for every
+  // newest first), filled by `scripts/fetch-repo-stats.mjs`; present for every
   // public repository (test "give every repository its stars and both
   // dates"). The views show only the month or the day.
   stars?: number

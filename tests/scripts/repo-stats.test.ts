@@ -25,25 +25,7 @@ import {
 // network. Every entry comes from the data files, so the moves and links
 // are checked on the real shapes of `repo`, `source` and `snippetSource`.
 
-// The data may still hold a day where the script now writes a time (issue
-// #19, until the next refresh): each entry is read with its dates as the
-// times the script writes, so a host with nothing new changes nothing
-const asTime = (date: string | undefined): string | undefined =>
-  date !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(date)
-    ? `${date}T00:00:00Z`
-    : date
-
-const withTimes = (entry: Framework): Framework => ({
-  ...entry,
-  ...(entry.createdAt === undefined
-    ? {}
-    : { createdAt: asTime(entry.createdAt) }),
-  ...(entry.updatedAt === undefined
-    ? {}
-    : { updatedAt: asTime(entry.updatedAt) }),
-})
-
-const allEntries = [...frameworks, ...adjacentEntries].map(withTimes)
+const allEntries = [...frameworks, ...adjacentEntries]
 const publicEntries = allEntries.filter(hasPublicRepo)
 
 const entryArb = fc.constantFrom(...allEntries)
