@@ -177,13 +177,26 @@ const FooterComponent = () => (
               ,
             </span>
             built with
+            <span className='inline-flex items-center'>
+              <a
+                href='https://github.com/vankeisb/react-tea-cup'
+                target='_blank'
+                rel='noreferrer'
+                className='hover:text-accent inline-flex items-center gap-[2px] underline underline-offset-2 transition-colors'
+              >
+                react-tea-cup
+                <IconExternalLink size={12} stroke={1.75} aria-hidden />
+              </a>
+              ,
+            </span>
+            source on
             <a
-              href='https://github.com/vankeisb/react-tea-cup'
+              href='https://github.com/rinn7e/tea-ecosystem'
               target='_blank'
               rel='noreferrer'
               className='hover:text-accent inline-flex items-center gap-[2px] underline underline-offset-2 transition-colors'
             >
-              react-tea-cup
+              GitHub
               <IconExternalLink size={12} stroke={1.75} aria-hidden />
             </a>
           </p>
