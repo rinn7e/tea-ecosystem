@@ -160,9 +160,9 @@ export type Framework = {
   // one monorepo in 2025, teatui to Codeberg): its `createdAt` comes from
   // here (test "give every repository as a full URL of owner and name")
   originRepo?: string
-  // Its own logo, a file in `public/logo/`. Absent when it has none: a
-  // monogram stands in (test "name a logo file that exists in
-  // public/logo").
+  // Its own logo, a file in `public/logo/`. Absent when it has none: the
+  // logo of its language stands in, on stripes (test "name a logo file
+  // that exists in public/logo").
   logo?: string
   // Its `logo` is drawn in dark ink on a transparent ground, for a light
   // page: its tile stays white in dark mode too, where it would vanish on

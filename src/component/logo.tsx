@@ -12,6 +12,7 @@ import {
   type Framework,
   type LogoPadding,
   isLanguageEntry,
+  languagesOf,
 } from '@/common/type/framework'
 
 export type LogoSize = 'small' | 'large'
@@ -121,21 +122,6 @@ const tileGlyphClass = (size: TileSize): string => {
   }
 }
 
-// Two letters in bold, as large as the widest pair (`WM`) allows with a
-// margin left in the tile, so they weigh as much as a logo next to them
-const tileMonogramClass = (size: TileSize): string => {
-  switch (size) {
-    case 'chip':
-      return 'text-[0.75rem]'
-    case 'row':
-      return 'text-[1.0625rem]'
-    case 'card':
-      return 'text-[1.0625rem] sm:text-[1.3125rem]'
-    case 'page':
-      return 'text-[2.125rem]'
-  }
-}
-
 const tileLanguageLogoClass = (size: TileSize): string => {
   switch (size) {
     case 'chip':
@@ -159,6 +145,21 @@ const logoPaddingClass = (padding: LogoPadding): string => {
       return 'p-[12%]'
     case 'large':
       return 'p-[18%]'
+  }
+}
+
+// The font size of a striped tile, which only sets the scale of its
+// stripes (sized in `em`): about three and a half across a tile of any size
+const tileStripesClass = (size: TileSize): string => {
+  switch (size) {
+    case 'chip':
+      return 'text-[0.75rem]'
+    case 'row':
+      return 'text-[1.0625rem]'
+    case 'card':
+      return 'text-[1.0625rem] sm:text-[1.3125rem]'
+    case 'page':
+      return 'text-[2.125rem]'
   }
 }
 
@@ -213,35 +214,47 @@ export const frameworkTileView = ({
       </span>
     )
   } else {
-    return pipe(
-      isLanguageEntry(framework) ? languageLogoOf(framework.language) : O.none,
-      O.fold(
-        () => (
-          <span
-            aria-hidden='true'
-            className={cn(
-              frame,
-              tileMonogramClass(size),
-              'bg-panel pattern-stripes text-ink font-bold tracking-tight',
-            )}
-          >
-            {monogramOf(framework.name)}
-          </span>
-        ),
-        (logo) => (
-          <span className={cn(frame, 'bg-panel text-ink')}>
-            {languageMarkView({
-              logo,
-              className: tileLanguageLogoClass(size),
-            })}
-          </span>
-        ),
-      ),
+    // A language entry (Elm) shows its own logo; any other entry with no
+    // logo shows the logo of its language (the first of two) on stripes,
+    // so it reads as standing in for a logo
+    return (
+      <span
+        aria-hidden='true'
+        className={cn(
+          frame,
+          'bg-panel text-ink',
+          !isLanguageEntry(framework) &&
+            cn('pattern-stripes', tileStripesClass(size)),
+        )}
+      >
+        {pipe(
+          languageLogoOf(languagesOf(framework)[0] ?? framework.language),
+          O.fold(
+            () =>
+              languageLogoView({
+                language: framework.language,
+                size: 'large',
+              }),
+            (logo) =>
+              languageMarkView({
+                logo,
+                className: tileLanguageLogoClass(size),
+              }),
+          ),
+        )}
+      </span>
     )
   }
 }
 
-// A language entry (Elm) shows its logo in its tile already, not here.
+// Whether the tile of an entry already shows the logo of its language: a
+// language entry (Elm), or an entry with no logo of its own
+const tileShowsLanguage = (framework: Framework): boolean =>
+  isLanguageEntry(framework) ||
+  (framework.logo === undefined && framework.logoText === undefined)
+
+// The logo beside the language line ("Rust framework") of an entry next
+// to its tile; none when the tile shows it already
 export const languageLineLogoView = ({
   framework,
   size,
@@ -249,6 +262,6 @@ export const languageLineLogoView = ({
   framework: Framework
   size: LogoSize
 }) =>
-  isLanguageEntry(framework)
+  tileShowsLanguage(framework)
     ? null
     : languageLogoView({ language: framework.language, size })

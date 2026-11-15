@@ -10,6 +10,7 @@ import {
   type Framework,
   concepts,
   hostOf,
+  isLanguageEntry,
   sourceLabelOf,
   sourceUrlOf,
   websiteLabelOf,
@@ -31,7 +32,11 @@ import {
   tierBadgeView,
 } from '@/component/framework-view'
 import { Link } from '@/component/link'
-import { frameworkTileView, languageLineLogoView } from '@/component/logo'
+import {
+  frameworkTileView,
+  languageLineLogoView,
+  languageLogoView,
+} from '@/component/logo'
 import { sectionTitleView } from '@/component/section-title'
 
 import { type Props, PropsEq } from './type'
@@ -56,8 +61,15 @@ const exampleView = ({ framework }: { framework: Framework }) =>
           {sectionTitleView({ title: 'Example' })}
           <div className='flex flex-col gap-[6px]'>
             <div className='text-ink-muted flex flex-wrap items-center justify-between gap-[8px] text-xs'>
+              {/* No tile here: the logo of the language, but for a
+                  language entry, whose name is the language itself */}
               <span className='flex items-center gap-[6px]'>
-                {languageLineLogoView({ framework, size: 'small' })}
+                {isLanguageEntry(framework)
+                  ? null
+                  : languageLogoView({
+                      language: framework.language,
+                      size: 'small',
+                    })}
                 {framework.language}
               </span>
               {framework.snippetSource !== undefined && (

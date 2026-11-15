@@ -55,8 +55,8 @@
   --color-featured: var(--featured);
   --color-featured-ink: var(--featured-ink);
   --color-featured-fold: var(--featured-fold);
-  /* The stripes behind the two letters of a monogram tile: a faint grey,
-   * set for each mode */
+  /* The stripes behind the language logo of an entry with no logo of its
+   * own: a faint grey, set for each mode */
   --color-pattern: var(--pattern);
   /* Orange of the button that clears the filters */
   --color-reset: var(--reset);
@@ -243,8 +243,8 @@ body {
 /* A link stretched over its box (the title of a card), so the whole box
  * opens it; the box is `relative`, and anything clickable inside it is
  * raised above with `relative z-10` */
-/* The diagonal stripes behind the letters of a monogram tile, after a
- * background of damn-center. Sized in `em`, so each tile size shows the
+/* The diagonal stripes behind the language logo of an entry with no logo
+ * of its own, after a background of damn-center. Sized in `em`, so each tile size shows the
  * same number of stripes. */
 @utility pattern-stripes {
   background-image: repeating-linear-gradient(

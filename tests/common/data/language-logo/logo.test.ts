@@ -33,6 +33,18 @@ describe('languageLogoOf', () => {
   })
 })
 
+describe('the tile of an entry with no logo', () => {
+  it('shows the logo of its language, so no entry falls back to letters', () => {
+    const missing = [...frameworks, ...adjacentEntries].filter(
+      (f) =>
+        f.logo === undefined &&
+        f.logoText === undefined &&
+        O.isNone(languageLogoOf(languagesOf(f)[0] ?? f.language)),
+    )
+    expect(missing.map((f) => `${f.id} (${f.language})`)).toEqual([])
+  })
+})
+
 describe('monogramOf', () => {
   it('takes the first letters of two words, else two letters of one', () => {
     expect(monogramOf('Bubble Tea')).toBe('BT')
