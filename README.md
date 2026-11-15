@@ -5,7 +5,7 @@
 <h1 align="center">TEA Ecosystem</h1>
 
 <p align="center">
-  <a href="https://rinn7e.com/tea-ecosystem/"><b>rinn7e.com/tea-ecosystem</b></a>
+  <a href="https://tea.rinn7e.com/"><b>tea.rinn7e.com</b></a>
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="https://github.com/rinn7e/tea-ecosystem/actions/workflows/pages.yml"><img src="https://github.com/rinn7e/tea-ecosystem/actions/workflows/pages.yml/badge.svg" alt="Pages deploy"></a>
-  <a href="https://rinn7e.com/tea-ecosystem/"><img src="https://img.shields.io/badge/open%20the%20site-rinn7e.com-0b7bbe" alt="Open the site"></a>
+  <a href="https://tea.rinn7e.com/"><img src="https://img.shields.io/badge/open%20the%20site-tea.rinn7e.com-0b7bbe" alt="Open the site"></a>
   <a href="https://github.com/vankeisb/react-tea-cup"><img src="https://img.shields.io/badge/built%20with-react--tea--cup-0b7bbe" alt="Built with react-tea-cup"></a>
   <a href="https://github.com/sponsors/rinn7e"><img src="https://img.shields.io/github/sponsors/rinn7e?label=sponsors&logo=githubsponsors&color=db2777" alt="GitHub Sponsors"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/rinn7e/tea-ecosystem" alt="License: MIT"></a>
@@ -94,7 +94,7 @@ To turn a candidate down, remove its entry and its example from the pull request
 
 ## Deploy
 
-`.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`, and after every weekly refresh of the stats that commits new data (`refresh-stats.yml` starts it, since a push made with the `GITHUB_TOKEN` of a workflow starts no workflow). The site is served under `/tea-ecosystem/` (`.env.production`); the build copies `index.html` to `404.html` so a deep link opens the app. The built site counts visits with Cloudflare Web Analytics (no cookies, no personal data), added by the build only (`vite.config.ts`), so the dev server is never counted.
+`.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`, and after every weekly refresh of the stats that commits new data (`refresh-stats.yml` starts it, since a push made with the `GITHUB_TOKEN` of a workflow starts no workflow). The site is served at `https://tea.rinn7e.com/`, the custom domain of the repo in the Pages settings, from the root (`VITE_BASE_URL` in `.env.production`), and GitHub Pages redirects the old links under `rinn7e.com/tea-ecosystem/` and `rinn7e.github.io/tea-ecosystem/` to it; the build copies `index.html` to `404.html` so a deep link opens the app. The built site counts visits with Cloudflare Web Analytics (no cookies, no personal data), added by the build only (`vite.config.ts`), so the dev server is never counted.
 
 ## Contributing
 
