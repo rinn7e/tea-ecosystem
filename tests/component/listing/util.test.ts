@@ -29,7 +29,7 @@ import {
   lackables,
   statusChoiceOf,
 } from '@/common/type/destination'
-import { type Target, targets } from '@/common/type/framework'
+import { type Framework, type Target, targets } from '@/common/type/framework'
 import {
   archivedHintCountOf,
   balancedRows,
@@ -334,6 +334,34 @@ describe('sort', () => {
     expect(days[0]).toBe([...days].sort().at(-1))
     expect(days).toEqual([...days].sort().reverse())
   })
+
+  // Issue #19: a day alone tied two entries of one day
+  test.prop([
+    fc.constantFrom<'created' | 'updated'>('created', 'updated'),
+    fc.integer({ min: 0, max: 23 }),
+    fc.integer({ min: 0, max: 23 }),
+  ])(
+    'sorts two entries created or pushed to on one day by their time, the newest first',
+    (column, early, late) => {
+      fc.pre(early < late)
+      const at = (hour: number) =>
+        `2026-11-14T${String(hour).padStart(2, '0')}:00:00Z`
+      const field = column === 'created' ? 'createdAt' : 'updatedAt'
+      // Any entry of the data, made into two with their own times
+      const base = pipe(
+        O.fromNullable(frameworks[0]),
+        O.getOrElse((): Framework => {
+          throw new Error('No entry')
+        }),
+      )
+      const earlier = { ...base, id: 'earlier', [field]: at(early) }
+      const later = { ...base, id: 'later', [field]: at(late) }
+      const newest = sortFrameworks(
+        O.some({ column, direction: 'descending' }),
+      )([earlier, later])
+      expect(newest.map((f) => f.id)).toEqual(['later', 'earlier'])
+    },
+  )
 })
 
 describe('balancedRows', () => {

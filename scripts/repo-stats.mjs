@@ -51,7 +51,12 @@ export const LINK_FIELDS = [
   'unmaintainedNotice',
 ]
 
-const dayOf = (timestamp) => timestamp.slice(0, 10)
+// A time as the hosts give it (GitLab with milliseconds, a Gitea with the
+// offset of its zone) in UTC to the second, as `discoveredAt`:
+// `2024-05-06T07:00:00Z`. Two repositories of one day then sort by their
+// time.
+export const timeOf = (timestamp) =>
+  new Date(timestamp).toISOString().replace(/\.\d{3}Z$/, 'Z')
 
 const withoutSlash = (url) => url.replace(/\/$/, '')
 
@@ -113,6 +118,8 @@ const sameAddress = (a, b) =>
 // `repo` when the repository moved: the APIs follow the redirect of an old
 // address and answer for the new one.
 //
+// `createdAt` and `updatedAt` are times in UTC (`timeOf`).
+//
 // - GitHub (`github.com`): `updatedAt` is the last push (`pushed_at`, not
 //   `updated_at`, which a star also changes).
 // - GitLab (`gitlab.com`, or a host named `gitlab.*`): `updatedAt` is the
@@ -128,8 +135,8 @@ export const fetchRepo = async (getJson, repo) => {
     const body = await getJson(`https://api.github.com/repos/${owner}/${name}`)
     return {
       stars: body.stargazers_count,
-      createdAt: dayOf(body.created_at),
-      updatedAt: dayOf(body.pushed_at),
+      createdAt: timeOf(body.created_at),
+      updatedAt: timeOf(body.pushed_at),
       archived: body.archived,
       address: addressOf(host, body.full_name),
     }
@@ -138,8 +145,8 @@ export const fetchRepo = async (getJson, repo) => {
     const body = await getJson(`https://${host}/api/v4/projects/${path}`)
     return {
       stars: body.star_count,
-      createdAt: dayOf(body.created_at),
-      updatedAt: dayOf(body.last_activity_at),
+      createdAt: timeOf(body.created_at),
+      updatedAt: timeOf(body.last_activity_at),
       archived: body.archived,
       address: addressOf(host, body.path_with_namespace),
     }
@@ -147,8 +154,8 @@ export const fetchRepo = async (getJson, repo) => {
     const body = await getJson(`https://${host}/api/v1/repos/${owner}/${name}`)
     return {
       stars: body.stars_count,
-      createdAt: dayOf(body.created_at),
-      updatedAt: dayOf(body.updated_at),
+      createdAt: timeOf(body.created_at),
+      updatedAt: timeOf(body.updated_at),
       archived: body.archived,
       address: addressOf(host, body.full_name),
     }

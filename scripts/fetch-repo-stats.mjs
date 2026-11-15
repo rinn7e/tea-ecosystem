@@ -6,8 +6,9 @@
 // (`hasPublicRepo` in `src/common/type/framework.ts`), and is left as it
 // is.
 //
-// `stars` is the star count of `repo`, `createdAt` the day the repository
-// was created (of `originRepo` when the project moved). A repository that
+// `stars` is the star count of `repo`, `createdAt` the time the repository
+// was created (of `originRepo` when the project moved) and `updatedAt` the
+// time it was last pushed to, both in UTC (`timeOf` in `repo-stats.mjs`). A repository that
 // moved to another owner or name has its `repo`, and every `website`,
 // `source` and `snippetSource` under its old address, rewritten to the new
 // one (MOVED). It also prints the entries whose `status` disagrees with the

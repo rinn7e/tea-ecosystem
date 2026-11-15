@@ -18,13 +18,32 @@ import {
   refreshEntries,
   refreshEntry,
   summaryOf,
+  timeOf,
 } from '../../scripts/repo-stats.mjs'
 
 // The script runs on made-up answers of the hosts: no test reaches the
 // network. Every entry comes from the data files, so the moves and links
 // are checked on the real shapes of `repo`, `source` and `snippetSource`.
 
-const allEntries = [...frameworks, ...adjacentEntries]
+// The data may still hold a day where the script now writes a time (issue
+// #19, until the next refresh): each entry is read with its dates as the
+// times the script writes, so a host with nothing new changes nothing
+const asTime = (date: string | undefined): string | undefined =>
+  date !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(date)
+    ? `${date}T00:00:00Z`
+    : date
+
+const withTimes = (entry: Framework): Framework => ({
+  ...entry,
+  ...(entry.createdAt === undefined
+    ? {}
+    : { createdAt: asTime(entry.createdAt) }),
+  ...(entry.updatedAt === undefined
+    ? {}
+    : { updatedAt: asTime(entry.updatedAt) }),
+})
+
+const allEntries = [...frameworks, ...adjacentEntries].map(withTimes)
 const publicEntries = allEntries.filter(hasPublicRepo)
 
 const entryArb = fc.constantFrom(...allEntries)
@@ -44,10 +63,10 @@ const bodyOf = (answer: Answer) => ({
   stargazers_count: answer.stars,
   star_count: answer.stars,
   stars_count: answer.stars,
-  created_at: `${answer.createdAt}T08:00:00Z`,
-  pushed_at: `${answer.updatedAt}T09:00:00Z`,
-  last_activity_at: `${answer.updatedAt}T09:00:00Z`,
-  updated_at: `${answer.updatedAt}T09:00:00Z`,
+  created_at: answer.createdAt,
+  pushed_at: answer.updatedAt,
+  last_activity_at: answer.updatedAt,
+  updated_at: answer.updatedAt,
   archived: answer.archived,
   full_name: answer.fullName,
   path_with_namespace: answer.fullName,
@@ -83,8 +102,8 @@ const hostOf =
 // archived flag its status says
 const sameAnswerOf = (entry: Framework, upper: boolean): Answer => ({
   stars: entry.stars ?? 0,
-  createdAt: entry.createdAt ?? '2020-01-01',
-  updatedAt: entry.updatedAt ?? '2020-01-01',
+  createdAt: entry.createdAt ?? '2020-01-01T00:00:00Z',
+  updatedAt: entry.updatedAt ?? '2020-01-01T00:00:00Z',
   archived: entry.status === 'archived',
   fullName: upper ? pathOf(entry.repo).toUpperCase() : pathOf(entry.repo),
 })
@@ -92,21 +111,22 @@ const sameAnswerOf = (entry: Framework, upper: boolean): Answer => ({
 // Every link answers 200 at its own address
 const allUp = (url: string) => Promise.resolve({ status: 200, url })
 
-const dayArb = fc
+// A time in UTC to the second, as the script writes it
+const timeArb = fc
   .date({
     min: new Date('2010-01-01'),
     max: new Date('2030-12-31'),
     noInvalidDate: true,
   })
-  .map((date) => date.toISOString().slice(0, 10))
+  .map((date) => date.toISOString().replace(/\.\d{3}Z$/, 'Z'))
 
 const segmentArb = fc.stringMatching(/^[A-Za-z0-9][A-Za-z0-9._-]{0,12}$/)
 
 const answerArb = (fullName: fc.Arbitrary<string>): fc.Arbitrary<Answer> =>
   fc.record({
     stars: fc.nat({ max: 300_000 }),
-    createdAt: dayArb,
-    updatedAt: dayArb,
+    createdAt: timeArb,
+    updatedAt: timeArb,
     archived: fc.boolean(),
     fullName,
   })
@@ -405,13 +425,13 @@ describe('the hosts', () => {
     status: 'active',
     repo,
     stars: 1,
-    createdAt: '2020-01-01',
-    updatedAt: '2020-01-01',
+    createdAt: '2020-01-01T00:00:00Z',
+    updatedAt: '2020-01-01T00:00:00Z',
   })
   const answer: Answer = {
     stars: 7,
-    createdAt: '2021-02-03',
-    updatedAt: '2024-05-06',
+    createdAt: '2021-02-03T08:00:00Z',
+    updatedAt: '2024-05-06T09:00:00Z',
     archived: false,
     fullName: 'Owner/name',
   }
@@ -470,10 +490,43 @@ describe('the hosts', () => {
     expect(refreshed).toStrictEqual({
       ...entryOn(repo),
       stars: 7,
-      createdAt: '2021-02-03',
-      updatedAt: '2024-05-06',
+      createdAt: '2021-02-03T08:00:00Z',
+      updatedAt: '2024-05-06T09:00:00Z',
     })
     expect(report.moved).toBeUndefined()
+  })
+
+  it.each([
+    [
+      'GitLab, with milliseconds',
+      'https://gitlab.com/Owner/name',
+      {
+        star_count: 7,
+        created_at: '2021-02-03T08:00:00.123Z',
+        last_activity_at: '2024-05-06T09:00:00.456Z',
+        path_with_namespace: 'Owner/name',
+      },
+    ],
+    [
+      'a Gitea, with the offset of its zone',
+      'https://codeberg.org/Owner/name',
+      {
+        stars_count: 7,
+        created_at: '2021-02-03T10:00:00+02:00',
+        updated_at: '2024-05-06T16:00:00+07:00',
+        full_name: 'Owner/name',
+      },
+    ],
+  ])('write the times of %s in UTC to the second', async (_, repo, fields) => {
+    const { entry: refreshed } = await refreshEntry(
+      {
+        getJson: () => Promise.resolve({ ...misleading, ...fields }),
+        getStatus: allUp,
+      },
+      entryOn(repo),
+    )
+    expect(refreshed.createdAt).toBe('2021-02-03T08:00:00Z')
+    expect(refreshed.updatedAt).toBe('2024-05-06T09:00:00Z')
   })
 
   it('follow a GitLab project that moved, by its `path_with_namespace`', async () => {
@@ -985,4 +1038,21 @@ describe('networkOf', () => {
     expect(report.brokenLinks).toEqual([])
     expect(report.notChecked).toEqual(linksOf(entry))
   })
+})
+
+describe('timeOf', () => {
+  test.prop([timeArb])('keeps a time in UTC to the second as it is', (time) => {
+    expect(timeOf(time)).toBe(time)
+  })
+
+  test.prop([timeArb, fc.integer({ min: -11, max: 14 })])(
+    'reads the same moment from any zone',
+    (time, hours) => {
+      const shifted = new Date(Date.parse(time) + hours * 3_600_000)
+      const sign = hours < 0 ? '-' : '+'
+      const offset = `${sign}${String(Math.abs(hours)).padStart(2, '0')}:00`
+      const local = `${shifted.toISOString().slice(0, 19)}${offset}`
+      expect(timeOf(local)).toBe(time)
+    },
+  )
 })

@@ -175,10 +175,12 @@ export type Framework = {
   // A logo made of text, for a project whose mark is an emoji or a glyph
   // in its title (react-tea-cup: a cup of tea), used when it has no `logo`
   logoText?: string
-  // The star count of `repo`, and the day its repository was created and
-  // last pushed to (`YYYY-MM-DD`), filled by `scripts/fetch-repo-stats.mjs`;
-  // present for every public repository (test "give every repository its
-  // stars and both dates, as days")
+  // The star count of `repo`, and the time its repository was created and
+  // last pushed to (`YYYY-MM-DDTHH:MM:SSZ` in UTC, so two of one day sort
+  // newest first; a day `YYYY-MM-DD` until the next refresh writes the
+  // time), filled by `scripts/fetch-repo-stats.mjs`; present for every
+  // public repository (test "give every repository its stars and both
+  // dates"). The views show only the month or the day.
   stars?: number
   createdAt?: string
   updatedAt?: string

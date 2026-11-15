@@ -204,8 +204,10 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
-  it('give every repository its stars and both dates, as days', () => {
-    const day = /^\d{4}-\d{2}-\d{2}$/
+  it('give every repository its stars and both dates', () => {
+    // A time in UTC; a day until the next refresh writes the time (issue
+    // #19), when this test asks for the time alone
+    const day = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?$/
     // Both lists: a fallback entry that forgets its `website` reads as a
     // public repository with no dates
     const wrong = [...frameworks, ...adjacentEntries].filter(

@@ -19,9 +19,10 @@ export const dayMonthYearOf = (day: string): string => {
   return `${Number(date)} ${MONTHS[Number(month) - 1] ?? ''} ${year}`
 }
 
-// "2026-11-02" -> "Nov 2026": a month is as precise as the catalog needs
+// "2026-11-02" (or a full ISO time) -> "Nov 2026": a month is as precise
+// as the catalog needs
 export const monthYearOf = (day: string): string => {
-  const [year = '', month = '1'] = day.split('-')
+  const [year = '', month = '1'] = day.slice(0, 10).split('-')
   return `${MONTHS[Number(month) - 1] ?? ''} ${year}`
 }
 

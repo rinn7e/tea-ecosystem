@@ -44,11 +44,11 @@ new_entries="$(jq -c -n \
 jq -r --arg day "$day" \
   --argjson minStars "$MIN_STARS" --argjson maxIdleDays "$MAX_IDLE_DAYS" '
   def daysBetween($a; $b):
-    (($b | strptime("%Y-%m-%d") | mktime) - ($a | strptime("%Y-%m-%d") | mktime)) / 86400;
+    (($b[0:10] | strptime("%Y-%m-%d") | mktime) - ($a[0:10] | strptime("%Y-%m-%d") | mktime)) / 86400;
   .id as $id
   | (if (.stars // 0) < $minStars then "\($id): \(.stars // 0) stars (at least \($minStars))" else empty end),
     (if (.updatedAt | type) != "string" then "\($id): no day it was last pushed to"
-     elif daysBetween(.updatedAt; $day) > $maxIdleDays then "\($id): last pushed to on \(.updatedAt), more than \($maxIdleDays) days ago"
+     elif daysBetween(.updatedAt; $day) > $maxIdleDays then "\($id): last pushed to on \(.updatedAt[0:10]), more than \($maxIdleDays) days ago"
      else empty end),
     (if .status == "archived" then "\($id): archived" else empty end),
     (if .verified != true then "\($id): grades not verified" else empty end),

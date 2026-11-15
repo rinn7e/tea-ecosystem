@@ -107,7 +107,7 @@ Edit `data/frameworks.json`, or `data/adjacent.json` for a library that misses a
 
 ### Stars and dates
 
-Fill its stars and its created and updated dates with:
+Fill its stars, and the times its repository was created and last pushed to (in UTC, so two of one day sort newest first; the site shows only the month), with:
 
 ```bash
 GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs

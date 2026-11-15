@@ -18,6 +18,11 @@ describe('monthYearOf', () => {
     expect(monthYearOf('2026-11-02')).toBe('Nov 2026')
     expect(monthYearOf('2012-04-19')).toBe('Apr 2012')
   })
+
+  it('reads the month of a full time', () => {
+    expect(monthYearOf('2026-11-02T23:30:00Z')).toBe('Nov 2026')
+    expect(monthYearOf('2012-04-19T09:41:00+07:00')).toBe('Apr 2012')
+  })
 })
 
 describe('relativeTimeOf', () => {

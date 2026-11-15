@@ -27,7 +27,7 @@ const goodEntryOf = (id: string) => ({
   discoveredAt: `${day}T06:02:11Z`,
   status: 'active',
   stars: 5,
-  updatedAt: '2025-11-16',
+  updatedAt: '2025-11-16T22:10:00Z',
   verified: true,
   snippetSource: `https://github.com/o/${id}/blob/main/README.md`,
 })
@@ -100,6 +100,11 @@ describe('judge-discovered.sh', () => {
     ['no stars', { stars: undefined }, 'tea: 0 stars (at least 5)'],
     [
       'no push in a year',
+      { updatedAt: '2025-11-15T08:00:00Z' },
+      'tea: last pushed to on 2025-11-15, more than 365 days ago',
+    ],
+    [
+      'no push in a year, as a day',
       { updatedAt: '2025-11-15' },
       'tea: last pushed to on 2025-11-15, more than 365 days ago',
     ],
