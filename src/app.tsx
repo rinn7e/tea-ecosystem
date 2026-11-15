@@ -164,7 +164,7 @@ export const App = ({
             />
             {/* The page ends with more room than it starts with, so the
               shadow of the last card stays clear of the footer */}
-            <main className='flex flex-1 justify-center px-[16px] pt-[20px] pb-[56px] sm:pt-[32px] lg:pt-[48px] lg:pb-[80px]'>
+            <main className='flex flex-1 justify-center px-[16px] pt-[12px] pb-[56px] sm:pt-[32px] lg:pt-[48px] lg:pb-[80px]'>
               <div
                 className={cn(
                   'w-full',

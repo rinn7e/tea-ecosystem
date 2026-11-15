@@ -49,10 +49,8 @@ const navLinkView = ({
     destination={destination}
     aria-current={isActive ? 'page' : undefined}
     className={cn(
-      'text-bar-ink w-[128px] border-b-2 pt-[4px] pb-[2px] text-center text-base whitespace-nowrap transition-colors',
-      isActive
-        ? 'border-bar-ink'
-        : 'hover:border-bar-ink/50 border-transparent',
+      'text-accent w-[128px] border-b-2 pt-[4px] pb-[2px] text-center text-base whitespace-nowrap transition-colors',
+      isActive ? 'border-accent' : 'hover:border-accent/50 border-transparent',
     )}
   >
     {label}
@@ -100,14 +98,9 @@ const repoStarsView = ({
             target='_blank'
             rel='noreferrer'
             aria-label={`TEA Ecosystem on GitHub, ${stars} ${stars === 1 ? 'star' : 'stars'}`}
-            className='text-bar-ink group flex cursor-pointer flex-col items-center gap-[2px] px-[4px] py-[2px] opacity-80 transition-opacity hover:opacity-100'
+            className='text-accent hover:text-edge flex cursor-pointer flex-col items-center gap-[2px] px-[4px] py-[2px] transition-colors'
           >
-            <IconStar
-              size={18}
-              stroke={1.75}
-              aria-hidden
-              className='opacity-75 transition-opacity group-hover:opacity-100'
-            />
+            <IconStar size={18} stroke={1.75} aria-hidden />
             <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
               {starsLabelOf(stars)}
             </span>
@@ -121,9 +114,9 @@ const repoStarsView = ({
 // a desktop (the right edge of the frame), and pinned to the right edge of
 // the bar on a phone, so neither moves the emblem off the axis.
 const HeaderComponent = ({ active, now, repoStars }: HeaderProps) => (
-  <header className='bg-bar relative'>
+  <header className='bg-page relative'>
     <div className='flex justify-center px-[16px]'>
-      <div className='flex h-[52px] w-full max-w-[1080px] items-center justify-center gap-[4px] sm:h-[64px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
+      <div className='flex h-[64px] w-full max-w-[1080px] items-center justify-center gap-[4px] sm:h-[72px] lg:grid lg:h-[80px] lg:grid-cols-[1fr_auto_1fr]'>
         {/* On a phone the wrapper adds no box (`contents`): the links hide
             and the star count is pinned to the left edge */}
         <div className='contents lg:flex lg:items-center lg:justify-between'>
@@ -146,7 +139,7 @@ const HeaderComponent = ({ active, now, repoStars }: HeaderProps) => (
           aria-label='TEA Ecosystem, the catalog'
           aria-current={active === 'catalog' ? 'page' : undefined}
           className={cn(
-            'text-bar-ink flex items-center gap-[14px] px-[8px] py-[6px] transition-opacity lg:px-[28px]',
+            'text-accent flex items-center gap-[14px] px-[8px] py-[6px] transition-opacity lg:px-[28px]',
             active === 'catalog'
               ? 'opacity-100'
               : 'opacity-100 lg:opacity-70 lg:hover:opacity-100',
@@ -186,15 +179,9 @@ const HeaderComponent = ({ active, now, repoStars }: HeaderProps) => (
               target='_blank'
               rel='noreferrer'
               aria-label={`The source code of TEA Ecosystem on GitHub, updated ${relativeTimeOf(LAST_UPDATED, now)}`}
-              className='text-bar-ink group flex cursor-pointer flex-col items-center gap-[2px] px-[4px] py-[2px] opacity-80 transition-opacity hover:opacity-100'
+              className='text-accent hover:text-edge flex cursor-pointer flex-col items-center gap-[2px] px-[4px] py-[2px] transition-colors'
             >
-              {/* The icon alone is quieter, so the time under it stays as readable */}
-              <IconCode
-                size={18}
-                stroke={1.75}
-                aria-hidden
-                className='opacity-75 transition-opacity group-hover:opacity-100'
-              />
+              <IconCode size={18} stroke={1.75} aria-hidden />
               {/* The compact form ("44m ago"), as short as the star count
                   it mirrors on the left; the tooltip says it in words */}
               <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>

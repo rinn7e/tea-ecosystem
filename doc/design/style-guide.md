@@ -43,7 +43,7 @@ Colors, from the computed styles of the site:
 | line      | `#D3D3D3` | borders, the shadow of boxes                                         |
 | line-soft | `#EEEEEE` | the footer rule, row rules                                           |
 | blue      | `#1293D8` | button borders and shadows, the main accent where it carries no text |
-| link      | `#0B7BBE` | links, and the top bar behind white text                             |
+| link      | `#0B7BBE` | links, and the text and icons of the top bar                         |
 | blue-soft | `#94C9EC` | chart bars that are not the subject                                  |
 
 Accessibility: the Elm site uses `#0C91D8` for links and `#1293D8` behind white text, both about 3.4:1, below the 4.5:1 that body-size text needs. This site keeps those blues for borders and shadows, and uses the slightly deeper `#0B7BBE` (4.57:1) wherever the blue meets text.
@@ -83,10 +83,10 @@ Shapes:
 
 ## 4. Layout
 
-- Every page has a full-width blue bar (`link` blue), 64 px tall, with white text. The site keeps its own mirror-symmetric header in that bar: two links on each side (about and build your own on the left, TEA-adjacent and rubric on the right), our emblem and the name "TEA Ecosystem" on the axis. The emblem is the link to the catalog. The link of the page shown is underlined, except the emblem: it is at full opacity on the catalog and at 70% elsewhere (full again under the pointer). Nav links are lowercase, as on the Elm site, but TEA is always written in capitals: the labels are spelled in lowercase in the code, never lowered with the `lowercase` class, which would turn TEA into tea.
+- Every page has a full-width bar in the color of the page, with no line under it: its text, emblem and icons are in `link` blue (`accent`, the lighter blue in dark mode), and it is 80 px tall on a desktop, 72 px on a tablet and 64 px on a phone, with even room above and below its content. The site keeps its own mirror-symmetric header in that bar: two links on each side (about and build your own on the left, TEA-adjacent and rubric on the right), our emblem and the name "TEA Ecosystem" on the axis. The emblem is the link to the catalog. The link of the page shown is underlined, except the emblem: it is at full opacity on the catalog and at 70% elsewhere (full again under the pointer). Nav links are lowercase, as on the Elm site, but TEA is always written in capitals: the labels are spelled in lowercase in the code, never lowered with the `lowercase` class, which would turn TEA into tea.
 - A page title sits alone, with generous space above and below (48 px or more).
 - The footer: a thin `line-soft` rule, then centred grey text with underlined grey links.
-- The bar is a mirror around the emblem: on its left the star count of the repository (a star over `8 stars`), on its right the code icon over the time since the site last changed (`44m ago`), both in the same quiet white, both short, and both opening the repository. On a desktop they sit at the two edges of the frame, outside the nav links; below it, at the two edges of the bar. The star count is read live from GitHub when the page loads, and shows only once it is there: while it loads, or when GitHub refuses, its side stays empty, never a `0` or an error. Their tooltips say both in words.
+- The bar is a mirror around the emblem: on its left the star count of the repository (a star over `8 stars`), on its right the code icon over the time since the site last changed (`44m ago`), both in the full blue of the bar (the brighter `edge` blue under the pointer), both short, and both opening the repository. On a desktop they sit at the two edges of the frame, outside the nav links; below it, at the two edges of the bar. The star count is read live from GitHub when the page loads, and shows only once it is there: while it loads, or when GitHub refuses, its side stays empty, never a `0` or an error. Their tooltips say both in words.
 - The page scrollbar is always shown (`overflow-y: scroll` on `html`), so a short page sits on the same axis as a long one. Scrollbars use the tokens: a square `--scroll-thumb` on the page color, `edge` blue under the pointer.
 - A tooltip is a small dialog: the panel color, a border and the hard offset shadow in `ink-faint` (darker than the cards, so it stands apart from them), 300 px wide, with a 15 px title and 14 px text (never smaller: it is there to be read), square, with a small arrow on its trigger: above it, or below when there is no room. It fades in rising 4 px and fades out the same way back, in 150 ms (no motion under reduced motion). It explains a badge or a cell; the page never needs a legend for what a tooltip says. A cell of the rubric strip carries the legend itself: the grades with their colors and meanings, its own grade at full strength, in a 400 px box.
 - A popover (the Filters of a list) is a box with a sharp 2 px `edge` blue border, like the button that opens it, and no shadow. It fades in and out like a tooltip and closes on its button, Escape or a press outside.
@@ -126,22 +126,22 @@ The source link keeps a tap target of 34 px around its 24 px button (5 px more a
 
 Below `sm:` the top of the catalog is tighter, so the first card shows without a scroll on a 375 x 812 screen (it started below the fold).
 
-| Part                   | Phone                                                   | From `sm:`                                     |
-| ---------------------- | ------------------------------------------------------- | ---------------------------------------------- |
-| Top bar                | 52 px, a 19 px name                                     | 64 px, a 22 px name (26 px from `lg:`)         |
-| Space above the title  | 20 px                                                   | 32 px (48 px from `lg:`)                       |
-| Title, lead            | 26 px, 14 px                                            | 32 px, 16 px                                   |
-| Space before the boxes | 24 px                                                   | 44 px                                          |
-| Category boxes         | 24 px numbers                                           | 32 px numbers                                  |
-| Language tiles         | 32 px, 5 px apart (9 a row)                             | 40 px, 6 px apart                              |
-| Search, Filters        | 36 px tall, the hint "Search name or language" at 14 px | 40 px, the full hint                           |
-| Filters panel          | 32 px boxes, 13 px, three a row, 12 px padding          | 36 px boxes, 14 px, 130 px wide, 16 px padding |
+| Part                   | Phone                                                   | From `sm:`                                                |
+| ---------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
+| Top bar                | 64 px, a 19 px name                                     | 72 px (80 px from `lg:`), a 22 px name (26 px from `lg:`) |
+| Space above the title  | 12 px                                                   | 32 px (48 px from `lg:`)                                  |
+| Title, lead            | 26 px, 14 px                                            | 32 px, 16 px                                              |
+| Space before the boxes | 24 px                                                   | 44 px                                                     |
+| Category boxes         | 24 px numbers                                           | 32 px numbers                                             |
+| Language tiles         | 32 px, 5 px apart (9 a row)                             | 40 px, 6 px apart                                         |
+| Search, Filters        | 36 px tall, the hint "Search name or language" at 14 px | 40 px, the full hint                                      |
+| Filters panel          | 32 px boxes, 13 px, three a row, 12 px padding          | 36 px boxes, 14 px, 130 px wide, 16 px padding            |
 
 The search keeps 16 px text on a phone: below that, Safari zooms the page into the field. The Filters button is its icon alone at every width (named for screen readers, "Filters" in its tooltip), with the count of filters on beside it.
 
 ## 5. Dark mode
 
-The Elm site has none; this site keeps one. Dark derives from the same tokens: a deep navy page (`#07131B`), light ink (`#E4EEF4`), a lighter blue (`#4CB4EE`) for links and accents, and the bar in a darker blue (`#0B5F8F`). Box shadows use a dark line (`#22323D`).
+The Elm site has none; this site keeps one. Dark derives from the same tokens: a deep navy page (`#07131B`), light ink (`#E4EEF4`), a lighter blue (`#4CB4EE`) for links and accents, the bar in the color of the page with that lighter blue, and the back-to-top button in a darker blue (`#0B5F8F`). Box shadows use a dark line (`#22323D`).
 
 Language logos keep their brand color (Simple Icons `hex`) in both modes. A color that would fall under 3:1 against either panel (black Rust, pale Gleam pink, JavaScript yellow) is moved to the nearest shade of it that reaches 3:1 on both (`readableColorOf` in `src/common/data/language-logo/logo.ts`), so one color serves both modes and nothing switches with the theme.
 
@@ -158,7 +158,7 @@ Language logos keep their brand color (Simple Icons `hex`) in both modes. A colo
 
 The emblem is a square cut into pieces, after the spirit of the Elm logo but with our own cuts, mirror-symmetric on the vertical axis. Chosen on 2026-11-13: the symmetric tangram (`doc/design/logo/b-tangram-*.svg`), a big triangle (a cup) over a diamond (its foot), with triangles around them. The other cuts drawn that day stay in `doc/design/logo/` (see its `README.md`) until the final logo is decided.
 
-- In the bar: `emblemView` in `src/component/emblem.tsx`, an inline SVG in `currentColor`, so every piece is the white of the bar text in both modes. The pieces sit 2 of 32 units apart (about 1.75 px at the 28 px of the bar), so the bar shows through the cuts.
+- In the bar: `emblemView` in `src/component/emblem.tsx`, an inline SVG in `currentColor`, so every piece is the blue of the bar text in both modes. The pieces sit 2 of 32 units apart (about 1.75 px at the 28 px of the bar), so the page shows through the cuts.
 - Favicon: `public/favicon.svg`, with `public/favicon-32.png` and `public/apple-touch-icon.png` (180 px), the same square on a transparent background, like the Elm favicon, so the tab shows through the cuts (the apple touch icon alone stays on white, as iOS fills transparency with black): the cup and its foot (the diamond) in `#1293D8`, every side piece in `#94C9EC` (`doc/design/logo/b-tangram-f2-hourglass-light.svg`). The sides share one color on purpose: two darker triangles on either side of the axis read as eyes and turn the square into a face. The gaps are 2 of 32 units too, and 1 unit in the 32 px PNG, so they stay about 1 px at 16 and 32 px.
 - Link preview: `public/og-image.png` (2400 x 1260, the `og:image` of `index.html`), a plain screenshot of the live catalog in light mode at a 1600 x 840 window and a scale of 1.5, so the hero, the logo rows and the first three cards show. The relative time under the code icon of the bar is hidden for the shot, as an image never updates. Take it again when the catalog changes its look.
 - Never round the square, add a gradient or a shadow, or color the pieces in the four colors of the Elm logo on the site itself; the Elm colors stay a variant in `doc/design/logo/`.

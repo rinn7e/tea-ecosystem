@@ -178,7 +178,7 @@ Code says what it does by itself; a comment says only what the code cannot. A co
 ## Styling
 
 - The look follows the website of Elm: read [doc/design/style-guide.md](design/style-guide.md) (tokens, type, shapes, what not to do) and the pages of elm-lang.org it lists (section 1) before changing the UI.
-- Tailwind v4 with the tokens of `src/asset/index.css` (`bg-panel`, `text-ink-muted`, `text-accent` for blue that meets text, `border-edge` for the brighter blue of borders, `bg-bar` for the top bar, one color per grade). The tokens switch for dark mode, so classes need no `dark:` variants.
+- Tailwind v4 with the tokens of `src/asset/index.css` (`bg-panel`, `text-ink-muted`, `text-accent` for blue that meets text, `border-edge` for the brighter blue of borders, `bg-bar` for the back-to-top button, one color per grade). The tokens switch for dark mode, so classes need no `dark:` variants.
 - Every text is regular weight (`font-normal`); hierarchy comes from size and space. Boxes take the hard offset shadow (`offset-shadow`, or `offset-shadow-edge` for the main one) and square corners (3 px at most).
 - Mobile first, with three layouts: phone, tablet and desktop.
   - Phone: unprefixed classes, always written first.
