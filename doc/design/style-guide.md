@@ -61,6 +61,8 @@ Code (the examples of the entries and the build guide) uses the syntax colors of
 
 The button that clears the filters is orange, `reset` (`#B54D00`, `#F2994A` in dark mode), so it reads apart from the blue filters: its text passes 4.5:1 on its own 10% tint.
 
+A card wears at most one ribbon on its right edge, under its tier badge, folded behind the edge: "Recently added" in the accent blue for an entry found in the last 30 days, and "Featured" in purple pink, `featured` (`#B02A9C` with white text, `#E98AD8` with dark text in dark mode, both above 4.5:1), for the picks of the maintainer, react-tea-cup, Indigo and Miso (`FEATURED_IDS` in `src/common/type/framework.ts`), which the default order puts right after Elm in that order. Elm has no ribbon: its tier badge, "Originator", already sets it apart.
+
 Type:
 
 | Role          | Font            | Size                     | Weight |
