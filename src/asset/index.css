@@ -54,10 +54,11 @@
   --color-equivalent-on-accent: var(--equivalent-on-accent);
   --color-missing-on-accent: var(--missing-on-accent);
   /* The fold of the ribbon of a recent card, where it wraps behind the
-   * edge: the accent in shadow */
+   * edge: the gold of the stars in shadow */
   --color-ribbon-fold: var(--ribbon-fold);
-  /* The ribbon "Featured" of the pick of the maintainer: a purple pink apart
-   * from the blue of "Recently added", its text, and its fold in shadow */
+  /* The ribbon "Featured" of the picks of the maintainer: a purple pink
+   * apart from the gold of "Recently added", its text, and its fold in
+   * shadow */
   --color-featured: var(--featured);
   --color-featured-ink: var(--featured-ink);
   --color-featured-fold: var(--featured-fold);
@@ -104,7 +105,7 @@
   --native-on-accent: #7ee36f;
   --equivalent-on-accent: #ffd54a;
   --missing-on-accent: #ff8f7a;
-  --ribbon-fold: #064469;
+  --ribbon-fold: #8f6a12;
   --featured: #b02a9c;
   --featured-ink: #ffffff;
   --featured-fold: #6a1360;
@@ -138,7 +139,7 @@
     --native-on-accent: #0f5c09;
     --equivalent-on-accent: #6b4f00;
     --missing-on-accent: #9e2412;
-    --ribbon-fold: #2a6383;
+    --ribbon-fold: #8a6614;
     --featured: #e98ad8;
     --featured-ink: #26061f;
     --featured-fold: #9a4d8c;

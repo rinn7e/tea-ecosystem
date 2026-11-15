@@ -434,7 +434,7 @@ const edgeRibbonLook = (
       return {
         label: 'Recently added',
         fold: 'after:border-t-ribbon-fold',
-        fill: 'bg-accent text-accent-ink',
+        fill: 'bg-star text-on-star',
       }
   }
 }
@@ -560,7 +560,7 @@ export const addedView = ({
       id={`${framework.id}-added`}
       content={{ title: words.title, text: words.text }}
       label={`Recently added, ${words.shown}`}
-      className='bg-accent text-accent-ink inline-flex cursor-default px-[14px] py-[2px] text-xs whitespace-nowrap tabular-nums [clip-path:polygon(0_0,100%_0,calc(100%-6px)_50%,100%_100%,0_100%,6px_50%)]'
+      className='bg-star text-on-star inline-flex cursor-default px-[14px] py-[2px] text-xs whitespace-nowrap tabular-nums [clip-path:polygon(0_0,100%_0,calc(100%-6px)_50%,100%_100%,0_100%,6px_50%)]'
     >
       Recently added · {words.shown}
     </TooltipTrigger>
