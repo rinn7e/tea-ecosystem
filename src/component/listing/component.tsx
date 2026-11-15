@@ -855,19 +855,30 @@ const datesView = ({ framework }: { framework: Framework }) =>
     </span>
   )
 
-// The foot of a card on a phone, in one row: the status, the targets as
-// icons (named for screen readers and in their tooltip), the day of the
-// last push, and the source link. The created day is on the page of the
-// entry and in the table. From `sm:` up the foot has two rows.
+// The foot of a card on a phone, in one row: the status as its colored dot
+// (its name for screen readers and in its tooltip), the targets as icons
+// (named the same way), both days, and the source link. An entry with many
+// targets wraps its days onto a second line. From `sm:` up the foot has two
+// rows, with the status and the targets in words.
 const phoneFooterView = ({ framework }: { framework: Framework }) => (
   <div className='flex items-center justify-between gap-[8px] sm:hidden'>
-    <div className='flex min-w-0 items-center gap-[10px] text-xs'>
-      {statusView({ status: framework.status })}
+    <div className='text-ink-faint flex min-w-0 flex-wrap items-center gap-x-[10px] gap-y-[4px] text-xs'>
+      <TooltipTrigger
+        id={`${framework.id}-phone-status`}
+        content={{
+          title: statusLabel(framework.status),
+          text: statusMeaning(framework.status),
+        }}
+        label={statusLabel(framework.status)}
+        className='relative z-10 flex cursor-default items-center'
+      >
+        {statusDotView({ status: framework.status })}
+      </TooltipTrigger>
       <span
         role='img'
         aria-label={`Targets: ${framework.targets.map(targetLabel).join(', ')}`}
         title={framework.targets.map(targetLabel).join(', ')}
-        className='text-ink-faint relative z-10 flex items-center gap-[4px]'
+        className='relative z-10 flex items-center gap-[4px]'
       >
         {framework.targets.map((target) => (
           <span key={target} className='flex'>
@@ -875,15 +886,21 @@ const phoneFooterView = ({ framework }: { framework: Framework }) => (
           </span>
         ))}
       </span>
-      {framework.updatedAt !== undefined && (
-        <span className='text-ink-faint relative z-10 truncate'>
-          {dateView({
-            id: `${framework.id}-phone`,
-            which: 'updated',
-            day: framework.updatedAt,
-          })}
-        </span>
-      )}
+      {framework.createdAt !== undefined &&
+        framework.updatedAt !== undefined && (
+          <span className='relative z-10 flex items-center gap-[10px]'>
+            {dateView({
+              id: `${framework.id}-phone`,
+              which: 'created',
+              day: framework.createdAt,
+            })}
+            {dateView({
+              id: `${framework.id}-phone`,
+              which: 'updated',
+              day: framework.updatedAt,
+            })}
+          </span>
+        )}
     </div>
     {sourceLinkView({ framework })}
   </div>

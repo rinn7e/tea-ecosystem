@@ -107,19 +107,19 @@ Three layouts, mobile first: unprefixed classes are the phone layout, and each b
 
 ### The card on a phone
 
-Below `sm:` a card is denser, so about four fit on a 375 x 812 screen in place of under three. It keeps every piece of the card but the day it was created, which the page of the entry and the table show.
+Below `sm:` a card is denser, so about four fit on a 375 x 812 screen in place of under three. It keeps every piece of the card.
 
-| Part                                | Phone                                    | From `sm:`         |
-| ----------------------------------- | ---------------------------------------- | ------------------ |
-| Padding, and space between its rows | 10 px, 6 px                              | 18 px, 12 px       |
-| Space between cards                 | 14 px                                    | 22 px              |
-| Tile                                | 36 px (the tile of a table row)          | 44 px              |
-| Name                                | 17 px                                    | 19 px              |
-| Strip of grades                     | 20 px tall                               | 26 px tall         |
-| Summary                             | 2 lines                                  | 3 lines            |
-| Ribbon                              | under the tier badge, 34 px from the top | 52 px from the top |
-| Columns                             | 1                                        | 2 (3 from `lg:`)   |
-| Foot                                | 1 row, targets as icons, last push only  | 2 rows, both days  |
+| Part                                | Phone                                    | From `sm:`                       |
+| ----------------------------------- | ---------------------------------------- | -------------------------------- |
+| Padding, and space between its rows | 10 px, 6 px                              | 18 px, 12 px                     |
+| Space between cards                 | 14 px                                    | 22 px                            |
+| Tile                                | 36 px (the tile of a table row)          | 44 px                            |
+| Name                                | 17 px                                    | 19 px                            |
+| Strip of grades                     | 20 px tall                               | 26 px tall                       |
+| Summary                             | 2 lines                                  | 3 lines                          |
+| Ribbon                              | under the tier badge, 34 px from the top | 52 px from the top               |
+| Columns                             | 1                                        | 2 (3 from `lg:`)                 |
+| Foot                                | 1 row: status dot, target icons          | 2 rows: status, targets in words |
 
 The source link keeps a tap target of 34 px around its 24 px button (5 px more above and below).
 
