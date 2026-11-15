@@ -242,6 +242,8 @@ describe('the status of an entry', () => {
     const { status: _, updatedAt: __, ...stored } = entry('hojicha')
     expect(statusAt(NOW)({ ...stored, status: 'active' }).status).toBe('active')
     expect(statusAt(NOW)({ ...stored, status: 'quiet' }).status).toBe('quiet')
+    // The data test "store a status only where the last push cannot tell
+    // it" keeps an entry from having neither
     expect(statusAt(NOW)(stored).status).toBe('quiet')
   })
 })

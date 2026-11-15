@@ -185,6 +185,32 @@ describe('data files', () => {
     expect(wrong.map((f) => f.id)).toEqual([])
   })
 
+  it('store a status only where the last push cannot tell it', () => {
+    // An entry with a public repository is active, quiet or archived by
+    // its last push (`statusAt`): it stores `archived` alone, set by a
+    // person; an entry with no public repository has no last push, and
+    // stores its status
+    const wrong = [...storedFrameworks, ...storedAdjacentEntries].filter((f) =>
+      hasPublicRepo(f)
+        ? f.status !== undefined && f.status !== 'archived'
+        : f.status === undefined,
+    )
+    expect(wrong.map((f) => `${f.id} (${f.status ?? 'none'})`)).toEqual([])
+  })
+
+  it('give no stars or dates to an entry with no public repository', () => {
+    // `statusAt` reads a last push wherever there is one, so a date on such
+    // an entry would hide the status it stores
+    const wrong = [...storedFrameworks, ...storedAdjacentEntries].filter(
+      (f) =>
+        !hasPublicRepo(f) &&
+        (f.stars !== undefined ||
+          f.createdAt !== undefined ||
+          f.updatedAt !== undefined),
+    )
+    expect(wrong.map((f) => f.id)).toEqual([])
+  })
+
   it('give the source of an entry inside its repository, or as its own page', () => {
     const wrong = [...frameworks, ...adjacentEntries].filter(
       (f) =>

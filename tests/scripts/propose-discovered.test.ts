@@ -126,7 +126,6 @@ describe('propose-discovered.sh', { timeout: 30_000 }, () => {
         elm,
         {
           ...entryOf('good-tea'),
-          status: 'active',
           stars: 120,
           updatedAt: '2026-10-01',
           verified: true,

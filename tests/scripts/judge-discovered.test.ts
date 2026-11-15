@@ -25,7 +25,6 @@ const goodEntryOf = (id: string) => ({
   id,
   repo: `https://github.com/o/${id}`,
   discoveredAt: `${day}T06:02:11Z`,
-  status: 'active',
   stars: 5,
   updatedAt: '2025-11-16T22:10:00Z',
   verified: true,

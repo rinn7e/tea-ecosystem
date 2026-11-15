@@ -26,7 +26,6 @@ const entryOf = (id: string, stars: number) => ({
   id,
   repo: `https://github.com/o/${id}`,
   discoveredAt: `${day}T06:02:11Z`,
-  status: 'active',
   stars,
   updatedAt: '2026-10-01',
   verified: true,

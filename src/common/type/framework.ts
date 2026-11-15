@@ -212,8 +212,10 @@ export type Framework = {
   discoveredAt: string
 }
 
-// An entry as the data files hold it, with its `status` optional:
-// `statusAt` gives every entry its status
+// An entry as the data files hold it: its `status` is stored only where
+// time cannot tell it, `archived`, or for an entry with no public
+// repository (test "store a status only where the last push cannot tell
+// it"); `statusAt` gives every entry its status
 export type FrameworkEntry = Omit<Framework, 'status'> & { status?: Status }
 
 export const FrameworkJson: t.Type<FrameworkEntry> = t.intersection([
