@@ -197,7 +197,7 @@ export const frameworkTileView = ({
             className={cn(
               frame,
               tileMonogramClass(size),
-              'bg-panel text-ink font-bold tracking-tight',
+              'bg-panel pattern-stripes text-ink font-bold tracking-tight',
             )}
           >
             {monogramOf(framework.name)}
