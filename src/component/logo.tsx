@@ -91,13 +91,42 @@ export type TileSize = 'chip' | 'row' | 'card' | 'page'
 const tileClass = (size: TileSize): string => {
   switch (size) {
     case 'chip':
-      return 'size-[26px] text-[0.6875rem]'
+      return 'size-[26px]'
     case 'row':
-      return 'size-[36px] text-[0.9375rem]'
+      return 'size-[36px]'
     case 'card':
-      return 'size-[44px] text-[1.125rem]'
+      return 'size-[44px]'
     case 'page':
-      return 'size-[72px] text-[1.875rem]'
+      return 'size-[72px]'
+  }
+}
+
+// A glyph (`logoText`, such as the cup of react-tea-cup)
+const tileGlyphClass = (size: TileSize): string => {
+  switch (size) {
+    case 'chip':
+      return 'text-[0.6875rem]'
+    case 'row':
+      return 'text-[0.9375rem]'
+    case 'card':
+      return 'text-[1.125rem]'
+    case 'page':
+      return 'text-[1.875rem]'
+  }
+}
+
+// Two letters in bold, as large as the widest pair (`WM`) allows with a
+// margin left in the tile, so they weigh as much as a logo next to them
+const tileMonogramClass = (size: TileSize): string => {
+  switch (size) {
+    case 'chip':
+      return 'text-[0.75rem]'
+    case 'row':
+      return 'text-[1.0625rem]'
+    case 'card':
+      return 'text-[1.3125rem]'
+    case 'page':
+      return 'text-[2.125rem]'
   }
 }
 
@@ -151,7 +180,10 @@ export const frameworkTileView = ({
     )
   } else if (framework.logoText !== undefined) {
     return (
-      <span aria-hidden='true' className={cn(frame, 'bg-panel text-ink')}>
+      <span
+        aria-hidden='true'
+        className={cn(frame, tileGlyphClass(size), 'bg-panel text-ink')}
+      >
         {framework.logoText}
       </span>
     )
@@ -162,7 +194,11 @@ export const frameworkTileView = ({
         () => (
           <span
             aria-hidden='true'
-            className={cn(frame, 'bg-panel text-ink font-semibold')}
+            className={cn(
+              frame,
+              tileMonogramClass(size),
+              'bg-panel text-ink font-bold tracking-tight',
+            )}
           >
             {monogramOf(framework.name)}
           </span>
