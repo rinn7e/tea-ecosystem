@@ -149,12 +149,13 @@ export const App = ({
             slides under the bar. The box is focusable, so the keys that
             scroll a page (Space, Page Down) scroll it, and its scrollbar
             always holds its place, so a short page does not shift sideways
-            from a long one. */}
+            from a long one. It never scrolls sideways: a page wider than
+            the screen is a bug, and a phone must not pan it. */}
         <div className='bg-page text-ink flex h-dvh flex-col overflow-hidden'>
           <div
             id={PAGE_SCROLL_ID}
             tabIndex={-1}
-            className='flex min-h-0 flex-1 flex-col overflow-y-scroll overscroll-contain outline-hidden'
+            className='flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-scroll overscroll-contain outline-hidden'
           >
             <HeaderMemo
               active={headerSectionOf(model.screenModel)}

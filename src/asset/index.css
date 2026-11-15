@@ -196,6 +196,9 @@ html {
 
 body {
   background: var(--page);
+  /* A word longer than its line (a URL in the notes of an entry) breaks
+   * where it must, instead of widening the page past the screen */
+  overflow-wrap: break-word;
 }
 
 /* Everything clickable shows the pointer. Links have it already; Tailwind
