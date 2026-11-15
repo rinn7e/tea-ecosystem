@@ -92,6 +92,8 @@ import {
   otherListLinkOf,
   otherListMatchTextOf,
   otherListMatchesOf,
+  otherListRecentOf,
+  otherListRecentTextOf,
   panelFilterCountOf,
   shownArchivedCountOf,
   sortFrameworks,
@@ -1350,16 +1352,36 @@ const archivedHintView = ({
 }
 
 // So a search for "react", or the TypeScript logo, on the catalog also
-// points to the matching libraries of the TEA-adjacent page
-const otherListHintView = ({ filter }: { filter: ListingFilter }) => {
+// points to the matching libraries of the TEA-adjacent page; and the list
+// shown newest first points to what the other list added recently. One
+// line at most: the matches of a filter first.
+const otherListHintView = ({
+  filter,
+  recentSince,
+}: {
+  filter: ListingFilter
+  recentSince: string
+}) => {
   return pipe(
     otherListMatchesOf(filter),
-    O.map((matches) => ({ matches, link: otherListLinkOf(matches) })),
+    O.map((matches) => ({
+      text: otherListMatchTextOf({ matches, isAlso: true }),
+      link: otherListLinkOf(matches),
+    })),
+    O.alt(() =>
+      pipe(
+        otherListRecentOf(filter, recentSince),
+        O.map((recent) => ({
+          text: otherListRecentTextOf(recent),
+          link: otherListLinkOf(recent),
+        })),
+      ),
+    ),
     O.fold(
       () => null,
-      ({ matches, link }) => (
+      ({ text, link }) => (
         <p className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[2px] text-center text-sm'>
-          <span>{otherListMatchTextOf({ matches, isAlso: true })}</span>
+          <span>{text}</span>
           <Link
             destination={link.destination}
             className='text-accent inline-flex items-center gap-[4px] hover:underline'
@@ -1450,7 +1472,8 @@ const ListingComponent = ({
             filter: model.filter,
             dispatch,
           })}
-        {shown.length > 0 && otherListHintView({ filter: model.filter })}
+        {shown.length > 0 &&
+          otherListHintView({ filter: model.filter, recentSince })}
         {shown.length === 0
           ? emptyView({ entries, filter: model.filter, dispatch })
           : model.filter.layout === 'cards'

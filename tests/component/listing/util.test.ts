@@ -29,7 +29,12 @@ import {
   lackables,
   statusChoiceOf,
 } from '@/common/type/destination'
-import { type Framework, type Target, targets } from '@/common/type/framework'
+import {
+  type Framework,
+  type Target,
+  isRecentlyAdded,
+  targets,
+} from '@/common/type/framework'
 import {
   archivedHintCountOf,
   balancedRows,
@@ -49,6 +54,8 @@ import {
   otherListMatchTextOf,
   otherListMatchesOf,
   otherListOf,
+  otherListRecentOf,
+  otherListRecentTextOf,
   panelFilterCountOf,
   shownArchivedCountOf,
   sortFrameworks,
@@ -755,17 +762,108 @@ describe('otherListMatchesOf', () => {
       }),
     )
     // Matches of the catalog, pointed to from TEA-adjacent
-    expect(
-      otherListLinkOf({
-        isArchived: false,
-        filter: searchOf('lustre'),
-        subject: '"lustre"',
-        count: 1,
-      }),
-    ).toEqual({
+    expect(otherListLinkOf({ filter: searchOf('lustre') })).toEqual({
       destination: destinationOfScreen(catalogScreen(searchOf('lustre'))),
       label: 'Show in Main catalog',
     })
+  })
+})
+
+describe('otherListRecentOf', () => {
+  // Every entry found after the first list counts as recent
+  const recentSince = '2026-11-01'
+  const newestFirst = sortOfCardSort('added')
+  const recentIdsOf = (entries: Framework[], filter: ListingFilter) =>
+    filterFrameworks(filter)(entries)
+      .filter((f) => isRecentlyAdded(f, recentSince))
+      .map((f) => f.id)
+
+  it('says nothing while the list is not shown newest first', () => {
+    expect(otherListRecentOf(defaultCatalogFilter(), recentSince)).toEqual(
+      O.none,
+    )
+    expect(
+      otherListRecentOf(
+        { ...defaultCatalogFilter(), sort: sortOfCardSort('popularity') },
+        recentSince,
+      ),
+    ).toEqual(O.none)
+  })
+
+  it('counts the recent entries of TEA-adjacent from the catalog shown newest first, and opens them newest first', () => {
+    const recent = otherListRecentOf(
+      { ...defaultCatalogFilter(), sort: newestFirst },
+      recentSince,
+    )
+    const expected = recentIdsOf(adjacentEntries, {
+      ...defaultAdjacentFilter(),
+      sort: newestFirst,
+    })
+    expect(expected.length).toBeGreaterThan(0)
+    expect(
+      pipe(
+        recent,
+        O.map((r) => r.count),
+      ),
+    ).toEqual(O.some(expected.length))
+    expect(
+      pipe(
+        recent,
+        O.map((r) => [r.filter.list, r.filter.sort]),
+      ),
+    ).toEqual(O.some(['adjacent', newestFirst]))
+  })
+
+  it('counts the recent entries of the catalog from TEA-adjacent shown newest first', () => {
+    const recent = otherListRecentOf(
+      { ...defaultAdjacentFilter(), sort: newestFirst },
+      recentSince,
+    )
+    const expected = recentIdsOf(frameworks, {
+      ...defaultCatalogFilter(),
+      sort: newestFirst,
+    })
+    expect(expected.length).toBeGreaterThan(0)
+    expect(
+      pipe(
+        recent,
+        O.map((r) => r.count),
+      ),
+    ).toEqual(O.some(expected.length))
+  })
+
+  it('carries the shared filters, and says nothing when no recent entry is left', () => {
+    expect(
+      otherListRecentOf(
+        {
+          ...defaultCatalogFilter(),
+          sort: newestFirst,
+          query: 'no such framework anywhere',
+        },
+        recentSince,
+      ),
+    ).toEqual(O.none)
+    // Before any entry was added after the first list
+    expect(
+      otherListRecentOf(
+        { ...defaultCatalogFilter(), sort: newestFirst },
+        '2099-01-01',
+      ),
+    ).toEqual(O.none)
+  })
+
+  it('says how many were also added recently, in the words of each list', () => {
+    const adjacent = { ...defaultAdjacentFilter(), sort: newestFirst }
+    const catalog = { ...defaultCatalogFilter(), sort: newestFirst }
+    expect(otherListRecentTextOf({ count: 1, filter: adjacent })).toBe(
+      '1 TEA-adjacent library was also added recently.',
+    )
+    expect(otherListRecentTextOf({ count: 3, filter: adjacent })).toBe(
+      '3 TEA-adjacent libraries were also added recently.',
+    )
+    expect(otherListRecentTextOf({ count: 9, filter: catalog })).toBe(
+      '9 frameworks in the Main catalog were also added recently.',
+    )
   })
 })
 

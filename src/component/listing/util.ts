@@ -42,6 +42,7 @@ import {
   type Tier,
   concepts,
   isLanguageEntry,
+  isRecentlyAdded,
   languagesOf,
 } from '@/common/type/framework'
 import { breakpoints } from '@/common/util/window-width'
@@ -342,12 +343,48 @@ export const otherListMatchTextOf = ({
     : `${count} ${archived}${entryNounOf('catalog', count)} in the Main catalog ${also}${verb} ${subject}.`
 }
 
-export const otherListLinkOf = (
-  matches: OtherListMatches,
-): { destination: Destination; label: string } => ({
-  destination: destinationOfScreen(listScreenOf(matches.filter)),
+export type OtherListRecent = {
+  count: number
+  filter: ListingFilter
+}
+
+// While a list shows its newest first (the New button is on), the entries of
+// the other list that wear "Recently added" too, under the filters both
+// lists share: the link opens that list newest first as well
+export const otherListRecentOf = (
+  filter: ListingFilter,
+  recentSince: string,
+): O.Option<OtherListRecent> =>
+  pipe(
+    O.some(filter),
+    O.filter((shown) => sortShortcutOf(shown.sort) === 'default'),
+    O.chain(carriedFilterOf),
+    O.map((carried) => ({
+      count: pipe(
+        filterFrameworks(carried)(entriesOf(carried.list)),
+        A.filter((framework) => isRecentlyAdded(framework, recentSince)),
+        A.size,
+      ),
+      filter: carried,
+    })),
+    O.filter((recent) => recent.count > 0),
+  )
+
+export const otherListRecentTextOf = (recent: OtherListRecent): string => {
+  const { count, filter } = recent
+  const verb = count === 1 ? 'was' : 'were'
+  return filter.list === 'adjacent'
+    ? `${count} TEA-adjacent ${entryNounOf('adjacent', count)} ${verb} also added recently.`
+    : `${count} ${entryNounOf('catalog', count)} in the Main catalog ${verb} also added recently.`
+}
+
+// Of either hint: the other list under the filter it carries
+export const otherListLinkOf = (other: {
+  filter: ListingFilter
+}): { destination: Destination; label: string } => ({
+  destination: destinationOfScreen(listScreenOf(other.filter)),
   label:
-    matches.filter.list === 'adjacent'
+    other.filter.list === 'adjacent'
       ? 'Show in TEA-adjacent'
       : 'Show in Main catalog',
 })

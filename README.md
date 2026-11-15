@@ -41,7 +41,7 @@ How the catalog sorts:
 - By default: Elm first, then the picks of the maintainer (react-tea-cup, Indigo, Miso, each with a "Featured" ribbon), then the most starred.
 - The sort menu also offers popularity, recently updated, recently created and newly added.
 - The **New** button shows the newest entries first, and turns solid while it is on.
-- A filter that also matches archived entries, or entries of the other list, says so and links to them.
+- A filter that also matches archived entries, or entries of the other list, says so and links to them. With **New** on, the list also points to the entries the other list added recently.
 
 The bar shows the live star count of the repository on its left, and how long ago the site last changed on its right; both open the repository.
 
