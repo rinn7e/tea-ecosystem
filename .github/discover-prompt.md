@@ -16,7 +16,7 @@ The workflow prompt gives you the day and the time of the run, its branch, and t
 
 The rules of the data are written down once, in the repository. Read them before you search, and follow them for every field:
 
-1. `README.md`, section "Add or fix a framework".
+1. `doc/data.md`: the fields of an entry, its grades and notes.
 2. `doc/code-convention.md`, section "Data files".
 3. `doc/analysis.md`, section 3 (the rubric: the concepts, the four grades, the three tiers and the port-back test; `equivalent` never qualifies a tier) and section 10 (the decisions, for example that a framework written in Elm is a library of the Elm column, not an entry).
 4. `src/common/type/framework.ts`: the fields of an entry and the test that guards each one.
@@ -55,9 +55,9 @@ Before the first candidate, start the branch of the run from the base: `git swit
 
 1. Read its README, its docs and its source (`gh repo view <owner>/<name>`, `WebFetch` on its docs and on the raw files of its source). Grade each concept of the rubric from what you read, never from memory or from the name of the project.
 2. Write its entry in `data/frameworks.json`, or in `data/adjacent.json` for a library that fails a hard requirement (with the requirement it misses and why in `notes`). Insert it right before the last entry of the file, never after it: the weekly refresh of the stats rewrites the last lines of that entry, and the pull request then never changes the same lines. The `id` is lowercase words joined by `-`, unique across both data files. The entry has:
-   - every field the README and `src/common/type/framework.ts` describe, from its own docs and source;
+   - every field `doc/data.md` and `src/common/type/framework.ts` describe, from its own docs and source;
    - `tier`: `full` or `superset` in `data/frameworks.json` (the rules of `rubricProblemsOf` decide), `adjacent` in `data/adjacent.json`;
-   - `notes`: the evidence of each grade (the function, type or API that shows it, with its name as the source spells it, in plain ASCII: a name with an apostrophe, such as `update'` in Haskell, is written `update` prime); a superset names what it adds in a note that starts with `Superset: `, and a TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`), as the README says;
+   - `notes`: the evidence of each grade (the function, type or API that shows it, with its name as the source spells it, in plain ASCII: a name with an apostrophe, such as `update'` in Haskell, is written `update` prime); a superset names what it adds in a note that starts with `Superset: `, and a TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`), as `doc/data.md` says;
    - `verified: true` only when you checked every grade against its docs or source, else `false`;
    - `discoveredAt`: the time of the run that the workflow prompt names (`2026-11-16T06:00:00Z`), the same for every candidate;
    - no `status`: the site derives it from `updatedAt` (a push in the last year is active, in the last two quiet, else archived). An archived or unmaintained project is skipped (above), so a candidate never stores one;

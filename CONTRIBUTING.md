@@ -6,7 +6,7 @@ Corrections and new entries are welcome.
 
 Open an [issue](https://github.com/rinn7e/tea-ecosystem/issues) with a link to the project and, for a grade you think is wrong, a link to the docs or the source that shows it. The [rubric](doc/analysis.md#3-inclusion-rubric) says what each grade means.
 
-To change the data yourself, see "Add or fix a framework" in the [README](README.md#add-or-fix-a-framework): `pnpm run test` checks every entry against the rubric.
+To change the data yourself, see [doc/data.md](doc/data.md): `pnpm run test` checks every entry against the rubric.
 
 ## Picking up an issue
 
