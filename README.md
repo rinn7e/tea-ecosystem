@@ -26,19 +26,31 @@ A catalog of The Elm Architecture across languages: every language and framework
   <img src="doc/screenshot.png" alt="The catalog of TEA Ecosystem in a browser: the title, the language and framework boxes, the language logos, the search and the first row of framework cards">
 </p>
 
-The site has:
+## What is on the site
 
-- **Catalog**: every entry, in many languages (the site shows how many), as cards or as a table of grades, filtered by tier, target, status and search, and sorted by popularity, by dates or by the day an entry was added (by default Elm first, then the picks of the maintainer, react-tea-cup, Indigo and Miso, each with a "Featured" ribbon, then the most starred), with a New button that shows the newest entries first, and turns solid while it is on (a second press leads back). A filter that also matches archived entries, or entries of the TEA-adjacent list, says so and links to them.
-- **A page per framework**: its grade on each part of TEA, with notes, and the other entries in its languages from both lists.
-- **Rubric**: what counts as TEA, the four grades and the three tiers.
-- **TEA-adjacent**: libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, XState, ...), graded the same way and shown with the same listing as the catalog, filtered by what they lack.
-- **Build your own TEA**: a runtime in eight steps, in Swift, TypeScript and Kotlin.
+| Page                 | What it shows                                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog              | Every entry, as cards or as a table of grades, with search and filters (tier, target, status)                                                  |
+| A page per framework | Its grade on each part of TEA, with notes, and the other entries in its languages                                                              |
+| Rubric               | What counts as TEA: the four grades and the three tiers                                                                                        |
+| TEA-adjacent         | Libraries that share the vocabulary but miss a hard requirement (Redux, NgRx, XState, ...), graded the same way and filtered by what they lack |
+| Build your own TEA   | A runtime in eight steps, in Swift, TypeScript and Kotlin                                                                                      |
+
+How the catalog sorts:
+
+- By default: Elm first, then the picks of the maintainer (react-tea-cup, Indigo, Miso, each with a "Featured" ribbon), then the most starred.
+- The sort menu also offers popularity, recently updated, recently created and newly added.
+- The **New** button shows the newest entries first, and turns solid while it is on.
+- A filter that also matches archived entries, or entries of the other list, says so and links to them.
 
 The thinking behind it is in [doc/analysis.md](doc/analysis.md).
 
 ## Stack
 
-React with [react-tea-cup](https://github.com/vankeisb/react-tea-cup) (The Elm Architecture for React), `tea-cup-fp`, `fp-ts`, `io-ts`, Vite, TypeScript, Tailwind CSS v4, and Vitest with fast-check for property tests. Frontend only: the data is bundled at build time, and the site is static on GitHub Pages.
+- React with [react-tea-cup](https://github.com/vankeisb/react-tea-cup) (The Elm Architecture for React), `tea-cup-fp`, `fp-ts` and `io-ts`
+- Vite, TypeScript and Tailwind CSS v4
+- Vitest, with fast-check for property tests
+- Frontend only: the data is bundled at build time, and the site is static on GitHub Pages
 
 ## Run it
 
@@ -72,15 +84,82 @@ pnpm run build
 
 ## Add or fix a framework
 
-Edit `data/frameworks.json` (or `data/adjacent.json` for a library that misses a hard requirement). Give it the time you add it as `discoveredAt` (`YYYY-MM-DDTHH:MM:SSZ` in UTC, so the entries of one day sort newest first; a new entry shows as "Recently added" for 30 days), its `repo` (the full URL of its public repository, on GitHub, GitLab, Codeberg or another Gitea; only when its source is not public, its website instead, with the same URL in `website`), its `website` when it has one apart from the repository, its `source` when it is one package of a monorepo (the full URL of its directory in `repo`), and run `GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs` to fill its stars and its created and updated dates (after that, the stats of every entry refresh every week on their own: `.github/workflows/refresh-stats.yml` runs the same script, follows a repository that moved, commits the data when `pnpm run test` passes, and lists in its job summary what is left for a person: a status to check, a host that did not answer, a broken link, a link that redirects); a logo goes in `public/logo/` and is named in `logo`, with `"logoOnLight": true` when it is drawn in dark ink on a transparent ground (its tile then stays white in dark mode), and `"logoPadding"` (`small`, `medium` or `large`) when it is drawn edge to edge and looks too large next to the others. Each grade is `native`, `managed`, `equivalent` or `missing`; the [rubric](doc/analysis.md#3-inclusion-rubric) says what each means (`equivalent` describes a part and never qualifies a tier). A superset names what it adds beyond TEA in a note that starts with `Superset: `; a TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`). An entry whose author says it is no longer maintained, though its repository is not archived, is `archived` with `unmaintainedNotice` set to where the author says so. `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
+Edit `data/frameworks.json`, or `data/adjacent.json` for a library that misses a hard requirement. `pnpm run test` checks that the file decodes and that every entry holds the rules of its tier.
+
+### Fields
+
+| Field                | Required | What it holds                                                                                                                                                       |
+| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `discoveredAt`       | yes      | When you add it, `YYYY-MM-DDTHH:MM:SSZ` in UTC. A new entry shows as "Recently added" for 30 days.                                                                  |
+| `repo`               | yes      | The full URL of its public repository (GitHub, GitLab, Codeberg or another Gitea). Only when its source is not public: its website, with the same URL in `website`. |
+| `website`            | no       | Its website, when it has one apart from the repository                                                                                                              |
+| `source`             | no       | For one package of a monorepo: the full URL of its directory in `repo`                                                                                              |
+| `logo`               | no       | A file in `public/logo/`. Without one, a monogram stands in.                                                                                                        |
+| `logoOnLight`        | no       | `true` when the logo is drawn in dark ink on a transparent ground (its tile stays white in dark mode)                                                               |
+| `logoPadding`        | no       | `small`, `medium` or `large`, for a logo drawn edge to edge that looks too large next to the others                                                                 |
+| `unmaintainedNotice` | no       | For an entry whose author says it is no longer maintained, though its repository is not archived: where the author says so (its status is then `archived`)          |
+
+### Grades and notes
+
+- Each grade is `native`, `managed`, `equivalent` or `missing`. The [rubric](doc/analysis.md#3-inclusion-rubric) says what each means; `equivalent` describes a part and never qualifies a tier.
+- A superset names what it adds beyond TEA in a note that starts with `Superset: `.
+- A TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`).
+
+### Stars and dates
+
+Fill its stars and its created and updated dates with:
+
+```bash
+GITHUB_TOKEN=<token> node scripts/fetch-repo-stats.mjs
+```
+
+After that they refresh every week on their own: `.github/workflows/refresh-stats.yml` runs the same script, follows a repository that moved, and commits the data when `pnpm run test` passes. Its job summary lists what is left for a person: a status to check, a host that did not answer, a broken link, a link that redirects.
 
 ## New entries every week
 
-Every Monday, `.github/workflows/discover.yml` runs an AI agent (`scripts/discover-agent.mjs`, on the Claude Agent SDK) that searches for TEA frameworks the catalog does not list yet, as `.github/discover-prompt.md` says. It grades each candidate from its own docs and source, and opens one draft pull request for the week (three candidates at most) that adds their entries with the evidence of each grade. Only the data the agent wrote reaches the repository: the workflow checks it and makes a commit of its own of it, and the pull request shows each new entry as code and links to the report of the run. It merges on its own when every candidate passes the rules of `scripts/judge-discovered.sh`: at least 5 stars, pushed to in the last year and not archived, every grade verified, and an example of at most 90 lines with its source. Otherwise it stays a draft, with a comment that names the rules that failed, for a person to review and merge. To settle an open pull request of the search by hand (one opened before these rules, or one a person edited), start the workflow "Settle discovered" (`.github/workflows/settle-discovered.yml`) with its number: it runs the same checks and rules, then merges it or comments. While that pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict. It skips what either data file lists, forks, archived, unmaintained and tiny projects, and the projects of `data/rejected.json`.
+Every Monday, `.github/workflows/discover.yml` runs an AI agent (`scripts/discover-agent.mjs`, on the Claude Agent SDK) that looks for TEA frameworks the catalog does not list yet, as `.github/discover-prompt.md` says.
 
-To see what the agent did, open the run in the Actions tab (workflow "Discover"): the step that runs the agent prints one line per step as it happens (each search, fetch, edit and command, each call it was denied, each call that failed, each retry of the API, and a short line for each thing it says), so the log can be followed live; the report of the agent is in the summary of the run (or, for an agent that did not finish, why, and what it said last); and the full transcript (every message, call and result) is the artifact `discover-transcript-<try>` of the run (`discover-transcript-1`, and one more for each re-run), kept 7 days, also when the agent failed or timed out. Any signed-in GitHub user can download the artifacts of a public repository, so the script writes the API key and the tokens into the transcript and the log as `***`. The branch of the agent goes to the job that opens the pull request as an artifact too (`discover-bundle`, kept a day), with its commits and their messages as they are. The rules of the agent deny a commit message from a file or a template in all but a few spellings, and before each upload the workflow searches the transcript and every commit and file of the branch for the values of the key and the token (`scripts/check-secrets.mjs`): a file that holds one is not uploaded, and the step fails with an error that names the secret; for the branch, the run then proposes nothing.
+1. It grades each candidate from its own docs and source.
+2. It opens one draft pull request for the week, with three candidates at most and the evidence of each grade.
+3. Only the data the agent wrote reaches the repository: the workflow checks it and makes a commit of its own of it.
+4. The pull request merges on its own when every candidate passes `scripts/judge-discovered.sh`. Otherwise it stays a draft, with a comment that names the rules that failed, for a person to review and merge.
 
-To turn a candidate down, remove its entry and its example from the pull request, and add its repository to `data/rejected.json` in the same pull request, with the day and the reason, so it is never proposed again, then run `pnpm run test` on the branch before merging (no check runs on a pull request); to turn them all down, close the pull request and add each one to `data/rejected.json` on `master`:
+The rules of `scripts/judge-discovered.sh`:
+
+- at least 5 stars;
+- pushed to in the last year, and not archived;
+- every grade verified;
+- an example of at most 90 lines, with its source.
+
+It skips what either data file lists, forks, archived, unmaintained and tiny projects, and the projects of `data/rejected.json`. While its pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict.
+
+### Settle a pull request by hand
+
+For a pull request opened before these rules, or one a person edited, start the workflow "Settle discovered" (`.github/workflows/settle-discovered.yml`) with its number. It runs the same checks and rules, then merges it or comments.
+
+### See what the agent did
+
+Open the run in the Actions tab (workflow "Discover"):
+
+| Where                                    | What                                                                                                                                                      |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The log of the agent step                | One line per step, live: each search, fetch, edit and command, each call denied or failed, each retry of the API, and a short line for each thing it says |
+| The summary of the run                   | The report of the agent, or, when it did not finish, why and what it said last                                                                            |
+| The artifact `discover-transcript-<try>` | The full transcript (every message, call and result), one per try, kept 7 days, also when the agent failed or timed out                                   |
+| The artifact `discover-bundle`           | The branch of the agent, with its commits as they are, kept a day                                                                                         |
+
+Secrets stay out of all of them:
+
+- Any signed-in GitHub user can download the artifacts of a public repository, so the API key and the tokens are written as `***`.
+- The rules of the agent deny a commit message read from a file or a template.
+- Before each upload, `scripts/check-secrets.mjs` searches the transcript and every commit and file of the branch for the key and the token. A file that holds one is not uploaded, and the step fails with an error that names the secret; for the branch, the run then proposes nothing.
+
+### Turn a candidate down
+
+- **One candidate:** remove its entry and its example from the pull request, and add its repository to `data/rejected.json` in the same pull request. Then run `pnpm run test` on the branch before merging (no check runs on a pull request).
+- **All of them:** close the pull request, and add each one to `data/rejected.json` on `master`.
+
+Each rejection gives the day and the reason, so the project is never proposed again:
 
 ```json
 {
@@ -90,11 +169,20 @@ To turn a candidate down, remove its entry and its example from the pull request
 }
 ```
 
-`pnpm run test` checks the file, and that no project is both listed and turned down. The workflow runs with the repository secret `ANTHROPIC_API_KEY`, and needs GitHub Actions allowed to create pull requests (Settings, Actions, General).
+`pnpm run test` checks the file, and that no project is both listed and turned down.
+
+### Setup
+
+- The repository secret `ANTHROPIC_API_KEY`.
+- GitHub Actions allowed to create pull requests (Settings, Actions, General).
 
 ## Deploy
 
-`.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`, and after every weekly refresh of the stats that commits new data (`refresh-stats.yml` starts it, since a push made with the `GITHUB_TOKEN` of a workflow starts no workflow). The site is served at `https://tea.rinn7e.com/`, the custom domain of the repo in the Pages settings, from the root (`VITE_BASE_URL` in `.env.production`), and GitHub Pages redirects the old links under `rinn7e.com/tea-ecosystem/` and `rinn7e.github.io/tea-ecosystem/` to it; the build copies `index.html` to `404.html` so a deep link opens the app. The built site counts visits with Cloudflare Web Analytics (no cookies, no personal data), added by the build only (`vite.config.ts`), so the dev server is never counted.
+- `.github/workflows/pages.yml` checks, builds and publishes `dist/` to GitHub Pages on every push to `master`, and after every weekly refresh of the stats that commits new data (`refresh-stats.yml` starts it, since a push made with the `GITHUB_TOKEN` of a workflow starts no workflow).
+- The site is served at `https://tea.rinn7e.com/`, the custom domain of the repository in the Pages settings, from the root (`VITE_BASE_URL` in `.env.production`).
+- GitHub Pages redirects the old links under `rinn7e.com/tea-ecosystem/` and `rinn7e.github.io/tea-ecosystem/` to it.
+- The build copies `index.html` to `404.html`, so a deep link opens the app.
+- The built site counts visits with Cloudflare Web Analytics (no cookies, no personal data). Only the build adds it (`vite.config.ts`), so the dev server is never counted.
 
 ## Contributing
 
