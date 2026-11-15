@@ -132,13 +132,13 @@ const relatedChipView = ({ framework }: { framework: Framework }) => (
   </Link>
 )
 
-const relatedView = ({ framework }: { framework: Framework }) => {
-  const groups = sameLanguageEntriesOf(framework)
-  return groups.length === 0 ? null : (
-    <section className='flex flex-col gap-[14px]'>
-      {sectionTitleView({ title: `More in ${framework.language}` })}
+// One section per language of the entry ("More in F#", then "More in C#")
+const relatedView = ({ framework }: { framework: Framework }) =>
+  sameLanguageEntriesOf(framework).map(({ language, lists }) => (
+    <section key={language} className='flex flex-col gap-[14px]'>
+      {sectionTitleView({ title: `More in ${language}` })}
       <div className='flex flex-col gap-[16px]'>
-        {groups.map(({ list, entries }) => (
+        {lists.map(({ list, entries }) => (
           <div key={list} className='flex flex-col items-center gap-[8px]'>
             <span className='text-ink-faint text-xs'>
               {list === 'catalog' ? 'Main catalog' : 'TEA-adjacent'}
@@ -150,8 +150,7 @@ const relatedView = ({ framework }: { framework: Framework }) => {
         ))}
       </div>
     </section>
-  )
-}
+  ))
 
 const FrameworkComponent = ({ model, listDestination, recentSince }: Props) => {
   const { framework } = model

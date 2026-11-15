@@ -98,33 +98,38 @@ export const targetOptionsOf = (list: ListId): Target[] =>
 export const listOf = (framework: Framework): ListId =>
   framework.tier === 'adjacent' ? 'adjacent' : 'catalog'
 
-// Other entries count when they share any of the two languages of an entry
-// that ships one library per platform, as the language filter matches. The
-// page of an entry shows them
-// under "More in <language>", so a Haskell framework also points to the
-// Haskell libraries that are not TEA, and back.
-export const sameLanguageEntriesOf = (
-  framework: Framework,
-): { list: ListId; entries: Framework[] }[] =>
+export type LanguageGroup = {
+  language: string
+  lists: { list: ListId; entries: Framework[] }[]
+}
+
+// The other entries in each language of an entry, from both lists, catalog
+// first: one group per language, so an entry that ships one library per
+// platform (F# and C#) has a "More in F#" and a "More in C#" on its page.
+// An entry in two languages shows in the group of each. A Haskell framework
+// also points to the Haskell libraries that are not TEA, and back. A
+// language or a list with no other entry is left out.
+export const sameLanguageEntriesOf = (framework: Framework): LanguageGroup[] =>
   pipe(
-    ['catalog', 'adjacent'] satisfies ListId[],
-    A.map((list) => ({
-      list,
-      entries: pipe(
-        entriesOf(list),
-        A.filter(
-          (f) =>
-            f.id !== framework.id &&
-            pipe(
-              languagesOf(f),
-              A.some((language) =>
-                A.elem(S.Eq)(language)(languagesOf(framework)),
-              ),
+    languagesOf(framework),
+    A.map((language) => ({
+      language,
+      lists: pipe(
+        ['catalog', 'adjacent'] satisfies ListId[],
+        A.map((list) => ({
+          list,
+          entries: pipe(
+            entriesOf(list),
+            A.filter(
+              (f) =>
+                f.id !== framework.id && A.elem(S.Eq)(language)(languagesOf(f)),
             ),
-        ),
+          ),
+        })),
+        A.filter(({ entries }) => entries.length > 0),
       ),
     })),
-    A.filter(({ entries }) => entries.length > 0),
+    A.filter(({ lists }) => lists.length > 0),
   )
 
 // The hard requirements of the rubric (`doc/analysis.md`, section 3), in

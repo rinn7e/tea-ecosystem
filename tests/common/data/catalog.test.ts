@@ -371,62 +371,115 @@ describe('the rule of the tiers', () => {
 })
 
 describe('sameLanguageEntriesOf', () => {
-  const idsOf = (id: string) =>
+  // Each group as its language and, per list, the ids of its entries
+  const groupsOf = (id: string) =>
     pipe(
       frameworkById(id),
       O.map(sameLanguageEntriesOf),
       O.map(
-        A.map(({ list, entries }) => ({
-          list,
-          ids: entries.map((f) => f.id),
+        A.map(({ language, lists }) => ({
+          language,
+          lists: lists.map(({ list, entries }) => ({
+            list,
+            ids: entries.map((f) => f.id),
+          })),
         })),
       ),
     )
+  const idsOf = (id: string) =>
+    pipe(
+      groupsOf(id),
+      O.map((groups) => groups.flatMap((g) => g.lists.flatMap((l) => l.ids))),
+    )
 
   it('gathers the entries of the language from both lists, catalog first', () => {
-    const groups = idsOf('brick')
-    // Each entry in its own group, whatever else the lists gain later
+    // Each entry in its own list, whatever else the lists gain later
     expect(
       pipe(
-        groups,
+        groupsOf('brick'),
         O.map(
           A.map((g) => ({
-            list: g.list,
-            has: g.ids.includes(g.list === 'catalog' ? 'miso' : 'hyperbole'),
+            language: g.language,
+            lists: g.lists.map((l) => ({
+              list: l.list,
+              has: l.ids.includes(l.list === 'catalog' ? 'miso' : 'hyperbole'),
+            })),
           })),
         ),
       ),
     ).toEqual(
       O.some([
-        { list: 'catalog', has: true },
-        { list: 'adjacent', has: true },
+        {
+          language: 'Haskell',
+          lists: [
+            { list: 'catalog', has: true },
+            { list: 'adjacent', has: true },
+          ],
+        },
       ]),
     )
   })
 
-  it('matches an entry in two languages by each of them, both ways', () => {
+  it('gives an entry in two languages a group for each, in its order', () => {
     // Keemun ships one library for Kotlin and one for Swift
-    const has = (id: string, other: string) =>
+    const groups = groupsOf('keemun')
+    expect(pipe(groups, O.map(A.map((g) => g.language)))).toEqual(
+      O.some(['Kotlin', 'Swift']),
+    )
+    const idsIn = (language: string) =>
       pipe(
-        idsOf(id),
-        O.map((gs) => gs.flatMap((g) => g.ids).includes(other)),
+        groups,
+        O.chain(A.findFirst((g) => g.language === language)),
+        O.map((g) => g.lists.flatMap((l) => l.ids)),
       )
-    expect(has('keemun', 'mobius-kt')).toEqual(O.some(true))
-    expect(has('keemun', 'reswift')).toEqual(O.some(true))
-    expect(has('mvikotlin', 'keemun')).toEqual(O.some(true))
-    expect(has('mvikotlin', 'reswift')).toEqual(O.some(false))
+    expect(
+      pipe(
+        idsIn('Kotlin'),
+        O.map((ids) => ids.includes('mobius-kt')),
+      ),
+    ).toEqual(O.some(true))
+    expect(
+      pipe(
+        idsIn('Kotlin'),
+        O.map((ids) => ids.includes('reswift')),
+      ),
+    ).toEqual(O.some(false))
+    expect(
+      pipe(
+        idsIn('Swift'),
+        O.map((ids) => ids.includes('reswift')),
+      ),
+    ).toEqual(O.some(true))
+  })
+
+  it('shows an entry in two languages in the group of each, both ways', () => {
+    expect(
+      pipe(
+        idsOf('mvikotlin'),
+        O.map((ids) => ids.includes('keemun')),
+      ),
+    ).toEqual(O.some(true))
+    expect(
+      pipe(
+        idsOf('mvikotlin'),
+        O.map((ids) => ids.includes('reswift')),
+      ),
+    ).toEqual(O.some(false))
   })
 
   it('leaves out the entry itself and a list with none', () => {
     expect(
       pipe(
         idsOf('hyperbole'),
-        O.map((gs) => gs.flatMap((g) => g.ids).includes('hyperbole')),
+        O.map((ids) => ids.includes('hyperbole')),
       ),
     ).toEqual(O.some(false))
     // No TEA-adjacent library is in Scala
-    expect(pipe(idsOf('tyrian'), O.map(A.map((g) => g.list)))).toEqual(
-      O.some(['catalog']),
-    )
+    expect(
+      pipe(
+        groupsOf('tyrian'),
+        O.map(A.flatMap((g) => g.lists.map((l) => l.list))),
+      ),
+    ).toEqual(O.some(['catalog']))
   })
 })
