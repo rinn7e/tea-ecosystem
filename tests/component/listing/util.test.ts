@@ -33,7 +33,9 @@ import { type Target, targets } from '@/common/type/framework'
 import {
   archivedHintCountOf,
   balancedRows,
+  cardSortLabel,
   cardSortOf,
+  cardSortShortLabel,
   cardSorts,
   carriedFilterOf,
   entryNounOf,
@@ -889,5 +891,15 @@ describe('hiddenArchivedCountOf', () => {
     expect(entryNounOf('catalog', 2)).toBe('frameworks')
     expect(entryNounOf('adjacent', 1)).toBe('library')
     expect(entryNounOf('adjacent', 3)).toBe('libraries')
+  })
+})
+
+describe('cardSortShortLabel', () => {
+  it('gives each sort one word of its own for the menu on a phone', () => {
+    const short = cardSorts.map(cardSortShortLabel)
+    expect(short.every((label) => /^[A-Z][a-z]+$/.test(label))).toBe(true)
+    expect(new Set(short).size).toBe(cardSorts.length)
+    expect(cardSorts.map(cardSortLabel)).toContain('Newly added')
+    expect(cardSortShortLabel('added')).toBe('Added')
   })
 })

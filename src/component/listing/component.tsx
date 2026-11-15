@@ -82,6 +82,7 @@ import {
   balancedRows,
   cardSortLabel,
   cardSortOf,
+  cardSortShortLabel,
   cardSorts,
   entryNounOf,
   filterFrameworks,
@@ -483,9 +484,10 @@ const layoutButtonView = ({
   <button
     type='button'
     aria-pressed={layout === current}
+    aria-label={layout === 'cards' ? 'Cards' : 'Table'}
     onClick={() => dispatch({ _tag: 'SetLayout', layout })}
     className={cn(
-      'flex h-[38px] items-center gap-[6px] border-2 px-[14px] text-[0.9375rem] transition-shadow',
+      'flex h-[32px] w-[32px] items-center justify-center gap-[6px] border-2 text-[0.9375rem] transition-shadow sm:h-[38px] sm:w-auto sm:px-[14px]',
       layout === current
         ? 'border-accent bg-accent text-accent-ink'
         : 'border-edge bg-panel text-accent hover:offset-shadow-edge',
@@ -496,7 +498,10 @@ const layoutButtonView = ({
     ) : (
       <IconTable size={16} stroke={1.75} />
     )}
-    {layout === 'cards' ? 'Cards' : 'Table'}
+    {/* An icon alone on a phone, so the toolbar keeps one row */}
+    <span className='hidden sm:inline'>
+      {layout === 'cards' ? 'Cards' : 'Table'}
+    </span>
   </button>
 )
 
@@ -631,7 +636,11 @@ const searchRowView = ({
 }
 
 // The table sorts by its headers instead. A sort only the table makes (by
-// name, oldest first) shows as one more choice, chosen.
+// name, oldest first) shows as one more choice, chosen. The menu draws its
+// own label, one word on a phone (`cardSortShortLabel`), with the native
+// select laid over it unseen, so the picker it opens is the one of the
+// system with the full labels. Every label sits in one cell, so the menu
+// keeps the width of the widest and does not jump when the choice changes.
 const sortMenuView = ({
   filter,
   dispatch,
@@ -640,14 +649,58 @@ const sortMenuView = ({
   dispatch: Dispatcher<Msg>
 }) => {
   const chosen = cardSortOf(filter.sort)
+  const tableOnly = pipe(
+    chosen,
+    O.fold(
+      () => pipe(filter.sort, O.map(sortLabelOf)),
+      () => O.none,
+    ),
+  )
+  const labels: {
+    key: string
+    short: string
+    long: string
+    isShown: boolean
+  }[] = [
+    ...pipe(
+      tableOnly,
+      O.fold(
+        () => [],
+        (label) => [{ key: 'table', short: label, long: label, isShown: true }],
+      ),
+    ),
+    ...cardSorts.map((choice) => ({
+      key: choice,
+      short: cardSortShortLabel(choice),
+      long: cardSortLabel(choice),
+      isShown: pipe(
+        chosen,
+        O.exists((c) => c === choice),
+      ),
+    })),
+  ]
   return (
-    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge focus-within:offset-shadow-edge relative flex h-[38px] items-center border-2 text-base transition-shadow lg:text-[0.9375rem]'>
+    <label className='border-edge bg-panel text-accent hover:offset-shadow-edge focus-within:offset-shadow-edge relative flex h-[32px] items-center border-2 pr-[26px] pl-[28px] text-[0.8125rem] transition-shadow sm:h-[38px] sm:pr-[34px] sm:pl-[34px] sm:text-base lg:text-[0.9375rem]'>
       <IconArrowsSort
         size={16}
         stroke={1.75}
         aria-hidden
-        className='pointer-events-none absolute left-[12px]'
+        className='pointer-events-none absolute left-[8px] sm:left-[12px]'
       />
+      <span aria-hidden className='pointer-events-none grid whitespace-nowrap'>
+        {labels.map((label) => (
+          <span
+            key={label.key}
+            className={cn(
+              'col-start-1 row-start-1',
+              !label.isShown && 'invisible',
+            )}
+          >
+            <span className='sm:hidden'>{label.short}</span>
+            <span className='hidden sm:inline'>{label.long}</span>
+          </span>
+        ))}
+      </span>
       <select
         aria-label='Sort the cards'
         value={pipe(
@@ -665,20 +718,19 @@ const sortMenuView = ({
             ),
           )
         }
-        className='h-full cursor-pointer appearance-none bg-transparent pr-[34px] pl-[34px] outline-hidden'
+        className='absolute inset-0 cursor-pointer appearance-none opacity-0'
       >
-        {O.isNone(chosen) &&
-          pipe(
-            filter.sort,
-            O.fold(
-              () => null,
-              (sort) => (
-                <option value='table' disabled>
-                  {sortLabelOf(sort)}
-                </option>
-              ),
+        {pipe(
+          tableOnly,
+          O.fold(
+            () => null,
+            (label) => (
+              <option value='table' disabled>
+                {label}
+              </option>
             ),
-          )}
+          ),
+        )}
         {cardSorts.map((choice) => (
           <option key={choice} value={choice}>
             {cardSortLabel(choice)}
@@ -689,7 +741,7 @@ const sortMenuView = ({
         size={16}
         stroke={1.75}
         aria-hidden
-        className='pointer-events-none absolute right-[12px]'
+        className='pointer-events-none absolute right-[8px] sm:right-[12px]'
       />
     </label>
   )
@@ -715,7 +767,7 @@ const sortShortcutView = ({
       }
       aria-label='Sort by the newly added first'
       className={cn(
-        'border-star flex h-[38px] items-center border-2 px-[14px] text-[0.9375rem] transition-shadow',
+        'border-star flex h-[32px] items-center border-2 px-[10px] text-[0.8125rem] transition-shadow sm:h-[38px] sm:px-[14px] sm:text-[0.9375rem]',
         isOn
           ? 'bg-star text-on-star'
           : 'shine bg-star/15 text-star-ink hover:offset-shadow-star',
@@ -737,9 +789,9 @@ const filterBarView = ({
   total: number
   dispatch: Dispatcher<Msg>
 }) => (
-  <div className='flex flex-wrap items-center justify-between gap-[12px]'>
-    <div className='flex flex-wrap items-center gap-[12px]'>
-      <div className='flex gap-[8px]'>
+  <div className='flex flex-wrap items-center justify-between gap-[8px] sm:gap-[12px]'>
+    <div className='flex flex-wrap items-center gap-[6px] sm:gap-[12px]'>
+      <div className='flex gap-[6px] sm:gap-[8px]'>
         {layoutButtonView({
           layout: 'cards',
           current: filter.layout,
@@ -754,18 +806,28 @@ const filterBarView = ({
       {filter.layout === 'cards' && sortMenuView({ filter, dispatch })}
       {filter.layout === 'cards' && sortShortcutView({ filter, dispatch })}
     </div>
-    <div className='flex items-center gap-[12px]'>
-      <span className='text-ink-muted text-sm whitespace-nowrap tabular-nums'>
+    {/* A phone shows no count, so with no filter on this group is empty
+        there and takes no row */}
+    <div
+      className={cn(
+        'items-center gap-[8px] sm:flex sm:gap-[12px]',
+        isFiltered(filter) ? 'flex' : 'hidden',
+      )}
+    >
+      <span className='text-ink-muted hidden text-sm whitespace-nowrap tabular-nums sm:inline'>
         {shown} of {total}
       </span>
       {isFiltered(filter) && (
         <button
           type='button'
           onClick={() => dispatch({ _tag: 'ClearFilter' })}
-          className='border-reset/40 bg-reset/10 text-reset hover:border-reset flex h-[38px] items-center gap-[6px] rounded-[2px] border px-[12px] text-sm whitespace-nowrap transition-colors'
+          aria-label='Clear filters'
+          className='border-reset/40 bg-reset/10 text-reset hover:border-reset flex h-[32px] items-center gap-[4px] rounded-[2px] border px-[8px] text-[0.8125rem] whitespace-nowrap transition-colors sm:h-[38px] sm:gap-[6px] sm:px-[12px] sm:text-sm'
         >
           <IconFilterOff size={16} stroke={1.75} aria-hidden />
-          Clear filters
+          {/* One word on a phone */}
+          <span className='sm:hidden'>Clear</span>
+          <span className='hidden sm:inline'>Clear filters</span>
         </button>
       )}
     </div>

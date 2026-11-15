@@ -520,6 +520,23 @@ export const cardSortLabel = (choice: CardSort): string => {
   }
 }
 
+// One word for the menu on a phone, where the toolbar has little room; the
+// picker it opens keeps the full labels
+export const cardSortShortLabel = (choice: CardSort): string => {
+  switch (choice) {
+    case 'default':
+      return 'Default'
+    case 'popularity':
+      return 'Stars'
+    case 'updated':
+      return 'Updated'
+    case 'created':
+      return 'Created'
+    case 'added':
+      return 'Added'
+  }
+}
+
 const columnOfCardSort = (choice: CardSort): O.Option<SortColumn> => {
   switch (choice) {
     case 'default':
