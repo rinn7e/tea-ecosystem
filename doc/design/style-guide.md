@@ -127,15 +127,16 @@ The source link keeps a tap target of 34 px around its 24 px button (5 px more a
 
 Below `sm:` the top of the catalog is tighter, so the first card shows without a scroll on a 375 x 812 screen (it started below the fold).
 
-| Part                   | Phone                                                   | From `sm:`                             |
-| ---------------------- | ------------------------------------------------------- | -------------------------------------- |
-| Top bar                | 52 px, a 19 px name                                     | 64 px, a 22 px name (26 px from `lg:`) |
-| Space above the title  | 20 px                                                   | 32 px (48 px from `lg:`)               |
-| Title, lead            | 26 px, 14 px                                            | 32 px, 16 px                           |
-| Space before the boxes | 24 px                                                   | 44 px                                  |
-| Category boxes         | 24 px numbers                                           | 32 px numbers                          |
-| Language tiles         | 32 px, 5 px apart (9 a row)                             | 40 px, 6 px apart                      |
-| Search, Filters        | 36 px tall, the hint "Search name or language" at 14 px | 40 px, the full hint                   |
+| Part                   | Phone                                                   | From `sm:`                                     |
+| ---------------------- | ------------------------------------------------------- | ---------------------------------------------- |
+| Top bar                | 52 px, a 19 px name                                     | 64 px, a 22 px name (26 px from `lg:`)         |
+| Space above the title  | 20 px                                                   | 32 px (48 px from `lg:`)                       |
+| Title, lead            | 26 px, 14 px                                            | 32 px, 16 px                                   |
+| Space before the boxes | 24 px                                                   | 44 px                                          |
+| Category boxes         | 24 px numbers                                           | 32 px numbers                                  |
+| Language tiles         | 32 px, 5 px apart (9 a row)                             | 40 px, 6 px apart                              |
+| Search, Filters        | 36 px tall, the hint "Search name or language" at 14 px | 40 px, the full hint                           |
+| Filters panel          | 32 px boxes, 13 px, three a row, 12 px padding          | 36 px boxes, 14 px, 130 px wide, 16 px padding |
 
 The search keeps 16 px text on a phone: below that, Safari zooms the page into the field. The Filters button is its icon alone at every width (named for screen readers, "Filters" in its tooltip), with the count of filters on beside it.
 

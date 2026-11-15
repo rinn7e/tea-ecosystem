@@ -288,8 +288,11 @@ const languageChoicesView = ({
 // box has one width, so the rows line up. Chosen, it fills blue like the
 // chosen layout button; hovering it draws the blue edge and its shadow, like
 // the other layout button.
+// A `prefix` the title of its section already says ("Lacks") is left out
+// on a phone, where three boxes share a row
 const choiceBoxView = ({
   id,
+  prefix,
   label,
   icon,
   tone,
@@ -299,6 +302,7 @@ const choiceBoxView = ({
   onClick,
 }: {
   id: string
+  prefix: O.Option<string>
   label: string
   icon: React.ReactNode
   tone: Tone
@@ -317,10 +321,16 @@ const choiceBoxView = ({
     <button
       type='button'
       aria-pressed={isChosen}
-      aria-label={`${label}, ${count}`}
+      aria-label={`${pipe(
+        prefix,
+        O.fold(
+          () => '',
+          (p) => `${p} `,
+        ),
+      )}${label}, ${count}`}
       onClick={onClick}
       className={cn(
-        'flex h-[36px] w-[130px] items-center justify-center gap-[6px] border-2 px-[10px] text-sm whitespace-nowrap transition-shadow',
+        'flex h-[32px] w-full items-center justify-center gap-[4px] border-2 px-[4px] text-[0.8125rem] whitespace-nowrap transition-shadow sm:h-[36px] sm:w-[130px] sm:gap-[6px] sm:px-[10px] sm:text-sm',
         isChosen
           ? 'border-accent bg-accent text-accent-ink'
           : cn(
@@ -331,14 +341,27 @@ const choiceBoxView = ({
       )}
     >
       {icon}
-      {label}
+      <span>
+        {pipe(
+          prefix,
+          O.fold(
+            () => null,
+            (p) => <span className='hidden sm:inline'>{p} </span>,
+          ),
+        )}
+        {label}
+      </span>
       <span className='tabular-nums'>{count}</span>
     </button>
   </TooltipTrigger>
 )
 
+// Three a row on a phone, sized like its toolbar; from `sm:` up, boxes of
+// one width that wrap
 const choiceRowView = ({ children }: { children: React.ReactNode }) => (
-  <div className='flex flex-wrap gap-[8px]'>{children}</div>
+  <div className='grid grid-cols-3 gap-[6px] sm:flex sm:flex-wrap sm:gap-[8px]'>
+    {children}
+  </div>
 )
 
 const tierChoicesView = ({
@@ -354,6 +377,7 @@ const tierChoicesView = ({
     children: catalogTiers.map((tier) =>
       choiceBoxView({
         id: tier,
+        prefix: O.none,
         tooltip: { title: tierLabel(tier), text: tierMeaning(tier) },
         label: tierLabel(tier),
         icon: null,
@@ -386,7 +410,8 @@ const lacksChoicesView = ({
           title: `Lacks ${conceptLabel(concept)}`,
           text: `${conceptLabel(concept)} is missing, or only reached in another shape. ${conceptMeaning(concept)}`,
         },
-        label: `Lacks ${conceptLabel(concept)}`,
+        prefix: O.some('Lacks'),
+        label: conceptLabel(concept),
         icon: null,
         tone: gradeTone('missing'),
         count: filterFrameworks({
@@ -418,6 +443,7 @@ const targetChoicesView = ({
     children: options.map((target) =>
       choiceBoxView({
         id: target,
+        prefix: O.none,
         tooltip: {
           title: targetLabel(target),
           text: targetMeaning(target),
@@ -451,6 +477,7 @@ const statusChoicesView = ({
     children: statuses.map((status) =>
       choiceBoxView({
         id: status,
+        prefix: O.none,
         tooltip: { title: statusLabel(status), text: statusMeaning(status) },
         label: statusLabel(status),
         icon: statusDotView({
@@ -550,8 +577,8 @@ const panelSectionView = ({
   title: string
   children: React.ReactNode
 }) => (
-  <div className='flex flex-col gap-[8px]'>
-    <span className='text-ink-muted text-xs tracking-wide uppercase'>
+  <div className='flex flex-col gap-[6px] sm:gap-[8px]'>
+    <span className='text-ink-muted text-[0.6875rem] tracking-wide uppercase sm:text-xs'>
       {title}
     </span>
     {children}
@@ -607,7 +634,7 @@ const searchRowView = ({
             role='dialog'
             aria-label='Filters'
             className={cn(
-              'border-edge bg-panel absolute top-full right-0 z-40 flex w-[452px] max-w-[calc(100vw-32px)] flex-col gap-[16px] border-2 p-[16px]',
+              'border-edge bg-panel absolute top-full right-0 z-40 flex w-[452px] max-w-[calc(100vw-32px)] flex-col gap-[12px] border-2 p-[12px] sm:gap-[16px] sm:p-[16px]',
               'transition-[opacity,translate] duration-150 ease-out motion-reduce:transition-none',
               'mt-[10px] starting:translate-y-[-4px] starting:opacity-0',
               model.panel === 'closing'
@@ -1410,7 +1437,7 @@ const ListingComponent = ({
         {searchRowView({ entries, model, dispatch })}
       </div>
       {/* The toolbar sits right on the results it acts on */}
-      <div className='mt-[24px] flex flex-col gap-[14px]'>
+      <div className='mt-[16px] flex flex-col gap-[14px]'>
         {filterBarView({
           filter: model.filter,
           shown: shown.length,
