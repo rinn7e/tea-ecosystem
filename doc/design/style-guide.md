@@ -115,7 +115,7 @@ Below `sm:` a card is denser, so about four fit on a 375 x 812 screen in place o
 | Space between cards                 | 14 px                                    | 22 px                            |
 | Tile                                | 36 px (the tile of a table row)          | 44 px                            |
 | Name                                | 17 px                                    | 19 px                            |
-| Strip of grades                     | 20 px tall                               | 26 px tall                       |
+| Strip of grades                     | 16 px tall                               | 26 px tall                       |
 | Summary                             | 2 lines                                  | 3 lines                          |
 | Ribbon                              | under the tier badge, 34 px from the top | 52 px from the top               |
 | Columns                             | 1                                        | 2 (3 from `lg:`)                 |
