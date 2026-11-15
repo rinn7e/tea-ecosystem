@@ -38,7 +38,7 @@ import {
 import {
   type Framework,
   addedDayOf,
-  isRecentlyAdded,
+  cardRibbonOf,
   statuses,
 } from '@/common/type/framework'
 import {
@@ -46,9 +46,9 @@ import {
   conceptLabel,
   conceptMeaning,
   dateView,
+  edgeRibbonView,
   gradeTone,
   languageLineOf,
-  recentEdgeRibbonView,
   rubricStripView,
   sourceLinkView,
   statusDotView,
@@ -797,73 +797,83 @@ const datesView = ({ framework }: { framework: Framework }) =>
 // card (`stretched-link`), so the code button (a link of its own, which
 // cannot sit inside another) and the rubric strip (for its tooltips) are
 // raised above it with `relative z-10`. Pressing the card shows its hover
-// look, like any other link while pressed. An entry found after the first
-// list wears the ribbon "Recently added" on its right edge.
+// look, like any other link while pressed. The pick of the maintainer
+// wears the ribbon "Featured" on its right edge, and an entry found after
+// the first list "Recently added".
 const cardView = ({
   framework,
   recentSince,
 }: {
   framework: Framework
   recentSince: string
-}) => (
-  <div
-    key={framework.id}
-    className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge relative flex flex-col gap-[12px] rounded-[3px] border p-[18px] transition-shadow'
-  >
-    {isRecentlyAdded(framework, recentSince) && recentEdgeRibbonView()}
-    <div className='flex items-start gap-[12px]'>
-      {frameworkTileView({ framework, size: 'card' })}
-      {/* Room on the right for the ribbon of a recent entry, which reaches
-          in from the edge of the card under the tier badge */}
-      <div
-        className={cn(
-          'flex min-w-0 flex-1 flex-col',
-          isRecentlyAdded(framework, recentSince) && 'pr-[12px]',
-        )}
-      >
-        <Link
-          destination={destinationOfScreen(frameworkScreen(framework.id))}
-          className='text-ink stretched-link truncate text-[1.1875rem] leading-snug font-normal'
+}) => {
+  const ribbon = cardRibbonOf(framework, recentSince)
+  return (
+    <div
+      key={framework.id}
+      className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge relative flex flex-col gap-[12px] rounded-[3px] border p-[18px] transition-shadow'
+    >
+      {pipe(
+        ribbon,
+        O.fold(
+          () => null,
+          (shown) => edgeRibbonView({ ribbon: shown }),
+        ),
+      )}
+      <div className='flex items-start gap-[12px]'>
+        {frameworkTileView({ framework, size: 'card' })}
+        {/* Room on the right for the ribbon, which reaches in from the edge
+          of the card under the tier badge */}
+        <div
+          className={cn(
+            'flex min-w-0 flex-1 flex-col',
+            O.isSome(ribbon) && 'pr-[12px]',
+          )}
         >
-          {framework.name}
-        </Link>
-        <span className='text-ink-muted flex items-center gap-[6px] text-sm'>
-          {languageLineLogoView({ framework, size: 'small' })}
-          <span className='truncate'>{languageLineOf(framework)}</span>
-        </span>
+          <Link
+            destination={destinationOfScreen(frameworkScreen(framework.id))}
+            className='text-ink stretched-link truncate text-[1.1875rem] leading-snug font-normal'
+          >
+            {framework.name}
+          </Link>
+          <span className='text-ink-muted flex items-center gap-[6px] text-sm'>
+            {languageLineLogoView({ framework, size: 'small' })}
+            <span className='truncate'>{languageLineOf(framework)}</span>
+          </span>
+        </div>
+        {tierBadgeView({ tier: framework.tier })}
       </div>
-      {tierBadgeView({ tier: framework.tier })}
-    </div>
-    {/* Above the link that covers the card, so a part shows its tooltip
+      {/* Above the link that covers the card, so a part shows its tooltip
         under the mouse; a link to the same page itself, so a click on a
         part still opens the entry. Out of the tab order: the name is the
         one link of the card for the keyboard. */}
-    <Link
-      destination={destinationOfScreen(frameworkScreen(framework.id))}
-      tabIndex={-1}
-      className='relative z-10 block'
-    >
-      {rubricStripView({
-        id: framework.id,
-        rubric: framework.rubric,
-        isInLink: true,
-      })}
-    </Link>
-    <p className='text-ink-muted line-clamp-3 flex-1 text-sm'>
-      {framework.summary}
-    </p>
-    <div className='flex flex-col gap-[8px]'>
-      <div className='flex items-start justify-between gap-[8px] text-xs'>
-        {targetChipsView({ targets: framework.targets, align: 'start' })}
-        {sourceLinkView({ framework })}
-      </div>
-      <div className='flex flex-wrap items-center justify-between gap-x-[10px] gap-y-[4px]'>
-        {statusView({ status: framework.status })}
-        {datesView({ framework })}
+      <Link
+        destination={destinationOfScreen(frameworkScreen(framework.id))}
+        tabIndex={-1}
+        className='relative z-10 block'
+      >
+        {rubricStripView({
+          id: framework.id,
+          rubric: framework.rubric,
+          isInLink: true,
+        })}
+      </Link>
+      <p className='text-ink-muted line-clamp-3 flex-1 text-sm'>
+        {framework.summary}
+      </p>
+      <div className='flex flex-col gap-[8px]'>
+        <div className='flex items-start justify-between gap-[8px] text-xs'>
+          {targetChipsView({ targets: framework.targets, align: 'start' })}
+          {sourceLinkView({ framework })}
+        </div>
+        <div className='flex flex-wrap items-center justify-between gap-x-[10px] gap-y-[4px]'>
+          {statusView({ status: framework.status })}
+          {datesView({ framework })}
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
 // `tablet:` is the exception to `lg:` only
 const cardsView = ({

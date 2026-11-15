@@ -1,12 +1,19 @@
+import { fc, test } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { describe, expect, it } from 'vitest'
 
-import { frameworkById } from '@/common/data/catalog'
 import {
+  adjacentEntries,
+  frameworkById,
+  frameworks,
+} from '@/common/data/catalog'
+import {
+  FEATURED_IDS,
   FIRST_LIST_DAY,
   type Framework,
   addedDayOf,
+  cardRibbonOf,
   hasPublicRepo,
   isRecentlyAdded,
   recentSinceOf,
@@ -123,6 +130,40 @@ describe('isRecentlyAdded', () => {
   it('never marks the first list', () => {
     expect(addedDayOf(entry('lustre'))).toBe(FIRST_LIST_DAY)
     expect(isRecentlyAdded(entry('lustre'), recentSinceOf(day))).toBe(false)
+  })
+})
+
+describe('cardRibbonOf', () => {
+  // Any day as `recentSinceOf` writes it
+  const sinceArb = fc
+    .date({
+      min: new Date(2026, 0, 1),
+      max: new Date(2030, 11, 31),
+      noInvalidDate: true,
+    })
+    .map((date) => recentSinceOf(date.getTime()))
+
+  const entryArb = fc.constantFrom(...frameworks, ...adjacentEntries)
+
+  test.prop([fc.constantFrom(...FEATURED_IDS), sinceArb])(
+    'gives each pick of the maintainer "Featured", on any day',
+    (id, since) => {
+      expect(cardRibbonOf(entry(id), since)).toEqual(O.some('featured'))
+    },
+  )
+
+  test.prop([entryArb, sinceArb])(
+    'gives any other entry "Recently added" exactly while it is recent',
+    (framework, since) => {
+      fc.pre(!FEATURED_IDS.includes(framework.id))
+      expect(cardRibbonOf(framework, since)).toEqual(
+        isRecentlyAdded(framework, since) ? O.some('recent') : O.none,
+      )
+    },
+  )
+
+  it('leaves Elm, first in the order, with its tier badge alone', () => {
+    expect(cardRibbonOf(entry('elm'), FIRST_LIST_DAY)).toEqual(O.none)
   })
 })
 

@@ -15,6 +15,7 @@ import {
 } from '@tabler/icons-react'
 
 import {
+  type CardRibbon,
   type Concept,
   type Framework,
   type Grade,
@@ -419,18 +420,49 @@ export const starsView = ({ stars }: { stars: number | undefined }) =>
     </span>
   )
 
-// The ribbon of an entry found after the first list (`isRecentlyAdded`)
-// on the right edge of a card, under its tier badge: the left end
-// notched, the right end past the edge of the card and folded behind it (a
-// small darker triangle under it). It takes no presses, so a press on it
-// reaches the card under it.
-export const recentEdgeRibbonView = () => (
-  <span className='after:border-t-ribbon-fold pointer-events-none absolute top-[52px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent'>
-    <span className='bg-accent text-accent-ink py-[2px] pr-[12px] pl-[16px] text-[0.6875rem] leading-[1.45] whitespace-nowrap [clip-path:polygon(0_0,100%_0,100%_100%,0_100%,8px_50%)]'>
-      Recently added
+const edgeRibbonLook = (
+  ribbon: CardRibbon,
+): { label: string; fold: string; fill: string } => {
+  switch (ribbon) {
+    case 'featured':
+      return {
+        label: 'Featured',
+        fold: 'after:border-t-featured-fold',
+        fill: 'bg-featured text-featured-ink',
+      }
+    case 'recent':
+      return {
+        label: 'Recently added',
+        fold: 'after:border-t-ribbon-fold',
+        fill: 'bg-accent text-accent-ink',
+      }
+  }
+}
+
+// The ribbon of a card (`cardRibbonOf`) on its right edge, under its tier
+// badge: the left end notched, the right end past the edge of the card and
+// folded behind it (a small darker triangle under it). It takes no
+// presses, so a press on it reaches the card under it.
+export const edgeRibbonView = ({ ribbon }: { ribbon: CardRibbon }) => {
+  const look = edgeRibbonLook(ribbon)
+  return (
+    <span
+      className={cn(
+        'pointer-events-none absolute top-[52px] -right-[6px] z-20 flex after:absolute after:top-full after:right-0 after:border-t-[6px] after:border-r-[6px] after:border-r-transparent',
+        look.fold,
+      )}
+    >
+      <span
+        className={cn(
+          'py-[2px] pr-[12px] pl-[16px] text-[0.6875rem] leading-[1.45] whitespace-nowrap [clip-path:polygon(0_0,100%_0,100%_100%,0_100%,8px_50%)]',
+          look.fill,
+        )}
+      >
+        {look.label}
+      </span>
     </span>
-  </span>
-)
+  )
+}
 
 // Drawn like the star button of GitHub. On a card it sits above the link
 // that covers the card (`relative z-10`).

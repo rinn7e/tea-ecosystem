@@ -124,10 +124,12 @@ describe('data files', () => {
     ).toEqual(['elm'])
   })
 
-  it('keep react-tea-cup right after Elm, as the pick of the maintainer', () => {
-    expect(frameworks.slice(0, 2).map((f) => f.id)).toEqual([
+  it('keep the picks of the maintainer right after Elm, in their order', () => {
+    expect(frameworks.slice(0, 4).map((f) => f.id)).toEqual([
       'elm',
       'react-tea-cup',
+      'indigo',
+      'miso',
     ])
   })
 

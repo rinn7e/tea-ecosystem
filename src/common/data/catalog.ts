@@ -16,6 +16,7 @@ import {
   FrameworkJson,
   type Grade,
   type Target,
+  featuredRankOf,
   languagesOf,
   targets,
 } from '@/common/type/framework'
@@ -37,21 +38,15 @@ export const decodeOrThrow =
       }),
     )
 
-// react-tea-cup, the library this site is built with
-const MAINTAINER_PICK = 'react-tea-cup'
-
-// The Originator (Elm) first, then the pick of the maintainer, then the
-// most starred, then by name. An entry with no public repository has no
-// stars and comes last.
+// The Originator (Elm) first, then the picks of the maintainer in their
+// order, then the most starred, then by name. An entry with no public
+// repository has no stars and comes last.
 const frameworkOrd: Ord.Ord<Framework> = concatAll(Ord.getMonoid<Framework>())([
   pipe(
     Ord.reverse(B.Ord),
     Ord.contramap((f: Framework) => f.tier === 'reference'),
   ),
-  pipe(
-    Ord.reverse(B.Ord),
-    Ord.contramap((f: Framework) => f.id === MAINTAINER_PICK),
-  ),
+  pipe(N.Ord, Ord.contramap(featuredRankOf)),
   pipe(
     Ord.reverse(N.Ord),
     Ord.contramap((f: Framework) => f.stars ?? -1),

@@ -56,6 +56,11 @@
   /* The fold of the ribbon of a recent card, where it wraps behind the
    * edge: the accent in shadow */
   --color-ribbon-fold: var(--ribbon-fold);
+  /* The ribbon "Featured" of the pick of the maintainer: a purple pink apart
+   * from the blue of "Recently added", its text, and its fold in shadow */
+  --color-featured: var(--featured);
+  --color-featured-ink: var(--featured-ink);
+  --color-featured-fold: var(--featured-fold);
   /* Orange of the button that clears the filters */
   --color-reset: var(--reset);
   /* GitHub stars: the star in the yellow of GitHub, the count in a yellow
@@ -97,6 +102,9 @@
   --equivalent-on-accent: #ffd54a;
   --missing-on-accent: #ff8f7a;
   --ribbon-fold: #064469;
+  --featured: #b02a9c;
+  --featured-ink: #ffffff;
+  --featured-fold: #6a1360;
   --reset: #b54d00;
   color-scheme: light;
 }
@@ -127,6 +135,9 @@
     --equivalent-on-accent: #6b4f00;
     --missing-on-accent: #9e2412;
     --ribbon-fold: #2a6383;
+    --featured: #e98ad8;
+    --featured-ink: #26061f;
+    --featured-fold: #9a4d8c;
     --reset: #f2994a;
     color-scheme: dark;
   }

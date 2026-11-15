@@ -1,3 +1,4 @@
+import * as O from 'fp-ts/Option'
 import * as t from 'io-ts'
 
 // The parts of The Elm Architecture a framework is graded on
@@ -316,3 +317,35 @@ export const isRecentlyAdded = (
   recentSince: string,
 ): boolean =>
   addedDayOf(framework) > FIRST_LIST_DAY && addedDayOf(framework) >= recentSince
+
+// The picks of the maintainer: react-tea-cup, the library this site is
+// built with, then Indigo and Miso. The default order puts them right after
+// Elm, in this order, and their cards wear the ribbon "Featured".
+export const FEATURED_IDS: readonly string[] = [
+  'react-tea-cup',
+  'indigo',
+  'miso',
+]
+
+// Its place among the picks, or after them all when it is not one
+export const featuredRankOf = (framework: Framework): number => {
+  const index = FEATURED_IDS.indexOf(framework.id)
+  return index === -1 ? FEATURED_IDS.length : index
+}
+
+export const isFeatured = (framework: Framework): boolean =>
+  FEATURED_IDS.includes(framework.id)
+
+// A card wears one ribbon at most, on its right edge; "Featured" wins over
+// "Recently added"
+export type CardRibbon = 'featured' | 'recent'
+
+export const cardRibbonOf = (
+  framework: Framework,
+  recentSince: string,
+): O.Option<CardRibbon> =>
+  isFeatured(framework)
+    ? O.some('featured')
+    : isRecentlyAdded(framework, recentSince)
+      ? O.some('recent')
+      : O.none
