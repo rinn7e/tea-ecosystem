@@ -97,7 +97,7 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
           )}
         >
           {emblemView({ size: 28 })}
-          <span className='text-[1.375rem] leading-none whitespace-nowrap lg:text-[1.625rem]'>
+          <span className='text-[1.1875rem] leading-none whitespace-nowrap sm:text-[1.375rem] lg:text-[1.625rem]'>
             TEA Ecosystem
           </span>
         </Link>
