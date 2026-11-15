@@ -1,4 +1,4 @@
-import { IconExternalLink, IconHeartFilled } from '@tabler/icons-react'
+import { IconExternalLink } from '@tabler/icons-react'
 import { memo } from 'react'
 
 import { adjacentEntries, frameworks } from '@/common/data/catalog'
@@ -160,9 +160,7 @@ const FooterComponent = () => (
             belongs to its own project. Corrections are welcome.
           </p>
           <p className='inline-flex flex-wrap items-center justify-center gap-[4px]'>
-            Crafted with
-            <IconHeartFilled size={12} className='text-missing' aria-hidden />
-            by
+            Crafted by
             {/* The comma sits on the link, not a gap after it */}
             <span className='inline-flex items-center'>
               <a
