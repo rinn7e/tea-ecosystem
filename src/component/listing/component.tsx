@@ -579,9 +579,12 @@ const searchRowView = ({
           type='button'
           aria-expanded={isOpen}
           aria-haspopup='dialog'
+          aria-label={count > 0 ? `Filters, ${count} on` : 'Filters'}
+          title='Filters'
           onClick={() => dispatch({ _tag: 'TogglePanel' })}
           className={cn(
-            'flex h-[36px] items-center gap-[6px] border px-[10px] text-[0.9375rem] whitespace-nowrap transition-colors sm:h-[40px] sm:px-[14px]',
+            // Its icon alone, square, with the count of filters on beside it
+            'flex h-[36px] min-w-[36px] items-center justify-center gap-[6px] border px-[9px] text-[0.9375rem] whitespace-nowrap transition-colors sm:h-[40px] sm:min-w-[40px] sm:px-[11px]',
             // Filled blue while a filter of it is on, blue while open, grey
             // like the search otherwise
             count > 0
@@ -592,8 +595,11 @@ const searchRowView = ({
           )}
         >
           <IconAdjustmentsHorizontal size={17} stroke={1.75} aria-hidden />
-          Filters
-          {count > 0 && <span className='tabular-nums'>{count}</span>}
+          {count > 0 && (
+            <span aria-hidden='true' className='tabular-nums'>
+              {count}
+            </span>
+          )}
         </button>
         {model.panel !== 'closed' && (
           <div

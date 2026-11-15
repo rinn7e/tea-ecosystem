@@ -137,7 +137,7 @@ Below `sm:` the top of the catalog is tighter, so the first card shows without a
 | Language tiles         | 32 px, 5 px apart (9 a row)                    | 40 px, 6 px apart        |
 | Search, Filters        | 36 px tall, the hint "Search name or language" | 40 px, the full hint     |
 
-The search keeps 16 px text on a phone: below that, Safari zooms the page into the field.
+The search keeps 16 px text on a phone: below that, Safari zooms the page into the field. The Filters button is its icon alone at every width (named for screen readers, "Filters" in its tooltip), with the count of filters on beside it.
 
 ## 5. Dark mode
 
