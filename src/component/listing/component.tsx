@@ -144,7 +144,7 @@ const categoryChoiceView = ({
         aria-pressed={isChosen}
         onClick={() => dispatch({ _tag: 'ToggleShow', category })}
         className={cn(
-          'bg-panel flex w-full flex-col items-center justify-center gap-[2px] border-2 px-[12px] py-[10px] text-center transition-shadow',
+          'bg-panel flex w-full flex-col items-center justify-center gap-[2px] border-2 px-[12px] py-[6px] text-center transition-shadow sm:py-[10px]',
           isChosen
             ? 'border-edge offset-shadow-edge'
             : 'border-line offset-shadow hover:border-edge',
@@ -152,13 +152,13 @@ const categoryChoiceView = ({
       >
         <span
           className={cn(
-            'text-[2rem] leading-none font-normal tabular-nums',
+            'text-[1.5rem] leading-none font-normal tabular-nums sm:text-[2rem]',
             isChosen ? 'text-accent' : 'text-ink',
           )}
         >
           {count}
         </span>
-        <span className='text-ink-muted text-sm'>
+        <span className='text-ink-muted text-[0.8125rem] sm:text-sm'>
           {category === 'languages' ? 'Languages' : 'Frameworks'}
         </span>
       </button>
@@ -225,7 +225,7 @@ const languageChoiceView = ({
         aria-label={`${language}, ${count}`}
         onClick={() => dispatch({ _tag: 'ToggleLanguage', language })}
         className={cn(
-          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge flex size-[40px] items-center justify-center border-2 transition-shadow lg:size-[44px]',
+          'bg-panel text-ink hover:border-edge hover:offset-shadow-edge flex size-[32px] items-center justify-center border-2 transition-shadow sm:size-[40px] lg:size-[44px]',
           isChosen ? 'border-edge' : 'border-line',
         )}
       >
@@ -236,8 +236,7 @@ const languageChoiceView = ({
 }
 
 // Rows as even as they can be (`balancedRows`), so the block is centred and
-// never ends on a short row: 7, 7, 6 and 6 on a phone, 13 and 13 from a
-// tablet up. A row holds as many as fit the window (`logosPerRowOf`, which
+// never ends on a short row. A row holds as many as fit the window (`logosPerRowOf`, which
 // repeats the sizes and gaps of the boxes here)
 const languageRowsView = ({
   rows,
@@ -254,7 +253,7 @@ const languageRowsView = ({
     {rows.map((row) => (
       <div
         key={row.map((c) => c.language).join()}
-        className='flex justify-center gap-[6px] lg:gap-[8px]'
+        className='flex justify-center gap-[5px] sm:gap-[6px] lg:gap-[8px]'
       >
         {row.map(({ language, count }) =>
           languageChoiceView({ language, count, filter, dispatch }),
@@ -277,7 +276,7 @@ const languageChoicesView = ({
 }) =>
   languageRowsView({
     rows: balancedRows(languageCountsOf(entries), logosPerRow),
-    className: 'flex flex-col gap-[6px] lg:gap-[8px]',
+    className: 'flex flex-col gap-[5px] sm:gap-[6px] lg:gap-[8px]',
     filter,
     dispatch,
   })
@@ -520,12 +519,26 @@ const searchView = ({
     />
     <input
       type='search'
-      aria-label='Search'
-      placeholder='Search by name, language, status, target or idea'
+      aria-label='Search by name, language, status, target or idea'
       value={filter.query}
       onChange={(e) => dispatch({ _tag: 'SetQuery', query: e.target.value })}
-      className='border-line bg-panel text-ink placeholder:text-ink-faint focus:border-edge h-[40px] w-full rounded-none border pr-[12px] pl-[38px] text-base outline-none lg:text-[0.9375rem]'
+      className='border-line bg-panel text-ink focus:border-edge h-[36px] w-full rounded-none border pr-[12px] pl-[38px] text-base outline-none sm:h-[40px] lg:text-[0.9375rem]'
     />
+    {/* The hint, drawn over the empty field in place of a placeholder, which
+        cannot change with the width: a few words on a phone, where the long
+        one was cut. The field keeps 16px text on a phone, below which
+        Safari zooms the page into it. */}
+    {filter.query === '' && (
+      <span
+        aria-hidden='true'
+        className='text-ink-faint pointer-events-none absolute right-[12px] left-[38px] truncate text-base lg:text-[0.9375rem]'
+      >
+        <span className='sm:hidden'>Search name or language</span>
+        <span className='hidden sm:inline'>
+          Search by name, language, status, target or idea
+        </span>
+      </span>
+    )}
   </label>
 )
 
@@ -568,7 +581,7 @@ const searchRowView = ({
           aria-haspopup='dialog'
           onClick={() => dispatch({ _tag: 'TogglePanel' })}
           className={cn(
-            'flex h-[40px] items-center gap-[6px] border px-[14px] text-[0.9375rem] whitespace-nowrap transition-colors',
+            'flex h-[36px] items-center gap-[6px] border px-[10px] text-[0.9375rem] whitespace-nowrap transition-colors sm:h-[40px] sm:px-[14px]',
             // Filled blue while a filter of it is on, blue while open, grey
             // like the search otherwise
             count > 0
@@ -1365,18 +1378,18 @@ const ListingComponent = ({
     // one set of controls.
     <div className='flex flex-col'>
       <section className='flex flex-col items-center gap-[12px] text-center'>
-        <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
+        <h1 className='text-ink text-[1.625rem] leading-tight font-normal text-balance sm:text-[2rem] lg:text-[2.625rem]'>
           {heading.title}
         </h1>
-        <p className='text-ink-muted max-w-[640px] text-base text-balance'>
+        <p className='text-ink-muted max-w-[640px] text-sm text-balance sm:text-base'>
           {heading.lead}
         </p>
       </section>
-      <div className='mt-[44px] flex flex-col gap-[20px]'>
+      <div className='mt-[24px] flex flex-col gap-[20px] sm:mt-[44px]'>
         {/* One centred column as wide as the widest row of logos: the category
             boxes stretch to it */}
         <div className='flex justify-center'>
-          <div className='flex flex-col gap-[24px]'>
+          <div className='flex flex-col gap-[16px] sm:gap-[24px]'>
             {model.filter.list === 'catalog' &&
               categoryChoicesView({ entries, filter: model.filter, dispatch })}
             {languageChoicesView({

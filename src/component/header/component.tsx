@@ -72,7 +72,7 @@ const navLinkView = ({
 const HeaderComponent = ({ active, now }: HeaderProps) => (
   <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
-      <div className='flex h-[64px] w-full max-w-[1080px] items-center justify-center gap-[4px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
+      <div className='flex h-[52px] w-full max-w-[1080px] items-center justify-center gap-[4px] sm:h-[64px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
         <nav className='hidden justify-end gap-[2px] lg:flex'>
           {navLinkView({
             label: 'about',

@@ -123,6 +123,22 @@ Below `sm:` a card is denser, so about four fit on a 375 x 812 screen in place o
 
 The source link keeps a tap target of 34 px around its 24 px button (5 px more above and below).
 
+### The top of a list on a phone
+
+Below `sm:` the top of the catalog is tighter, so the first card shows without a scroll on a 375 x 812 screen (it started below the fold).
+
+| Part                   | Phone                                          | From `sm:`               |
+| ---------------------- | ---------------------------------------------- | ------------------------ |
+| Top bar                | 52 px                                          | 64 px                    |
+| Space above the title  | 20 px                                          | 32 px (48 px from `lg:`) |
+| Title, lead            | 26 px, 14 px                                   | 32 px, 16 px             |
+| Space before the boxes | 24 px                                          | 44 px                    |
+| Category boxes         | 24 px numbers                                  | 32 px numbers            |
+| Language tiles         | 32 px, 5 px apart (9 a row)                    | 40 px, 6 px apart        |
+| Search, Filters        | 36 px tall, the hint "Search name or language" | 40 px, the full hint     |
+
+The search keeps 16 px text on a phone: below that, Safari zooms the page into the field.
+
 ## 5. Dark mode
 
 The Elm site has none; this site keeps one. Dark derives from the same tokens: a deep navy page (`#07131B`), light ink (`#E4EEF4`), a lighter blue (`#4CB4EE`) for links and accents, and the bar in a darker blue (`#0B5F8F`). Box shadows use a dark line (`#22323D`).

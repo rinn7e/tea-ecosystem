@@ -405,9 +405,10 @@ export const balancedRows = <A>(items: A[], maxPerRow: number): A[][] => {
 // The boxes and gaps are the ones the view draws. Where the CSS and
 // `windowWidth` disagree on `lg` (`breakpoints`), 13 fit either way.
 export const logosPerRowOf = (windowWidth: number): number => {
-  const isDesktop = windowWidth >= breakpoints.lg
-  const box = isDesktop ? 44 : 40
-  const gap = isDesktop ? 8 : 6
+  const box =
+    windowWidth >= breakpoints.lg ? 44 : windowWidth >= breakpoints.sm ? 40 : 32
+  const gap =
+    windowWidth >= breakpoints.lg ? 8 : windowWidth >= breakpoints.sm ? 6 : 5
   // The content column: at most 1080px, inside 16px gutters
   const content = Math.min(windowWidth, 1080 + 32) - 32
   return Math.min(13, Math.max(1, Math.floor((content + gap) / (box + gap))))
