@@ -1,3 +1,6 @@
+import type * as RD from '@devexperts/remote-data-ts'
+import { type Result } from 'tea-cup-fp'
+
 import { type ListId } from '@/common/data/catalog'
 import { type Brand } from '@/common/type/brand-wrapper'
 import {
@@ -84,6 +87,10 @@ export type Model = {
   // The time (ms since 1970), kept to the minute: how long ago the site
   // last changed, in the bar
   now: number
+  // The star count of the repository of the site, read live at start
+  // (`repoStarsCmd`): the bar shows it once it is there, and nothing while
+  // it loads or when GitHub refuses
+  repoStars: RD.RemoteData<string, number>
 }
 
 export type Msg =
@@ -98,6 +105,7 @@ export type Msg =
   | { _tag: 'BackToTopMsg'; subMsg: BackToTop.Msg }
   | { _tag: 'SetWindowWidth'; value: number }
   | { _tag: 'SetNow'; value: number }
+  | { _tag: 'GotRepoStars'; result: Result<Error, number> }
 
 // The screen shown (the destination's `screen`, `destinationOf`), read from
 // the fields of the models that hold its params

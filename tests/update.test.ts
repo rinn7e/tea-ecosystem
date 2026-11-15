@@ -1,4 +1,6 @@
+import * as RD from '@devexperts/remote-data-ts'
 import * as O from 'fp-ts/Option'
+import { err, ok } from 'tea-cup-fp'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -111,5 +113,35 @@ describe('the screen stack', () => {
       _tag: 'BuildScreen',
       language: 'kotlin',
     })
+  })
+})
+
+describe('the star count of the repository', () => {
+  it('waits for it at start, and keeps it once GitHub answers', () => {
+    const booted = bootOn('/')
+    expect(RD.isPending(booted.repoStars)).toBe(true)
+    const loaded = step(booted, {
+      _tag: 'GotRepoStars',
+      result: ok(8),
+    })
+    expect(loaded.repoStars).toEqual(RD.success(8))
+  })
+
+  it('keeps no count when GitHub refuses, so the bar shows none', () => {
+    const failed = step(bootOn('/'), {
+      _tag: 'GotRepoStars',
+      result: err(new Error('GitHub answered 403')),
+    })
+    expect(failed.repoStars).toEqual(RD.failure('GitHub answered 403'))
+  })
+
+  it('keeps the count across a move', () => {
+    const loaded = step(bootOn('/'), {
+      _tag: 'GotRepoStars',
+      result: ok(8),
+    })
+    expect(
+      navigate(loaded, destinationOfScreen(frameworkScreen('tears'))).repoStars,
+    ).toEqual(RD.success(8))
   })
 })

@@ -86,6 +86,7 @@ Shapes:
 - Every page has a full-width blue bar (`link` blue), 64 px tall, with white text. The site keeps its own mirror-symmetric header in that bar: two links on each side (about and build your own on the left, TEA-adjacent and rubric on the right), our emblem and the name "TEA Ecosystem" on the axis. The emblem is the link to the catalog. The link of the page shown is underlined, except the emblem: it is at full opacity on the catalog and at 70% elsewhere (full again under the pointer). Nav links are lowercase, as on the Elm site, but TEA is always written in capitals: the labels are spelled in lowercase in the code, never lowered with the `lowercase` class, which would turn TEA into tea.
 - A page title sits alone, with generous space above and below (48 px or more).
 - The footer: a thin `line-soft` rule, then centred grey text with underlined grey links.
+- The bar is a mirror around the emblem: on its left the star count of the repository (a star over `8 stars`), on its right the code icon over the time since the site last changed (`44m ago`), both in the same quiet white, both short, and both opening the repository. On a desktop they sit at the two edges of the frame, outside the nav links; below it, at the two edges of the bar. The star count is read live from GitHub when the page loads, and shows only once it is there: while it loads, or when GitHub refuses, its side stays empty, never a `0` or an error. Their tooltips say both in words.
 - The page scrollbar is always shown (`overflow-y: scroll` on `html`), so a short page sits on the same axis as a long one. Scrollbars use the tokens: a square `--scroll-thumb` on the page color, `edge` blue under the pointer.
 - A tooltip is a small dialog: the panel color, a border and the hard offset shadow in `ink-faint` (darker than the cards, so it stands apart from them), 300 px wide, with a 15 px title and 14 px text (never smaller: it is there to be read), square, with a small arrow on its trigger: above it, or below when there is no room. It fades in rising 4 px and fades out the same way back, in 150 ms (no motion under reduced motion). It explains a badge or a cell; the page never needs a legend for what a tooltip says. A cell of the rubric strip carries the legend itself: the grades with their colors and meanings, its own grade at full strength, in a 400 px box.
 - A popover (the Filters of a list) is a box with a sharp 2 px `edge` blue border, like the button that opens it, and no shadow. It fades in and out like a tooltip and closes on its button, Escape or a press outside.
@@ -101,9 +102,7 @@ Three layouts, mobile first: unprefixed classes are the phone layout, and each b
 | Desktop | `lg:`  | 1024 px |
 
 - The phone layout is written first, for every element.
-- `sm:` and `lg:` are the defaults of Tailwind, with no breakpoint of our own. `sm:` is for an element that differs on a tablet. Today it is used by:
-  - the cards: two columns, and the full card in place of the denser phone card;
-  - the age of the repository in the bar: `3h ago` on a phone, `3 hours ago` from a tablet up.
+- `sm:` and `lg:` are the defaults of Tailwind, with no breakpoint of our own. `sm:` is for an element that differs on a tablet. Today it is used by the cards (two columns, and the full card in place of the denser phone card) and the top of a list (below).
 
 ### The card on a phone
 

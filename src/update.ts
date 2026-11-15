@@ -1,10 +1,13 @@
+import * as RD from '@devexperts/remote-data-ts'
+import { resultToRd } from '@rinn7e/tea-cup-prelude'
+import { pipe } from 'fp-ts/function'
 import { Cmd } from 'tea-cup-fp'
 
 import {
   defaultAdjacentFilter,
   defaultCatalogFilter,
 } from '@/common/type/destination'
-import { manualScrollRestorationCmd } from '@/common/util'
+import { manualScrollRestorationCmd, repoStarsCmd } from '@/common/util'
 import * as BackToTop from '@/component/back-to-top'
 import * as Tooltip from '@/component/tooltip'
 import {
@@ -41,12 +44,14 @@ export const init = (
     scroll: { seq: 0, top: 0 },
     windowWidth,
     now,
+    repoStars: RD.pending,
   }
   return [
     model,
     Cmd.batch([
       setTitleCmd(model),
       manualScrollRestorationCmd().map((noOp): Msg => noOp),
+      repoStarsCmd((result): Msg => ({ _tag: 'GotRepoStars', result })),
     ]),
   ]
 }
@@ -75,6 +80,17 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     // nothing draws nothing new
     case 'SetNow':
       return [{ ...model, now: msg.value }, Cmd.none()]
+    case 'GotRepoStars':
+      return [
+        {
+          ...model,
+          repoStars: pipe(
+            resultToRd(msg.result),
+            RD.mapLeft((error: Error) => error.message),
+          ),
+        },
+        Cmd.none(),
+      ]
     case 'SetWindowWidth':
       return [
         msg.value === model.windowWidth

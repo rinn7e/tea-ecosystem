@@ -1,3 +1,4 @@
+import * as RD from '@devexperts/remote-data-ts'
 import { cn } from '@rinn7e/tea-cup-prelude'
 import {
   IconCirclesRelation,
@@ -5,7 +6,9 @@ import {
   IconHammer,
   IconInfoCircle,
   IconListCheck,
+  IconStar,
 } from '@tabler/icons-react'
+import { pipe } from 'fp-ts/function'
 import { memo } from 'react'
 
 import { LAST_UPDATED } from '@/common/env'
@@ -18,7 +21,7 @@ import {
   destinationOfScreen,
   rubricScreen,
 } from '@/common/type/destination'
-import { relativeTimeOf } from '@/common/util'
+import { REPO_URL, relativeTimeOf, starsLabelOf } from '@/common/util'
 import { emblemView } from '@/component/emblem'
 import { Link } from '@/component/link'
 import { TooltipTrigger } from '@/component/tooltip/trigger'
@@ -66,25 +69,78 @@ const navLinkView = ({
 // back of an entry page, or the back of the browser) shows a list as it was
 // left.
 //
+// The star count of the repository, a mirror of the source link: at the
+// start of the left column on a desktop (the left edge of the frame), and
+// pinned to the left edge of the bar below it. Both open the repository.
+// Only once the count is there: while it loads, or when GitHub refuses
+// (`repoStarsCmd`), the bar shows nothing in its place.
+const repoStarsView = ({
+  repoStars,
+}: {
+  repoStars: RD.RemoteData<string, number>
+}) =>
+  pipe(
+    repoStars,
+    RD.fold(
+      () => null,
+      () => null,
+      () => null,
+      (stars) => (
+        <TooltipTrigger
+          id='bar-repo-stars'
+          content={{
+            title: `${stars} ${stars === 1 ? 'star' : 'stars'} on GitHub`,
+            text: 'The stars of the repository of this catalog. A star helps others find it.',
+          }}
+          touch={false}
+          className='absolute top-1/2 left-[16px] flex -translate-y-1/2 lg:static lg:translate-y-0'
+        >
+          <a
+            href={REPO_URL}
+            target='_blank'
+            rel='noreferrer'
+            aria-label={`TEA Ecosystem on GitHub, ${stars} ${stars === 1 ? 'star' : 'stars'}`}
+            className='text-bar-ink group flex cursor-pointer flex-col items-center gap-[2px] px-[4px] py-[2px] opacity-80 transition-opacity hover:opacity-100'
+          >
+            <IconStar
+              size={18}
+              stroke={1.75}
+              aria-hidden
+              className='opacity-75 transition-opacity group-hover:opacity-100'
+            />
+            <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
+              {starsLabelOf(stars)}
+            </span>
+          </a>
+        </TooltipTrigger>
+      ),
+    ),
+  )
+
 // The source code of the site is linked at the end of the right column on
 // a desktop (the right edge of the frame), and pinned to the right edge of
 // the bar on a phone, so neither moves the emblem off the axis.
-const HeaderComponent = ({ active, now }: HeaderProps) => (
+const HeaderComponent = ({ active, now, repoStars }: HeaderProps) => (
   <header className='bg-bar relative'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex h-[52px] w-full max-w-[1080px] items-center justify-center gap-[4px] sm:h-[64px] lg:grid lg:grid-cols-[1fr_auto_1fr]'>
-        <nav className='hidden justify-end gap-[2px] lg:flex'>
-          {navLinkView({
-            label: 'about',
-            destination: destinationOfScreen(aboutScreen()),
-            isActive: active === 'about',
-          })}
-          {navLinkView({
-            label: 'build your own',
-            destination: destinationOfScreen(buildScreen()),
-            isActive: active === 'build',
-          })}
-        </nav>
+        {/* On a phone the wrapper adds no box (`contents`): the links hide
+            and the star count is pinned to the left edge */}
+        <div className='contents lg:flex lg:items-center lg:justify-between'>
+          {repoStarsView({ repoStars })}
+          <nav className='hidden justify-end gap-[2px] lg:ml-auto lg:flex'>
+            {navLinkView({
+              label: 'about',
+              destination: destinationOfScreen(aboutScreen()),
+              isActive: active === 'about',
+            })}
+            {navLinkView({
+              label: 'build your own',
+              destination: destinationOfScreen(buildScreen()),
+              isActive: active === 'build',
+            })}
+          </nav>
+        </div>
         <Link
           destination={destinationOfScreen(catalogScreen())}
           aria-label='TEA Ecosystem, the catalog'
@@ -126,7 +182,7 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
             className='absolute top-1/2 right-[16px] flex -translate-y-1/2 lg:static lg:translate-y-0'
           >
             <a
-              href='https://github.com/rinn7e/tea-ecosystem'
+              href={REPO_URL}
               target='_blank'
               rel='noreferrer'
               aria-label={`The source code of TEA Ecosystem on GitHub, updated ${relativeTimeOf(LAST_UPDATED, now)}`}
@@ -139,15 +195,10 @@ const HeaderComponent = ({ active, now }: HeaderProps) => (
                 aria-hidden
                 className='opacity-75 transition-opacity group-hover:opacity-100'
               />
-              {/* The compact form on a phone, where the emblem leaves
-                  little room on its right; the words from a tablet up */}
+              {/* The compact form ("44m ago"), as short as the star count
+                  it mirrors on the left; the tooltip says it in words */}
               <span className='text-[0.625rem] leading-none whitespace-nowrap tabular-nums'>
-                <span className='sm:hidden'>
-                  {relativeTimeOf(LAST_UPDATED, now, true)}
-                </span>
-                <span className='hidden sm:inline'>
-                  {relativeTimeOf(LAST_UPDATED, now)}
-                </span>
+                {relativeTimeOf(LAST_UPDATED, now, true)}
               </span>
             </a>
           </TooltipTrigger>

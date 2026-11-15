@@ -39,7 +39,13 @@ export const openDestination = (
   lists: Lists,
 ): Omit<
   Model,
-  'tooltip' | 'backToTop' | 'listScrollY' | 'scroll' | 'windowWidth' | 'now'
+  | 'tooltip'
+  | 'backToTop'
+  | 'listScrollY'
+  | 'scroll'
+  | 'windowWidth'
+  | 'now'
+  | 'repoStars'
 > => {
   const { screen } = destination
   const screenModel = ((): ScreenModel => {
@@ -169,6 +175,7 @@ export const navigationMsgHandler = (
       scroll: model.scroll,
       windowWidth: model.windowWidth,
       now: model.now,
+      repoStars: model.repoStars,
     }
     const nextDestination = destinationOf(opened)
     const top =

@@ -43,6 +43,8 @@ How the catalog sorts:
 - The **New** button shows the newest entries first, and turns solid while it is on.
 - A filter that also matches archived entries, or entries of the other list, says so and links to them.
 
+The bar shows the live star count of the repository on its left, and how long ago the site last changed on its right; both open the repository.
+
 The thinking behind it is in [doc/analysis.md](doc/analysis.md).
 
 ## Stack

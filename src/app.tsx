@@ -160,6 +160,7 @@ export const App = ({
             <HeaderMemo
               active={headerSectionOf(model.screenModel)}
               now={model.now}
+              repoStars={model.repoStars}
             />
             {/* The page ends with more room than it starts with, so the
               shadow of the last card stays clear of the footer */}

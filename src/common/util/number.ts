@@ -7,3 +7,8 @@ const compactFormat = new Intl.NumberFormat('en', {
 // star count
 export const starCountOf = (stars: number): string =>
   compactFormat.format(stars).toLowerCase()
+
+// 1 -> "1 star", 8 -> "8 stars", 1240 -> "1.2k stars": a star count with
+// its word, under the star of the bar
+export const starsLabelOf = (stars: number): string =>
+  `${starCountOf(stars)} ${stars === 1 ? 'star' : 'stars'}`
