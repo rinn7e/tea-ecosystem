@@ -172,6 +172,51 @@ const logoUrl = (file: string): string =>
 // background included. The one exception: a logo drawn in dark ink on a
 // transparent ground (`logoOnLight`) keeps a white tile, or it would vanish
 // on the dark panel.
+// The logo of the language of an entry, in its tile. An entry in two
+// languages (Kotlin and Swift) shows both, the second in front at the
+// bottom right, on the color of the panel so it reads as laid over the
+// first; each is a share of the tile, so the pair keeps its shape at
+// every tile size.
+const languageMarksView = ({
+  framework,
+  size,
+}: {
+  framework: Framework
+  size: TileSize
+}) => {
+  const [first = framework.language, second] = languagesOf(framework)
+  return pipe(
+    O.Do,
+    O.apS('back', languageLogoOf(first)),
+    O.apS('front', pipe(O.fromNullable(second), O.chain(languageLogoOf))),
+    O.fold(
+      () =>
+        pipe(
+          languageLogoOf(first),
+          O.fold(
+            () =>
+              languageLogoView({ language: framework.language, size: 'large' }),
+            (logo) =>
+              languageMarkView({
+                logo,
+                className: tileLanguageLogoClass(size),
+              }),
+          ),
+        ),
+      ({ back, front }) => (
+        <span className='relative size-[74%]'>
+          <span className='absolute top-0 left-0 flex size-[60%]'>
+            {languageMarkView({ logo: back, className: 'size-full' })}
+          </span>
+          <span className='bg-panel absolute right-0 bottom-0 flex size-[66%] rounded-[3px] p-[8%]'>
+            {languageMarkView({ logo: front, className: 'size-full' })}
+          </span>
+        </span>
+      ),
+    ),
+  )
+}
+
 export const frameworkTileView = ({
   framework,
   size,
@@ -227,21 +272,7 @@ export const frameworkTileView = ({
             cn('pattern-stripes', tileStripesClass(size)),
         )}
       >
-        {pipe(
-          languageLogoOf(languagesOf(framework)[0] ?? framework.language),
-          O.fold(
-            () =>
-              languageLogoView({
-                language: framework.language,
-                size: 'large',
-              }),
-            (logo) =>
-              languageMarkView({
-                logo,
-                className: tileLanguageLogoClass(size),
-              }),
-          ),
-        )}
+        {languageMarksView({ framework, size })}
       </span>
     )
   }

@@ -34,12 +34,12 @@ describe('languageLogoOf', () => {
 })
 
 describe('the tile of an entry with no logo', () => {
-  it('shows the logo of its language, so no entry falls back to letters', () => {
+  it('shows the logo of each of its languages, so no entry falls back to letters', () => {
     const missing = [...frameworks, ...adjacentEntries].filter(
       (f) =>
         f.logo === undefined &&
         f.logoText === undefined &&
-        O.isNone(languageLogoOf(languagesOf(f)[0] ?? f.language)),
+        languagesOf(f).some((language) => O.isNone(languageLogoOf(language))),
     )
     expect(missing.map((f) => `${f.id} (${f.language})`)).toEqual([])
   })
