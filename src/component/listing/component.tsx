@@ -855,6 +855,40 @@ const datesView = ({ framework }: { framework: Framework }) =>
     </span>
   )
 
+// The foot of a card on a phone, in one row: the status, the targets as
+// icons (named for screen readers and in their tooltip), the day of the
+// last push, and the source link. The created day is on the page of the
+// entry and in the table. From `sm:` up the foot has two rows.
+const phoneFooterView = ({ framework }: { framework: Framework }) => (
+  <div className='flex items-center justify-between gap-[8px] sm:hidden'>
+    <div className='flex min-w-0 items-center gap-[10px] text-xs'>
+      {statusView({ status: framework.status })}
+      <span
+        role='img'
+        aria-label={`Targets: ${framework.targets.map(targetLabel).join(', ')}`}
+        title={framework.targets.map(targetLabel).join(', ')}
+        className='text-ink-faint relative z-10 flex items-center gap-[4px]'
+      >
+        {framework.targets.map((target) => (
+          <span key={target} className='flex'>
+            {targetIconView({ target })}
+          </span>
+        ))}
+      </span>
+      {framework.updatedAt !== undefined && (
+        <span className='text-ink-faint relative z-10 truncate'>
+          {dateView({
+            id: `${framework.id}-phone`,
+            which: 'updated',
+            day: framework.updatedAt,
+          })}
+        </span>
+      )}
+    </div>
+    {sourceLinkView({ framework })}
+  </div>
+)
+
 // The whole card opens the entry: its name is the link, stretched over the
 // card (`stretched-link`), so the code button (a link of its own, which
 // cannot sit inside another) and the rubric strip (for its tooltips) are
@@ -873,7 +907,7 @@ const cardView = ({
   return (
     <div
       key={framework.id}
-      className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge relative flex flex-col gap-[8px] rounded-[3px] border p-[12px] transition-shadow sm:gap-[12px] sm:p-[18px]'
+      className='border-line bg-panel offset-shadow hover:border-edge hover:offset-shadow-edge relative flex flex-col gap-[6px] rounded-[3px] border p-[10px] transition-shadow sm:gap-[12px] sm:p-[18px]'
     >
       {pipe(
         ribbon,
@@ -923,7 +957,8 @@ const cardView = ({
       <p className='text-ink-muted line-clamp-2 flex-1 text-sm sm:line-clamp-3'>
         {framework.summary}
       </p>
-      <div className='flex flex-col gap-[6px] sm:gap-[8px]'>
+      {phoneFooterView({ framework })}
+      <div className='hidden flex-col gap-[8px] sm:flex'>
         <div className='flex items-start justify-between gap-[8px] text-xs'>
           {targetChipsView({ targets: framework.targets, align: 'start' })}
           {sourceLinkView({ framework })}
