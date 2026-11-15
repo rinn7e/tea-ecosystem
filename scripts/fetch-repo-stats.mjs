@@ -8,14 +8,15 @@
 //
 // `stars` is the star count of `repo`, `createdAt` the time the repository
 // was created (of `originRepo` when the project moved) and `updatedAt` the
-// time it was last pushed to, both in UTC (`timeOf` in `repo-stats.mjs`). A repository that
-// moved to another owner or name has its `repo`, and every `website`,
-// `source` and `snippetSource` under its old address, rewritten to the new
-// one (MOVED). It also prints the entries whose `status` disagrees with the
-// archived flag of their host (STATUS?), and leaves them for a person to
-// decide. An entry its host does not answer for keeps its values, and the
-// run says so (SKIPPED). Every link of every entry is fetched (`networkOf`
-// in `repo-stats.mjs` says how), and one that does not answer 200 after its
+// time it was last pushed to, both in UTC (`timeOf` in `repo-stats.mjs`).
+// A repository that moved to another owner or name has its `repo`, and
+// every `website`, `source` and `snippetSource` under its old address,
+// rewritten to the new one (MOVED). It also prints the entries whose
+// stored `status` (or `unmaintainedNotice`) disagrees with the archived
+// flag of their host (STATUS?), and leaves them for a person to decide. An
+// entry its host does not answer for keeps its values, and the run says
+// so (SKIPPED). Every link of every entry is fetched (`networkOf` in
+// `repo-stats.mjs` says how), and one that does not answer 200 after its
 // redirects (BROKEN), or answers at another address (REDIRECTS), is printed
 // and left as it is. A slow run stops in time (NOT CHECKED, SKIPPED).
 //

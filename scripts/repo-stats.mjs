@@ -8,7 +8,7 @@
 
 // The types below are for the tests, which import this file from
 // TypeScript (`allowJs` in `tsconfig.json`): an entry is an object of
-// `data/*.json`, its fields as `Framework` in `src/common/type/framework.ts`.
+// `data/*.json`, its fields as `FrameworkEntry` in `src/common/type/framework.ts`.
 //
 /**
  * What the run saw about one entry: its numbers from its host (`stats`), or
@@ -21,7 +21,7 @@
  *   id: string
  *   stats?: { stars: number, createdAt: string, updatedAt: string, archived: boolean }
  *   moved?: { from: string, to: string, rewritten: boolean }
- *   statusToCheck?: { status: string, archived: boolean }
+ *   statusToCheck?: { status?: string, archived: boolean }
  *   skipped?: string
  *   brokenLinks: { url: string, reason: string }[]
  *   redirects: { url: string, to: string }[]
@@ -255,12 +255,12 @@ const statsOf = async (getJson, entry) => {
 }
 
 // One entry, refreshed: its numbers from its host, its links moved when its
-// repository moved, and a report of what the run saw. `status` is never
-// changed: when it disagrees with the archived flag of the host, the report
-// says so (`statusToCheck`) and a person decides. An entry whose author
-// says it is no longer maintained (`unmaintainedNotice`) counts as archived
-// though its host does not say so. A host that does not
-// answer, or a run out of time, leaves the entry as it was (`skipped`). An
+// repository moved, and a report of what the run saw. The stored `status`
+// is never changed: when it disagrees with the archived flag of the host,
+// the report says so (`statusToCheck`) and a person decides. An entry
+// whose author says it is no longer maintained (`unmaintainedNotice`)
+// counts as archived though its host does not say so. A host that does
+// not answer, or a run out of time, leaves the entry as it was (`skipped`). An
 // entry with no public repository keeps its values. Every link of the
 // result is checked, unless the run is out of time (`notChecked`); a broken
 // one, or one that redirects, is reported, never changed.
@@ -367,10 +367,11 @@ const sectionOf = (title, items) => [
 // many its host refused to a script
 /** @type {(reports: Report[]) => string} */
 export const summaryOf = (reports) => {
+  // The data stores no `status` where the last push tells it
+  const storedStatusOf = ({ status }) =>
+    status === undefined ? 'no `status` stored' : `\`status\` is \`${status}\``
   const statusLine = (report) =>
-    report.statusToCheck.archived
-      ? `\`${report.id}\`: archived on its host, \`status\` is \`${report.statusToCheck.status}\``
-      : `\`${report.id}\`: not archived on its host, \`status\` is \`${report.statusToCheck.status}\``
+    `\`${report.id}\`: ${report.statusToCheck.archived ? 'archived' : 'not archived'} on its host, ${storedStatusOf(report.statusToCheck)}`
   return [
     '## Refresh of the stats',
     '',
