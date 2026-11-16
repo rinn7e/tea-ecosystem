@@ -3023,6 +3023,103 @@
     "stars": 196
   },
   {
+    "id": "mire",
+    "name": "Mire",
+    "language": "F#",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "repo": "https://github.com/HelgeSverre/mire",
+    "website": "https://mire-black.vercel.app/docs/",
+    "summary": "Elmish for the terminal: a retained-mode F# TUI runtime for .NET 10 and Kitty-compatible terminals, with cell-diffed rendering and a widget library.",
+    "snippetSource": "https://github.com/HelgeSverre/mire/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "missing"
+    },
+    "notes": [
+      "A Program is a record of Init: unit -> model * Cmd, Update: msg -> model -> model * Cmd, View: model -> LayoutNode and Subscriptions: model -> Sub list, built with Program.create and the with* builders (Mire/App/Program.fs).",
+      "Cmd is a union the runtime runs: NoOp, Batch, AsyncCmd (async work that sends its results back as messages), OfMsg, Quit and WriteRaw (clipboard, Kitty images).",
+      "Sub is TerminalResize or Every (a timer); the runtime evaluates subscriptions from the model on each loop and fires them, so update never starts a source.",
+      "Runtime.run returns unit and keeps its CommandSupervisor private: no handle lets the host send messages in."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-16T14:09:10Z",
+    "stars": 14,
+    "createdAt": "2026-05-28T23:36:35Z",
+    "updatedAt": "2026-10-12T17:54:51Z"
+  },
+  {
+    "id": "calliope",
+    "name": "Carahsoft.Calliope",
+    "language": "C#",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "repo": "https://github.com/carahsoft/Carahsoft.Calliope",
+    "summary": "A C# console library with an MVU framework inspired by Elm and Bubble Tea, and text-to-ASCII-art rendering.",
+    "snippetSource": "https://github.com/carahsoft/Carahsoft.Calliope/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "A program implements ICalliopeProgram: Init() and Update(CalliopeMsg) return a CalliopeCmd or null, and View() returns a string; the program object holds the state, changed in place by Update, as in Bubble Tea.",
+      "Messages are subclasses of CalliopeMsg (KeyPressMsg, WindowSizeChangeMsg, your own), matched with is in Update.",
+      "A CalliopeCmd wraps a Func<Task<CalliopeMsg>>: ProgramRunner runs it on its command loop and feeds the message it returns back to Update; CalliopeCmd.Combine batches commands and CalliopeCmd.Quit stops the program.",
+      "No subscriptions function: a timer is a Cmd that waits and reschedules itself (Tick in the README); the runtime sends key, mouse wheel and resize messages on its own.",
+      "ProgramRunner.SendAsync, from CalliopeProgramBuilder.Build(), feeds messages from outside the program."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-16T14:09:10Z",
+    "stars": 5,
+    "createdAt": "2024-10-10T17:39:10Z",
+    "updatedAt": "2026-01-27T14:36:41Z"
+  },
+  {
+    "id": "ratatui-elm",
+    "name": "ratatui-elm",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "repo": "https://github.com/justDeeevin/ratatui-elm",
+    "website": "https://docs.rs/ratatui-elm",
+    "summary": "A small Elm architecture runtime for ratatui, shaped after iced: update returns a Task, and message streams run in the background.",
+    "snippetSource": "https://github.com/justDeeevin/ratatui-elm/blob/main/examples/hello-world-crossterm.rs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "equivalent",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "App::new(update, view) or App::new_with(state, update, view): update is Fn(&mut State, Update<M, E>) -> (Task<M>, bool), where Update is Message(M) or Terminal(E) and the bool asks for a render (src/lib.rs).",
+      "Task is Perform (a future whose output the runtime sends back as a message), None or Quit; update never runs the future itself.",
+      "Subscriptions are streams of messages declared in the setup of the app (App::subscription), which the runtime merges and runs; they are not a function of the state, and a built-in subscription feeds terminal events.",
+      "View is Fn(&mut State, &mut Frame): it draws into a ratatui frame and gets the state mutably (for stateful ratatui widgets), so it is not a pure function of the model.",
+      "The sender of the runtime is private: no handle lets the host send messages in."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-16T14:09:10Z",
+    "stars": 28,
+    "createdAt": "2025-06-30T02:37:09Z",
+    "updatedAt": "2026-10-16T16:11:17Z"
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",
