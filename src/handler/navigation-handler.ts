@@ -96,7 +96,7 @@ export const openDestination = (
 
 const SITE_NAME = 'TEA Ecosystem'
 
-const titleOf = (model: Model): string => {
+export const titleOf = (model: Model): string => {
   const { screenModel } = model
   switch (screenModel._tag) {
     // The page search engines index: it says what the site is, in the

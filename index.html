@@ -8,8 +8,9 @@
       name="description"
       content="Every framework that implements The Elm Architecture (TEA, Model View Update), from Elm, Elmish and Lustre to Iced, Bubble Tea and react-tea-cup, graded part by part against Elm, in every language."
     />
-    <!-- The one page for search engines: deep links are served by
-         `404.html`, so they answer 404 and are not indexed -->
+    <!-- Each page rendered ahead of time (`scripts/prerender.mjs`) gets
+         its own title, description, canonical link and link preview in
+         place of these -->
     <link rel="canonical" href="https://tea.rinn7e.com/" />
     <!-- The link preview of chat apps and social sites (Reddit, Slack,
          Discord, X): a screenshot of the catalog, by absolute URL, as
@@ -30,6 +31,19 @@
       content="The catalog of TEA Ecosystem: its language logos and the first framework cards"
     />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- A link with a filter in its query opens on the HTML of the plain
+         page (`scripts/prerender.mjs` renders no query): hide it, so the
+         app draws the filtered page from nothing (`src/root.tsx`) -->
+    <script>
+      if (location.search !== '') {
+        document.documentElement.dataset.snapshot = 'stale'
+      }
+    </script>
+    <style>
+      html[data-snapshot='stale'] #root {
+        visibility: hidden;
+      }
+    </style>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

@@ -4,6 +4,7 @@ node_modules/
 
 # Production builds
 dist/
+dist-ssr/
 /local/
 
 # Temporary / Scratch scripts and files

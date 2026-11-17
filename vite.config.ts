@@ -55,6 +55,12 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: { '@': path.resolve(import.meta.dirname, 'src') },
     },
+    // The renderer of `scripts/prerender.mjs` bundles every package: some
+    // import fp-ts by a path without an extension, which only a bundler
+    // resolves
+    ssr: {
+      noExternal: true,
+    },
     server: {
       port: 5180,
     },

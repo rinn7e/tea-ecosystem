@@ -32,7 +32,7 @@ export default tseslint.config([
   // The examples of `data/snippet/` are copied from the docs of each project
   // and shown as text, not built; local tools may keep extra worktrees under
   // `.claude/` (as in `vite.config.ts`)
-  globalIgnores(['dist', 'data/snippet', '.claude']),
+  globalIgnores(['dist', 'dist-ssr', 'data/snippet', '.claude']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
