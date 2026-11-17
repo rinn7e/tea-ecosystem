@@ -44,7 +44,7 @@ const cloudflareWebAnalytics = (): Plugin => ({
 // A static site on GitHub Pages: `VITE_BASE_URL` is the project path there
 // (`.env.production`), and the build copies `index.html` to `404.html` so a
 // deep link opens the app too
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     base: env.VITE_BASE_URL ?? '/',
@@ -55,6 +55,28 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: { '@': path.resolve(import.meta.dirname, 'src') },
     },
+    // The libraries go to scripts of their own in the build for the
+    // browser: they change far less often than the data and the app, which
+    // change every week, so a returning visitor keeps them in its cache
+    // across deploys. React and its scheduler apart, as they are the
+    // largest and change the least.
+    build: isSsrBuild
+      ? {}
+      : {
+          rolldownOptions: {
+            output: {
+              codeSplitting: {
+                groups: [
+                  {
+                    name: 'react',
+                    test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                  },
+                  { name: 'vendor', test: /node_modules/ },
+                ],
+              },
+            },
+          },
+        },
     // The renderer of `scripts/prerender.mjs` bundles every package: some
     // import fp-ts by a path without an extension, which only a bundler
     // resolves

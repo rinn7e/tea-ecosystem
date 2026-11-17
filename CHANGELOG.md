@@ -4,6 +4,7 @@ What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
 ## 2026-11-17
 
+- A returning visitor downloads less after each update: the libraries come in files of their own, which stay in the cache of the browser while the weekly data changes.
 - A link with only a tracking tag (Facebook adds `?fbclid=...`) now shows its page at once, as a plain link does.
 - The star count in the bar shows from the first paint (the build reads it), and a browser asks GitHub for a fresh one at most once an hour, so a busy network no longer runs into the limit of GitHub.
 - The text no longer changes its spacing and weight a moment after the page shows: the fonts come with the site and arrive before the first paint.
