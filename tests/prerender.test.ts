@@ -25,7 +25,9 @@ describe('the pages rendered ahead of time', () => {
   it('give the page of an entry its own title and description', () => {
     const page = renderPage('/framework/elm', boot)
     expect(page.title).toBe('Elm | TEA Ecosystem')
-    expect(page.description.startsWith('Elm: ')).toBe(true)
+    expect(page.description).toBe(
+      'The language The Elm Architecture comes from, and the reference every other entry is graded against.',
+    )
     expect(page.html).toContain('>Elm</h1>')
   })
 

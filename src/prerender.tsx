@@ -50,9 +50,11 @@ export const pagePaths: string[] = [
 const SITE_DESCRIPTION =
   'Every framework that implements The Elm Architecture (TEA, Model View Update), in every language, graded part by part against Elm.'
 
+// The summary of an entry alone: its title already names it, and a link
+// preview cuts the description short
 const descriptionOf = (model: Model): string =>
   model.screenModel._tag === 'FrameworkScreenModel'
-    ? `${model.screenModel.model.framework.name}: ${model.screenModel.model.framework.summary}`
+    ? model.screenModel.model.framework.summary
     : SITE_DESCRIPTION
 
 export type RenderedPage = {
