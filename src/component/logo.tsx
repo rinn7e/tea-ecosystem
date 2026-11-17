@@ -288,6 +288,19 @@ const tileShowsLanguage = (framework: Framework): boolean =>
   isLanguageEntry(framework) ||
   (framework.logo === undefined && framework.logoText === undefined)
 
+// The logo of one language of an entry, beside its name in the language
+// line of its page; none when the tile shows it already
+export const languageOfEntryLogoView = ({
+  framework,
+  language,
+  size,
+}: {
+  framework: Framework
+  language: string
+  size: LogoSize
+}) =>
+  tileShowsLanguage(framework) ? null : languageLogoView({ language, size })
+
 // The logo beside the language line ("Rust framework") of an entry next
 // to its tile; none when the tile shows it already
 export const languageLineLogoView = ({

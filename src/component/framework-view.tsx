@@ -157,12 +157,15 @@ export const targetTone: Tone = {
   fill: 'bg-field text-ink-muted',
 }
 
+// What an entry is, after its language: a TEA-adjacent library, or a
+// framework
+export const kindWordOf = (framework: Framework): string =>
+  framework.tier === 'adjacent' ? 'library' : 'framework'
+
 export const languageLineOf = (framework: Framework): string =>
   isLanguageEntry(framework)
     ? 'Language'
-    : framework.tier === 'adjacent'
-      ? `${framework.language} library`
-      : `${framework.language} framework`
+    : `${framework.language} ${kindWordOf(framework)}`
 
 export const tierLabel = (tier: Tier): string => {
   switch (tier) {

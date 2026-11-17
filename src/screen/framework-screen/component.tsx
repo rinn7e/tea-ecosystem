@@ -9,12 +9,20 @@ import {
   sameLanguageEntriesOf,
 } from '@/common/data/catalog'
 import { snippetOf } from '@/common/data/snippet'
-import { destinationOfScreen, frameworkScreen } from '@/common/type/destination'
+import {
+  catalogScreen,
+  defaultAdjacentFilter,
+  defaultCatalogFilter,
+  destinationOfScreen,
+  frameworkScreen,
+  listScreenOf,
+} from '@/common/type/destination'
 import {
   type Framework,
   concepts,
   hostOf,
   isLanguageEntry,
+  languagesOf,
   sourceLabelOf,
   sourceUrlOf,
   websiteLabelOf,
@@ -28,7 +36,7 @@ import {
   dateView,
   gradeBadgeView,
   gradeMeaning,
-  languageLineOf,
+  kindWordOf,
   shownGradeOf,
   sourceLinkView,
   statusView,
@@ -38,8 +46,8 @@ import {
 import { Link } from '@/component/link'
 import {
   frameworkTileView,
-  languageLineLogoView,
   languageLogoView,
+  languageOfEntryLogoView,
 } from '@/component/logo'
 import { sectionTitleView } from '@/component/section-title'
 
@@ -53,6 +61,57 @@ const exampleSourceLabelOf = (url: string): string => {
   const project = [hostOf(url), ...parts.slice(0, 2)].join('/')
   return parts.length > 2 ? `${project} · ${parts[parts.length - 1]}` : project
 }
+
+// The list of an entry (the main catalog or TEA-adjacent), filtered by one
+// of its languages
+const languageListOf = (framework: Framework, language: string) =>
+  destinationOfScreen(
+    listScreenOf(
+      listOf(framework) === 'catalog'
+        ? { ...defaultCatalogFilter(), language: O.some(language) }
+        : { ...defaultAdjacentFilter(), language: O.some(language) },
+    ),
+  )
+
+const languageLinkClass =
+  'text-accent inline-flex items-center gap-[8px] hover:underline'
+
+// The line under the tile ("Go framework"): each language, with its logo,
+// opens the list of the entry filtered by it; a language entry ("Language")
+// opens the languages of the catalog
+const languageLineView = ({ framework }: { framework: Framework }) => (
+  <span className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] text-base font-normal'>
+    {isLanguageEntry(framework) ? (
+      <Link
+        destination={destinationOfScreen(
+          catalogScreen({
+            ...defaultCatalogFilter(),
+            show: O.some('languages'),
+          }),
+        )}
+        className={languageLinkClass}
+      >
+        Language
+      </Link>
+    ) : (
+      <>
+        {languagesOf(framework).map((language, index) => (
+          <span key={language} className='inline-flex items-center gap-[8px]'>
+            {index > 0 && <span>and</span>}
+            <Link
+              destination={languageListOf(framework, language)}
+              className={languageLinkClass}
+            >
+              {languageOfEntryLogoView({ framework, language, size: 'large' })}
+              {language}
+            </Link>
+          </span>
+        ))}
+        <span>{kindWordOf(framework)}</span>
+      </>
+    )}
+  </span>
+)
 
 // The example as its own docs write it
 const exampleView = ({ framework }: { framework: Framework }) =>
@@ -197,10 +256,7 @@ const FrameworkComponent = ({
 
       <header className='flex flex-col items-center gap-[12px] text-center'>
         {frameworkTileView({ framework, size: 'page' })}
-        <span className='text-accent flex items-center gap-[8px] text-base font-normal'>
-          {languageLineLogoView({ framework, size: 'large' })}
-          {languageLineOf(framework)}
-        </span>
+        {languageLineView({ framework })}
         <h1 className='text-ink text-[2rem] leading-tight font-medium text-balance lg:text-[2.625rem]'>
           {framework.name}
         </h1>

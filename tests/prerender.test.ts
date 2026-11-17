@@ -31,6 +31,22 @@ describe('the pages rendered ahead of time', () => {
     expect(page.html).toContain('>Elm</h1>')
   })
 
+  it('link each language of an entry to its list, filtered by it', () => {
+    // A catalog entry, a TEA-adjacent one, one in two languages, a language
+    expect(renderPage('/framework/bubbletea', boot).html).toContain(
+      'href="/?language=Go"',
+    )
+    expect(renderPage('/framework/xstate', boot).html).toContain(
+      'href="/adjacent?language=TypeScript"',
+    )
+    const keemun = renderPage('/framework/keemun', boot).html
+    expect(keemun).toContain('href="/?language=Kotlin"')
+    expect(keemun).toContain('href="/?language=Swift"')
+    expect(renderPage('/framework/elm', boot).html).toContain(
+      'href="/?show=languages"',
+    )
+  })
+
   it('render each page as itself, never as Not Found, with a title of its own', () => {
     // A path the app does not route still renders, as Not Found
     const titles = pagePaths.map((path) => renderPage(path, boot).title)
