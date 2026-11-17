@@ -1,4 +1,4 @@
-import { test } from '@fast-check/vitest'
+import { fc, test } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
 import { describe, expect, it } from 'vitest'
 
@@ -55,6 +55,30 @@ describe('destination URL', () => {
     (filter) => {
       const screen = listScreenOf(filter)
       expect(roundTrip(screen)).toEqual(screen)
+    },
+  )
+
+  // Facebook, Instagram and Messenger add `fbclid` to every link they
+  // open, ads add `gclid`, newsletters `utm_source`: such a link opened Not
+  // Found on the page of an entry, the rubric and the about page
+  test.prop([
+    fc.oneof(
+      listingFilterArb.map(listScreenOf),
+      fc.constantFrom(
+        frameworkScreen('elm'),
+        rubricScreen(),
+        aboutScreen(),
+        buildScreen('kotlin'),
+      ),
+    ),
+    fc.constantFrom('fbclid', 'gclid', 'utm_source', 'utm_campaign', 'ref'),
+    fc.stringMatching(/^[A-Za-z0-9_-]{1,24}$/),
+  ])(
+    'opens a link with a query of its own, such as a tracking tag, as the same page',
+    (screen, key, value) => {
+      const url = toUrlString(destinationOfScreen(screen))
+      const tagged = `${url}${url.includes('?') ? '&' : '?'}${key}=${value}`
+      expect(parse(tagged).screen).toEqual(screen)
     },
   )
 

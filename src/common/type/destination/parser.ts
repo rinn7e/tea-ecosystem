@@ -116,12 +116,19 @@ const buildParams: t.Type<BuildParams> = t.exact(
   }),
 )
 
+// A page that reads no query: `query` takes it all, and the exact codec
+// drops every key. `end` fails on any query left, and the links of
+// Facebook (`fbclid`), ads (`gclid`) and newsletters (`utm_source`) carry
+// one.
+const noParams = t.exact(t.partial({}))
+
 const catalogMatch = query(listingParams).and(end)
 const frameworkMatch: Match<{ frameworkId: string }> = lit('framework')
   .and(str('frameworkId'))
+  .and(query(noParams))
   .and(end)
-const rubricMatch = lit('rubric').and(end)
-const aboutMatch = lit('about').and(end)
+const rubricMatch = lit('rubric').and(query(noParams)).and(end)
+const aboutMatch = lit('about').and(query(noParams)).and(end)
 const adjacentMatch = lit('adjacent').and(query(listingParams)).and(end)
 const buildMatch = lit('build-your-own').and(query(buildParams)).and(end)
 
