@@ -1,6 +1,7 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
 import { memo } from 'react'
 
+import { pageHeadingOf } from '@/common/data/page-heading'
 import { concepts } from '@/common/type/framework'
 import {
   conceptLabel,
@@ -32,12 +33,10 @@ const RubricComponent = (_props: Props) => (
   <div className='flex flex-col gap-[32px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>
       <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
-        What counts as TEA
+        {pageHeadingOf('rubric').title}
       </h1>
       <p className='text-ink-muted max-w-[640px] text-base text-balance'>
-        Almost every state library uses the words update and subscription. The
-        rubric grades the parts that make The Elm Architecture what it is, and
-        every grade needs evidence.
+        {pageHeadingOf('rubric').lead}
       </p>
     </section>
 

@@ -17,11 +17,8 @@ import { pipe } from 'fp-ts/function'
 import React, { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
-import {
-  type Entries,
-  type ListId,
-  targetOptionsOf,
-} from '@/common/data/catalog'
+import { type Entries, targetOptionsOf } from '@/common/data/catalog'
+import { pageHeadingOf } from '@/common/data/page-heading'
 import {
   type AdjacentFilter,
   type CatalogFilter,
@@ -1406,21 +1403,6 @@ const otherListHintView = ({
 // Screen
 // ---------------------------------------------
 
-const headingOf = (list: ListId) => {
-  switch (list) {
-    case 'catalog':
-      return {
-        title: 'The Elm Architecture, everywhere',
-        lead: 'Every language and framework that implements Model, Msg, update, Cmd and Sub, graded against Elm, so you can see what each ecosystem has and what it could bring back.',
-      }
-    case 'adjacent':
-      return {
-        title: 'TEA-adjacent',
-        lead: 'Libraries that share the vocabulary of TEA but lack a hard requirement of the rubric, graded the same way, so you can see exactly what keeps each one out.',
-      }
-  }
-}
-
 const ListingComponent = ({
   model,
   entries: allEntries,
@@ -1435,7 +1417,7 @@ const ListingComponent = ({
     filterFrameworks(model.filter),
     sortFrameworks(model.filter.sort),
   )
-  const heading = headingOf(list)
+  const heading = pageHeadingOf(list)
   return (
     // Three groups with tight gaps inside: the hero, the filters (category
     // boxes, logo row, search), the results, a wide gap between them. On a

@@ -1,6 +1,7 @@
 import { cn } from '@rinn7e/tea-cup-prelude'
 import { memo } from 'react'
 
+import { pageHeadingOf } from '@/common/data/page-heading'
 import {
   type Destination,
   adjacentScreen,
@@ -54,12 +55,10 @@ const AboutComponent = (_props: Props) => (
   <div className='flex flex-col gap-[36px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>
       <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
-        About TEA Ecosystem
+        {pageHeadingOf('about').title}
       </h1>
       <p className='text-ink-muted max-w-[640px] text-base text-balance'>
-        The Elm Architecture (Model, Msg, update, view, Cmd and Sub) started in
-        Elm and now lives in dozens of languages. This site gathers them in one
-        place and grades each one against Elm.
+        {pageHeadingOf('about').lead}
       </p>
     </section>
 

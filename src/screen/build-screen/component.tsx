@@ -5,6 +5,7 @@ import { pipe } from 'fp-ts/function'
 import { memo } from 'react'
 import { type Dispatcher } from 'tea-cup-fp'
 
+import { pageHeadingOf } from '@/common/data/page-heading'
 import { type BuildLanguage, buildLanguages } from '@/common/type/destination'
 import { codeBlockView } from '@/component/code-block'
 import { sectionTitleView } from '@/component/section-title'
@@ -130,12 +131,10 @@ const BuildComponent = ({ model, dispatch }: Props) => (
     <div className='flex w-full max-w-[820px] flex-col gap-[36px]'>
       <section className='flex flex-col items-center gap-[14px] text-center'>
         <h1 className='text-ink text-[2rem] leading-tight font-normal text-balance lg:text-[2.625rem]'>
-          Build your own TEA
+          {pageHeadingOf('build').title}
         </h1>
         <p className='text-ink-muted max-w-[640px] text-base text-balance'>
-          A TEA runtime is small enough to write in an afternoon. Eight steps,
-          the same in every language: no framework is needed to have The Elm
-          Architecture on a platform that has none.
+          {pageHeadingOf('build').lead}
         </p>
         {languageTabsView({ language: model.language, dispatch })}
         {sourceNoteView({ language: model.language })}
