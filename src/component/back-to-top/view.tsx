@@ -24,7 +24,10 @@ export const backToTopView = ({
         tabIndex={model.isShown ? 0 : -1}
         onClick={() => dispatch({ _tag: 'ScrollToTop' })}
         className={cn(
-          'bg-bar text-bar-ink border-bar-ink/40 hover:border-bar-ink flex size-[44px] cursor-pointer items-center justify-center rounded-full border-2 transition-[opacity,transform,border-color] duration-150 motion-reduce:transition-none lg:size-[48px]',
+          'bg-bar text-bar-ink border-bar-ink/40 hover:border-bar-ink flex size-[44px] cursor-pointer items-center justify-center rounded-full border-2 lg:size-[48px]',
+          model.glides
+            ? 'transition-[opacity,transform,border-color] duration-150 motion-reduce:transition-none'
+            : 'transition-[border-color] duration-150',
           model.isShown
             ? 'pointer-events-auto translate-y-0 opacity-100'
             : 'translate-y-[8px] opacity-0',

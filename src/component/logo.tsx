@@ -51,8 +51,6 @@ const languageMarkView = ({
         <img
           src={logoUrl(logo.file)}
           alt={logo.title}
-          loading='lazy'
-          decoding='async'
           className={cn(className, 'object-contain')}
         />
       )
@@ -241,8 +239,6 @@ export const frameworkTileView = ({
         <img
           src={logoUrl(framework.logo)}
           alt=''
-          loading='lazy'
-          decoding='async'
           className={cn(
             'size-full object-contain',
             pipe(

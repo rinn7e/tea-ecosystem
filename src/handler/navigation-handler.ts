@@ -10,6 +10,7 @@ import {
   type NavigationMsg,
   type Screen,
 } from '@/common/type/destination'
+import * as BackToTop from '@/component/back-to-top'
 import * as Tooltip from '@/component/tooltip'
 import * as AboutScreen from '@/screen/about-screen'
 import * as AdjacentScreen from '@/screen/adjacent-screen'
@@ -172,7 +173,7 @@ export const navigationMsgHandler = (
     const opened: Model = {
       ...openDestination(subMsg.destination, model, model.entries),
       tooltip: Tooltip.update({ _tag: 'Dismiss' }, model.tooltip)[0],
-      // The scroll the move makes shows or hides it
+      // Placed below, from the scroll the move makes
       backToTop: model.backToTop,
       listScrollY,
       scroll: model.scroll,
@@ -197,6 +198,7 @@ export const navigationMsgHandler = (
     const updatedModel: Model = {
       ...opened,
       scroll: { seq: model.scroll.seq + 1, top },
+      backToTop: BackToTop.placedAt(top),
     }
     return [updatedModel, setTitleCmd(updatedModel)]
   }

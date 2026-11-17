@@ -195,3 +195,30 @@ describe('the status of an entry', () => {
     expect(onPage.entries).toBe(late.entries)
   })
 })
+
+describe('the button back to the top', () => {
+  it('shows at once on a list a step back returns to far down', () => {
+    // Left from far down the catalog, then back from the entry page
+    const onPage = step(bootOn('/'), {
+      _tag: 'NavigationMsg',
+      subMsg: {
+        _tag: 'Navigate',
+        destination: destinationOfScreen(frameworkScreen('elm')),
+        scrollY: 2000,
+        back: false,
+      },
+    })
+    expect(onPage.backToTop).toEqual({ isShown: false, glides: false })
+    const back = step(onPage, {
+      _tag: 'NavigationMsg',
+      subMsg: {
+        _tag: 'Navigate',
+        destination: destinationOfScreen(catalogScreen()),
+        scrollY: 0,
+        back: true,
+      },
+    })
+    expect(back.scroll.top).toBe(2000)
+    expect(back.backToTop).toEqual({ isShown: true, glides: false })
+  })
+})
