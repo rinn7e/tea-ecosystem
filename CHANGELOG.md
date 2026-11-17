@@ -4,6 +4,7 @@ What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
 ## 2026-11-17
 
+- A link to an entry, shared on Facebook, Reddit, Slack or X, shows a card of that entry: its logo, its kind, its tier, its grades, its summary and its stars.
 - A link with a tracking tag (Facebook adds `?fbclid=...` to every link it opens) no longer shows "Nothing here" on the page of an entry, the rubric or the about page.
 - Every page is rendered to HTML ahead of time, so it shows as soon as the HTML arrives, without waiting for the script of nearly 1 MB, then becomes interactive with no flicker. Each entry has its own title and link preview, and search engines see every page.
 - Faster first page: the logos are 144 px WebP instead of PNG of up to 256 px, and load only when they scroll into view. All the logos together went from 1.2 MB to 166 KB. A test keeps each logo under 20 KB.
