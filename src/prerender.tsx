@@ -1,4 +1,6 @@
 import * as A from 'fp-ts/Array'
+import * as O from 'fp-ts/Option'
+import * as RA from 'fp-ts/ReadonlyArray'
 import { pipe } from 'fp-ts/function'
 import { StrictMode } from 'react'
 import { renderToString } from 'react-dom/server'
@@ -8,6 +10,12 @@ import {
   storedAdjacentEntries,
   storedFrameworks,
 } from '@/common/data/catalog'
+import {
+  type SitePage,
+  pageHeadingOf,
+  sitePagePathOf,
+  sitePages,
+} from '@/common/data/page-heading'
 import { type Framework } from '@/common/type/framework'
 import { type Boot } from '@/common/util/boot'
 import { titleOf } from '@/handler/navigation-handler'
@@ -21,10 +29,13 @@ export {
   SHARE_CARD_HEIGHT,
   SHARE_CARD_WIDTH,
   STAR_SVG,
+  pageCardOf,
+  pageCardViewOf,
   shareCardOf,
   shareLogoOf,
   svgOfShapes,
 } from './share-card'
+export { entriesAt, sitePages }
 
 // The build renders every page of the site to HTML ahead of time
 // (`scripts/prerender.mjs`): a visitor sees the page before the script
@@ -36,26 +47,38 @@ export const SITE_URL = 'https://tea.rinn7e.com'
 // Every page: the lists, the standalone pages and the page of each entry.
 // A list with a filter in its query opens from the HTML of the plain list.
 export const pagePaths: string[] = [
-  '/',
-  '/adjacent',
-  '/rubric',
-  '/about',
-  '/build-your-own',
+  ...sitePages.map(sitePagePathOf),
   ...pipe(
     [...storedFrameworks, ...storedAdjacentEntries],
     A.map((entry) => `/framework/${entry.id}`),
   ),
 ]
 
-const SITE_DESCRIPTION =
-  'Every framework that implements The Elm Architecture (TEA, Model View Update), in every language, graded part by part against Elm.'
+// The page of each screen that is not an entry (Not Found takes the
+// catalog, as no page renders it)
+const sitePageOf = (model: Model): SitePage => {
+  switch (model.screenModel._tag) {
+    case 'AdjacentScreenModel':
+      return 'adjacent'
+    case 'RubricScreenModel':
+      return 'rubric'
+    case 'AboutScreenModel':
+      return 'about'
+    case 'BuildScreenModel':
+      return 'build'
+    case 'CatalogScreenModel':
+    case 'FrameworkScreenModel':
+    case 'NotFoundScreenModel':
+      return 'catalog'
+  }
+}
 
 // The summary of an entry alone: its title already names it, and a link
-// preview cuts the description short
+// preview cuts the description short. Any other page: its lead.
 const descriptionOf = (model: Model): string =>
   model.screenModel._tag === 'FrameworkScreenModel'
     ? model.screenModel.model.framework.summary
-    : SITE_DESCRIPTION
+    : pageHeadingOf(sitePageOf(model)).lead
 
 export type RenderedPage = {
   html: string
@@ -68,7 +91,7 @@ export type RenderedPage = {
 const shareImageAltOf = (model: Model): string =>
   model.screenModel._tag === 'FrameworkScreenModel'
     ? `The card of ${model.screenModel.model.framework.name}: its logo, its grades and its summary`
-    : 'The catalog of TEA Ecosystem: its language logos and the first framework cards'
+    : `TEA Ecosystem: ${pageHeadingOf(sitePageOf(model)).title}`
 
 // The page at `path`, as the browser draws it first at the same `boot`
 export const renderPage = (path: string, boot: Boot): RenderedPage => {
@@ -96,9 +119,16 @@ export const sharedEntriesAt = (now: number): Framework[] => {
   return [...entries.catalog, ...entries.adjacent]
 }
 
-// The share card of the page at `path`, where it has one: an entry page
-// shows its entry, every other page the screenshot of the catalog
+// The share card of the page at `path`: an entry page shows its entry,
+// every other page its heading (`og/page/<page>.png`)
 export const shareImageOf = (path: string): string =>
   path.startsWith('/framework/')
     ? `/og/${path.slice('/framework/'.length)}.png`
-    : '/og-image.png'
+    : pipe(
+        sitePages,
+        RA.findFirst((page) => sitePagePathOf(page) === path),
+        O.fold(
+          () => '/og/page/catalog.png',
+          (page) => `/og/page/${page}.png`,
+        ),
+      )

@@ -1,9 +1,12 @@
 import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
+import { type ReactNode } from 'react'
 
+import { type Entries } from '@/common/data/catalog'
 import { languageLogoOf } from '@/common/data/language-logo/logo'
 import { type LogoPath } from '@/common/data/language-logo/path'
+import { type SitePage, pageHeadingOf } from '@/common/data/page-heading'
 import {
   type Concept,
   type Framework,
@@ -15,17 +18,21 @@ import { starCountOf } from '@/common/util/number'
 import {
   type ShownGrade,
   conceptLabel,
+  gradeLabel,
   languageLineOf,
   shownGradeOf,
   statusLabel,
   tierLabel,
 } from '@/component/framework-view'
+import { languageCountsOf } from '@/component/listing/util'
 
-// The link preview of the page of an entry (`og:image`): a card of 1200 x
-// 630 in the light look of the site, drawn at build time with satori and
-// resvg (`scripts/prerender.mjs`), so a link shared on Facebook, Reddit,
-// Slack or X shows the entry, not the catalog. Satori lays out a subset of
-// CSS with flexbox only, so every box here says `display: flex`.
+// The link preview of every page (`og:image`): a card of 1200 x 630 in the
+// light look of the site, drawn at build time with satori and resvg
+// (`scripts/prerender.mjs`), so a link shared on Facebook, Reddit, Slack
+// or X shows what it leads to. The page of an entry shows the entry
+// (`shareCardOf`), every other page its heading (`pageCardOf`), in one
+// frame. Satori lays out a subset of CSS with flexbox only, so every box
+// here says `display: flex`.
 
 export const SHARE_CARD_WIDTH = 1200
 export const SHARE_CARD_HEIGHT = 630
@@ -53,20 +60,22 @@ export type ShareLogo =
   | { _tag: 'File'; file: string }
   | { _tag: 'Shapes'; viewBox: string; paths: LogoPath[] }
 
+const languageShareLogoOf = (language: string): O.Option<ShareLogo> =>
+  pipe(
+    languageLogoOf(language),
+    O.map((logo): ShareLogo =>
+      logo._tag === 'Image'
+        ? { _tag: 'File', file: logo.file }
+        : { _tag: 'Shapes', viewBox: logo.viewBox, paths: logo.paths },
+    ),
+  )
+
 // Its own logo, else the logo of its first language. A glyph (`logoText`,
 // an emoji) needs a font of its own, so the language stands in for it too.
 export const shareLogoOf = (framework: Framework): O.Option<ShareLogo> =>
   framework.logo !== undefined
     ? O.some({ _tag: 'File', file: framework.logo })
-    : pipe(
-        A.head(languagesOf(framework)),
-        O.chain(languageLogoOf),
-        O.map((logo): ShareLogo =>
-          logo._tag === 'Image'
-            ? { _tag: 'File', file: logo.file }
-            : { _tag: 'Shapes', viewBox: logo.viewBox, paths: logo.paths },
-        ),
-      )
+    : pipe(A.head(languagesOf(framework)), O.chain(languageShareLogoOf))
 
 // The shapes of a language logo as an SVG document, for an `img`
 export const svgOfShapes = (viewBox: string, paths: LogoPath[]): string =>
@@ -109,9 +118,9 @@ const tint = (hex: string, alpha: number): string =>
     .toString(16)
     .padStart(2, '0')}`
 
-const gradeChip = (concept: Concept, grade: ShownGrade) => (
+const chipView = (label: string, grade: ShownGrade) => (
   <div
-    key={concept}
+    key={label}
     style={{
       display: 'flex',
       padding: '6px 16px',
@@ -122,21 +131,34 @@ const gradeChip = (concept: Concept, grade: ShownGrade) => (
       fontSize: 26,
     }}
   >
-    {conceptLabel(concept)}
+    {label}
   </div>
 )
 
-// `logoSrc`, `emblemSrc` and `starSrc` are data URLs the build reads
-export const shareCardOf = ({
-  framework,
-  logoSrc,
+const chipsView = (chips: ReactNode[]) => (
+  <div style={{ display: 'flex', gap: 10 }}>{chips}</div>
+)
+
+// The frame both cards share: the blue bar, the tile and the title with
+// the line under it, a strip, the lead, and the site at the foot
+const frameView = ({
+  tile,
+  title,
+  subline,
+  strip,
+  lead,
+  leadLines,
+  footNote,
   emblemSrc,
-  starSrc,
 }: {
-  framework: Framework
-  logoSrc: O.Option<string>
+  tile: ReactNode
+  title: string
+  subline: ReactNode
+  strip: ReactNode
+  lead: string
+  leadLines: number
+  footNote: ReactNode
   emblemSrc: string
-  starSrc: string
 }) => (
   <div
     style={{
@@ -168,72 +190,27 @@ export const shareCardOf = ({
           padding: 16,
         }}
       >
-        {pipe(
-          logoSrc,
-          O.fold(
-            () => null,
-            (src) => <img src={src} width={132} height={132} />,
-          ),
-        )}
+        {tile}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', fontSize: 68, fontWeight: 500 }}>
-          {framework.name}
+        <div style={{ display: 'flex', fontSize: 64, fontWeight: 500 }}>
+          {title}
         </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 20,
-            fontSize: 30,
-            color: color.inkMuted,
-          }}
-        >
-          <div style={{ display: 'flex' }}>{languageLineOf(framework)}</div>
-          <div
-            style={{
-              display: 'flex',
-              padding: '2px 14px',
-              border: `2px solid ${color.line}`,
-              borderRadius: 4,
-              fontSize: 24,
-            }}
-          >
-            {tierLabel(framework.tier)}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                display: 'flex',
-                width: 14,
-                height: 14,
-                borderRadius: 7,
-                background: statusColor(framework.status),
-              }}
-            />
-            <div style={{ display: 'flex', fontSize: 26 }}>
-              {statusLabel(framework.status)}
-            </div>
-          </div>
-        </div>
+        {subline}
       </div>
     </div>
-    <div style={{ display: 'flex', gap: 10, marginTop: 40 }}>
-      {concepts.map((concept) =>
-        gradeChip(concept, shownGradeOf(concept, framework.rubric[concept])),
-      )}
-    </div>
+    <div style={{ display: 'flex', marginTop: 34 }}>{strip}</div>
     <div
       style={{
         display: 'block',
-        marginTop: 28,
-        fontSize: 32,
+        marginTop: 24,
+        fontSize: leadLines > 2 ? 26 : 32,
         lineHeight: 1.4,
         color: color.inkMuted,
-        lineClamp: 2,
+        lineClamp: leadLines,
       }}
     >
-      {framework.summary}
+      {lead}
     </div>
     <div
       style={{
@@ -252,7 +229,89 @@ export const shareCardOf = ({
           tea.rinn7e.com
         </div>
       </div>
-      {framework.stars !== undefined && (
+      {footNote}
+    </div>
+  </div>
+)
+
+const sublineView = (text: string) => (
+  <div style={{ display: 'flex', fontSize: 30, color: color.inkMuted }}>
+    {text}
+  </div>
+)
+
+// The card of the page of an entry. `logoSrc`, `emblemSrc` and `starSrc`
+// are data URLs the build reads.
+export const shareCardOf = ({
+  framework,
+  logoSrc,
+  emblemSrc,
+  starSrc,
+}: {
+  framework: Framework
+  logoSrc: O.Option<string>
+  emblemSrc: string
+  starSrc: string
+}) =>
+  frameView({
+    tile: pipe(
+      logoSrc,
+      O.fold(
+        () => null,
+        (src) => <img src={src} width={132} height={132} />,
+      ),
+    ),
+    title: framework.name,
+    subline: (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+          fontSize: 30,
+          color: color.inkMuted,
+        }}
+      >
+        <div style={{ display: 'flex' }}>{languageLineOf(framework)}</div>
+        <div
+          style={{
+            display: 'flex',
+            padding: '2px 14px',
+            border: `2px solid ${color.line}`,
+            borderRadius: 4,
+            fontSize: 24,
+          }}
+        >
+          {tierLabel(framework.tier)}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              display: 'flex',
+              width: 14,
+              height: 14,
+              borderRadius: 7,
+              background: statusColor(framework.status),
+            }}
+          />
+          <div style={{ display: 'flex', fontSize: 26 }}>
+            {statusLabel(framework.status)}
+          </div>
+        </div>
+      </div>
+    ),
+    strip: chipsView(
+      concepts.map((concept: Concept) =>
+        chipView(
+          conceptLabel(concept),
+          shownGradeOf(concept, framework.rubric[concept]),
+        ),
+      ),
+    ),
+    lead: framework.summary,
+    leadLines: 2,
+    footNote:
+      framework.stars !== undefined ? (
         <div
           style={{
             display: 'flex',
@@ -266,7 +325,172 @@ export const shareCardOf = ({
           <img src={starSrc} width={32} height={32} />
           {`${starCountOf(framework.stars)} stars`}
         </div>
-      )}
-    </div>
-  </div>
-)
+      ) : null,
+    emblemSrc,
+  })
+
+// What the card of a page that is not an entry shows under its title: a
+// row of language logos, or a row of chips
+export type PageStrip =
+  | { _tag: 'Logos'; logos: ShareLogo[] }
+  | { _tag: 'Chips'; chips: { label: string; grade: ShownGrade }[] }
+
+export type PageCard = {
+  page: SitePage
+  title: string
+  subline: string
+  lead: string
+  strip: PageStrip
+  footNote: string
+}
+
+// The grades the rubric gives, as its page names them
+const legendGrades: ShownGrade[] = [
+  'native',
+  'managed',
+  'equivalent',
+  'missing',
+]
+
+// As many language logos as a row holds
+const STRIP_LOGOS = 12
+
+const topLanguageLogosOf = (entries: Framework[]): ShareLogo[] =>
+  pipe(
+    languageCountsOf(entries),
+    A.filterMap(({ language }) => languageShareLogoOf(language)),
+    A.takeLeft(STRIP_LOGOS),
+  )
+
+const languageCountOf = (entries: Framework[]): number =>
+  new Set(entries.flatMap(languagesOf)).size
+
+export const pageCardOf =
+  (entries: Entries) =>
+  (page: SitePage): PageCard => {
+    const { title, lead } = pageHeadingOf(page)
+    switch (page) {
+      case 'catalog':
+        return {
+          page,
+          title: 'TEA Ecosystem',
+          subline: title,
+          lead,
+          strip: { _tag: 'Logos', logos: topLanguageLogosOf(entries.catalog) },
+          footNote: `${entries.catalog.length} entries in ${languageCountOf(entries.catalog)} languages`,
+        }
+      case 'adjacent':
+        return {
+          page,
+          title,
+          subline: 'Close to TEA, but missing a hard requirement',
+          lead,
+          strip: {
+            _tag: 'Logos',
+            logos: topLanguageLogosOf(entries.adjacent),
+          },
+          footNote: `${entries.adjacent.length} libraries in ${languageCountOf(entries.adjacent)} languages`,
+        }
+      case 'rubric':
+        return {
+          page,
+          title,
+          subline: 'Four grades and three tiers, graded against Elm',
+          lead,
+          strip: {
+            _tag: 'Chips',
+            chips: legendGrades.map((grade) => ({
+              label: gradeLabel(grade),
+              grade,
+            })),
+          },
+          footNote: '',
+        }
+      case 'about':
+        return {
+          page,
+          title,
+          subline: 'Every TEA in one place, graded against Elm',
+          lead,
+          strip: {
+            _tag: 'Chips',
+            chips: concepts
+              .filter((concept) => concept !== 'ports')
+              .map((concept) => ({
+                label: conceptLabel(concept),
+                grade: 'native',
+              })),
+          },
+          footNote: `${entries.catalog.length} entries, ${entries.adjacent.length} TEA-adjacent`,
+        }
+      case 'build':
+        return {
+          page,
+          title,
+          subline: 'A runtime in eight steps',
+          lead,
+          strip: {
+            _tag: 'Logos',
+            logos: pipe(
+              ['Swift', 'TypeScript', 'Kotlin'],
+              A.filterMap(languageShareLogoOf),
+            ),
+          },
+          footNote: 'In Swift, TypeScript and Kotlin',
+        }
+    }
+  }
+
+// The card of a page that is not an entry: the emblem in the tile.
+// `logoSrcs` are the data URLs of the logos of its strip, in order.
+export const pageCardViewOf = ({
+  card,
+  logoSrcs,
+  emblemSrc,
+}: {
+  card: PageCard
+  logoSrcs: string[]
+  emblemSrc: string
+}) =>
+  frameView({
+    tile: <img src={emblemSrc} width={132} height={132} />,
+    title: card.title,
+    subline: sublineView(card.subline),
+    strip:
+      card.strip._tag === 'Chips' ? (
+        chipsView(
+          card.strip.chips.map((chip) => chipView(chip.label, chip.grade)),
+        )
+      ) : (
+        <div style={{ display: 'flex', gap: 12 }}>
+          {logoSrcs.map((src) => (
+            <div
+              key={src}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 64,
+                height: 64,
+                // The border and the padding inside the 64 px, as in the
+                // frame
+                boxSizing: 'border-box',
+                border: `2px solid ${color.line}`,
+                borderRadius: 6,
+                padding: 9,
+              }}
+            >
+              <img src={src} width={42} height={42} />
+            </div>
+          ))}
+        </div>
+      ),
+    lead: card.lead,
+    leadLines: 3,
+    footNote: (
+      <div style={{ display: 'flex', fontSize: 26, color: color.inkMuted }}>
+        {card.footNote}
+      </div>
+    ),
+    emblemSrc,
+  })

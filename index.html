@@ -13,8 +13,9 @@
          place of these -->
     <link rel="canonical" href="https://tea.rinn7e.com/" />
     <!-- The link preview of chat apps and social sites (Reddit, Slack,
-         Discord, X): a screenshot of the catalog, by absolute URL, as
-         their crawlers do not run the app. Every page shares it. -->
+         Discord, X): the share card of the page (`src/share-card.tsx`), by
+         absolute URL, as their crawlers do not run the app. These are the
+         tags of the catalog; each page names its own. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="TEA Ecosystem" />
     <meta property="og:url" content="https://tea.rinn7e.com/" />
@@ -23,12 +24,15 @@
       property="og:description"
       content="Every language and framework that implements The Elm Architecture, graded part by part against Elm."
     />
-    <meta property="og:image" content="https://tea.rinn7e.com/og-image.png" />
-    <meta property="og:image:width" content="2400" />
-    <meta property="og:image:height" content="1260" />
+    <meta
+      property="og:image"
+      content="https://tea.rinn7e.com/og/page/catalog.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="The catalog of TEA Ecosystem: its language logos and the first framework cards"
+      content="TEA Ecosystem: The Elm Architecture, everywhere"
     />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- A link with a filter in its query opens on the HTML of the plain

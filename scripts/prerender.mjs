@@ -20,12 +20,16 @@ import {
   SITE_URL,
   STAR_SVG,
   bootScriptOf,
+  entriesAt,
+  pageCardOf,
+  pageCardViewOf,
   pagePaths,
   renderPage,
   shareCardOf,
   shareImageOf,
   shareLogoOf,
   sharedEntriesAt,
+  sitePages,
   svgOfShapes,
 } from '../dist-ssr/prerender.js'
 
@@ -57,31 +61,18 @@ const fileOf = (pagePath) =>
 
 const template = readFileSync(path.join(DIST, 'index.html'), 'utf8')
 
-// The `og:image` tags of a page: its share card, or the screenshot of the
-// catalog that `index.html` names
-const shareImageTagsOf = (pagePath, page) => {
-  const image = shareImageOf(pagePath)
-  return image === '/og-image.png'
-    ? []
-    : [
-        [
-          /<meta property="og:image" content="[^"]*"\s*\/?>/,
-          `<meta property="og:image" content="${SITE_URL}${image}" />`,
-        ],
-        [
-          /<meta property="og:image:width" content="[^"]*"\s*\/?>/,
-          `<meta property="og:image:width" content="${SHARE_CARD_WIDTH}" />`,
-        ],
-        [
-          /<meta property="og:image:height" content="[^"]*"\s*\/?>/,
-          `<meta property="og:image:height" content="${SHARE_CARD_HEIGHT}" />`,
-        ],
-        [
-          /<meta\s+property="og:image:alt"\s+content="[^"]*"\s*\/?>/,
-          `<meta property="og:image:alt" content="${escapeHtml(page.shareImageAlt)}" />`,
-        ],
-      ]
-}
+// The `og:image` tags of a page: its share card (`index.html` names the
+// card of the catalog)
+const shareImageTagsOf = (pagePath, page) => [
+  [
+    /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/,
+    `<meta property="og:image" content="${SITE_URL}${shareImageOf(pagePath)}" />`,
+  ],
+  [
+    /<meta\s+property="og:image:alt"\s+content="[^"]*"\s*\/?>/,
+    `<meta property="og:image:alt" content="${escapeHtml(page.shareImageAlt)}" />`,
+  ],
+]
 
 const pageHtmlOf = (pagePath) => {
   const page = renderPage(pagePath, boot)
@@ -148,41 +139,62 @@ const fileDataUrlOf = async (file) => {
     : `data:image/png;base64,${(await sharp(data).png().toBuffer()).toString('base64')}`
 }
 
+const shareLogoSrcOf = (logo) =>
+  logo._tag === 'File'
+    ? fileDataUrlOf(logo.file)
+    : Promise.resolve(svgDataUrlOf(svgOfShapes(logo.viewBox, logo.paths)))
+
 // An `Option` of fp-ts, as `shareCardOf` takes it
 const logoSrcOf = async (framework) => {
   const logo = shareLogoOf(framework)
   return logo._tag === 'None'
     ? logo
-    : {
-        _tag: 'Some',
-        value:
-          logo.value._tag === 'File'
-            ? await fileDataUrlOf(logo.value.file)
-            : svgDataUrlOf(svgOfShapes(logo.value.viewBox, logo.value.paths)),
-      }
+    : { _tag: 'Some', value: await shareLogoSrcOf(logo.value) }
 }
 
 const emblemSrc = svgDataUrlOf(readFileSync('public/favicon.svg'))
 const starSrc = svgDataUrlOf(STAR_SVG)
 
-mkdirSync(path.join(DIST, 'og'), { recursive: true })
+const pngOf = async (card) =>
+  new Resvg(
+    await satori(card, {
+      width: SHARE_CARD_WIDTH,
+      height: SHARE_CARD_HEIGHT,
+      fonts,
+    }),
+    { fitTo: { mode: 'width', value: SHARE_CARD_WIDTH } },
+  )
+    .render()
+    .asPng()
+
+mkdirSync(path.join(DIST, 'og', 'page'), { recursive: true })
+
 const entries = sharedEntriesAt(boot.now)
 await Promise.all(
-  entries.map(async (framework) => {
-    const svg = await satori(
-      shareCardOf({
-        framework,
-        logoSrc: await logoSrcOf(framework),
-        emblemSrc,
-        starSrc,
-      }),
-      { width: SHARE_CARD_WIDTH, height: SHARE_CARD_HEIGHT, fonts },
-    )
+  entries.map(async (framework) =>
     writeFileSync(
       path.join(DIST, 'og', `${framework.id}.png`),
-      new Resvg(svg, { fitTo: { mode: 'width', value: SHARE_CARD_WIDTH } })
-        .render()
-        .asPng(),
+      await pngOf(
+        shareCardOf({
+          framework,
+          logoSrc: await logoSrcOf(framework),
+          emblemSrc,
+          starSrc,
+        }),
+      ),
+    ),
+  ),
+)
+
+await Promise.all(
+  sitePages.map(async (sitePage) => {
+    const card = pageCardOf(entriesAt(boot.now))(sitePage)
+    const logoSrcs = await Promise.all(
+      card.strip._tag === 'Logos' ? card.strip.logos.map(shareLogoSrcOf) : [],
+    )
+    writeFileSync(
+      path.join(DIST, 'og', 'page', `${sitePage}.png`),
+      await pngOf(pageCardViewOf({ card, logoSrcs, emblemSrc })),
     )
   }),
 )
@@ -201,5 +213,5 @@ writeFileSync(
 )
 
 console.log(
-  `prerender: ${pagePaths.length} pages, ${entries.length} share cards`,
+  `prerender: ${pagePaths.length} pages, ${entries.length + sitePages.length} share cards`,
 )
