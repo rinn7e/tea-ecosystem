@@ -4,6 +4,7 @@ What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
 ## 2026-11-17
 
+- The star count in the bar shows from the first paint (the build reads it), and a browser asks GitHub for a fresh one at most once an hour, so a busy network no longer runs into the limit of GitHub.
 - The text no longer changes its spacing and weight a moment after the page shows: the fonts come with the site and arrive before the first paint.
 - On the page of an entry, the whole language line ("Haskell framework") is the link.
 - On the page of an entry, its language ("Go framework") opens the list of that language, in the main catalog or TEA-adjacent.
