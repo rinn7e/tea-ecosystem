@@ -74,6 +74,8 @@ Type:
 | small         | IBM Plex Sans   | 14 px                    | 400    |
 | code          | Source Code Pro | 13 px                    | 400    |
 
+The fonts are served with the site (`public/fonts/`, the Latin files of Fontsource, under the SIL Open Font License, whose text is beside them), not from Google Fonts: the page paints from its prerendered HTML before a font from another host arrives, so the text showed in the system font first, wider and bolder, and changed when Plex came. `index.html` preloads the two weights of the first paint (400, and 500 for the names of the entries), and `src/asset/index.css` gives each font a local fallback sized to its metrics (`size-adjust` and the ascent and descent overrides), so a font that still arrives late moves nothing. A new weight or font gets its file and license in `public/fonts/` and its `@font-face` there.
+
 Shapes:
 
 - Box: `1px solid line`, radius 3 px, shadow `5px 5px 0 1px line`.

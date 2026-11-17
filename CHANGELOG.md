@@ -4,6 +4,8 @@ What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
 ## 2026-11-17
 
+- The text no longer changes its spacing and weight a moment after the page shows: the fonts come with the site and arrive before the first paint.
+- On the page of an entry, the whole language line ("Haskell framework") is the link.
 - On the page of an entry, its language ("Go framework") opens the list of that language, in the main catalog or TEA-adjacent.
 - Every other page (the catalog, TEA-adjacent, the rubric, about and the guide) shares a card of its own too, in place of a screenshot that was too small to read in a feed, and has its own description.
 - A link to an entry, shared on Facebook, Reddit, Slack or X, shows a card of that entry: its logo, its kind, its tier, its grades, its summary and its stars.
