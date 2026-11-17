@@ -76,26 +76,28 @@ const languageListOf = (framework: Framework, language: string) =>
 const languageLinkClass =
   'text-accent inline-flex items-center gap-[8px] hover:underline'
 
-// The line under the tile ("Go framework"): each language, with its logo,
-// opens the list of the entry filtered by it; a language entry ("Language")
-// opens the languages of the catalog
-const languageLineView = ({ framework }: { framework: Framework }) => (
-  <span className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] text-base font-normal'>
-    {isLanguageEntry(framework) ? (
-      <Link
-        destination={destinationOfScreen(
-          catalogScreen({
-            ...defaultCatalogFilter(),
-            show: O.some('languages'),
-          }),
-        )}
-        className={languageLinkClass}
-      >
-        Language
-      </Link>
-    ) : (
-      <>
-        {languagesOf(framework).map((language, index) => (
+// The line under the tile ("Go framework"), a link as a whole: it opens
+// the list of the entry filtered by its language. An entry in two
+// languages links each ("Kotlin" and "Swift framework"); a language entry
+// ("Language") opens the languages of the catalog.
+const languageLineView = ({ framework }: { framework: Framework }) => {
+  const languages = languagesOf(framework)
+  return (
+    <span className='text-ink-muted flex flex-wrap items-center justify-center gap-x-[8px] text-base font-normal'>
+      {isLanguageEntry(framework) ? (
+        <Link
+          destination={destinationOfScreen(
+            catalogScreen({
+              ...defaultCatalogFilter(),
+              show: O.some('languages'),
+            }),
+          )}
+          className={languageLinkClass}
+        >
+          Language
+        </Link>
+      ) : (
+        languages.map((language, index) => (
           <span key={language} className='inline-flex items-center gap-[8px]'>
             {index > 0 && <span>and</span>}
             <Link
@@ -103,15 +105,16 @@ const languageLineView = ({ framework }: { framework: Framework }) => (
               className={languageLinkClass}
             >
               {languageOfEntryLogoView({ framework, language, size: 'large' })}
-              {language}
+              {index === languages.length - 1
+                ? `${language} ${kindWordOf(framework)}`
+                : language}
             </Link>
           </span>
-        ))}
-        <span>{kindWordOf(framework)}</span>
-      </>
-    )}
-  </span>
-)
+        ))
+      )}
+    </span>
+  )
+}
 
 // The example as its own docs write it
 const exampleView = ({ framework }: { framework: Framework }) =>
