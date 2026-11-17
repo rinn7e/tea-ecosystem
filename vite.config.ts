@@ -41,6 +41,33 @@ const cloudflareWebAnalytics = (): Plugin => ({
   ],
 })
 
+// The stylesheet first among what the built page asks for: Vite writes it
+// after the scripts and their preloads, but the browser paints the
+// prerendered HTML only once its CSS is in, and the scripts are not needed
+// for that paint (a module script runs after the page is parsed), so the
+// CSS no longer shares the connection with them. A build that writes no
+// stylesheet or no module script fails, so a change of Vite cannot drop it
+// unseen.
+const stylesheetFirst = (): Plugin => ({
+  name: 'stylesheet-first',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'post',
+    handler: (html) => {
+      const stylesheet =
+        /\s*<link rel="stylesheet"[^>]*href="[^"]*\/assets\/[^"]+\.css"[^>]*>/
+      const script = /<script type="module"[^>]*><\/script>/
+      const link = stylesheet.exec(html)?.[0]
+      if (link === undefined || !script.test(html)) {
+        throw new Error('stylesheet-first: no stylesheet or no module script')
+      }
+      return html
+        .replace(link, '')
+        .replace(script, (tag) => `${link.trim()}\n    ${tag}`)
+    },
+  },
+})
+
 // A static site on GitHub Pages, served from the root of its hostname
 // (`VITE_BASE_URL` in `.env.production`). `pnpm run build` runs Vite twice:
 // once for the browser (`dist/`), and once with `--ssr` to compile the app
@@ -52,7 +79,12 @@ export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     base: env.VITE_BASE_URL ?? '/',
-    plugins: [react(), tailwindcss(), cloudflareWebAnalytics()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      cloudflareWebAnalytics(),
+      stylesheetFirst(),
+    ],
     define: {
       'import.meta.env.VITE_LAST_UPDATED': JSON.stringify(lastUpdatedTime()),
     },
