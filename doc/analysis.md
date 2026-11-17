@@ -96,7 +96,7 @@ The comparison only works if libraries are mapped to shared capabilities, not co
 Entities:
 
 1. `Language`: name, paradigm, typing.
-2. `Framework`: language, targets (web, ssr, server, desktop, mobile, tui, game), repo, status (active, low activity, archived), rubric grades with one evidence URL per grade, tier.
+2. `Framework`: language, targets (web, ssr, server, desktop, mobile, tui, game), repo, status (`active`, `quiet` or `archived`, derived from the last push of its repository: decision 2 of 2026-11-15), rubric grades with one evidence URL per grade, tier.
 3. `Capability`: a node in a fixed taxonomy (section 7), with a short definition so that two libraries in two languages can be judged "the same thing".
 4. `Library`: framework (one or more), capabilities (one or more), URL, repo, status, one-line description.
 5. `Proposal`: a "bring back to Elm" write-up linking capabilities and libraries.
