@@ -1,0 +1,272 @@
+import * as A from 'fp-ts/Array'
+import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
+
+import { languageLogoOf } from '@/common/data/language-logo/logo'
+import { type LogoPath } from '@/common/data/language-logo/path'
+import {
+  type Concept,
+  type Framework,
+  type Status,
+  concepts,
+  languagesOf,
+} from '@/common/type/framework'
+import { starCountOf } from '@/common/util/number'
+import {
+  type ShownGrade,
+  conceptLabel,
+  languageLineOf,
+  shownGradeOf,
+  statusLabel,
+  tierLabel,
+} from '@/component/framework-view'
+
+// The link preview of the page of an entry (`og:image`): a card of 1200 x
+// 630 in the light look of the site, drawn at build time with satori and
+// resvg (`scripts/prerender.mjs`), so a link shared on Facebook, Reddit,
+// Slack or X shows the entry, not the catalog. Satori lays out a subset of
+// CSS with flexbox only, so every box here says `display: flex`.
+
+export const SHARE_CARD_WIDTH = 1200
+export const SHARE_CARD_HEIGHT = 630
+
+// The light colors of `src/asset/index.css`
+const color = {
+  page: '#ffffff',
+  field: '#f3f8fc',
+  line: '#d3d3d3',
+  ink: '#000e16',
+  inkMuted: '#4b5560',
+  inkFaint: '#6e7072',
+  accent: '#0b7bbe',
+  native: '#1a7d11',
+  managed: '#167a84',
+  equivalent: '#8f6b00',
+  missing: '#c23621',
+  starInk: '#9a6700',
+  star: '#e3b341',
+}
+
+// The logo the card draws: a file of `public/logo/` (or of a language), read
+// by the build, or the shapes of a language logo drawn here
+export type ShareLogo =
+  | { _tag: 'File'; file: string }
+  | { _tag: 'Shapes'; viewBox: string; paths: LogoPath[] }
+
+// Its own logo, else the logo of its first language. A glyph (`logoText`,
+// an emoji) needs a font of its own, so the language stands in for it too.
+export const shareLogoOf = (framework: Framework): O.Option<ShareLogo> =>
+  framework.logo !== undefined
+    ? O.some({ _tag: 'File', file: framework.logo })
+    : pipe(
+        A.head(languagesOf(framework)),
+        O.chain(languageLogoOf),
+        O.map((logo): ShareLogo =>
+          logo._tag === 'Image'
+            ? { _tag: 'File', file: logo.file }
+            : { _tag: 'Shapes', viewBox: logo.viewBox, paths: logo.paths },
+        ),
+      )
+
+// The shapes of a language logo as an SVG document, for an `img`
+export const svgOfShapes = (viewBox: string, paths: LogoPath[]): string =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${paths
+    .map(
+      (path) =>
+        `<path d="${path.d}" fill="${path.fill}"${path.stroke !== undefined ? ` stroke="${path.stroke}" stroke-width="${path.strokeWidth ?? 1}" stroke-linecap="round" stroke-linejoin="round"` : ''}/>`,
+    )
+    .join('')}</svg>`
+
+const gradeColor = (grade: ShownGrade): string => {
+  switch (grade) {
+    case 'native':
+      return color.native
+    case 'managed':
+      return color.managed
+    case 'equivalent':
+      return color.equivalent
+    case 'missing':
+      return color.missing
+    case 'none':
+      return color.inkFaint
+  }
+}
+
+const statusColor = (status: Status): string =>
+  status === 'active'
+    ? color.native
+    : status === 'quiet'
+      ? color.equivalent
+      : color.missing
+
+// The star of the star count, in the gold of the site (the filled star of
+// Tabler Icons, MIT)
+export const STAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="${color.star}" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z"/></svg>`
+
+// A color with an alpha, as the chips of the site tint their grade
+const tint = (hex: string, alpha: number): string =>
+  `${hex}${Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, '0')}`
+
+const gradeChip = (concept: Concept, grade: ShownGrade) => (
+  <div
+    key={concept}
+    style={{
+      display: 'flex',
+      padding: '6px 16px',
+      borderRadius: 4,
+      border: `2px solid ${grade === 'none' ? color.line : tint(gradeColor(grade), 0.4)}`,
+      background: grade === 'none' ? color.field : tint(gradeColor(grade), 0.1),
+      color: gradeColor(grade),
+      fontSize: 26,
+    }}
+  >
+    {conceptLabel(concept)}
+  </div>
+)
+
+// `logoSrc`, `emblemSrc` and `starSrc` are data URLs the build reads
+export const shareCardOf = ({
+  framework,
+  logoSrc,
+  emblemSrc,
+  starSrc,
+}: {
+  framework: Framework
+  logoSrc: O.Option<string>
+  emblemSrc: string
+  starSrc: string
+}) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: SHARE_CARD_WIDTH,
+      height: SHARE_CARD_HEIGHT,
+      // The padding and the bar inside the size: satori counts them out
+      boxSizing: 'border-box',
+      padding: '56px 64px',
+      background: color.page,
+      fontFamily: 'IBM Plex Sans',
+      color: color.ink,
+      borderTop: `10px solid ${color.accent}`,
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 168,
+          height: 168,
+          flexShrink: 0,
+          border: `2px solid ${color.line}`,
+          borderRadius: 8,
+          background: color.page,
+          padding: 16,
+        }}
+      >
+        {pipe(
+          logoSrc,
+          O.fold(
+            () => null,
+            (src) => <img src={src} width={132} height={132} />,
+          ),
+        )}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', fontSize: 68, fontWeight: 500 }}>
+          {framework.name}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 20,
+            fontSize: 30,
+            color: color.inkMuted,
+          }}
+        >
+          <div style={{ display: 'flex' }}>{languageLineOf(framework)}</div>
+          <div
+            style={{
+              display: 'flex',
+              padding: '2px 14px',
+              border: `2px solid ${color.line}`,
+              borderRadius: 4,
+              fontSize: 24,
+            }}
+          >
+            {tierLabel(framework.tier)}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div
+              style={{
+                display: 'flex',
+                width: 14,
+                height: 14,
+                borderRadius: 7,
+                background: statusColor(framework.status),
+              }}
+            />
+            <div style={{ display: 'flex', fontSize: 26 }}>
+              {statusLabel(framework.status)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style={{ display: 'flex', gap: 10, marginTop: 40 }}>
+      {concepts.map((concept) =>
+        gradeChip(concept, shownGradeOf(concept, framework.rubric[concept])),
+      )}
+    </div>
+    <div
+      style={{
+        display: 'block',
+        marginTop: 28,
+        fontSize: 32,
+        lineHeight: 1.4,
+        color: color.inkMuted,
+        lineClamp: 2,
+      }}
+    >
+      {framework.summary}
+    </div>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 'auto',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <img src={emblemSrc} width={44} height={44} />
+        <div style={{ display: 'flex', fontSize: 30, fontWeight: 500 }}>
+          TEA Ecosystem
+        </div>
+        <div style={{ display: 'flex', fontSize: 26, color: color.accent }}>
+          tea.rinn7e.com
+        </div>
+      </div>
+      {framework.stars !== undefined && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            fontSize: 30,
+            fontWeight: 500,
+            color: color.starInk,
+          }}
+        >
+          <img src={starSrc} width={32} height={32} />
+          {`${starCountOf(framework.stars)} stars`}
+        </div>
+      )}
+    </div>
+  </div>
+)

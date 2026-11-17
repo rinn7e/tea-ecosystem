@@ -130,4 +130,12 @@ export default tseslint.config([
       ],
     },
   },
+  {
+    // Drawn once by the build (`scripts/prerender.mjs`), never by the dev
+    // server, so fast refresh plays no part in them
+    files: ['src/prerender.tsx', 'src/share-card.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
