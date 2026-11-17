@@ -158,7 +158,7 @@ export const App = ({
           <div
             id={PAGE_SCROLL_ID}
             tabIndex={-1}
-            className='flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-scroll overscroll-contain outline-hidden'
+            className='flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-scroll overscroll-y-contain outline-hidden'
           >
             <HeaderMemo
               active={headerSectionOf(model.screenModel)}

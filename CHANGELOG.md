@@ -4,6 +4,7 @@ What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
 ## 2026-11-17
 
+- The two-finger swipe of a trackpad goes back and forward again, as on any site.
 - Going back to a list (for example with the swipe of Safari) no longer makes its logos and the button back to the top blink.
 - A returning visitor downloads less after each update: the libraries come in files of their own, which stay in the cache of the browser while the weekly data changes.
 - A link with only a tracking tag (Facebook adds `?fbclid=...`) now shows its page at once, as a plain link does.

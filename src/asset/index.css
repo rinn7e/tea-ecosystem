@@ -235,8 +235,10 @@ html {
    * taps (and no delay waiting for a second one); a pinch still zooms */
   touch-action: manipulation;
   /* The window never scrolls (the page scrolls in its own box, `App`), so
-   * it never bounces either */
-  overscroll-behavior: none;
+   * it never bounces either. On the vertical axis only: a sideways
+   * overscroll is the swipe of a trackpad back or forward, and
+   * `overscroll-behavior-x: none` on the root turns it off. */
+  overscroll-behavior-y: none;
   background: var(--page);
 }
 
