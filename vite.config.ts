@@ -41,9 +41,13 @@ const cloudflareWebAnalytics = (): Plugin => ({
   ],
 })
 
-// A static site on GitHub Pages: `VITE_BASE_URL` is the project path there
-// (`.env.production`), and the build copies `index.html` to `404.html` so a
-// deep link opens the app too
+// A static site on GitHub Pages, served from the root of its hostname
+// (`VITE_BASE_URL` in `.env.production`). `pnpm run build` runs Vite twice:
+// once for the browser (`dist/`), and once with `--ssr` to compile the app
+// for Node (`dist-ssr/`), which `scripts/prerender.mjs` runs to write the
+// HTML of every page. So `isSsrBuild` is that build of the prerender: the
+// site has no server. `404.html`, a copy of `index.html`, is the empty page
+// for an address no page has.
 export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
