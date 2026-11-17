@@ -37,10 +37,30 @@
     <meta name="twitter:card" content="summary_large_image" />
     <!-- A link with a filter in its query opens on the HTML of the plain
          page (`scripts/prerender.mjs` renders no query): hide it, so the
-         app draws the filtered page from nothing (`src/root.tsx`) -->
+         app draws the filtered page from nothing (`src/root.tsx`). A key
+         the app does not read (a tracking tag such as `fbclid`) changes
+         nothing, so that page is hydrated. The keys are `queryKeysRead`
+         of `src/common/type/destination/parser.ts`, which a test keeps
+         the same. -->
     <script>
-      if (location.search !== '') {
-        document.documentElement.dataset.snapshot = 'stale'
+      {
+        const queryKeysRead = [
+          'tier',
+          'lacks',
+          'target',
+          'status',
+          'query',
+          'show',
+          'language',
+          'includeArchived',
+          'layout',
+          'sort',
+          'order',
+        ]
+        const query = new URLSearchParams(location.search)
+        if (queryKeysRead.some((key) => query.has(key))) {
+          document.documentElement.dataset.snapshot = 'stale'
+        }
       }
     </script>
     <style>

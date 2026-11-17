@@ -1,5 +1,6 @@
 import { fc, test } from '@fast-check/vitest'
 import * as O from 'fp-ts/Option'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { targetOptionsOf } from '@/common/data/catalog'
@@ -24,6 +25,7 @@ import {
   statusChoiceOf,
   toUrlString,
 } from '@/common/type/destination'
+import { queryKeysRead } from '@/common/type/destination/parser'
 import { targets } from '@/common/type/framework'
 
 import { listingFilterArb } from '../../../helper/arbitrary'
@@ -81,6 +83,18 @@ describe('destination URL', () => {
       expect(parse(tagged).screen).toEqual(screen)
     },
   )
+
+  it('hide the prerendered page in index.html for exactly the keys it reads', () => {
+    // `index.html` hides the HTML of a page whose query the app reads,
+    // and hydrates it for any other key (a tracking tag)
+    const html = readFileSync(
+      new URL('../../../../index.html', import.meta.url),
+      'utf8',
+    )
+    const list = /const queryKeysRead = \[([^\]]*)\]/.exec(html)?.[1] ?? ''
+    const keys = [...list.matchAll(/'([^']+)'/g)].map((match) => match[1])
+    expect([...keys].sort()).toEqual([...queryKeysRead].sort())
+  })
 
   it('spells the adjacent filter with lacks for tier', () => {
     const screen = adjacentScreen({

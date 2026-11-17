@@ -90,31 +90,39 @@ type ListingParams = {
   order?: string
 }
 
-const listingParams: t.Type<ListingParams> = t.exact(
-  t.partial({
-    tier: t.string,
-    lacks: t.string,
-    target: t.string,
-    status: t.string,
-    query: t.string,
-    show: t.string,
-    language: t.string,
-    includeArchived: t.string,
-    layout: t.string,
-    sort: t.string,
-    order: t.string,
-  }),
-)
+const listingProps = {
+  tier: t.string,
+  lacks: t.string,
+  target: t.string,
+  status: t.string,
+  query: t.string,
+  show: t.string,
+  language: t.string,
+  includeArchived: t.string,
+  layout: t.string,
+  sort: t.string,
+  order: t.string,
+}
+
+const listingParams: t.Type<ListingParams> = t.exact(t.partial(listingProps))
 
 type BuildParams = {
   language?: string
 }
 
-const buildParams: t.Type<BuildParams> = t.exact(
-  t.partial({
-    language: t.string,
-  }),
-)
+const buildProps = {
+  language: t.string,
+}
+
+const buildParams: t.Type<BuildParams> = t.exact(t.partial(buildProps))
+
+// Every key of a query a page reads. Any other key (a tracking tag such as
+// `fbclid`) changes nothing on the page, so its prerendered HTML still
+// holds it and the browser hydrates it; `index.html` keeps the same list,
+// and a test keeps the two the same.
+export const queryKeysRead: string[] = [
+  ...new Set([...Object.keys(listingProps), ...Object.keys(buildProps)]),
+]
 
 // A page that reads no query: `query` takes it all, and the exact codec
 // drops every key. `end` fails on any query left, and the links of
