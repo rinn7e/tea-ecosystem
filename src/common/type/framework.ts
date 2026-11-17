@@ -16,16 +16,6 @@ export const concepts: readonly Concept[] = [
   'ports',
 ]
 
-export const ConceptJson: t.Type<Concept> = t.keyof({
-  model: null,
-  msg: null,
-  update: null,
-  view: null,
-  cmd: null,
-  sub: null,
-  ports: null,
-})
-
 // How a framework has a concept: in the shape of TEA (`native`), run by
 // the runtime in another shape (`managed`: for subscriptions a long-running
 // source it starts and stops, for ports a handle the host sends messages
