@@ -34,7 +34,7 @@ Every framework that does The Elm Architecture (Model, Msg, update, Cmd, Sub), i
 - **TEA-adjacent**: close, but missing a hard requirement (Redux, XState, ...).
 - **Build your own TEA**: a runtime in eight steps.
 
-Why it exists: [doc/analysis.md](doc/analysis.md).
+Why it exists: [doc/analysis.md](doc/analysis.md). What changed lately: [CHANGELOG.md](CHANGELOG.md).
 
 ## Run it
 
