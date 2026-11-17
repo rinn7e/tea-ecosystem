@@ -16,9 +16,6 @@ import { emblemView } from './emblem'
 import { lastUpdated } from './header'
 import { Link } from './link'
 
-// The year of the build, for the copyright line
-const YEAR = new Date().getFullYear()
-
 // Counts of the data alone: a status plays no part
 const languageCount = new Set(storedFrameworks.flatMap(languagesOf)).size
 
@@ -45,7 +42,10 @@ const statChipView = ({ label }: { label: string }) => (
 )
 
 // It takes no props, so it is drawn once.
-const FooterComponent = () => (
+// `now`: the time of the root (`Model.now`), for the year of the copyright
+// line. In UTC, so Node, which renders the page at build time, and the
+// browser, which hydrates it, draw the same year.
+const FooterComponent = ({ now }: { now: number }) => (
   <footer className='border-line bg-panel border-t'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex w-full max-w-[1080px] flex-col gap-[32px] py-[40px]'>
@@ -154,7 +154,8 @@ const FooterComponent = () => (
 
         <div className='border-line text-ink-faint flex flex-col items-center gap-[8px] border-t pt-[24px] text-center text-xs'>
           <p>
-            © {YEAR} TEA Ecosystem, updated {lastUpdated}
+            © {new Date(now).getUTCFullYear()} TEA Ecosystem, updated{' '}
+            {lastUpdated}
           </p>
           <p className='max-w-[620px] text-balance'>
             A community catalog, not affiliated with Elm. Each framework logo

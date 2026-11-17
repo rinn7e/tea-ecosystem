@@ -53,6 +53,18 @@ describe('the pages rendered ahead of time', () => {
     )
   })
 
+  it('draw the year of the copyright line from the time of the root', () => {
+    // The text of the page, without the markers React puts between a text
+    // and a value
+    const at = (iso: string) =>
+      renderPage('/rubric', { ...boot, now: Date.parse(iso) }).html.replaceAll(
+        '<!-- -->',
+        '',
+      )
+    expect(at('2026-11-17T00:00:00Z')).toContain('© 2026 TEA Ecosystem')
+    expect(at('2030-01-02T00:00:00Z')).toContain('© 2030 TEA Ecosystem')
+  })
+
   it('render each page as itself, never as Not Found, with a title of its own', () => {
     // A path the app does not route still renders, as Not Found
     const titles = pagePaths.map((path) => renderPage(path, boot).title)

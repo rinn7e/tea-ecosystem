@@ -179,7 +179,7 @@ export const App = ({
                 {screenView({ model, dispatch })}
               </div>
             </main>
-            <FooterMemo />
+            <FooterMemo now={model.now} />
           </div>
           <BottomNavMemo active={headerSectionOf(model.screenModel)} />
           {backToTopView({
