@@ -1,5 +1,6 @@
 import * as RD from '@devexperts/remote-data-ts'
 import { resultToRd } from '@rinn7e/tea-cup-prelude'
+import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
 import { Cmd } from 'tea-cup-fp'
 
@@ -30,10 +31,13 @@ import { bootDestinationOf } from '@/util'
 // The data is bundled, so the app opens its first screen at once, at the
 // width of the window and the time (read in `program.tsx`), which gives
 // each entry its status
+// `bakedStars`: the star count of the repository the build read, shown
+// until the live one arrives
 export const init = (
   location: Pick<Location, 'href'>,
   windowWidth: number,
   now: number,
+  bakedStars: O.Option<number> = O.none,
 ): [Model, Cmd<Msg>] => {
   const entries = entriesAt(now)
   const model: Model = {
@@ -52,7 +56,13 @@ export const init = (
     scroll: { seq: 0, top: 0 },
     windowWidth,
     now,
-    repoStars: RD.pending,
+    repoStars: pipe(
+      bakedStars,
+      O.match(
+        (): RD.RemoteData<string, number> => RD.pending,
+        (stars) => RD.success(stars),
+      ),
+    ),
   }
   return [
     model,
@@ -88,6 +98,7 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
     // nothing draws nothing new
     case 'SetNow':
       return [{ ...model, now: msg.value }, Cmd.none()]
+    // A refused refresh keeps a count already shown (the one of the build)
     case 'GotRepoStars':
       return [
         {
@@ -95,6 +106,10 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
           repoStars: pipe(
             resultToRd(msg.result),
             RD.mapLeft((error: Error) => error.message),
+            (live) =>
+              RD.isFailure(live) && RD.isSuccess(model.repoStars)
+                ? model.repoStars
+                : live,
           ),
         },
         Cmd.none(),

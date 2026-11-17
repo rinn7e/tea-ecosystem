@@ -16,10 +16,14 @@ const scriptTextOf = (script: string): string =>
 
 describe('bootOf', () => {
   test.prop([
-    fc.record({
-      now: fc.integer({ min: 0, max: 4_102_444_800_000 }),
-      windowWidth: fc.integer({ min: 0, max: 4000 }),
-    }),
+    fc.record(
+      {
+        now: fc.integer({ min: 0, max: 4_102_444_800_000 }),
+        windowWidth: fc.integer({ min: 0, max: 4000 }),
+        repoStars: fc.nat(),
+      },
+      { requiredKeys: ['now', 'windowWidth'] },
+    ),
   ])('reads back the values a prerendered page was written with', (boot) => {
     expect(
       bootOf(documentWith(BOOT_ELEMENT_ID, scriptTextOf(bootScriptOf(boot)))),

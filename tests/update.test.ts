@@ -15,6 +15,7 @@ import {
 } from '@/common/type/destination'
 import { targets } from '@/common/type/framework'
 import { type Model } from '@/type'
+import { init } from '@/update'
 import { catalogDestinationOf, destinationOf } from '@/util'
 
 import { bootOn, navigate, step } from './helper/app'
@@ -136,6 +137,20 @@ describe('the star count of the repository', () => {
       result: err(new Error('GitHub answered 403')),
     })
     expect(failed.repoStars).toEqual(RD.failure('GitHub answered 403'))
+  })
+
+  it('shows the count of the build from the start, and keeps it when GitHub refuses', () => {
+    const [baked] = init({ href: 'http://localhost/' }, 1280, 0, O.some(10))
+    expect(baked.repoStars).toEqual(RD.success(10))
+    expect(
+      step(baked, {
+        _tag: 'GotRepoStars',
+        result: err(new Error('GitHub answered 403')),
+      }).repoStars,
+    ).toEqual(RD.success(10))
+    expect(
+      step(baked, { _tag: 'GotRepoStars', result: ok(12) }).repoStars,
+    ).toEqual(RD.success(12))
   })
 
   it('keeps the count across a move', () => {

@@ -7,13 +7,18 @@ import * as t from 'io-ts'
 // time (`src/prerender.tsx`), written into its HTML. The first render in
 // the browser takes them too, so it draws the very page the HTML holds and
 // React hydrates it instead of drawing it again; the real time and width
-// follow right after (`liveValuesCmd` in `src/program.tsx`).
-export type Boot = { now: number; windowWidth: number }
+// follow right after (`liveValuesCmd` in `src/program.tsx`). The star count
+// of the repository, when the build could read it, so the bar shows it
+// from the first paint.
+export type Boot = { now: number; windowWidth: number; repoStars?: number }
 
-export const BootJson: t.Type<Boot> = t.type({
-  now: t.number,
-  windowWidth: t.number,
-})
+export const BootJson: t.Type<Boot> = t.intersection([
+  t.type({
+    now: t.number,
+    windowWidth: t.number,
+  }),
+  t.partial({ repoStars: t.number }),
+])
 
 export const BOOT_ELEMENT_ID = 'boot'
 

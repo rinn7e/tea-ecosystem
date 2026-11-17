@@ -25,6 +25,7 @@ import { type Model } from './type'
 import { init } from './update'
 
 export { bootScriptOf } from '@/common/util/boot'
+export { starsOfJson } from '@/common/util/repo-stars'
 export {
   SHARE_CARD_HEIGHT,
   SHARE_CARD_WIDTH,
@@ -99,6 +100,7 @@ export const renderPage = (path: string, boot: Boot): RenderedPage => {
     { href: `${SITE_URL}${path}` },
     boot.windowWidth,
     boot.now,
+    O.fromNullable(boot.repoStars),
   )
   return {
     html: renderToString(

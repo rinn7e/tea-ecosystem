@@ -47,6 +47,12 @@ describe('the pages rendered ahead of time', () => {
     )
   })
 
+  it('draw the star count the build read in the bar', () => {
+    expect(renderPage('/', { ...boot, repoStars: 1234 }).html).toContain(
+      '1.2k stars',
+    )
+  })
+
   it('render each page as itself, never as Not Found, with a title of its own', () => {
     // A path the app does not route still renders, as Not Found
     const titles = pagePaths.map((path) => renderPage(path, boot).title)

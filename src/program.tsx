@@ -40,7 +40,12 @@ const bootInit = (location: Location): [Model, Cmd<Msg>] =>
     O.fold(
       () => init(location, windowWidthOf(), Date.now()),
       (boot) => {
-        const [model, cmd] = init(location, boot.windowWidth, boot.now)
+        const [model, cmd] = init(
+          location,
+          boot.windowWidth,
+          boot.now,
+          O.fromNullable(boot.repoStars),
+        )
         return [model, Cmd.batch([cmd, liveValuesCmd])]
       },
     ),
@@ -58,6 +63,7 @@ export const AppProgram = () => (
     update={appUpdate}
     view={appView}
     subscriptions={subscriptions}
-    {...devTools<Model, Msg>().getProgramProps()}
+    // The log of every message, on the dev server only
+    {...(import.meta.env.DEV ? devTools<Model, Msg>().getProgramProps() : {})}
   />
 )

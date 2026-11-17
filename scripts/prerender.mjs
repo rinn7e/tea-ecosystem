@@ -30,15 +30,45 @@ import {
   shareLogoOf,
   sharedEntriesAt,
   sitePages,
+  starsOfJson,
   svgOfShapes,
 } from '../dist-ssr/prerender.js'
 
 const DIST = 'dist'
 
+// The star count of the repository, read once for every page, so the bar
+// shows it from the first paint and a visit asks GitHub for it at most once
+// an hour (`repoStarsCmd`). With the token of the workflow when there is
+// one, past the limit of 60 requests an hour per address; none when GitHub
+// does not answer, and the bar then waits for the live count.
+const REPO_API = 'https://api.github.com/repos/rinn7e/tea-ecosystem'
+const USER_AGENT =
+  'tea-ecosystem-prerender (+https://github.com/rinn7e/tea-ecosystem)'
+
+const repoStars = await fetch(REPO_API, {
+  headers: {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': USER_AGENT,
+    ...(process.env.GITHUB_TOKEN === undefined
+      ? {}
+      : { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }),
+  },
+})
+  .then((response) => (response.ok ? response.json() : null))
+  .then((json) => {
+    const stars = starsOfJson(json)
+    return stars._tag === 'Right' ? stars.right : undefined
+  })
+  .catch(() => undefined)
+
 // The width of a phone: most visitors come on one. The language logos fall
 // into the same rows on a phone, a tablet and a desktop, so the page a
 // wider screen hydrates is the same.
-const boot = { now: Date.now(), windowWidth: 390 }
+const boot = {
+  now: Date.now(),
+  windowWidth: 390,
+  ...(repoStars === undefined ? {} : { repoStars }),
+}
 
 const escapeHtml = (text) =>
   text
@@ -213,5 +243,5 @@ writeFileSync(
 )
 
 console.log(
-  `prerender: ${pagePaths.length} pages, ${entries.length + sitePages.length} share cards`,
+  `prerender: ${pagePaths.length} pages, ${entries.length + sitePages.length} share cards, ${repoStars ?? 'no'} stars`,
 )
