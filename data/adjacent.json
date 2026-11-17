@@ -8,7 +8,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/reduxjs/redux",
     "website": "https://redux.js.org",
-    "logo": "redux.png",
+    "logo": "redux.webp",
     "summary": "The reducer returns only state; effects run in middleware (thunks, sagas) outside it.",
     "snippetSource": "https://github.com/reduxjs/redux/blob/master/README.md",
     "rubric": {
@@ -105,7 +105,7 @@
     "targets": ["web", "server"],
     "tier": "adjacent",
     "repo": "https://github.com/Python-Ninja-Hebi/python-fastTEA",
-    "logo": "fasttea.png",
+    "logo": "fasttea.webp",
     "summary": "update returns the model with commands, on a FastAPI backend, but there are no subscriptions.",
     "snippetSource": "https://github.com/Python-Ninja-Hebi/python-fastTEA/blob/master/hello.py",
     "rubric": {
@@ -137,7 +137,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/ngrx/platform",
     "website": "https://ngrx.io",
-    "logo": "ngrx.png",
+    "logo": "ngrx.webp",
     "summary": "Effects are Observables that watch actions from outside; the reducer returns no effects.",
     "snippetSource": "https://github.com/ngrx/platform/tree/main/projects/www/src/app/examples/store/src",
     "rubric": {
@@ -203,7 +203,7 @@
     "targets": ["web"],
     "tier": "adjacent",
     "repo": "https://github.com/pmndrs/zustand",
-    "logo": "zustand.png",
+    "logo": "zustand.webp",
     "summary": "A store with setters; no message type and no effect values.",
     "snippetSource": "https://github.com/pmndrs/zustand/blob/main/README.md",
     "rubric": {
@@ -235,7 +235,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/mobxjs/mobx",
     "website": "https://mobx.js.org",
-    "logo": "mobx.png",
+    "logo": "mobx.webp",
     "summary": "Observable mutable state; the opposite model.",
     "snippetSource": "https://github.com/mobxjs/mobx/blob/main/README.md",
     "rubric": {
@@ -329,7 +329,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/cyclejs/cyclejs",
     "website": "https://cycle.js.org",
-    "logo": "cycle-js.png",
+    "logo": "cycle-js.webp",
     "summary": "Model-View-Intent over streams: intents and reducers in place of messages and update, with drivers for effects.",
     "snippetSource": "https://github.com/cyclejs/cyclejs/blob/master/examples/basic/counter/src/main.js",
     "rubric": {
@@ -430,7 +430,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/yewstack/yew",
     "website": "https://yew.rs",
-    "logo": "yew.png",
+    "logo": "yew.webp",
     "logoOnLight": true,
     "summary": "Components with messages, but update runs effects through the component link.",
     "snippetSource": "https://github.com/yewstack/yew/blob/master/examples/counter/src/main.rs",
@@ -497,7 +497,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/ratatui/ratatui",
     "website": "https://ratatui.rs",
-    "logo": "ratatui.png",
+    "logo": "ratatui.webp",
     "summary": "Immediate mode: the app owns its loop. Its docs describe TEA as a pattern, and several entries of the catalog build it on top.",
     "snippetSource": "https://github.com/ratatui/ratatui/blob/main/README.md",
     "rubric": {
@@ -591,7 +591,7 @@
     "targets": ["web"],
     "tier": "adjacent",
     "repo": "https://github.com/janestreet/bonsai",
-    "logo": "bonsai.png",
+    "logo": "bonsai.webp",
     "summary": "Incremental state machines by Jane Street; actions schedule effects imperatively.",
     "snippetSource": "https://github.com/janestreet/bonsai/blob/master/README.md",
     "rubric": {
@@ -624,7 +624,7 @@
     "tier": "adjacent",
     "repo": "https://github.com/felangel/bloc",
     "website": "https://bloclibrary.dev",
-    "logo": "bloc.png",
+    "logo": "bloc.webp",
     "logoOnLight": true,
     "summary": "Event handlers emit states and run effects inside the bloc.",
     "snippetSource": "https://github.com/felangel/bloc/blob/master/packages/bloc/example/main.dart",
@@ -657,7 +657,7 @@
     "targets": ["mobile"],
     "tier": "adjacent",
     "repo": "https://github.com/arkivanov/MVIKotlin",
-    "logo": "mvikotlin.png",
+    "logo": "mvikotlin.webp",
     "summary": "A pure reducer with effects in an executor beside it, not returned from it.",
     "snippetSource": "https://github.com/arkivanov/MVIKotlin/blob/master/docs/store.md",
     "rubric": {
@@ -785,7 +785,7 @@
     "targets": ["mobile"],
     "tier": "adjacent",
     "repo": "https://github.com/ReactorKit/ReactorKit",
-    "logo": "reactorkit.png",
+    "logo": "reactorkit.webp",
     "summary": "mutate returns streams of mutations, close to Cmd, but effects and reduce are split by stream.",
     "snippetSource": "https://github.com/ReactorKit/ReactorKit/blob/main/README.md",
     "rubric": {
@@ -1063,7 +1063,7 @@
     "targets": ["tui"],
     "tier": "adjacent",
     "repo": "https://github.com/leostera/minttea",
-    "logo": "minttea.png",
+    "logo": "minttea.webp",
     "summary": "A terminal UI framework for OCaml on the Riot runtime, inspired by Bubble Tea, whose commands only drive the terminal and a timer.",
     "snippetSource": "https://github.com/leostera/minttea/blob/main/examples/counter/main.ml",
     "rubric": {
@@ -1095,7 +1095,7 @@
     "targets": ["desktop"],
     "tier": "adjacent",
     "repo": "https://github.com/Relm4/Relm4",
-    "logo": "relm4.png",
+    "logo": "relm4.webp",
     "logoOnLight": true,
     "summary": "An idiomatic GUI library for Rust on GTK4, inspired by Elm, with components and workers; update starts its commands itself instead of returning them.",
     "snippetSource": "https://github.com/Relm4/Relm4/blob/main/examples/simple.rs",
@@ -1131,7 +1131,7 @@
     "status": "archived",
     "unmaintainedNotice": "https://github.com/seed-rs/seed#whats-next-for-seed",
     "repo": "https://github.com/seed-rs/seed",
-    "logo": "seed.png",
+    "logo": "seed.webp",
     "summary": "A Rust frontend framework whose apps mimic the structure of The Elm Architecture, but whose update starts its effects through orders instead of returning them.",
     "snippetSource": "https://github.com/seed-rs/seed/blob/master/examples/counter/src/lib.rs",
     "rubric": {
@@ -1195,7 +1195,7 @@
     "targets": ["web"],
     "tier": "adjacent",
     "repo": "https://github.com/purescript-halogen/purescript-halogen",
-    "logo": "halogen.png",
+    "logo": "halogen.webp",
     "summary": "A component framework for PureScript: as powerful as TEA, with components, queries and slots, but not shaped like it.",
     "snippetSource": "https://github.com/purescript-halogen/purescript-halogen/blob/master/examples/basic/src/Button.purs",
     "rubric": {

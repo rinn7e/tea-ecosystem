@@ -2,7 +2,7 @@ import { fc, test } from '@fast-check/vitest'
 import * as A from 'fp-ts/Array'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync, statSync } from 'node:fs'
 import { isDeepStrictEqual } from 'node:util'
 import { describe, expect, it } from 'vitest'
 
@@ -141,6 +141,20 @@ describe('data files', () => {
         !existsSync(new URL(`../../../public/logo/${f.logo}`, import.meta.url)),
     )
     expect(missing.map((f) => f.id)).toEqual([])
+  })
+
+  it('keep every logo small: an SVG, or a WebP of at most 20 KB', () => {
+    // A tile is at most 72 px, so a logo of 144 px is sharp on every
+    // screen; a big PNG once made the first page fetch 1 MB of logos
+    const dir = new URL('../../../public/logo/', import.meta.url)
+    const wrong = readdirSync(dir).filter(
+      (file) =>
+        !file.endsWith('.svg') &&
+        !(
+          file.endsWith('.webp') && statSync(new URL(file, dir)).size <= 20_480
+        ),
+    )
+    expect(wrong).toEqual([])
   })
 
   it('mark a logo as drawn for a light page only when there is a logo', () => {

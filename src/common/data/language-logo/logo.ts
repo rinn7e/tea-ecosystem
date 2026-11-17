@@ -128,7 +128,7 @@ const javaLogo: LanguageLogo = {
 // as a monogram instead.
 const logos: Record<string, LanguageLogo> = {
   Elm: logoOf(siElm),
-  Gren: { _tag: 'Image', title: 'Gren', file: 'gren.png' },
+  Gren: { _tag: 'Image', title: 'Gren', file: 'gren.webp' },
   Monad: { _tag: 'Image', title: 'Monad', file: 'monad.svg' },
   Haskell: logoOf(siHaskell),
   PureScript: logoOf(siPurescript),

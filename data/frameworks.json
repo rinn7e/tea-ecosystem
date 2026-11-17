@@ -38,7 +38,7 @@
     "tier": "full",
     "repo": "https://github.com/gren-lang/compiler",
     "website": "https://gren-lang.org",
-    "logo": "gren.png",
+    "logo": "gren.webp",
     "summary": "A fork of Elm with its own package set, which also runs on Node for command line tools and servers.",
     "snippetSource": "https://github.com/gren-lang/example-projects/blob/main/counter/src/Main.gren",
     "rubric": {
@@ -70,7 +70,7 @@
     "tier": "superset",
     "repo": "https://github.com/lamdera/compiler",
     "website": "https://lamdera.com",
-    "logo": "lamdera.png",
+    "logo": "lamdera.webp",
     "summary": "Elm on both sides: a second TEA loop runs on the server, with typed messages between frontend and backend.",
     "snippetSource": "https://github.com/lamdera/example-apps/blob/master/counter/src/Frontend.elm",
     "rubric": {
@@ -102,7 +102,7 @@
     "tier": "superset",
     "repo": "https://github.com/dmjio/miso",
     "website": "https://haskell-miso.org",
-    "logo": "miso.png",
+    "logo": "miso.webp",
     "logoPadding": "medium",
     "summary": "A Haskell front-end framework with the Elm shape, plus components, server-side rendering and hydration.",
     "snippetSource": "https://github.com/dmjio/miso/blob/master/README.md",
@@ -323,7 +323,7 @@
     "targets": ["web"],
     "tier": "full",
     "repo": "https://github.com/elmish/elmish",
-    "logo": "elmish.png",
+    "logo": "elmish.webp",
     "summary": "The Elm Architecture for F#, compiled to JavaScript by Fable; the base of a large family of F# frameworks.",
     "snippetSource": "https://github.com/elmish/elmish/blob/v5.x/docs/docs/basics.fsx",
     "rubric": {
@@ -355,7 +355,7 @@
     "targets": ["web", "ssr"],
     "tier": "superset",
     "repo": "https://github.com/fsbolero/Bolero",
-    "logo": "bolero.png",
+    "logo": "bolero.webp",
     "summary": "Elmish on Blazor: F# web apps in WebAssembly.",
     "snippetSource": "https://github.com/fsbolero/website/blob/master/src/Website/docs/Elmish.md",
     "rubric": {
@@ -387,7 +387,7 @@
     "targets": ["desktop"],
     "tier": "full",
     "repo": "https://github.com/elmish/Elmish.WPF",
-    "logo": "elmish-wpf.png",
+    "logo": "elmish-wpf.webp",
     "summary": "Elmish for Windows desktop apps, with the view in WPF XAML bound to the model.",
     "snippetSource": "https://github.com/elmish/Elmish.WPF/blob/master/src/Samples/SingleCounter.Core/Program.fs",
     "rubric": {
@@ -418,7 +418,7 @@
     "targets": ["mobile", "desktop"],
     "tier": "superset",
     "repo": "https://github.com/fabulous-dev/Fabulous",
-    "logo": "fabulous.png",
+    "logo": "fabulous.webp",
     "summary": "Declarative native mobile and desktop apps in F#, on .NET MAUI and Avalonia.",
     "snippetSource": "https://github.com/fabulous-dev/Fabulous/blob/main/README.md",
     "rubric": {
@@ -450,7 +450,7 @@
     "targets": ["desktop"],
     "tier": "superset",
     "repo": "https://github.com/fsprojects/Avalonia.FuncUI",
-    "logo": "funcui.png",
+    "logo": "funcui.webp",
     "summary": "Cross-platform desktop apps in F# on Avalonia, with an Elmish integration and its own component model.",
     "snippetSource": "https://github.com/fsprojects/Avalonia.FuncUI/blob/master/README.md",
     "rubric": {
@@ -576,7 +576,7 @@
     "targets": ["web", "ssr", "server"],
     "tier": "superset",
     "repo": "https://github.com/lustre-labs/lustre",
-    "logo": "lustre.png",
+    "logo": "lustre.webp",
     "summary": "The Elm Architecture in Gleam, in the browser and on the server, with universal components.",
     "snippetSource": "https://github.com/lustre-labs/lustre/blob/main/README.md",
     "rubric": {
@@ -735,7 +735,7 @@
     "website": "https://tyrian.indigoengine.io",
     "source": "https://github.com/PurpleKingdomGames/indigoengine/tree/main/tyrian",
     "originRepo": "https://github.com/PurpleKingdomGames/tyrian",
-    "logo": "tyrian.png",
+    "logo": "tyrian.webp",
     "summary": "An Elm-inspired UI library for Scala 3 and Scala.js, by the makers of the Indigo game engine.",
     "snippetSource": "https://github.com/PurpleKingdomGames/indigoengine/blob/main/tyrian-sandboxes/sandbox-io/src-js/example/Counter.scala",
     "rubric": {
@@ -870,7 +870,7 @@
     "tier": "superset",
     "repo": "https://github.com/foldkit/foldkit",
     "website": "https://foldkit.dev",
-    "logo": "foldkit.png",
+    "logo": "foldkit.webp",
     "summary": "A TypeScript frontend framework built on Effect: one Model, one update, and side effects as values the runtime runs.",
     "snippetSource": "https://github.com/foldkit/foldkit/blob/main/README.md",
     "rubric": {
@@ -966,7 +966,7 @@
     "targets": ["web"],
     "tier": "full",
     "repo": "https://github.com/typescript-tea/core",
-    "logo": "typescript-tea.png",
+    "logo": "typescript-tea.webp",
     "summary": "A framework-agnostic TEA core for TypeScript, with effects as data and the view left to React or another library.",
     "snippetSource": "https://github.com/typescript-tea/core/blob/master/README.md",
     "rubric": {
@@ -1029,7 +1029,7 @@
     "targets": ["web"],
     "tier": "full",
     "repo": "https://github.com/hyperapp/hyperapp",
-    "logo": "hyperapp.png",
+    "logo": "hyperapp.webp",
     "summary": "A tiny JavaScript framework whose actions return new state with effects, and whose subscriptions are a function of the state.",
     "snippetSource": "https://github.com/hyperapp/hyperapp/blob/main/README.md",
     "rubric": {
@@ -1061,7 +1061,7 @@
     "targets": ["web", "server"],
     "tier": "full",
     "repo": "https://github.com/ferp-js/ferp",
-    "logo": "ferp.png",
+    "logo": "ferp.webp",
     "summary": "Elm-style state, effects and subscriptions for JavaScript, in the browser or in Node.",
     "snippetSource": "https://github.com/ferp-js/ferp/blob/master/README.md",
     "rubric": {
@@ -1093,7 +1093,7 @@
     "targets": ["desktop", "web"],
     "tier": "full",
     "repo": "https://github.com/iced-rs/iced",
-    "logo": "iced.png",
+    "logo": "iced.webp",
     "summary": "A cross-platform, renderer-agnostic GUI library for Rust, inspired by Elm.",
     "snippetSource": "https://github.com/iced-rs/iced/blob/master/examples/counter/src/main.rs",
     "rubric": {
@@ -1154,7 +1154,7 @@
     "targets": ["web", "ssr"],
     "tier": "superset",
     "repo": "https://github.com/ivanceras/sauron",
-    "logo": "sauron.png",
+    "logo": "sauron.webp",
     "summary": "A Rust web framework heavily inspired by Elm, with the view built from plain function calls.",
     "snippetSource": "https://github.com/ivanceras/sauron/blob/master/examples/counter/src/lib.rs",
     "rubric": {
@@ -1314,7 +1314,7 @@
     "targets": ["tui"],
     "tier": "full",
     "repo": "https://github.com/charmbracelet/bubbletea",
-    "logo": "bubbletea.png",
+    "logo": "bubbletea.webp",
     "summary": "The Elm Architecture for terminal apps in Go, with the largest TUI ecosystem around it.",
     "snippetSource": "https://github.com/charmbracelet/bubbletea/blob/main/examples/simple/main.go",
     "rubric": {
@@ -1499,7 +1499,7 @@
     "targets": ["mobile"],
     "tier": "full",
     "repo": "https://github.com/Xlopec/Tea-bag",
-    "logo": "tea-bag.png",
+    "logo": "tea-bag.webp",
     "summary": "A TEA implementation for Kotlin built on coroutines.",
     "snippetSource": "https://github.com/Xlopec/Tea-bag/blob/master/README.md",
     "rubric": {
@@ -1784,7 +1784,7 @@
     "targets": ["tui"],
     "tier": "full",
     "repo": "https://github.com/fern-tui/fern-core",
-    "logo": "fern.png",
+    "logo": "fern.webp",
     "summary": "A TUI framework for Zig with an init, update, view loop, spring animation and a mouse zone manager.",
     "snippetSource": "https://github.com/fern-tui/fern-core/blob/main/examples/00_minimal/main.zig",
     "rubric": {
@@ -1816,7 +1816,7 @@
     "tier": "superset",
     "repo": "https://github.com/anzellai/sky",
     "website": "https://sky-lang.org",
-    "logo": "sky.png",
+    "logo": "sky.webp",
     "summary": "An Elm-syntax language that compiles to Go, where init, update, view and subscriptions run as a server-driven web app, a wasm client, a terminal UI or a native app.",
     "snippetSource": "https://github.com/anzellai/sky/blob/main/examples/09-live-counter/src/Main.sky",
     "rubric": {
@@ -1848,7 +1848,7 @@
     "targets": ["web", "ssr", "server", "desktop"],
     "tier": "superset",
     "repo": "https://github.com/Picea/Abies",
-    "logo": "abies.png",
+    "logo": "abies.webp",
     "summary": "Model-View-Update for .NET that renders the same program as static HTML, over a server WebSocket, in WebAssembly or on WinUI 3 controls.",
     "snippetSource": "https://github.com/Picea/Abies/blob/main/README.md",
     "rubric": {
@@ -1880,7 +1880,7 @@
     "tier": "full",
     "repo": "https://github.com/setdef/Rooibos",
     "website": "https://www.rooibos.run/",
-    "logo": "rooibos.png",
+    "logo": "rooibos.webp",
     "logoOnLight": true,
     "summary": "The Elm Architecture for terminal apps in Ruby, built on RatatuiRuby.",
     "snippetSource": "https://github.com/setdef/Rooibos/blob/stable/README.md",
@@ -2219,7 +2219,7 @@
     "tier": "full",
     "repo": "https://github.com/Vorkytaka/puer",
     "website": "https://pub.dev/packages/puer",
-    "logo": "puer.png",
+    "logo": "puer.webp",
     "summary": "TEA for Dart and Flutter: a pure update returns the new state and a list of effect values for handlers to run.",
     "snippetSource": "https://github.com/Vorkytaka/puer/blob/master/README.md",
     "rubric": {
@@ -2403,7 +2403,7 @@
     "targets": ["tui"],
     "tier": "full",
     "repo": "https://github.com/holepunchto/bare-tui",
-    "logo": "bare-tui.png",
+    "logo": "bare-tui.webp",
     "summary": "A small TUI framework for the Bare runtime, shaped after Bubble Tea, with its own components and styling helper.",
     "snippetSource": "https://github.com/holepunchto/bare-tui/blob/main/README.md",
     "rubric": {
@@ -2434,7 +2434,7 @@
     "targets": ["tui"],
     "tier": "full",
     "repo": "https://github.com/yum-tty/cinnamon-bun",
-    "logo": "cinnamon-bun.png",
+    "logo": "cinnamon-bun.webp",
     "summary": "A TypeScript port of Bubble Tea for Bun, with the model as plain functions init, update and view.",
     "snippetSource": "https://github.com/yum-tty/cinnamon-bun/blob/main/README.md",
     "rubric": {
@@ -2465,7 +2465,7 @@
     "targets": ["tui"],
     "tier": "full",
     "repo": "https://github.com/jjabez/caibao",
-    "logo": "caibao.png",
+    "logo": "caibao.webp",
     "summary": "A Bubble Tea inspired TUI framework for Bun, with components and a Lip Gloss style styling system.",
     "snippetSource": "https://github.com/jjabez/caibao/blob/main/README.md",
     "rubric": {
@@ -2526,7 +2526,7 @@
     "targets": ["tui"],
     "tier": "full",
     "repo": "https://github.com/phoenix-tui/phoenix",
-    "logo": "phoenix-tui.png",
+    "logo": "phoenix-tui.webp",
     "summary": "A modular TUI framework for Go with a Bubble Tea style Elm Architecture package, its own components, styling and layout.",
     "snippetSource": "https://github.com/phoenix-tui/phoenix/blob/main/README.md",
     "rubric": {
@@ -2933,7 +2933,7 @@
     "targets": ["web"],
     "tier": "full",
     "repo": "https://github.com/redux-loop/redux-loop",
-    "logo": "redux-loop.png",
+    "logo": "redux-loop.webp",
     "logoOnLight": true,
     "summary": "Brings Cmd to Redux: the reducer returns a loop of state and command, and Cmd.setInterval gives a cancellable timer; the view comes from React-Redux.",
     "snippetSource": "https://github.com/redux-loop/redux-loop/blob/master/docs/tutorial/Tutorial.md",
@@ -2966,7 +2966,7 @@
     "targets": ["web"],
     "tier": "full",
     "repo": "https://github.com/day8/re-frame",
-    "logo": "re-frame.png",
+    "logo": "re-frame.webp",
     "logoOnLight": true,
     "summary": "Events, pure handlers and effects as data in ClojureScript, designed in 2014 before the Elm Architecture; its subscriptions are derived queries over app-db.",
     "snippetSource": "https://github.com/day8/re-frame/blob/master/examples/simple/src/simple/core.cljs",
