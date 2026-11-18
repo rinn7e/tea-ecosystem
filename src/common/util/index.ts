@@ -1,4 +1,5 @@
 export * from './browser-history'
+export * from './browser'
 export * from './date'
 export * from './number'
 export * from './page-scroll'

@@ -1,7 +1,7 @@
 import { cmdSucceed } from '@rinn7e/tea-cup-prelude'
 import { Cmd } from 'tea-cup-fp'
 
-import { scrollPageTo } from '@/common/util'
+import { isMacSafari, scrollPageTo } from '@/common/util'
 
 import { type Model, type Msg } from './type'
 
@@ -17,11 +17,14 @@ export const placedAt = (top: number): Model => ({
   glides: false,
 })
 
+// Safari on a Mac left the page blank while it glided up (it drew only
+// the rows at the bottom of the screen), so there the page jumps
 const scrollToTopCmd = (): Cmd<Msg> =>
   cmdSucceed(() => {
     scrollPageTo(
       0,
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        isMacSafari(navigator.userAgent, navigator.maxTouchPoints)
         ? 'auto'
         : 'smooth',
     )

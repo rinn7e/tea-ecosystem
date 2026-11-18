@@ -2,6 +2,10 @@
 
 What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
+## 2026-11-18
+
+- In Safari on a Mac, the button back to the top jumps to the top instead of gliding there: the glide left the page blank on the way up.
+
 ## 2026-11-17
 
 - The two-finger swipe of a trackpad goes back and forward again, as on any site.
