@@ -20,6 +20,7 @@ The rules of this app. They follow the code convention of the realworld `fronten
 - [Views](#views)
 - [Styling](#styling)
 - [Tests](#tests)
+- [The privacy page](#the-privacy-page)
 
 ## Architecture
 
@@ -204,3 +205,15 @@ Code says what it does by itself; a comment says only what the code cannot. A co
 - A failing property prints its seed and the smallest value that breaks it (fast-check shrinks it): run it again with that seed (`test.prop([...], { seed })`) to debug it, then fix the code, never the seed.
 - Check that a property catches what it is for: break the code it guards for a moment and see the suite fail on several runs (the values are random, so one run proves little).
 - Before calling a change done: `pnpm run check`, `lint`, `format:check` and `test`, then check the change in a browser (both color schemes, and 375 px wide with no horizontal scroll).
+
+## The privacy page
+
+The privacy page (`/privacy`, `src/screen/privacy-screen/component.tsx`) lists every party that sees a visit and everything the site keeps in the browser. It is only true while it matches the code and the hosting, so it changes with them.
+
+- A change that adds or removes one of these updates the page in the same commit:
+  1. A request from the browser to another host: a `fetch`, a script, a stylesheet, a font or an image from a CDN, an embed (a video, a comment widget, a map).
+  2. Something kept in the browser: a cookie, `localStorage`, `sessionStorage`, IndexedDB, a cache.
+  3. A new analytics or monitoring tool, also one turned on outside the code, in the Cloudflare dashboard (Zaraz, a second analytics product, a change of what Web Analytics collects).
+  4. A move to another host than Cloudflare.
+- Today the list is: Cloudflare (hosting and Web Analytics), the GitHub API (the star count, `src/common/util/repo-stars.ts`), and one value in `localStorage` (the cached star count, from the same file).
+- `tests/screen/privacy-screen/disclosure.test.ts` fails when a file of `src/` or `index.html` starts making requests, keeping data in the browser or loading an asset from another host and is not in its list. Fix it by updating the page first, then adding the file to the list of the test. The test cannot see the dashboard (item 3) or the hosting (item 4): those stay a rule for review.

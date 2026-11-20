@@ -34,9 +34,9 @@ const externalLinkView = ({ href, label }: { href: string; label: string }) => (
   </a>
 )
 
-// Every request the site makes and everything it keeps: keep it in step
-// with the code (`src/common/util/repo-stars.ts` is the one call to
-// another host and the one value kept in the browser)
+// Every party that sees a visit and everything the site keeps in the
+// browser. It changes in the same commit as the code or the hosting:
+// see "The privacy page" in `doc/code-convention.md`.
 const PrivacyComponent = (_props: Props) => (
   <div className='flex flex-col gap-[32px]'>
     <section className='flex flex-col items-center gap-[12px] text-center'>
