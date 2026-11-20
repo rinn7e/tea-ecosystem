@@ -51,17 +51,18 @@ const FooterComponent = ({ now }: { now: number }) => (
     <div className='flex justify-center px-[16px]'>
       <div className='flex w-full max-w-[1080px] flex-col gap-[32px] py-[40px]'>
         <div className='grid gap-[32px] lg:grid-cols-2 lg:gap-[64px]'>
-          <div className='flex flex-col gap-[12px]'>
+          {/* Centred on a phone; on a desktop it hugs the centre line from the left */}
+          <div className='flex flex-col items-center gap-[12px] text-center lg:items-end lg:text-right'>
             <span className='text-ink flex items-center gap-[10px]'>
               {emblemView({ size: 24 })}
               <span className='text-lg'>TEA Ecosystem</span>
             </span>
-            <p className='text-ink-muted max-w-[420px] text-sm'>
+            <p className='text-ink-muted max-w-[420px] text-sm text-balance'>
               Every language and framework that implements The Elm Architecture,
               graded part by part against Elm, so you can see what each
               ecosystem has and what it could bring back.
             </p>
-            <div className='flex flex-wrap gap-[6px]'>
+            <div className='flex flex-wrap justify-center gap-[6px] lg:justify-end'>
               {statChipView({ label: `${storedFrameworks.length} entries` })}
               {statChipView({ label: `${languageCount} languages` })}
               {statChipView({
