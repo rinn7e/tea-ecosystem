@@ -24,6 +24,10 @@ const footerHeadingView = ({ title }: { title: string }) => (
   <h2 className='text-ink text-xs tracking-wider uppercase'>{title}</h2>
 )
 
+// Centred while the footer is stacked, left-aligned in the desktop columns
+const footerColumnClass =
+  'flex flex-col items-center gap-[12px] text-center lg:items-start lg:text-left'
+
 const footerLinkClass =
   'text-ink-muted hover:text-accent inline-flex items-center gap-[4px] text-sm whitespace-nowrap transition-colors'
 
@@ -71,9 +75,9 @@ const FooterComponent = ({ now }: { now: number }) => (
             </div>
           </div>
 
-          {/* The page centre splits the footer: the brand fills the left half, the three link columns the right half */}
-          <div className='grid grid-cols-2 gap-[32px] sm:grid-cols-[repeat(3,auto)] sm:justify-between'>
-            <nav className='flex flex-col gap-[12px]' aria-label='Pages'>
+          {/* On a desktop the page centre splits the footer: the brand fills the left half, the three link columns the right half. Stacked, everything is centred */}
+          <div className='flex flex-wrap justify-center gap-x-[32px] gap-y-[32px] sm:grid sm:grid-cols-3 lg:grid-cols-[repeat(3,auto)] lg:justify-between'>
+            <nav className={footerColumnClass} aria-label='Pages'>
               {footerHeadingView({ title: 'Pages' })}
               <ul className='flex flex-col gap-[8px]'>
                 <li>
@@ -123,7 +127,7 @@ const FooterComponent = ({ now }: { now: number }) => (
               </ul>
             </nav>
 
-            <div className='flex flex-col gap-[12px]'>
+            <div className={footerColumnClass}>
               {footerHeadingView({ title: 'Learn TEA' })}
               <ul className='flex flex-col gap-[8px]'>
                 {externalLinkView({
@@ -137,7 +141,7 @@ const FooterComponent = ({ now }: { now: number }) => (
               </ul>
             </div>
 
-            <div className='flex flex-col gap-[12px]'>
+            <div className={footerColumnClass}>
               {footerHeadingView({ title: 'Credits' })}
               <ul className='flex flex-col gap-[8px]'>
                 {externalLinkView({
