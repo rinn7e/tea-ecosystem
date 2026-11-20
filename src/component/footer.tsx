@@ -8,6 +8,7 @@ import {
   buildScreen,
   catalogScreen,
   destinationOfScreen,
+  privacyScreen,
   rubricScreen,
 } from '@/common/type/destination'
 import { languagesOf } from '@/common/type/framework'
@@ -155,7 +156,13 @@ const FooterComponent = ({ now }: { now: number }) => (
         <div className='border-line text-ink-faint flex flex-col items-center gap-[8px] border-t pt-[24px] text-center text-xs'>
           <p>
             © {new Date(now).getUTCFullYear()} TEA Ecosystem, updated{' '}
-            {lastUpdated}
+            {lastUpdated} ·{' '}
+            <Link
+              destination={destinationOfScreen(privacyScreen())}
+              className='hover:text-accent underline underline-offset-2 transition-colors'
+            >
+              Privacy
+            </Link>
           </p>
           <p className='max-w-[620px] text-balance'>
             A community catalog, not affiliated with Elm. Each framework logo

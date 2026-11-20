@@ -7,8 +7,8 @@ import { type Destination } from '@/common/type/destination'
 
 // A layer of the screen stack: a list at the bottom (the catalog or the
 // adjacent list), the page of one of its entries over it, and the screens
-// that stand alone (the rubric, the guide, Not Found), which a move
-// switches to rather than stacks
+// that stand alone (the rubric, the about and privacy pages, the guide,
+// Not Found), which a move switches to rather than stacks
 type ScreenLayer =
   | { readonly _tag: 'List'; readonly list: ListId }
   | { readonly _tag: 'Framework'; readonly frameworkId: string }
@@ -47,6 +47,7 @@ export const screenStackOf = (destination: Destination): ScreenLayer[] => {
       )
     case 'RubricScreen':
     case 'AboutScreen':
+    case 'PrivacyScreen':
     case 'BuildScreen':
     case 'NotFoundScreen':
       return [{ _tag: 'Alone', screen: screen._tag }]

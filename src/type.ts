@@ -13,6 +13,7 @@ import {
   catalogScreen,
   frameworkScreen,
   notFoundScreen,
+  privacyScreen,
   rubricScreen,
 } from '@/common/type/destination'
 import type * as BackToTop from '@/component/back-to-top'
@@ -22,6 +23,7 @@ import type * as AdjacentScreen from '@/screen/adjacent-screen'
 import type * as BuildScreen from '@/screen/build-screen'
 import type * as CatalogScreen from '@/screen/catalog-screen'
 import type * as FrameworkScreen from '@/screen/framework-screen'
+import type * as PrivacyScreen from '@/screen/privacy-screen'
 import type * as RubricScreen from '@/screen/rubric-screen'
 
 // Its tag and its own fields are the destination's screen
@@ -33,6 +35,7 @@ export type ScreenModel =
   | { _tag: 'FrameworkScreenModel'; model: FrameworkScreen.Model }
   | { _tag: 'RubricScreenModel'; model: RubricScreen.Model }
   | { _tag: 'AboutScreenModel'; model: AboutScreen.Model }
+  | { _tag: 'PrivacyScreenModel'; model: PrivacyScreen.Model }
   | { _tag: 'AdjacentScreenModel' }
   | { _tag: 'BuildScreenModel'; model: BuildScreen.Model }
   | { _tag: 'NotFoundScreenModel' }
@@ -102,6 +105,7 @@ export type Msg =
   | { _tag: 'CatalogScreenMsg'; subMsg: CatalogScreen.Msg }
   | { _tag: 'RubricScreenMsg'; subMsg: RubricScreen.Msg }
   | { _tag: 'AboutScreenMsg'; subMsg: AboutScreen.Msg }
+  | { _tag: 'PrivacyScreenMsg'; subMsg: PrivacyScreen.Msg }
   | { _tag: 'AdjacentScreenMsg'; subMsg: AdjacentScreen.Msg }
   | { _tag: 'BuildScreenMsg'; subMsg: BuildScreen.Msg }
   | { _tag: 'TooltipMsg'; subMsg: Tooltip.Msg }
@@ -123,6 +127,8 @@ export const currentScreenOf = (model: Model): Screen => {
       return rubricScreen()
     case 'AboutScreenModel':
       return aboutScreen()
+    case 'PrivacyScreenModel':
+      return privacyScreen()
     case 'AdjacentScreenModel':
       return adjacentScreen(model.adjacent.listing.filter)
     case 'BuildScreenModel':

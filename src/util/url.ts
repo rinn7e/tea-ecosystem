@@ -40,6 +40,7 @@ const listFilterOf = (destination: Destination): O.Option<ListingFilter> => {
     case 'FrameworkScreen':
     case 'RubricScreen':
     case 'AboutScreen':
+    case 'PrivacyScreen':
     case 'BuildScreen':
     case 'NotFoundScreen':
       return O.none

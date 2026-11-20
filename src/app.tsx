@@ -19,6 +19,7 @@ import { BuildMemo } from '@/screen/build-screen/component'
 import { CatalogMemo } from '@/screen/catalog-screen/component'
 import { FrameworkMemo } from '@/screen/framework-screen/component'
 import { NotFoundMemo } from '@/screen/not-found-screen/component'
+import { PrivacyMemo } from '@/screen/privacy-screen/component'
 import { RubricMemo } from '@/screen/rubric-screen/component'
 import { type Model, type Msg, type ScreenModel } from '@/type'
 import { listDestinationOf } from '@/util'
@@ -34,6 +35,8 @@ const headerSectionOf = (screenModel: ScreenModel): HeaderSection => {
       return 'rubric'
     case 'AboutScreenModel':
       return 'about'
+    case 'PrivacyScreenModel':
+      return 'none'
     case 'AdjacentScreenModel':
       return 'adjacent'
     case 'BuildScreenModel':
@@ -92,6 +95,13 @@ const screenView = ({
         <AboutMemo
           model={screenModel.model}
           dispatch={(subMsg) => dispatch({ _tag: 'AboutScreenMsg', subMsg })}
+        />
+      )
+    case 'PrivacyScreenModel':
+      return (
+        <PrivacyMemo
+          model={screenModel.model}
+          dispatch={(subMsg) => dispatch({ _tag: 'PrivacyScreenMsg', subMsg })}
         />
       )
     case 'AdjacentScreenModel':

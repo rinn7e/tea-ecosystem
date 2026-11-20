@@ -48,6 +48,7 @@ import {
   frameworkScreen,
   lackables,
   notFoundScreen,
+  privacyScreen,
   rubricScreen,
   sortColumns,
 } from './type'
@@ -137,6 +138,7 @@ const frameworkMatch: Match<{ frameworkId: string }> = lit('framework')
   .and(end)
 const rubricMatch = lit('rubric').and(query(noParams)).and(end)
 const aboutMatch = lit('about').and(query(noParams)).and(end)
+const privacyMatch = lit('privacy').and(query(noParams)).and(end)
 const adjacentMatch = lit('adjacent').and(query(listingParams)).and(end)
 const buildMatch = lit('build-your-own').and(query(buildParams)).and(end)
 
@@ -238,6 +240,7 @@ const screenParser: Parser<Screen> = zero<Screen>()
   )
   .alt(rubricMatch.parser.map(() => rubricScreen()))
   .alt(aboutMatch.parser.map(() => aboutScreen()))
+  .alt(privacyMatch.parser.map(() => privacyScreen()))
   .alt(
     adjacentMatch.parser.map((params) =>
       adjacentScreen(adjacentFilterOf(params)),
@@ -316,6 +319,8 @@ export const toUrlString = (destination: Destination): string => {
         return format(rubricMatch.formatter, {})
       case 'AboutScreen':
         return format(aboutMatch.formatter, {})
+      case 'PrivacyScreen':
+        return format(privacyMatch.formatter, {})
       case 'AdjacentScreen':
         return format(adjacentMatch.formatter, listingParamsOf(screen.filter))
       case 'BuildScreen':

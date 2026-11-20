@@ -15,6 +15,7 @@ describe('the pages rendered ahead of time', () => {
         '/rubric',
         '/about',
         '/build-your-own',
+        '/privacy',
         ...[...storedFrameworks, ...storedAdjacentEntries].map(
           (entry) => `/framework/${entry.id}`,
         ),

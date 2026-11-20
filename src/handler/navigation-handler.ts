@@ -17,6 +17,7 @@ import * as AdjacentScreen from '@/screen/adjacent-screen'
 import * as BuildScreen from '@/screen/build-screen'
 import * as CatalogScreen from '@/screen/catalog-screen'
 import * as FrameworkScreen from '@/screen/framework-screen'
+import * as PrivacyScreen from '@/screen/privacy-screen'
 import * as RubricScreen from '@/screen/rubric-screen'
 import {
   type Model,
@@ -71,6 +72,8 @@ export const openDestination = (
         return { _tag: 'RubricScreenModel', model: RubricScreen.init() }
       case 'AboutScreen':
         return { _tag: 'AboutScreenModel', model: AboutScreen.init() }
+      case 'PrivacyScreen':
+        return { _tag: 'PrivacyScreenModel', model: PrivacyScreen.init() }
       case 'AdjacentScreen':
         return { _tag: 'AdjacentScreenModel' }
       case 'BuildScreen':
@@ -110,6 +113,8 @@ export const titleOf = (model: Model): string => {
       return `Rubric | ${SITE_NAME}`
     case 'AboutScreenModel':
       return `About | ${SITE_NAME}`
+    case 'PrivacyScreenModel':
+      return `Privacy | ${SITE_NAME}`
     case 'AdjacentScreenModel':
       return `TEA-adjacent | ${SITE_NAME}`
     case 'BuildScreenModel':
@@ -133,6 +138,7 @@ const listIdOf = (screen: Screen): O.Option<ListId> => {
     case 'FrameworkScreen':
     case 'RubricScreen':
     case 'AboutScreen':
+    case 'PrivacyScreen':
     case 'BuildScreen':
     case 'NotFoundScreen':
       return O.none

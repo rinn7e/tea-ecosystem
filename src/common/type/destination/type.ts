@@ -115,6 +115,10 @@ export type AboutScreen = {
   readonly _tag: 'AboutScreen'
 }
 
+export type PrivacyScreen = {
+  readonly _tag: 'PrivacyScreen'
+}
+
 export type AdjacentScreen = {
   readonly _tag: 'AdjacentScreen'
   filter: AdjacentFilter
@@ -134,6 +138,7 @@ export type Screen =
   | FrameworkScreen
   | RubricScreen
   | AboutScreen
+  | PrivacyScreen
   | AdjacentScreen
   | BuildScreen
   | NotFoundScreen
@@ -184,6 +189,8 @@ export const ScreenEq: EqClass.Eq<Screen> = {
     } else if (x._tag === 'RubricScreen' && y._tag === 'RubricScreen') {
       return true
     } else if (x._tag === 'AboutScreen' && y._tag === 'AboutScreen') {
+      return true
+    } else if (x._tag === 'PrivacyScreen' && y._tag === 'PrivacyScreen') {
       return true
     } else if (x._tag === 'AdjacentScreen' && y._tag === 'AdjacentScreen') {
       return AdjacentFilterEq.equals(x.filter, y.filter)
@@ -254,6 +261,7 @@ export const frameworkScreen = (frameworkId: string): Screen => ({
 })
 export const rubricScreen = (): Screen => ({ _tag: 'RubricScreen' })
 export const aboutScreen = (): Screen => ({ _tag: 'AboutScreen' })
+export const privacyScreen = (): Screen => ({ _tag: 'PrivacyScreen' })
 export const adjacentScreen = (
   filter: AdjacentFilter = defaultAdjacentFilter(),
 ): Screen => ({ _tag: 'AdjacentScreen', filter })

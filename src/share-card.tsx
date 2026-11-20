@@ -438,6 +438,15 @@ export const pageCardOf =
           },
           footNote: 'In Swift, TypeScript and Kotlin',
         }
+      case 'privacy':
+        return {
+          page,
+          title,
+          subline: 'No cookies, no accounts, no trackers',
+          lead,
+          strip: { _tag: 'Logos', logos: [] },
+          footNote: '',
+        }
     }
   }
 

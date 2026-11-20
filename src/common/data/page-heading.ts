@@ -1,5 +1,6 @@
 // The pages of the site that are not the page of an entry
-export type SitePage = 'catalog' | 'adjacent' | 'rubric' | 'about' | 'build'
+export type SitePage =
+  'catalog' | 'adjacent' | 'rubric' | 'about' | 'build' | 'privacy'
 
 export const sitePages: readonly SitePage[] = [
   'catalog',
@@ -7,6 +8,7 @@ export const sitePages: readonly SitePage[] = [
   'rubric',
   'about',
   'build',
+  'privacy',
 ]
 
 export type PageHeading = { title: string; lead: string }
@@ -41,6 +43,11 @@ export const pageHeadingOf = (page: SitePage): PageHeading => {
         title: 'Build your own TEA',
         lead: 'A TEA runtime is small enough to write in an afternoon. Eight steps, the same in every language: no framework is needed to have The Elm Architecture on a platform that has none.',
       }
+    case 'privacy':
+      return {
+        title: 'Privacy',
+        lead: 'TEA Ecosystem is a static catalog with no accounts and no cookies. This page lists everything the site uses that could see your visit.',
+      }
   }
 }
 
@@ -57,5 +64,7 @@ export const sitePagePathOf = (page: SitePage): string => {
       return '/about'
     case 'build':
       return '/build-your-own'
+    case 'privacy':
+      return '/privacy'
   }
 }

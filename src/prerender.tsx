@@ -65,6 +65,8 @@ const sitePageOf = (model: Model): SitePage => {
       return 'rubric'
     case 'AboutScreenModel':
       return 'about'
+    case 'PrivacyScreenModel':
+      return 'privacy'
     case 'BuildScreenModel':
       return 'build'
     case 'CatalogScreenModel':

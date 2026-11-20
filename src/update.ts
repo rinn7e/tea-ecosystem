@@ -21,6 +21,7 @@ import * as AboutScreen from '@/screen/about-screen'
 import * as AdjacentScreen from '@/screen/adjacent-screen'
 import * as BuildScreen from '@/screen/build-screen'
 import * as CatalogScreen from '@/screen/catalog-screen'
+import * as PrivacyScreen from '@/screen/privacy-screen'
 import * as RubricScreen from '@/screen/rubric-screen'
 import { type Model, type Msg, sameScreenWith } from '@/type'
 import { bootDestinationOf } from '@/util'
@@ -86,6 +87,8 @@ export const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return rubricScreenMsgHandler(msg.subMsg, model)
     case 'AboutScreenMsg':
       return aboutScreenMsgHandler(msg.subMsg, model)
+    case 'PrivacyScreenMsg':
+      return privacyScreenMsgHandler(msg.subMsg, model)
     case 'AdjacentScreenMsg':
       return adjacentScreenMsgHandler(msg.subMsg, model)
     case 'BuildScreenMsg':
@@ -163,6 +166,31 @@ const rubricScreenMsgHandler = (
         }),
       },
       rubricCmd.map((m): Msg => ({ _tag: 'RubricScreenMsg', subMsg: m })),
+    ]
+  } else {
+    return [model, Cmd.none()]
+  }
+}
+
+const privacyScreenMsgHandler = (
+  subMsg: PrivacyScreen.Msg,
+  model: Model,
+): [Model, Cmd<Msg>] => {
+  const { screenModel } = model
+  if (screenModel._tag === 'PrivacyScreenModel') {
+    const [privacyModel, privacyCmd] = PrivacyScreen.update(
+      subMsg,
+      screenModel.model,
+    )
+    return [
+      {
+        ...model,
+        screenModel: sameScreenWith(screenModel)({
+          _tag: 'PrivacyScreenModel',
+          model: privacyModel,
+        }),
+      },
+      privacyCmd.map((m): Msg => ({ _tag: 'PrivacyScreenMsg', subMsg: m })),
     ]
   } else {
     return [model, Cmd.none()]

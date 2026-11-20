@@ -21,6 +21,7 @@ import {
   listScreenOf,
   notFoundScreen,
   parseDestination,
+  privacyScreen,
   rubricScreen,
   statusChoiceOf,
   toUrlString,
@@ -42,6 +43,7 @@ describe('destination URL', () => {
       '/framework/miso',
     )
     expect(toUrlString(destinationOfScreen(rubricScreen()))).toBe('/rubric')
+    expect(toUrlString(destinationOfScreen(privacyScreen()))).toBe('/privacy')
     expect(toUrlString(destinationOfScreen(aboutScreen()))).toBe('/about')
     expect(toUrlString(destinationOfScreen(adjacentScreen()))).toBe('/adjacent')
     expect(toUrlString(destinationOfScreen(buildScreen('kotlin')))).toBe(
@@ -70,6 +72,7 @@ describe('destination URL', () => {
         frameworkScreen('elm'),
         rubricScreen(),
         aboutScreen(),
+        privacyScreen(),
         buildScreen('kotlin'),
       ),
     ),
@@ -204,6 +207,7 @@ describe('destination URL', () => {
       frameworkScreen('bubbletea'),
       rubricScreen(),
       aboutScreen(),
+      privacyScreen(),
       adjacentScreen(),
       buildScreen('swift'),
       buildScreen('typescript'),
