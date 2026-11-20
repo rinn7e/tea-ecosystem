@@ -25,7 +25,7 @@ const footerHeadingView = ({ title }: { title: string }) => (
 )
 
 const footerLinkClass =
-  'text-ink-muted hover:text-accent inline-flex items-center gap-[4px] text-sm transition-colors'
+  'text-ink-muted hover:text-accent inline-flex items-center gap-[4px] text-sm whitespace-nowrap transition-colors'
 
 const externalLinkView = ({ href, label }: { href: string; label: string }) => (
   <li>
@@ -50,7 +50,7 @@ const FooterComponent = ({ now }: { now: number }) => (
   <footer className='border-line bg-panel border-t'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex w-full max-w-[1080px] flex-col gap-[32px] py-[40px]'>
-        <div className='flex flex-col gap-[32px] lg:flex-row lg:justify-between'>
+        <div className='grid gap-[32px] lg:grid-cols-2 lg:gap-[64px]'>
           <div className='flex flex-col gap-[12px]'>
             <span className='text-ink flex items-center gap-[10px]'>
               {emblemView({ size: 24 })}
@@ -70,8 +70,8 @@ const FooterComponent = ({ now }: { now: number }) => (
             </div>
           </div>
 
-          {/* The three link columns sit together as one group on the right */}
-          <div className='flex flex-wrap gap-x-[56px] gap-y-[32px]'>
+          {/* The page centre splits the footer: the brand fills the left half, the three link columns the right half */}
+          <div className='grid grid-cols-2 gap-[32px] sm:grid-cols-[repeat(3,auto)] sm:justify-between'>
             <nav className='flex flex-col gap-[12px]' aria-label='Pages'>
               {footerHeadingView({ title: 'Pages' })}
               <ul className='flex flex-col gap-[8px]'>
