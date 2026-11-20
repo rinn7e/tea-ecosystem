@@ -50,8 +50,8 @@ const FooterComponent = ({ now }: { now: number }) => (
   <footer className='border-line bg-panel border-t'>
     <div className='flex justify-center px-[16px]'>
       <div className='flex w-full max-w-[1080px] flex-col gap-[32px] py-[40px]'>
-        <div className='grid grid-cols-2 gap-[32px] lg:grid-cols-5'>
-          <div className='col-span-2 flex flex-col gap-[12px]'>
+        <div className='flex flex-col gap-[32px] lg:flex-row lg:justify-between'>
+          <div className='flex flex-col gap-[12px]'>
             <span className='text-ink flex items-center gap-[10px]'>
               {emblemView({ size: 24 })}
               <span className='text-lg'>TEA Ecosystem</span>
@@ -70,86 +70,89 @@ const FooterComponent = ({ now }: { now: number }) => (
             </div>
           </div>
 
-          <nav className='flex flex-col gap-[12px]' aria-label='Pages'>
-            {footerHeadingView({ title: 'Pages' })}
-            <ul className='flex flex-col gap-[8px]'>
-              <li>
-                <Link
-                  destination={destinationOfScreen(catalogScreen())}
-                  className={footerLinkClass}
-                >
-                  Catalog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  destination={destinationOfScreen(aboutScreen())}
-                  className={footerLinkClass}
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  destination={destinationOfScreen(rubricScreen())}
-                  className={footerLinkClass}
-                >
-                  Rubric
-                </Link>
-              </li>
-              <li>
-                <Link
-                  destination={destinationOfScreen(adjacentScreen())}
-                  className={footerLinkClass}
-                >
-                  TEA-adjacent
-                </Link>
-              </li>
-              <li>
-                <Link
-                  destination={destinationOfScreen(buildScreen())}
-                  className={footerLinkClass}
-                >
-                  Build your own TEA
-                </Link>
-              </li>
-              {externalLinkView({
-                href: 'https://github.com/rinn7e/tea-ecosystem',
-                label: 'Source code',
-              })}
-            </ul>
-          </nav>
+          {/* The three link columns sit together as one group on the right */}
+          <div className='flex flex-wrap gap-x-[56px] gap-y-[32px]'>
+            <nav className='flex flex-col gap-[12px]' aria-label='Pages'>
+              {footerHeadingView({ title: 'Pages' })}
+              <ul className='flex flex-col gap-[8px]'>
+                <li>
+                  <Link
+                    destination={destinationOfScreen(catalogScreen())}
+                    className={footerLinkClass}
+                  >
+                    Catalog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    destination={destinationOfScreen(aboutScreen())}
+                    className={footerLinkClass}
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    destination={destinationOfScreen(rubricScreen())}
+                    className={footerLinkClass}
+                  >
+                    Rubric
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    destination={destinationOfScreen(adjacentScreen())}
+                    className={footerLinkClass}
+                  >
+                    TEA-adjacent
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    destination={destinationOfScreen(buildScreen())}
+                    className={footerLinkClass}
+                  >
+                    Build your own TEA
+                  </Link>
+                </li>
+                {externalLinkView({
+                  href: 'https://github.com/rinn7e/tea-ecosystem',
+                  label: 'Source code',
+                })}
+              </ul>
+            </nav>
 
-          <div className='flex flex-col gap-[12px]'>
-            {footerHeadingView({ title: 'Learn TEA' })}
-            <ul className='flex flex-col gap-[8px]'>
-              {externalLinkView({
-                href: 'https://guide.elm-lang.org/architecture/',
-                label: 'The Elm Architecture',
-              })}
-              {externalLinkView({
-                href: 'https://elm-lang.org/',
-                label: 'elm-lang.org',
-              })}
-            </ul>
-          </div>
+            <div className='flex flex-col gap-[12px]'>
+              {footerHeadingView({ title: 'Learn TEA' })}
+              <ul className='flex flex-col gap-[8px]'>
+                {externalLinkView({
+                  href: 'https://guide.elm-lang.org/architecture/',
+                  label: 'The Elm Architecture',
+                })}
+                {externalLinkView({
+                  href: 'https://elm-lang.org/',
+                  label: 'elm-lang.org',
+                })}
+              </ul>
+            </div>
 
-          <div className='flex flex-col gap-[12px]'>
-            {footerHeadingView({ title: 'Credits' })}
-            <ul className='flex flex-col gap-[8px]'>
-              {externalLinkView({
-                href: 'https://simpleicons.org/',
-                label: 'Simple Icons (CC0)',
-              })}
-              {externalLinkView({
-                href: 'https://devicon.dev/',
-                label: 'Devicon (MIT)',
-              })}
-              {externalLinkView({
-                href: 'https://highlightjs.org/',
-                label: 'highlight.js',
-              })}
-            </ul>
+            <div className='flex flex-col gap-[12px]'>
+              {footerHeadingView({ title: 'Credits' })}
+              <ul className='flex flex-col gap-[8px]'>
+                {externalLinkView({
+                  href: 'https://simpleicons.org/',
+                  label: 'Simple Icons (CC0)',
+                })}
+                {externalLinkView({
+                  href: 'https://devicon.dev/',
+                  label: 'Devicon (MIT)',
+                })}
+                {externalLinkView({
+                  href: 'https://highlightjs.org/',
+                  label: 'highlight.js',
+                })}
+              </ul>
+            </div>
           </div>
         </div>
 
