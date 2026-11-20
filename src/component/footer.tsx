@@ -31,10 +31,30 @@ const footerColumnClass =
 const footerLinkClass =
   'text-ink-muted hover:text-accent inline-flex items-center gap-[4px] text-sm whitespace-nowrap transition-colors'
 
-const externalLinkView = ({ href, label }: { href: string; label: string }) => (
+// A phone has room for three columns of about 100 px, so a long label
+// gives way to a short one there
+const labelView = ({ label, short }: { label: string; short?: string }) =>
+  short === undefined ? (
+    label
+  ) : (
+    <>
+      <span className='sm:hidden'>{short}</span>
+      <span className='hidden sm:inline'>{label}</span>
+    </>
+  )
+
+const externalLinkView = ({
+  href,
+  label,
+  short,
+}: {
+  href: string
+  label: string
+  short?: string
+}) => (
   <li>
     <a href={href} target='_blank' rel='noreferrer' className={footerLinkClass}>
-      {label}
+      {labelView({ label, short })}
       <IconExternalLink size={13} stroke={1.75} aria-hidden />
     </a>
   </li>
@@ -76,7 +96,7 @@ const FooterComponent = ({ now }: { now: number }) => (
           </div>
 
           {/* On a desktop the page centre splits the footer: the brand fills the left half, the three link columns the right half. Stacked, everything is centred */}
-          <div className='flex flex-wrap justify-center gap-x-[32px] gap-y-[32px] sm:grid sm:grid-cols-3 lg:grid-cols-[repeat(3,auto)] lg:justify-between'>
+          <div className='grid grid-cols-3 gap-[16px] sm:gap-[32px] lg:grid-cols-[repeat(3,auto)] lg:justify-between'>
             <nav className={footerColumnClass} aria-label='Pages'>
               {footerHeadingView({ title: 'Pages' })}
               <ul className='flex flex-col gap-[8px]'>
@@ -117,7 +137,10 @@ const FooterComponent = ({ now }: { now: number }) => (
                     destination={destinationOfScreen(buildScreen())}
                     className={footerLinkClass}
                   >
-                    Build your own TEA
+                    {labelView({
+                      label: 'Build your own TEA',
+                      short: 'Build TEA',
+                    })}
                   </Link>
                 </li>
                 {externalLinkView({
@@ -133,6 +156,7 @@ const FooterComponent = ({ now }: { now: number }) => (
                 {externalLinkView({
                   href: 'https://guide.elm-lang.org/architecture/',
                   label: 'The Elm Architecture',
+                  short: 'TEA guide',
                 })}
                 {externalLinkView({
                   href: 'https://elm-lang.org/',
@@ -147,10 +171,12 @@ const FooterComponent = ({ now }: { now: number }) => (
                 {externalLinkView({
                   href: 'https://simpleicons.org/',
                   label: 'Simple Icons (CC0)',
+                  short: 'Simple Icons',
                 })}
                 {externalLinkView({
                   href: 'https://devicon.dev/',
                   label: 'Devicon (MIT)',
+                  short: 'Devicon',
                 })}
                 {externalLinkView({
                   href: 'https://highlightjs.org/',
