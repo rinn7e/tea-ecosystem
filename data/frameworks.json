@@ -3120,6 +3120,103 @@
     "updatedAt": "2026-10-16T16:11:17Z"
   },
   {
+    "id": "charmed-rust",
+    "name": "charmed_rust",
+    "language": "Rust",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "repo": "https://github.com/Dicklesworthstone/charmed_rust",
+    "summary": "A Rust port of the Charm stack (Bubble Tea, Bubbles, Lip Gloss, Huh, Wish), published as the charmed-* crates, with sync and tokio runtimes.",
+    "snippetSource": "https://github.com/Dicklesworthstone/charmed_rust/blob/main/examples/basic/counter/src/main.rs",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "The Model trait of the bubbletea crate (charmed-bubbletea) has init(&self) -> Option<Cmd>, update(&mut self, msg: Message) -> Option<Cmd> and view(&self) -> String; the model is changed in place by update, as in Bubble Tea (crates/bubbletea/src/program.rs).",
+      "Message is type-erased and matched with downcast_ref (KeyMsg, WindowSizeMsg, your own types).",
+      "Cmd wraps a FnOnce() -> Option<Message>; Program runs each on its own thread (or a tokio task for AsyncCmd) and sends the message back to update; batch, sequence, quit, tick, every, exec_process and window_size build them (crates/bubbletea/src/command.rs).",
+      "No subscriptions function, graded like Bubble Tea: a timer is a tick or every Cmd that update returns again.",
+      "Program::start returns a ProgramHandle whose send feeds messages from outside, and with_input_receiver forwards a channel into the loop."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-23T16:42:15Z",
+    "stars": 43,
+    "createdAt": "2026-01-19T06:19:40Z",
+    "updatedAt": "2026-11-22T01:59:16Z"
+  },
+  {
+    "id": "ows4444-tui",
+    "name": "tui (ows4444)",
+    "language": "Go",
+    "elmFamily": false,
+    "targets": ["tui"],
+    "tier": "full",
+    "repo": "https://github.com/ows4444/tui",
+    "website": "https://tui.nizaami.com",
+    "summary": "A Go terminal UI framework on the Elm Architecture with no dependencies outside the standard library, a cell-diff renderer, flex and grid layout, 60+ widgets and a headless test harness.",
+    "snippetSource": "https://github.com/ows4444/tui/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "managed",
+      "ports": "managed"
+    },
+    "notes": [
+      "The interface Model has Init() Cmd, Update(Msg) (Model, Cmd) and View() string; the README models are value types that Update returns changed.",
+      "Msg is any, matched with a type switch (tui.Key, mouse, paste and resize events, your own types).",
+      "Cmd is func() Msg: the Program runs it off the render loop and feeds its message back to Update; Batch, Sequence, Tick, FromCtx (with the context of the Program, cancelled when Run returns), Quit, Suspend and terminal helpers such as SetWindowTitle and WriteClipboard build them.",
+      "No subscriptions function, graded like Bubble Tea: Every(d, fn) returns a Cmd that sends a message every d and a function that cancels it, and Tick is re-issued by update.",
+      "Program.Send and TrySend feed messages from outside the program."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-23T16:42:15Z",
+    "stars": 0,
+    "createdAt": "2026-10-02T18:56:00Z",
+    "updatedAt": "2026-11-14T18:34:18Z"
+  },
+  {
+    "id": "kilim",
+    "name": "kilim",
+    "language": "OCaml",
+    "elmFamily": false,
+    "targets": ["web"],
+    "tier": "superset",
+    "repo": "https://github.com/ocaml-caravanserai/kilim",
+    "summary": "A browser application library for OCaml 5.5 on js_of_ocaml and wasm_of_ocaml: the Elm architecture with encapsulated components, cancellable tasks as values and a native test harness with a fake DOM.",
+    "snippetSource": "https://github.com/ocaml-caravanserai/kilim/blob/main/README.md",
+    "rubric": {
+      "model": "native",
+      "msg": "native",
+      "update": "native",
+      "view": "native",
+      "cmd": "native",
+      "sub": "native",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "App.make takes init : unit -> model * msg Cmd.t, update : model -> msg -> model * msg Cmd.t, view : model -> msg View.t and an optional subs : model -> msg Sub.t (src/core/app.mli).",
+      "Cmd.t is a value the runtime runs: None, Batch, Task (an Async.t whose result becomes a message), Latest (a keyed task that cancels the one before it) and Map; kilim.http and kilim.storage give their work as tasks.",
+      "Subscriptions are declared from the model (Router.changes, Ws.connect, Sub.window), and the runtime starts and stops them by key.",
+      "Kilim_browser.run returns unit, so no handle sends messages in; Async.of_fut wraps any Brr future as a task, the sanctioned way to reach JavaScript.",
+      "Superset: a component (Component.v) keeps its own model, messages, tasks and subscriptions in the runtime, takes typed props and gives typed outputs to its parent (Ctx.emit); an unmount cancels its tasks."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-23T16:42:15Z",
+    "stars": 1,
+    "createdAt": "2026-11-06T21:27:12Z",
+    "updatedAt": "2026-11-09T12:34:00Z"
+  },
+  {
     "id": "monad-oak",
     "name": "Oak (Monad)",
     "language": "Monad",
