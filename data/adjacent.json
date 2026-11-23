@@ -29,8 +29,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-05-29T23:53:15Z",
-    "updatedAt": "2026-11-14T20:25:06Z",
-    "stars": 61435
+    "updatedAt": "2026-11-17T15:15:47Z",
+    "stars": 61436
   },
   {
     "id": "use-reducer",
@@ -63,8 +63,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2013-05-24T16:15:54Z",
-    "updatedAt": "2026-11-13T10:28:38Z",
-    "stars": 252628
+    "updatedAt": "2026-11-23T14:31:38Z",
+    "stars": 252902
   },
   {
     "id": "ts-elmish",
@@ -158,8 +158,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-03-02T19:34:15Z",
-    "updatedAt": "2026-11-03T20:32:04Z",
-    "stars": 8344
+    "updatedAt": "2026-11-19T11:12:07Z",
+    "stars": 8345
   },
   {
     "id": "pinia",
@@ -192,8 +192,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-11-18T21:05:01Z",
-    "updatedAt": "2026-11-10T19:34:12Z",
-    "stars": 14763
+    "updatedAt": "2026-11-23T13:29:13Z",
+    "stars": 14770
   },
   {
     "id": "zustand",
@@ -223,8 +223,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-09T09:10:06Z",
-    "updatedAt": "2026-11-06T13:35:06Z",
-    "stars": 58929
+    "updatedAt": "2026-11-23T00:21:49Z",
+    "stars": 58986
   },
   {
     "id": "mobx",
@@ -256,8 +256,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-03-14T14:31:38Z",
-    "updatedAt": "2026-11-13T13:04:02Z",
-    "stars": 28210
+    "updatedAt": "2026-11-23T07:53:34Z",
+    "stars": 28215
   },
   {
     "id": "choo",
@@ -288,7 +288,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-05-10T17:50:35Z",
     "updatedAt": "2026-02-20T10:15:19Z",
-    "stars": 6766
+    "stars": 6765
   },
   {
     "id": "apprun",
@@ -318,7 +318,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-10-07T02:07:44Z",
     "updatedAt": "2026-07-15T02:47:43Z",
-    "stars": 1178
+    "stars": 1177
   },
   {
     "id": "cycle-js",
@@ -352,7 +352,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2014-11-07T11:28:45Z",
     "updatedAt": "2026-06-09T05:20:11Z",
-    "stars": 10229
+    "stars": 10230
   },
   {
     "id": "xstate",
@@ -386,8 +386,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-09-14T15:04:15Z",
-    "updatedAt": "2026-11-16T13:46:55Z",
-    "stars": 30476
+    "updatedAt": "2026-11-23T00:15:07Z",
+    "stars": 30533
   },
   {
     "id": "phoenix-liveview",
@@ -418,8 +418,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-12T01:27:33Z",
-    "updatedAt": "2026-11-14T09:54:24Z",
-    "stars": 6840
+    "updatedAt": "2026-11-23T16:00:57Z",
+    "stars": 6841
   },
   {
     "id": "yew",
@@ -452,8 +452,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-12-16T14:19:02Z",
-    "updatedAt": "2026-10-30T03:20:20Z",
-    "stars": 32859
+    "updatedAt": "2026-11-22T18:26:27Z",
+    "stars": 32870
   },
   {
     "id": "tui-realm",
@@ -486,7 +486,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-04-07T15:42:01Z",
     "updatedAt": "2026-10-24T09:45:52Z",
-    "stars": 1016
+    "stars": 1019
   },
   {
     "id": "ratatui",
@@ -517,8 +517,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2023-02-12T21:56:20Z",
-    "updatedAt": "2026-11-12T17:50:08Z",
-    "stars": 23323
+    "updatedAt": "2026-11-23T15:44:08Z",
+    "stars": 23403
   },
   {
     "id": "xilem",
@@ -547,8 +547,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2022-11-16T21:39:15Z",
-    "updatedAt": "2026-11-03T18:34:06Z",
-    "stars": 5611
+    "updatedAt": "2026-11-22T14:21:12Z",
+    "stars": 5628
   },
   {
     "id": "brick",
@@ -580,8 +580,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-05-09T08:23:44Z",
-    "updatedAt": "2026-11-12T21:56:54Z",
-    "stars": 1744
+    "updatedAt": "2026-11-19T20:37:36Z",
+    "stars": 1742
   },
   {
     "id": "bonsai",
@@ -613,7 +613,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-11-18T11:14:17Z",
     "updatedAt": "2026-11-03T18:14:17Z",
-    "stars": 1445
+    "stars": 1451
   },
   {
     "id": "bloc",
@@ -646,8 +646,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-10-07T19:32:59Z",
-    "updatedAt": "2026-11-14T00:43:55Z",
-    "stars": 12486
+    "updatedAt": "2026-11-19T20:08:13Z",
+    "stars": 12492
   },
   {
     "id": "mvikotlin",
@@ -680,7 +680,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-12-10T14:53:46Z",
     "updatedAt": "2026-11-01T17:48:19Z",
-    "stars": 1034
+    "stars": 1035
   },
   {
     "id": "orbit-mvi",
@@ -712,7 +712,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-12-22T11:01:18Z",
     "updatedAt": "2026-08-31T13:28:55Z",
-    "stars": 1346
+    "stars": 1348
   },
   {
     "id": "workflow",
@@ -744,8 +744,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-06-02T17:23:30Z",
-    "updatedAt": "2026-11-13T22:38:38Z",
-    "stars": 1123
+    "updatedAt": "2026-11-23T15:10:21Z",
+    "stars": 1122
   },
   {
     "id": "reswift",
@@ -775,7 +775,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2015-12-15T07:50:56Z",
     "updatedAt": "2024-04-22T14:51:58Z",
-    "stars": 7581
+    "stars": 7580
   },
   {
     "id": "reactorkit",
@@ -807,7 +807,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-06T18:59:12Z",
     "updatedAt": "2026-05-07T13:17:41Z",
-    "stars": 2787
+    "stars": 2785
   },
   {
     "id": "comet",
@@ -838,7 +838,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-06-15T20:50:46Z",
     "updatedAt": "2024-12-07T08:29:01Z",
-    "stars": 1666
+    "stars": 1664
   },
   {
     "id": "pstea",
@@ -868,7 +868,7 @@
     "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 7,
     "createdAt": "2026-04-23T01:47:55Z",
-    "updatedAt": "2026-11-15T19:35:13Z"
+    "updatedAt": "2026-11-16T21:09:25Z"
   },
   {
     "id": "cauldron",
@@ -1020,8 +1020,8 @@
     "verified": true,
     "discoveredAt": "2026-11-14T00:57:05Z",
     "createdAt": "2015-09-14T15:04:15Z",
-    "updatedAt": "2026-11-16T13:46:55Z",
-    "stars": 30476
+    "updatedAt": "2026-11-23T00:15:07Z",
+    "stars": 30533
   },
   {
     "id": "aardvark-media",
@@ -1053,7 +1053,7 @@
     "discoveredAt": "2026-11-14T10:00:55Z",
     "stars": 50,
     "createdAt": "2017-01-10T12:04:38Z",
-    "updatedAt": "2026-11-16T07:39:13Z"
+    "updatedAt": "2026-11-23T07:48:01Z"
   },
   {
     "id": "minttea",
@@ -1085,7 +1085,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2023-12-13T13:41:08Z",
     "updatedAt": "2026-03-18T19:07:05Z",
-    "stars": 474
+    "stars": 472
   },
   {
     "id": "relm4",
@@ -1118,8 +1118,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-06-06T13:26:26Z",
-    "updatedAt": "2026-11-12T15:42:55Z",
-    "stars": 2002
+    "updatedAt": "2026-11-19T15:43:05Z",
+    "stars": 2000
   },
   {
     "id": "seed",
@@ -1153,7 +1153,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-12-01T15:20:42Z",
     "updatedAt": "2026-11-01T14:29:07Z",
-    "stars": 3830
+    "stars": 3828
   },
   {
     "id": "draco",
@@ -1185,7 +1185,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-10-26T08:08:11Z",
     "updatedAt": "2023-04-03T07:36:23Z",
-    "stars": 304
+    "stars": 303
   },
   {
     "id": "halogen",

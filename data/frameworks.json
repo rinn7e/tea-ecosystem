@@ -27,7 +27,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2012-04-19T06:24:43Z",
     "updatedAt": "2026-11-02T18:53:00Z",
-    "stars": 7940
+    "stars": 7942
   },
   {
     "id": "gren",
@@ -59,7 +59,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-12-20T17:50:36Z",
     "updatedAt": "2026-10-29T19:26:13Z",
-    "stars": 508
+    "stars": 509
   },
   {
     "id": "lamdera",
@@ -90,7 +90,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-12-10T11:17:47Z",
-    "updatedAt": "2026-11-13T23:04:45Z",
+    "updatedAt": "2026-11-20T22:09:36Z",
     "stars": 95
   },
   {
@@ -123,8 +123,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-06-26T04:28:54Z",
-    "updatedAt": "2026-11-14T02:08:20Z",
-    "stars": 2450
+    "updatedAt": "2026-11-21T23:28:28Z",
+    "stars": 2449
   },
   {
     "id": "monomer",
@@ -217,7 +217,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-07T22:10:29Z",
-    "updatedAt": "2026-09-13T20:06:46Z",
+    "updatedAt": "2026-11-16T21:40:11Z",
     "stars": 322
   },
   {
@@ -344,8 +344,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-09-07T07:19:46Z",
-    "updatedAt": "2026-10-13T12:35:52Z",
-    "stars": 911
+    "updatedAt": "2026-11-16T16:09:04Z",
+    "stars": 912
   },
   {
     "id": "bolero",
@@ -377,7 +377,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-25T22:01:36Z",
     "updatedAt": "2026-09-06T14:07:24Z",
-    "stars": 1139
+    "stars": 1138
   },
   {
     "id": "elmish-wpf",
@@ -408,7 +408,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-06-12T12:29:52Z",
     "updatedAt": "2024-10-01T21:20:06Z",
-    "stars": 466
+    "stars": 465
   },
   {
     "id": "fabulous",
@@ -439,8 +439,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-02-05T17:00:17Z",
-    "updatedAt": "2026-11-15T13:59:05Z",
-    "stars": 1307
+    "updatedAt": "2026-11-22T20:38:05Z",
+    "stars": 1306
   },
   {
     "id": "avalonia-funcui",
@@ -472,7 +472,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-05-09T19:51:30Z",
     "updatedAt": "2026-08-23T16:06:55Z",
-    "stars": 1270
+    "stars": 1269
   },
   {
     "id": "terminal-gui-elmish",
@@ -535,7 +535,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-24T19:36:03Z",
     "updatedAt": "2024-06-11T10:40:41Z",
-    "stars": 599
+    "stars": 598
   },
   {
     "id": "ocaml-vdom",
@@ -566,7 +566,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2016-11-22T13:09:50Z",
     "updatedAt": "2026-10-27T08:04:41Z",
-    "stars": 210
+    "stars": 211
   },
   {
     "id": "lustre",
@@ -595,8 +595,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2022-02-11T01:02:40Z",
-    "updatedAt": "2026-11-11T08:26:03Z",
-    "stars": 2507
+    "updatedAt": "2026-11-19T13:43:23Z",
+    "stars": 2513
   },
   {
     "id": "shore",
@@ -722,7 +722,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-01-13T14:51:26Z",
     "updatedAt": "2023-03-20T02:20:49Z",
-    "stars": 852
+    "stars": 849
   },
   {
     "id": "tyrian",
@@ -758,7 +758,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-06-04T19:39:08Z",
-    "updatedAt": "2026-11-11T09:25:26Z",
+    "updatedAt": "2026-11-19T09:16:44Z",
     "stars": 74
   },
   {
@@ -796,7 +796,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-30T12:45:05Z",
-    "updatedAt": "2026-11-11T09:25:26Z",
+    "updatedAt": "2026-11-19T09:16:44Z",
     "stars": 74
   },
   {
@@ -892,8 +892,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-06-21T02:00:32Z",
-    "updatedAt": "2026-11-14T22:07:54Z",
-    "stars": 1247
+    "updatedAt": "2026-11-19T17:39:41Z",
+    "stars": 1310
   },
   {
     "id": "elm-ts",
@@ -924,7 +924,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-03-22T16:24:21Z",
     "updatedAt": "2022-10-08T03:22:56Z",
-    "stars": 303
+    "stars": 302
   },
   {
     "id": "tea-effect",
@@ -955,7 +955,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2026-01-06T15:40:46Z",
-    "updatedAt": "2026-10-31T10:29:24Z",
+    "updatedAt": "2026-11-22T10:13:21Z",
     "stars": 16
   },
   {
@@ -1018,7 +1018,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-03-07T13:40:18Z",
-    "updatedAt": "2026-10-31T17:55:27Z",
+    "updatedAt": "2026-11-20T20:10:09Z",
     "stars": 13
   },
   {
@@ -1051,7 +1051,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2017-01-20T05:20:21Z",
     "updatedAt": "2025-03-20T01:04:38Z",
-    "stars": 19187
+    "stars": 19188
   },
   {
     "id": "ferp",
@@ -1114,8 +1114,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-07-15T22:34:46Z",
-    "updatedAt": "2026-11-13T12:16:42Z",
-    "stars": 32049
+    "updatedAt": "2026-11-19T12:06:29Z",
+    "stars": 32110
   },
   {
     "id": "libcosmic",
@@ -1143,8 +1143,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2021-11-13T03:22:29Z",
-    "updatedAt": "2026-11-13T20:39:26Z",
-    "stars": 969
+    "updatedAt": "2026-11-18T18:51:25Z",
+    "stars": 973
   },
   {
     "id": "sauron",
@@ -1176,7 +1176,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-04-15T15:21:54Z",
     "updatedAt": "2025-01-27T11:51:25Z",
-    "stars": 2065
+    "stars": 2064
   },
   {
     "id": "tears",
@@ -1207,7 +1207,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2025-12-27T19:11:30Z",
-    "updatedAt": "2026-11-16T08:26:55Z",
+    "updatedAt": "2026-11-23T08:27:37Z",
     "stars": 10
   },
   {
@@ -1334,8 +1334,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-01-10T21:04:03Z",
-    "updatedAt": "2026-11-12T14:58:37Z",
-    "stars": 45741
+    "updatedAt": "2026-11-22T17:47:10Z",
+    "stars": 45846
   },
   {
     "id": "composable-architecture",
@@ -1366,7 +1366,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2020-05-03T23:18:40Z",
     "updatedAt": "2026-11-05T06:02:49Z",
-    "stars": 15024
+    "stars": 15038
   },
   {
     "id": "mobius-swift",
@@ -1396,7 +1396,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2019-03-04T13:52:24Z",
     "updatedAt": "2026-08-05T11:10:36Z",
-    "stars": 583
+    "stars": 582
   },
   {
     "id": "mobius",
@@ -1425,8 +1425,8 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-01-19T14:07:51Z",
-    "updatedAt": "2026-08-07T08:54:04Z",
-    "stars": 1265
+    "updatedAt": "2026-11-23T15:01:50Z",
+    "stars": 1263
   },
   {
     "id": "mobius-kt",
@@ -1455,7 +1455,7 @@
     "verified": true,
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2018-09-08T17:01:45Z",
-    "updatedAt": "2026-11-13T20:51:43Z",
+    "updatedAt": "2026-11-19T20:09:12Z",
     "stars": 75
   },
   {
@@ -1684,7 +1684,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13T08:10:20Z",
-    "stars": 64,
+    "stars": 66,
     "createdAt": "2024-12-10T15:36:03Z",
     "updatedAt": "2026-10-07T20:26:45Z"
   },
@@ -1714,7 +1714,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13T08:10:20Z",
-    "stars": 17,
+    "stars": 18,
     "createdAt": "2026-06-21T09:02:46Z",
     "updatedAt": "2026-10-29T14:23:13Z"
   },
@@ -1743,9 +1743,9 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13T08:10:20Z",
-    "stars": 201,
+    "stars": 206,
     "createdAt": "2026-04-23T18:27:20Z",
-    "updatedAt": "2026-11-15T22:04:30Z"
+    "updatedAt": "2026-11-18T14:10:47Z"
   },
   {
     "id": "zigzag",
@@ -1772,7 +1772,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13T08:10:20Z",
-    "stars": 588,
+    "stars": 592,
     "createdAt": "2026-01-31T09:54:52Z",
     "updatedAt": "2026-10-13T14:50:49Z"
   },
@@ -1838,7 +1838,7 @@
     "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 443,
     "createdAt": "2026-03-10T18:45:31Z",
-    "updatedAt": "2026-11-16T04:57:25Z"
+    "updatedAt": "2026-11-22T07:40:46Z"
   },
   {
     "id": "abies",
@@ -1962,7 +1962,7 @@
     "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 91,
     "createdAt": "2025-06-29T00:01:18Z",
-    "updatedAt": "2026-11-11T12:46:29Z"
+    "updatedAt": "2026-11-19T10:26:33Z"
   },
   {
     "id": "meltea",
@@ -1995,7 +1995,7 @@
     "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 7,
     "createdAt": "2026-11-04T17:12:06Z",
-    "updatedAt": "2026-11-16T13:28:55Z"
+    "updatedAt": "2026-11-17T17:12:29Z"
   },
   {
     "id": "purescript-oak",
@@ -2144,9 +2144,9 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-13T08:10:20Z",
-    "stars": 31,
+    "stars": 32,
     "createdAt": "2023-06-04T08:48:55Z",
-    "updatedAt": "2026-11-04T18:06:41Z"
+    "updatedAt": "2026-11-17T05:17:32Z"
   },
   {
     "id": "oolong",
@@ -2302,7 +2302,7 @@
     "discoveredAt": "2026-11-13T08:10:20Z",
     "stars": 1,
     "createdAt": "2026-10-16T22:06:40Z",
-    "updatedAt": "2026-11-16T13:37:24Z"
+    "updatedAt": "2026-11-23T15:43:13Z"
   },
   {
     "id": "hypertea",
@@ -2699,9 +2699,9 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-14T08:40:21Z",
-    "stars": 195,
+    "stars": 197,
     "createdAt": "2026-08-06T20:25:13Z",
-    "updatedAt": "2026-11-16T06:47:45Z"
+    "updatedAt": "2026-11-21T12:57:23Z"
   },
   {
     "id": "actomaton",
@@ -2731,7 +2731,7 @@
     ],
     "verified": true,
     "discoveredAt": "2026-11-14T08:40:21Z",
-    "stars": 265,
+    "stars": 264,
     "createdAt": "2021-09-05T12:35:44Z",
     "updatedAt": "2026-10-24T10:23:53Z"
   },
@@ -2798,7 +2798,7 @@
     "discoveredAt": "2026-11-14T10:00:55Z",
     "stars": 82,
     "createdAt": "2025-03-16T23:47:39Z",
-    "updatedAt": "2026-11-16T04:57:45Z"
+    "updatedAt": "2026-11-23T04:30:58Z"
   },
   {
     "id": "xelmish",
@@ -2989,7 +2989,7 @@
     "discoveredAt": "2026-11-13T07:24:58Z",
     "createdAt": "2014-12-05T11:08:39Z",
     "updatedAt": "2026-05-05T15:55:07Z",
-    "stars": 5545
+    "stars": 5544
   },
   {
     "id": "raj",
@@ -3084,7 +3084,7 @@
     "discoveredAt": "2026-11-16T14:09:10Z",
     "stars": 5,
     "createdAt": "2024-10-10T17:39:10Z",
-    "updatedAt": "2026-01-27T14:36:41Z"
+    "updatedAt": "2026-11-20T18:56:18Z"
   },
   {
     "id": "ratatui-elm",
@@ -3148,7 +3148,7 @@
     "verified": true,
     "discoveredAt": "2026-11-14T00:57:05Z",
     "createdAt": "2026-04-08T21:06:28Z",
-    "updatedAt": "2026-11-15T17:09:18Z",
-    "stars": 7
+    "updatedAt": "2026-11-22T19:41:45Z",
+    "stars": 8
   }
 ]
