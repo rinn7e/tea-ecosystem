@@ -1218,5 +1218,34 @@
     "createdAt": "2015-02-25T21:44:09Z",
     "updatedAt": "2026-10-11T23:58:47Z",
     "stars": 1602
+  },
+  {
+    "id": "edifice",
+    "name": "Edifice",
+    "language": "Python",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "adjacent",
+    "repo": "https://github.com/pyedifice/pyedifice",
+    "website": "https://pyedifice.github.io/",
+    "summary": "A React-like declarative Python UI framework for Qt, with component-local state and event handlers that update it directly.",
+    "rubric": {
+      "model": "equivalent",
+      "msg": "missing",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "managed",
+      "ports": "equivalent"
+    },
+    "notes": [
+      "Misses Msg and Cmd: Edifice has no closed message type; widget handlers call use_state setters, while side effects run from use_effect/use_async Hooks rather than being returned as Cmd values (https://github.com/pyedifice/pyedifice/blob/master/docs/source/edifice.rst; https://github.com/pyedifice/pyedifice/blob/master/src/edifice/hooks.py).",
+      "Model and update are equivalent: state is kept in separate use_state Hook slots per component, and event handlers set state directly instead of passing a Msg through a pure update function (https://github.com/pyedifice/pyedifice/blob/master/docs/source/tutorial.rst).",
+      "View is native: component render functions map props and state to an Element tree (https://github.com/pyedifice/pyedifice/blob/master/docs/source/edifice.rst).",
+      "Sub is managed: use_async runs tasks bound to a component's lifecycle, restarting them when dependencies change (https://github.com/pyedifice/pyedifice/blob/master/src/edifice/hooks.py).",
+      "Interop is equivalent: use_ref/Reference exposes rendered Elements and their underlying Qt widgets for imperative interaction, rather than a message channel (https://github.com/pyedifice/pyedifice/blob/master/src/edifice/engine.py)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-24T00:54:00Z"
   }
 ]
