@@ -1228,6 +1228,8 @@
     "tier": "adjacent",
     "repo": "https://github.com/pyedifice/pyedifice",
     "website": "https://pyedifice.github.io/",
+    "logo": "edifice.svg",
+    "logoOnLight": true,
     "summary": "A React-like declarative Python UI framework for Qt, with component-local state and event handlers that update it directly.",
     "snippetSource": "https://github.com/pyedifice/pyedifice/blob/master/examples/7guis/7guis_04_timer.py",
     "rubric": {
