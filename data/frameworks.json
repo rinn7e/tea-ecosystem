@@ -3152,39 +3152,6 @@
     "updatedAt": "2026-11-22T01:59:16Z"
   },
   {
-    "id": "ows4444-tui",
-    "name": "tui (ows4444)",
-    "language": "Go",
-    "elmFamily": false,
-    "targets": ["tui"],
-    "tier": "full",
-    "repo": "https://github.com/ows4444/tui",
-    "website": "https://tui.nizaami.com",
-    "summary": "A Go terminal UI framework on the Elm Architecture with no dependencies outside the standard library, a cell-diff renderer, flex and grid layout, 60+ widgets and a headless test harness.",
-    "snippetSource": "https://github.com/ows4444/tui/blob/main/README.md",
-    "rubric": {
-      "model": "native",
-      "msg": "native",
-      "update": "native",
-      "view": "native",
-      "cmd": "native",
-      "sub": "managed",
-      "ports": "managed"
-    },
-    "notes": [
-      "The interface Model has Init() Cmd, Update(Msg) (Model, Cmd) and View() string; the README models are value types that Update returns changed.",
-      "Msg is any, matched with a type switch (tui.Key, mouse, paste and resize events, your own types).",
-      "Cmd is func() Msg: the Program runs it off the render loop and feeds its message back to Update; Batch, Sequence, Tick, FromCtx (with the context of the Program, cancelled when Run returns), Quit, Suspend and terminal helpers such as SetWindowTitle and WriteClipboard build them.",
-      "No subscriptions function, graded like Bubble Tea: Every(d, fn) returns a Cmd that sends a message every d and a function that cancels it, and Tick is re-issued by update.",
-      "Program.Send and TrySend feed messages from outside the program."
-    ],
-    "verified": true,
-    "discoveredAt": "2026-11-23T16:42:15Z",
-    "stars": 0,
-    "createdAt": "2026-10-02T18:56:00Z",
-    "updatedAt": "2026-11-14T18:34:18Z"
-  },
-  {
     "id": "kilim",
     "name": "kilim",
     "language": "OCaml",
