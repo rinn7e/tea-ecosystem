@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "repo": "https://github.com/ows4444/tui",
+    "rejectedAt": "2026-11-25",
+    "reason": "A well made Go TUI framework, but its loop is the one of Bubble Tea, which the catalog already lists with three other Go TUI frameworks, and with 0 stars it does not stand out from them yet. Not a no for good: once it has more users or brings something new to the architecture, open an issue or a pull request and it is welcome to join."
+  }
+]

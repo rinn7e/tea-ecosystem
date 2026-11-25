@@ -7,7 +7,9 @@
 #
 # A new entry merges on its own when:
 #
-# - its repository has at least `MIN_STARS` stars (a project people use);
+# - its repository has at least `MIN_STARS` stars (a project people use;
+#   a smaller one needs a person, who checks that it brings something new:
+#   the small projects of `doc/analysis.md`, section 3);
 # - it was pushed to in the `MAX_IDLE_DAYS` days before the day `$DAY` of
 #   the run, and its `status` is not `archived` (a project alive);
 # - the agent checked every grade against its docs or source
@@ -25,7 +27,7 @@ set -euo pipefail
 # later, as on the runners of GitHub)
 shopt -s inherit_errexit 2>/dev/null || { echo "$0 needs bash 4.4 or later" >&2; exit 2; }
 
-MIN_STARS=5
+MIN_STARS=6
 MAX_IDLE_DAYS=365
 MAX_EXAMPLE_LINES=90
 
