@@ -1218,5 +1218,38 @@
     "createdAt": "2015-02-25T21:44:09Z",
     "updatedAt": "2026-10-11T23:58:47Z",
     "stars": 1602
+  },
+  {
+    "id": "edifice",
+    "name": "Edifice",
+    "language": "Python",
+    "elmFamily": false,
+    "targets": ["desktop"],
+    "tier": "adjacent",
+    "repo": "https://github.com/pyedifice/pyedifice",
+    "website": "https://pyedifice.github.io/",
+    "summary": "A React-like declarative Python UI framework for Qt, with component-local state and event handlers that update it directly.",
+    "snippetSource": "https://github.com/pyedifice/pyedifice/blob/master/examples/7guis/7guis_04_timer.py",
+    "rubric": {
+      "model": "equivalent",
+      "msg": "missing",
+      "update": "equivalent",
+      "view": "native",
+      "cmd": "equivalent",
+      "sub": "managed",
+      "ports": "missing"
+    },
+    "notes": [
+      "Misses Model, Msg, update and Cmd: Edifice has no closed message type; widget handlers call use_state setters, while side effects run from use_effect/use_async Hooks rather than being returned as Cmd values (https://github.com/pyedifice/pyedifice/blob/master/docs/source/edifice.rst; https://github.com/pyedifice/pyedifice/blob/master/src/edifice/hooks.py).",
+      "Model and update are equivalent: state is kept in separate use_state Hook slots per component, and event handlers set state directly instead of passing a Msg through a pure update function (https://github.com/pyedifice/pyedifice/blob/master/docs/source/tutorial.rst).",
+      "View is native: component render functions map props and state to an Element tree (https://github.com/pyedifice/pyedifice/blob/master/docs/source/edifice.rst).",
+      "Sub is managed: use_async runs tasks bound to a component's lifecycle, restarting them when dependencies change (https://github.com/pyedifice/pyedifice/blob/master/src/edifice/hooks.py).",
+      "Ports are missing: the only way to the host is to call it directly; use_ref gives a Reference to a rendered Element and its underlying Qt widget for imperative commands, and App offers start, stop and export_widgets but no handle to send a message in (https://github.com/pyedifice/pyedifice/blob/master/src/edifice/engine.py; https://github.com/pyedifice/pyedifice/blob/master/src/edifice/app.py)."
+    ],
+    "verified": true,
+    "discoveredAt": "2026-11-24T00:54:00Z",
+    "createdAt": "2021-01-21T22:26:21Z",
+    "updatedAt": "2026-09-23T09:19:01Z",
+    "stars": 511
   }
 ]
