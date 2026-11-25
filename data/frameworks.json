@@ -3175,7 +3175,8 @@
       "Cmd.t is a value the runtime runs: None, Batch, Task (an Async.t whose result becomes a message), Latest (a keyed task that cancels the one before it) and Map; kilim.http and kilim.storage give their work as tasks.",
       "Subscriptions are declared from the model (Router.changes, Ws.connect, Sub.window), and the runtime starts and stops them by key.",
       "Kilim_browser.run returns unit, so no handle sends messages in; Async.of_fut wraps any Brr future as a task, the sanctioned way to reach JavaScript.",
-      "Superset: a component (Component.v) keeps its own model, messages, tasks and subscriptions in the runtime, takes typed props and gives typed outputs to its parent (Ctx.emit); an unmount cancels its tasks."
+      "Superset: a component (Component.v) keeps its own model, messages, tasks and subscriptions in the runtime, takes typed props and gives typed outputs to its parent (Ctx.emit); an unmount cancels its tasks.",
+      "New: the first OCaml entry with keyed tasks that cancel the one before (Cmd.Latest) and cancel tokens, with a native test harness of a fake DOM, a virtual clock and HTTP, WebSocket and storage mocks (kilim.testing), and with a wasm_of_ocaml build beside js_of_ocaml; ocaml-vdom, bucklescript-tea and meltea have none of these."
     ],
     "verified": true,
     "discoveredAt": "2026-11-23T16:42:15Z",
