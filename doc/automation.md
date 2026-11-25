@@ -13,12 +13,12 @@ Every Monday, `.github/workflows/discover.yml` runs an AI agent (`scripts/discov
 
 The rules of `scripts/judge-discovered.sh`:
 
-- at least 5 stars;
+- at least 6 stars (a project with 5 or fewer needs a person, who checks that it brings something new: the [small projects](analysis.md#3-inclusion-rubric) of the rubric);
 - pushed to in the last year, and not archived;
 - every grade verified;
 - an example of at most 90 lines, with its source.
 
-It skips what either data file lists, forks, archived, unmaintained, abandoned (no push for two years) and tiny projects, and the projects of `data/rejected.json`. While its pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict.
+It skips what either data file lists, forks, archived, unmaintained, abandoned (no push for two years) and tiny projects, small projects (5 stars or fewer) that bring nothing new, and the projects of `data/rejected.json`. While its pull request is open, the next runs skip their search and spend nothing, so two pull requests never conflict.
 
 ### Settle a pull request by hand
 

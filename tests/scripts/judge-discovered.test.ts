@@ -25,7 +25,7 @@ const goodEntryOf = (id: string) => ({
   id,
   repo: `https://github.com/o/${id}`,
   discoveredAt: `${day}T06:02:11Z`,
-  stars: 5,
+  stars: 6,
   updatedAt: '2025-11-16T22:10:00Z',
   verified: true,
   snippetSource: `https://github.com/o/${id}/blob/main/README.md`,
@@ -91,12 +91,12 @@ describe('judge-discovered.sh', () => {
       [{ entry: { ...goodEntryOf('store'), stars: 3 }, example: exampleOf(3) }],
       'adjacent',
     )
-    expect(judge()).toEqual(['store: 3 stars (at least 5)'])
+    expect(judge()).toEqual(['store: 3 stars (at least 6)'])
   })
 
   it.each<[string, Record<string, unknown>, string]>([
-    ['too few stars', { stars: 4 }, 'tea: 4 stars (at least 5)'],
-    ['no stars', { stars: undefined }, 'tea: 0 stars (at least 5)'],
+    ['5 stars or fewer', { stars: 5 }, 'tea: 5 stars (at least 6)'],
+    ['no stars', { stars: undefined }, 'tea: 0 stars (at least 6)'],
     [
       'no push in a year',
       { updatedAt: '2025-11-15T08:00:00Z' },
@@ -141,7 +141,7 @@ describe('judge-discovered.sh', () => {
       },
     ])
     expect(judge()).toEqual([
-      'tea: 2 stars (at least 5)',
+      'tea: 2 stars (at least 6)',
       'tea: grades not verified',
       'tea: no example',
     ])
