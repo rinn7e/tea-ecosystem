@@ -27,7 +27,7 @@ set -euo pipefail
 # later, as on the runners of GitHub)
 shopt -s inherit_errexit 2>/dev/null || { echo "$0 needs bash 4.4 or later" >&2; exit 2; }
 
-MIN_STARS=6
+MIN_STARS=5
 MAX_IDLE_DAYS=365
 MAX_EXAMPLE_LINES=90
 

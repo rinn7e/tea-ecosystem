@@ -21,7 +21,7 @@ Each entry lives in `data/frameworks.json`, or in `data/adjacent.json` for a lib
 - Each grade is `native`, `managed`, `equivalent` or `missing`. The [rubric](doc/analysis.md#3-inclusion-rubric) says what each means; `equivalent` describes a part and never qualifies a tier.
 - A superset names what it adds beyond TEA in a note that starts with `Superset: `.
 - A TEA-adjacent library starts its notes with the requirements it misses (`Misses Cmd and Sub: ...`).
-- An entry added from 2026-11-25 on with 5 stars or fewer names what it brings that the catalog does not have in a note that starts with `New: ` (the [small projects](analysis.md#3-inclusion-rubric) of the rubric).
+- An entry added from 2026-11-25 on with fewer than 5 stars names what it brings that the catalog does not have in a note that starts with `New: ` (the [small projects](analysis.md#3-inclusion-rubric) of the rubric).
 
 ## Stars and dates
 
