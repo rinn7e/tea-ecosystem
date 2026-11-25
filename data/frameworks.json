@@ -3128,7 +3128,7 @@
     "tier": "full",
     "repo": "https://github.com/Dicklesworthstone/charmed_rust",
     "summary": "A Rust port of the Charm stack (Bubble Tea, Bubbles, Lip Gloss, Huh, Wish), published as the charmed-* crates, with sync and tokio runtimes.",
-    "snippetSource": "https://github.com/Dicklesworthstone/charmed_rust/blob/main/examples/basic/counter/src/main.rs",
+    "snippetSource": "https://github.com/Dicklesworthstone/charmed_rust/blob/main/crates/bubbletea/src/program.rs",
     "rubric": {
       "model": "native",
       "msg": "native",
@@ -3143,7 +3143,8 @@
       "Message is type-erased and matched with downcast_ref (KeyMsg, WindowSizeMsg, your own types).",
       "Cmd wraps a FnOnce() -> Option<Message>; Program runs each on its own thread (or a tokio task for AsyncCmd) and sends the message back to update; batch, sequence, quit, tick, every, exec_process and window_size build them (crates/bubbletea/src/command.rs).",
       "No subscriptions function, graded like Bubble Tea: a timer is a tick or every Cmd that update returns again.",
-      "Program::start returns a ProgramHandle whose send feeds messages from outside, and with_input_receiver forwards a channel into the loop."
+      "Program::start returns a ProgramHandle whose send feeds messages from outside, and with_input_receiver forwards a channel into the loop.",
+      "Its MIT license adds a rider that grants no rights to OpenAI and Anthropic and binds every copy to it, so the example here is our own, written against the Model trait and Program of crates/bubbletea/src/program.rs, not copied from its examples."
     ],
     "verified": true,
     "discoveredAt": "2026-11-23T16:42:15Z",
