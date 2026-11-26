@@ -46,7 +46,7 @@ const browserHistoryFile = 'src/common/util/browser-history.ts'
 const urlWriterFiles = ['src/util/url.ts', 'src/common/util/index.ts']
 const urlWrites = ['pushUrl', 'replaceUrl', 'backOrPushUrl']
 const browserHistoryMessage =
-  'Only `browser-history.ts` touches the history and the location of the browser: the URL follows the destination (`urlWriterOf`).'
+  'Only src/common/util/browser-history.ts touches the history and the location of the browser: the URL is written from the destination by urlWriterOf (doc/code-convention.md, "Navigation and the URL").'
 
 export default tseslint.config([
   // The examples of `data/snippet/` are copied from the docs of each project
@@ -169,7 +169,7 @@ export default tseslint.config([
               group: ['@/common/util', '**/common/util/browser-history'],
               importNames: urlWrites,
               message:
-                'Only the URL writer of the program (`urlWriterOf`) writes the URL: change the destination instead.',
+                'Only the URL writer of the program (urlWriterOf) writes the URL: change the destination instead (doc/code-convention.md, "Navigation and the URL").',
             },
           ],
         },

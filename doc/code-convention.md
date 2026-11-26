@@ -44,7 +44,14 @@ export const setTitleCmd = (model: Model): Cmd<Msg> =>
 
 ## Navigation and the URL
 
-The app owns where it is; the URL only follows. The words:
+The app owns where it is; the URL only follows. This is the architecture of every move of the app, and no change may break it, not even to work around a browser (the swipe back of Safari, a scroll restored too early):
+
+- The URL is a thin wrapper around the destination: written only from it (`destinationOf`, read from the models), after a step, by the one URL writer (`urlWriterOf`, see [No update wrapper (and the URL exception)](#no-update-wrapper-and-the-url-exception)). Nothing else writes the URL or the history: no view, no handler, no `Cmd`.
+- The URL is read only at boot and on the browser back and forward (`UrlChanged`), never to decide anything else.
+- A link, a button or anything else that moves the app only dispatches its message (`Navigate`); the step decides where the app goes, and the URL follows it. It never pushes a URL or saves a scroll itself: the writes that leave an entry save its scroll (`pushUrl`, `backOrPushUrl`).
+- Only `src/common/util/browser-history.ts` touches `window.history`, `location` or `navigation`, and only `src/util/url.ts` imports its writes; ESLint refuses both anywhere else (`eslint.config.js`). A fix that seems to need the history elsewhere belongs in the URL writer instead.
+
+The words:
 
 - **Destination** (`src/common/type/destination/`): where the app is, a `screen` with its params. It is never stored: `destinationOf(model)` (`src/util/destination.ts`) reads it from the models that show it.
 - **Screen**: what the destination shows, with its params (`CatalogScreen` with its `filter`, `FrameworkScreen` with its `frameworkId`, `BuildScreen` with its `language`). The screen components live in `src/screen/`. There are no pages.
