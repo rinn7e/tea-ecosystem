@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 
 import { SetGlobalMsgContext } from '@/common/global-context'
 import { type Destination, toUrlString } from '@/common/type/destination'
-import { pageScrollTop, saveScrollOfEntry } from '@/common/util'
+import { pageScrollTop } from '@/common/util'
 
 // Not memoized: `children` is arbitrary JSX, which has no meaningful Eq
 export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -15,9 +15,11 @@ export type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
 
 // A real anchor: a plain left click navigates in the app, a click with a
 // modifier key or another button keeps the browser's behaviour (a new tab,
-// copying the link). Part of the URL adapter: it saves the scroll of the
-// entry it leaves at the click, before the next screen is drawn (see
-// "Scroll" in `browser-history.ts`).
+// copying the link). It only dispatches its move: the URL writer of the
+// program writes the history after the step (`urlWriterOf`). The move
+// carries the scroll of the page at the click, read and never written
+// here, so the list it leaves comes back at that scroll on a link back
+// (`Model.listScrollY`).
 export const Link = ({
   destination,
   back = false,
@@ -39,7 +41,6 @@ export const Link = ({
       !e.altKey
     ) {
       e.preventDefault()
-      saveScrollOfEntry()
       setGlobalMsg({
         _tag: 'NavigationMsg',
         subMsg: {

@@ -44,8 +44,8 @@ const closePanel = <F extends ListingFilter>(
 }
 
 // A filter change updates the model only: the URL follows after the step
-// (`withUrl`), as a replace while typing a query or changing only the order
-// (`isRefinement`)
+// (`urlWriterOf`), as a replace while typing a query or changing only the
+// order (`isRefinement`)
 export const update = <F extends ListingFilter>(
   msg: Msg,
   model: Model<F>,

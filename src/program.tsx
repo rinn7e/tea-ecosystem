@@ -1,7 +1,7 @@
 import { cmdSucceedWithMsg, devTools } from '@rinn7e/tea-cup-prelude'
 import * as O from 'fp-ts/Option'
 import { pipe } from 'fp-ts/function'
-import { ProgramWithNav } from 'react-tea-cup'
+import { type ProgramInterop, ProgramWithNav } from 'react-tea-cup'
 import { Cmd, type Dispatcher } from 'tea-cup-fp'
 
 import { bootOf } from '@/common/util/boot'
@@ -11,16 +11,22 @@ import { App } from './app'
 import { subscriptions } from './subscription'
 import { type Model, type Msg } from './type'
 import { init, update } from './update'
-import { urlChangedMsg, withUrl } from './util'
+import { urlChangedMsg, urlWriterOf } from './util'
 
 const appView = (dispatch: Dispatcher<Msg>, model: Model) => (
   <App model={model} dispatch={dispatch} />
 )
 
-// Every step goes through `withUrl`, the one wrapper around `update`: the
-// URL follows the destination the step leaves
-const appUpdate = (msg: Msg, model: Model): [Model, Cmd<Msg>] =>
-  withUrl(msg, model, update(msg, model))
+// The URL follows the destination of every step, written by the listener
+// of the program before React draws the step (`urlWriterOf`). One for the
+// app, so it keeps the model of the step before across renders.
+const urlWriter = urlWriterOf()
+
+// The log of every message, on the dev server only. Its listener runs
+// after the URL writer, which the program takes as its one listener.
+const devProgramProps: ProgramInterop<Model, Msg> = import.meta.env.DEV
+  ? devTools<Model, Msg>().getProgramProps()
+  : {}
 
 // The real time and width of the window, after a first render drawn with
 // those of a page rendered ahead of time
@@ -60,10 +66,13 @@ export const AppProgram = () => (
     // The first render draws the model of `init`, so React can hydrate
     // the HTML of a prerendered page (`src/root.tsx`)
     initOnFirstRender
-    update={appUpdate}
+    update={update}
     view={appView}
     subscriptions={subscriptions}
-    // The log of every message, on the dev server only
-    {...(import.meta.env.DEV ? devTools<Model, Msg>().getProgramProps() : {})}
+    {...devProgramProps}
+    listener={(event) => {
+      urlWriter(event)
+      devProgramProps.listener?.(event)
+    }}
   />
 )

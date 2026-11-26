@@ -2,6 +2,10 @@
 
 What changed on [tea.rinn7e.com](https://tea.rinn7e.com/), newest first.
 
+## 2026-11-26
+
+- Going back after a change of filter (a language, a tier) brings the list back at the scroll it was left at, as going back from the page of an entry does.
+
 ## 2026-11-18
 
 - In Safari on a Mac, the button back to the top jumps to the top instead of gliding there: the glide left the page blank on the way up.
