@@ -28,6 +28,26 @@ const moveMakerUses = (makers) =>
       'A move is made only by the navigation (`navigation-handler.ts`): navigate instead.',
   }))
 
+// Import fp-ts and io-ts modules by name ('fp-ts/Option'), so the bundler
+// picks their tree-shakeable ES module build
+const fpTsModulePatterns = [
+  {
+    group: ['fp-ts/lib/*', 'fp-ts/es6/*', 'io-ts/lib/*', 'io-ts/es6/*'],
+    message: "Import from 'fp-ts/<Module>' instead.",
+  },
+]
+
+// The URL is a thin wrapper (code-convention.md, "No update wrapper (and the
+// URL exception)"): only `browser-history.ts` touches the history, the
+// location and the Navigation API of the browser, and only the URL writer of
+// the program (`src/util/url.ts`) calls its writes, from the destination
+// after a step. The view, a handler or a command never writes the URL.
+const browserHistoryFile = 'src/common/util/browser-history.ts'
+const urlWriterFiles = ['src/util/url.ts', 'src/common/util/index.ts']
+const urlWrites = ['pushUrl', 'replaceUrl', 'backOrPushUrl']
+const browserHistoryMessage =
+  'Only `browser-history.ts` touches the history and the location of the browser: the URL follows the destination (`urlWriterOf`).'
+
 export default tseslint.config([
   // The examples of `data/snippet/` are copied from the docs of each project
   // and shown as text, not built; local tools may keep extra worktrees under
@@ -84,24 +104,7 @@ export default tseslint.config([
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'error',
-      // Import fp-ts and io-ts modules by name ('fp-ts/Option'), so the
-      // bundler picks their tree-shakeable ES module build
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: [
-                'fp-ts/lib/*',
-                'fp-ts/es6/*',
-                'io-ts/lib/*',
-                'io-ts/es6/*',
-              ],
-              message: "Import from 'fp-ts/<Module>' instead.",
-            },
-          ],
-        },
-      ],
+      'no-restricted-imports': ['error', { patterns: fpTsModulePatterns }],
       'unused-imports/no-unused-vars': [
         'warn',
         {
@@ -127,6 +130,49 @@ export default tseslint.config([
       'no-restricted-syntax': [
         'error',
         ...moveMakerUses(['currentScreenModelOfMove']),
+      ],
+    },
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    ignores: [browserHistoryFile],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        ...['history', 'location', 'navigation'].map((name) => ({
+          name,
+          message: browserHistoryMessage,
+        })),
+      ],
+      'no-restricted-properties': [
+        'error',
+        ...['history', 'location', 'navigation'].map((property) => ({
+          object: 'window',
+          property,
+          message: browserHistoryMessage,
+        })),
+      ],
+    },
+  },
+  {
+    // Replaces the rule of the block above for these files, so it carries
+    // the fp-ts patterns too
+    files: ['**/*.{ts,tsx}'],
+    ignores: [browserHistoryFile, ...urlWriterFiles],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            ...fpTsModulePatterns,
+            {
+              group: ['@/common/util', '**/common/util/browser-history'],
+              importNames: urlWrites,
+              message:
+                'Only the URL writer of the program (`urlWriterOf`) writes the URL: change the destination instead.',
+            },
+          ],
+        },
       ],
     },
   },
